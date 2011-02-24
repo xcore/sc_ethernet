@@ -1,0 +1,42 @@
+XMOS ETHERNET MAC CHANGELOG
+----------------------------
+1v3 (18th February 2009)
+   * Moved to new build/packaging system
+
+1V1 (5th January 2010)
+   * Bug fixes
+   * Separated TX/RX buffer queues
+   * Added application configuration ethernet_conf.h
+
+1V0 (10th October 2009)
+   * Major implementation change 
+   * Performance improvements
+   * New api to reflect new XC language features
+   * Two port switch interface available
+   * New makefile structure 
+
+0.2.0
+
+   * Major implementation changes - all code now in xc
+
+0.1.2
+
+   * Zipped up XEs so that they are available on Xlinkers
+   * Fixes to README.txt
+   * Corrected version numbers in headers etc.
+   * Tagged as ETHERNET_MAC_0_1_2_AGAIN because CVS is stupid
+
+0.1.1
+
+   * Fixed Makefile for Windows
+   * Documented filters in API.txt
+   * Polished naming in filtering code
+   * Added test3.xc demonstrating ARP/ICMP/UDP and updated README.txt
+   * Added a note about tools version (8.10.2) in README.txt
+   * Added traphandler register to test() thread
+   *Tagged as ETHERNET_MAC_0_1_1
+
+0.1
+
+   * Initial release
+   * Tagged as ETHERNET_MAC_0_1
