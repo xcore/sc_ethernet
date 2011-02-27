@@ -1,0 +1,159 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Source code structure &mdash; Ethernet Component v1v4 documentation</title>
+    <link rel="stylesheet" href="_static/xdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1v4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ethernet Component v1v4 documentation" href="index.html" />
+    <link rel="up" title="Programming Guide" href="programming.html" />
+    <link rel="next" title="A Sample Ethernet Application (tutorial)" href="app_tutorial.html" />
+    <link rel="prev" title="Getting started" href="getting_started.html" /> 
+
+<script>
+function setheight() {
+h1 = document.getElementById('d1').style.height;
+h2 = document.getElementById('d2').style.height;
+
+if (parseInt(h1) > parseInt(h2)) {
+document.getElementById('d2').style.height=h1 + "px";
+}
+else {
+document.getElementById('d1').style.height=h2 + "px";
+}
+
+}
+</script>
+</head>
+
+<body onload="setheight();">
+
+  
+
+    <div class="document" id='d1'>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+<div style="float: right">
+<a href="getting_started.html"
+                        title="previous chapter"> &lt&lt </a>
+<a href="app_tutorial.html"
+                        title="next chapter"> &gt&gt </a></p>
+</div>
+
+            
+  <div class="section" id="source-code-structure">
+<h1>Source code structure<a class="headerlink" href="#source-code-structure" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="directory-structure">
+<h2>Directory Structure<a class="headerlink" href="#directory-structure" title="Permalink to this headline">¶</a></h2>
+<p>A typical ethernet application will have at least three top level
+directories. The application will be contained in a directory starting
+with <tt class="docutils literal"><span class="pre">app_</span></tt>, the ethernet component source is in the
+<tt class="docutils literal"><span class="pre">module_ethernet</span></tt> directory and the directory <tt class="docutils literal"><span class="pre">module_xmos_common</span></tt>
+contains files required to build the application.</p>
+<div class="highlight-none"><div class="highlight"><pre>app_[my_app_name]/
+module_ethernet/
+module_xmos_common
+</pre></div>
+</div>
+<p>Of course the application may use other modules which can also be
+directories at this level. Which modules are compiled into the
+application is controlled by the <tt class="docutils literal"><span class="pre">USED_MODULES</span></tt> define in the
+application Makefile.</p>
+</div>
+<div class="section" id="key-files">
+<h2>Key Files<a class="headerlink" href="#key-files" title="Permalink to this headline">¶</a></h2>
+<p>The following header files contain prototypes of all functions
+required to use use the ethernet component. The API is described in
+Section <a class="reference internal" href="api.html#sec-api"><em>API</em></a>.</p>
+<table border="1" class="docutils">
+<caption>Key Files</caption>
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">File</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><tt class="docutils literal"><span class="pre">ethernet_server.h</span></tt></td>
+<td>Ethernet Server API header file</td>
+</tr>
+<tr><td><tt class="docutils literal"><span class="pre">ethernet_rx_client.h</span></tt></td>
+<td>Ethernet Client API header file (RX)</td>
+</tr>
+<tr><td><tt class="docutils literal"><span class="pre">ethernet_tx_client.h</span></tt></td>
+<td>Ethernet Client API header file (TX)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" id='d2'>
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hw.html">H/W Development Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system.html">Ethernet Mac Description</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="programming.html">Programming Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">Source code structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#directory-structure">Directory Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#key-files">Key Files</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="app_tutorial.html">A Sample Ethernet Application (tutorial)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+
+
+    <div class="footer">
+    </div>
+  </body>
+</html>
+
+
+

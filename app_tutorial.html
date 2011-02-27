@@ -1,0 +1,338 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>A Sample Ethernet Application (tutorial) &mdash; Ethernet Component v1v4 documentation</title>
+    <link rel="stylesheet" href="_static/xdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1v4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ethernet Component v1v4 documentation" href="index.html" />
+    <link rel="up" title="Programming Guide" href="programming.html" />
+    <link rel="next" title="API" href="api.html" />
+    <link rel="prev" title="Source code structure" href="structure.html" /> 
+
+<script>
+function setheight() {
+h1 = document.getElementById('d1').style.height;
+h2 = document.getElementById('d2').style.height;
+
+if (parseInt(h1) > parseInt(h2)) {
+document.getElementById('d2').style.height=h1 + "px";
+}
+else {
+document.getElementById('d1').style.height=h2 + "px";
+}
+
+}
+</script>
+</head>
+
+<body onload="setheight();">
+
+  
+
+    <div class="document" id='d1'>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+<div style="float: right">
+<a href="structure.html"
+                        title="previous chapter"> &lt&lt </a>
+<a href="api.html"
+                        title="next chapter"> &gt&gt </a></p>
+</div>
+
+            
+  <div class="section" id="a-sample-ethernet-application-tutorial">
+<h1>A Sample Ethernet Application (tutorial)<a class="headerlink" href="#a-sample-ethernet-application-tutorial" title="Permalink to this headline">¶</a></h1>
+<p>This tutorial describes a demo included in the xmos ethernet
+package. The demo can be found in the directory app_ethernet_demo and
+provides a simple ethernet application that responds to ICMP ping
+requests. It assumes a basic knowledge of XC programming. For
+information on XMOS programming, you can find reference material about
+XC programming online at <a class="reference external" href="http://www.xmos.com/support/documentation">http://www.xmos.com/support/documentation</a>.</p>
+<p>To write an ethernet enabled application for an XMOS device requires
+several things:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Write a Makefile for our application</li>
+<li>Provide an ethernet_conf.h configuration file</li>
+<li>Provide a custom filter function</li>
+<li>Write the application code that uses the component</li>
+</ol>
+</div></blockquote>
+<div class="section" id="makefile">
+<h2>Makefile<a class="headerlink" href="#makefile" title="Permalink to this headline">¶</a></h2>
+<p>The Makefile is found in the top level directory of the
+application. It uses the general XMOS makefile in module_xmos_common
+which compiles all the source files in the application and the modules
+that the application uses. We only have to add a couple of
+configuration options.</p>
+<p>Firstly, this application is for an XC-2 development board so the
+TARGET variable needs to be set in the Makefile.</p>
+<div class="highlight-none"><div class="highlight"><pre># The TARGET variable determines what target system the application is
+# compiled for. It either refers to an XN file in the source directories
+# or a valid argument for the --target option when compiling.
+
+TARGET = XC-2
+</pre></div>
+</div>
+<p>Secondly, the application will use the ethernet module (and the locks
+module which is required by the ethernet module). So we state that the
+application uses these.</p>
+<div class="highlight-none"><div class="highlight"><pre># The USED_MODULES variable lists other module used by the application.
+
+USED_MODULES = module_ethernet module_locks
+</pre></div>
+</div>
+<p>Given this information, the common Makefiles will build all the files
+in the required modules when building the application. This works from
+the command line (using xmake) or from Eclipse.</p>
+</div>
+<div class="section" id="ethernet-conf-h">
+<h2>ethernet_conf.h<a class="headerlink" href="#ethernet-conf-h" title="Permalink to this headline">¶</a></h2>
+<p>The ethernet_conf.h file is found in the src/ directory of the
+application. This file contains a series of #defines that configure
+the ethernet stack. The possible #defines that can be set are
+described in the <em class="xref std std-ref">conf-defines</em> section.</p>
+<p>Within this application we set the maximum packet size we can receive
+to be the maximum possible allowed in the ethernet standard and set
+the number of buffers to be 5 packets for incoming packets and 5 for
+outgoing.</p>
+<p>The maximum number of ethernet clients (chanends we can connect to the
+ethernet server) is set to 4 (even though we only have one client in
+this example).</p>
+<div class="highlight-none"><div class="highlight"><pre>#define MAX_ETHERNET_PACKET_SIZE (1518)
+
+#define NUM_MII_RX_BUF 5
+#define NUM_MII_TX_BUF 5
+
+#define MAX_ETHERNET_CLIENTS   (4)    
+</pre></div>
+</div>
+</div>
+<div class="section" id="mac-custom-filter">
+<h2>mac_custom_filter<a class="headerlink" href="#mac-custom-filter" title="Permalink to this headline">¶</a></h2>
+<p>The mac_custom_filter function allows use to decide which packets get
+passed through the MAC. To do this, we have to provide the
+mac_custom_filter.h header file and a definition of the
+mac_custom_filter function itself.</p>
+<p>The header file in this example just prototypes the mac_custom_filter
+function itself.</p>
+<div class="highlight-none"><div class="highlight"><pre>extern int mac_custom_filter(unsigned int data[]);
+</pre></div>
+</div>
+<p>The module requires the application to provide the header to cater for
+the case where the function is describe as an inline function for
+performance. In this case it is just prototyped and the definition of
+mac_custom_filter is in our main application code file demo.xc</p>
+<div class="highlight-none"><div class="highlight"><pre>int mac_custom_filter(unsigned int data[]){
+	char addr[6];
+
+	addr[0] = mac_address[0];
+	addr[1] = mac_address[0] &gt;&gt; 8;
+	addr[2] = mac_address[0] &gt;&gt; 16;
+	addr[3] = mac_address[0] &gt;&gt; 24;
+	addr[4] = mac_address[1];
+	addr[5] = mac_address[1] &gt;&gt; 8;
+
+	if (is_broadcast((data,char[])) &amp;&amp;
+            is_ethertype((data,char[]), ethertype_arp)){
+		return 1;
+	}else if (is_mac_addr((data,char[]), addr) &amp;&amp;
+                  is_ethertype((data,char[]), ethertype_ip)){          
+		return 1;
+	}
+
+	return 0;
+}
+</pre></div>
+</div>
+<p>This function returns 0 if we do not want to handle the packet and
+non-zero otherwise. The non-zero value is used later to distribute to
+different clients. In this case we detect ARP packets and ICMP packets
+which match our own mac address as a destination. In this case the
+function returns 1. The defintions os is_broadcast, is_ethertype and
+is_mac_addr are in demo.xc</p>
+</div>
+<div class="section" id="top-level-program-structure">
+<h2>Top level program structure<a class="headerlink" href="#top-level-program-structure" title="Permalink to this headline">¶</a></h2>
+<p>Now that we have the basic ethernet building blocks, we can build our
+application. This application is contained in demo.xc. Within this
+file is the main() function which declares some variables (primarily
+XC channels). It also contains a top level par construct which sets
+the various functional units running that make up the program.</p>
+<p>On core 2 we run the ethernet server. First, the function <a class="reference internal" href="api.html#ethernet_getmac_otp" title="ethernet_getmac_otp"><tt class="xref c c-func docutils literal"><span class="pre">ethernet_getmac_otp()</span></tt></a> reads the device mac address from ROM. The
+function <a class="reference internal" href="api.html#phy_init" title="phy_init"><tt class="xref c c-func docutils literal"><span class="pre">phy_init()</span></tt></a> initializes the phy and them the main function
+<a class="reference internal" href="api.html#ethernet_server" title="ethernet_server"><tt class="xref c c-func docutils literal"><span class="pre">ethernet_server()</span></tt></a> runs the ethernet component. The server
+communicates with other threads via the rx and tx channel arrays.</p>
+<div class="highlight-none"><div class="highlight"><pre>      on stdcore[2]:
+      {
+		ethernet_getmac_otp(otp_data, otp_addr, otp_ctrl, (mac_address, char[]));
+		phy_init(clk_smi,
+#ifdef PORT_ETH_RST_N
+               p_mii_resetn,
+#else
+               null,
+#endif
+                 smi,
+                 mii);
+        ethernet_server(mii, mac_address,
+                        rx, 1,
+                        tx, 1,
+                        null,
+                        null);
+      }
+</pre></div>
+</div>
+<p>On core 0 we run the demo() function which takes ethernet packets and
+responds to ICMP ping requests. This function is described in the next section.</p>
+<div class="highlight-none"><div class="highlight"><pre>      on stdcore[0] : demo(tx[0], rx[0]);
+</pre></div>
+</div>
+</div>
+<div class="section" id="ethernet-packet-processing">
+<h2>Ethernet packet processing<a class="headerlink" href="#ethernet-packet-processing" title="Permalink to this headline">¶</a></h2>
+<p>The demo() function does the actual ethernet packet processing. First
+the application gets the device mac address from the ethernet server
+on core 2.</p>
+<div class="highlight-none"><div class="highlight"><pre>  mac_get_macaddr(tx, own_mac_addr);
+</pre></div>
+</div>
+<p>Then the packet filter is set up. The mask value passed to
+<a class="reference internal" href="api.html#mac_set_custom_filter" title="mac_set_custom_filter"><tt class="xref c c-func docutils literal"><span class="pre">mac_set_custom_filter()</span></tt></a> is used within the mac. After the
+custom_mac_filter function is run, if the result is non-zero then the
+result is and-ed against the mask. If this is non-zero then the packet
+is forwarded to the client.</p>
+<p>So in this case, the mask is 1 so all packets that get a 1 result from
+custom_mac_filter function will get passed to this client.</p>
+<div class="highlight-none"><div class="highlight"><pre>  mac_set_custom_filter(rx, 0x1);
+</pre></div>
+</div>
+<p>After we are set up to receive the correct packets we can go into the
+main loop that responds to ARP and ICMP packets.</p>
+<p>The first task in the loop is to receive a packet into the rxbuf
+buffer using the <a class="reference internal" href="api.html#mac_rx" title="mac_rx"><tt class="xref c c-func docutils literal"><span class="pre">mac_rx()</span></tt></a> function.</p>
+<div class="highlight-none"><div class="highlight"><pre>  while (1)
+  {
+    unsigned int src_port;
+    unsigned int nbytes;
+    mac_rx(rx, rxbuf, nbytes, src_port);
+    printstr(&quot;packet\n&quot;);
+</pre></div>
+</div>
+<p>When the packet is received it may be an ARP or IP packet since both
+get past our filter. First we check if it is an ARP packet, if so then
+we build the response (in the txbuf array) and send it out over
+ethernet using the <a class="reference internal" href="api.html#mac_tx" title="mac_tx"><tt class="xref c c-func docutils literal"><span class="pre">mac_tx()</span></tt></a> function. The functions
+is_valid_arp_packet and build_arp_response are defined demo.xc.</p>
+<div class="highlight-none"><div class="highlight"><pre>    if (is_valid_arp_packet(rxbuf, nbytes))
+      {
+        build_arp_response(rxbuf, txbuf, own_mac_addr);
+        mac_tx(tx, txbuf, nbytes, ETH_BROADCAST);
+        printstr(&quot;ARP response sent\n&quot;);
+      }
+</pre></div>
+</div>
+<p>If the packet is not an ARP packet we check if it is an ICMP packet
+and in the same way build a response and send it out.</p>
+<div class="highlight-none"><div class="highlight"><pre>    else if (is_valid_icmp_packet(rxbuf, nbytes))
+      {
+        build_icmp_response(rxbuf, (txbuf, unsigned char[]), own_mac_addr);
+        mac_tx(tx, txbuf, nbytes, ETH_BROADCAST);
+        printstr(&quot;ICMP response sent\n&quot;);
+      }
+</pre></div>
+</div>
+</div>
+<div class="section" id="running-the-application">
+<h2>Running the application<a class="headerlink" href="#running-the-application" title="Permalink to this headline">¶</a></h2>
+<p>To test the application the following define in demo.xc needs to be
+set to an IP address that is routable in the network that the
+application is to be tested on.</p>
+<div class="highlight-none"><div class="highlight"><pre>// NOTE: YOU MAY NEED TO REDEFINE THIS TO AN IP ADDRESS THAT WORKS
+// FOR YOUR NETWORK
+#define OWN_IP_ADDRESS {169, 254, 5, 27}
+</pre></div>
+</div>
+<p>Once this is done, the demo can be compiled and the XC-2 connected to
+a PC. Pinging the IP address defined should now get a response e.g.:</p>
+<div class="highlight-none"><div class="highlight"><pre>PING 192.168.0.3 (192.168.0.3) 56(84) bytes of data.
+64 bytes from 192.168.0.3: icmp_seq=1 ttl=64 time=2.97 ms
+64 bytes from 192.168.0.3: icmp_seq=2 ttl=64 time=2.93 ms
+64 bytes from 192.168.0.3: icmp_seq=3 ttl=64 time=2.91 ms
+64 bytes from 192.168.0.3: icmp_seq=4 ttl=64 time=2.96 ms
+...
+</pre></div>
+</div>
+</div>
+</div>
+
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" id='d2'>
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hw.html">H/W Development Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system.html">Ethernet Mac Description</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="programming.html">Programming Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="structure.html">Source code structure</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">A Sample Ethernet Application (tutorial)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#makefile">Makefile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ethernet-conf-h">ethernet_conf.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mac-custom-filter">mac_custom_filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#top-level-program-structure">Top level program structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ethernet-packet-processing">Ethernet packet processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#running-the-application">Running the application</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+
+
+    <div class="footer">
+    </div>
+  </body>
+</html>
+
+
+

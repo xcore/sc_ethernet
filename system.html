@@ -1,0 +1,233 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Ethernet Mac Description &mdash; Ethernet Component v1v4 documentation</title>
+    <link rel="stylesheet" href="_static/xdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1v4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ethernet Component v1v4 documentation" href="index.html" />
+    <link rel="next" title="Programming Guide" href="programming.html" />
+    <link rel="prev" title="H/W Development Platforms" href="hw.html" /> 
+
+<script>
+function setheight() {
+h1 = document.getElementById('d1').style.height;
+h2 = document.getElementById('d2').style.height;
+
+if (parseInt(h1) > parseInt(h2)) {
+document.getElementById('d2').style.height=h1 + "px";
+}
+else {
+document.getElementById('d1').style.height=h2 + "px";
+}
+
+}
+</script>
+</head>
+
+<body onload="setheight();">
+
+  
+
+    <div class="document" id='d1'>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+<div style="float: right">
+<a href="hw.html"
+                        title="previous chapter"> &lt&lt </a>
+<a href="programming.html"
+                        title="next chapter"> &gt&gt </a></p>
+</div>
+
+            
+  <div class="section" id="ethernet-mac-description">
+<h1>Ethernet Mac Description<a class="headerlink" href="#ethernet-mac-description" title="Permalink to this headline">¶</a></h1>
+<p>The ethernet MAC runs in 5 threads on a core communicating to client
+threads over channels. The above figure shows the layout. The server
+can connect to several clients and each channel connection to the
+server is for either RX (receiving packets from the MAC) or TX
+(transmitting packets to the MAC) operation.</p>
+<div class="figure">
+<img alt="_images/mac.png" src="_images/mac.png" />
+</div>
+<div class="section" id="buffers-and-queues">
+<h2>Buffers and Queues<a class="headerlink" href="#buffers-and-queues" title="Permalink to this headline">¶</a></h2>
+<p>The MAC maintains a two sets of buffers: one for incoming packets and
+one for outgoing packets. These buffers are arranged into several
+queues.</p>
+<p>Incoming buffers move around the different queues as follows:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Empty buffers are in the incoming queue awaiting a packet coming
+in from the MII interfaces</li>
+<li>Buffers received from the MII interface a filtered (see below)
+and if they need to be kept then are moved into a forwarding
+queue.</li>
+<li>Buffers in the forwarding queue are moved into a client queue
+depending on which client registered for that type of
+packet.</li>
+<li>One the data from a buffer has been sent to a client the buffer
+is moved back into the incoming queue.</li>
+</ul>
+</div></blockquote>
+<p>Outgoing buffers move around the different queues as follows:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Empty buffers are an empty queue awaiting a packet coming
+in from a client.</li>
+<li>Once the data is received the buffer is moved into a transmit
+queue awaiting output on the MII interface.</li>
+<li>Once the data is transmitted, the buffer is released back to the
+empty queue.</li>
+</ul>
+</div></blockquote>
+<p>The number of buffers available can be set in the <tt class="docutils literal"><span class="pre">ethernet_conf.h</span></tt>
+configuration file (see Section <a class="reference internal" href="api.html#sec-conf-defines"><em>Configuration Defines</em></a>).</p>
+</div>
+<div class="section" id="filtering">
+<h2>Filtering<a class="headerlink" href="#filtering" title="Permalink to this headline">¶</a></h2>
+<p>After incoming packets are received they are filtered. An initial
+filter is done where the packet is dropped unless:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>The packet is destined for the hosts MAC address or</li>
+<li>The packet is destined for a MAC address with the broadcast bit
+set</li>
+</ol>
+</div></blockquote>
+<p>After this initial filter, a user filter is supplied. To maintain the
+maximum amount of flexibility and efficiency the application must
+supply custom code to perform this filtering.</p>
+<p>The user must supply a definition of the function
+<a class="reference internal" href="api.html#mac_custom_filter" title="mac_custom_filter"><tt class="xref c c-func docutils literal"><span class="pre">mac_custom_filter()</span></tt></a>. This function can inspect incoming
+packets in any manner suitable for applications and then returns
+either 0 if the packet is to be dropped or number which the clients
+can then use to determine which packets they wish to receive (using
+the client function <a class="reference internal" href="api.html#mac_set_custom_filter" title="mac_set_custom_filter"><tt class="xref c c-func docutils literal"><span class="pre">mac_set_custom_filter()</span></tt></a>.</p>
+</div>
+<div class="section" id="timestamping">
+<h2>Timestamping<a class="headerlink" href="#timestamping" title="Permalink to this headline">¶</a></h2>
+<p>On receipt of a ethernet frame over MII a timestamp is taken of the
+100Mhz reference timer on the core that the ethernet server is
+running on. The timestamp is taken at the end of the preamble
+immediately before the frame itself. This timestamp will be accurate
+to within 40ns. The timestamp is stored with the buffer data and can
+be retrieved by the client by using the <a class="reference internal" href="api.html#mac_rx_timed" title="mac_rx_timed"><tt class="xref c c-func docutils literal"><span class="pre">mac_rx_timed()</span></tt></a> function.</p>
+<p>On transmission of a ethernet frame over MII a timestamp is also
+taken. The timestamp is also taken at the end of the preamble
+immediately before the frame itself and is accurate to within 40ns.
+The client can retreive the timestamp using the <a class="reference internal" href="api.html#mac_tx_timed" title="mac_tx_timed"><tt class="xref c c-func docutils literal"><span class="pre">mac_tx_timed()</span></tt></a>
+function. In this case the timestamp is stored on transmission and
+placed in a queue to be sent back to the client thread.</p>
+</div>
+<div class="section" id="mac-address-storage">
+<h2>MAC Address Storage<a class="headerlink" href="#mac-address-storage" title="Permalink to this headline">¶</a></h2>
+<p>The MAC address used for the server is set on instatiation of the
+server (as an argument to the <a class="reference internal" href="api.html#ethernet_server" title="ethernet_server"><tt class="xref c c-func docutils literal"><span class="pre">ethernet_server()</span></tt></a> function).
+This address should be unique for each device. For all XMOS develop
+boards, a unique mac address is stored in the one time programmable
+rom (OTP). To retreive this address the <a class="reference internal" href="api.html#ethernet_getmac_otp" title="ethernet_getmac_otp"><tt class="xref c c-func docutils literal"><span class="pre">ethernet_getmac_otp()</span></tt></a>
+function is provided.</p>
+<p>For information on programming MAC addresses into OTP please contact
+XMOS for detalis.</p>
+</div>
+<div class="section" id="resource-usage">
+<h2>Resource Usage<a class="headerlink" href="#resource-usage" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="threads">
+<h3>Threads<a class="headerlink" href="#threads" title="Permalink to this headline">¶</a></h3>
+<p>The component uses 5 threads which must run at a minimum of 50 MIPs.</p>
+</div>
+<div class="section" id="ports">
+<h3>Ports<a class="headerlink" href="#ports" title="Permalink to this headline">¶</a></h3>
+<p>The MII interface uses 6 x 1 bit and 2 x 4 bit ports.</p>
+</div>
+<div class="section" id="memory">
+<h3>Memory<a class="headerlink" href="#memory" title="Permalink to this headline">¶</a></h3>
+<p>The component has the following memory requirements:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="25%" />
+<col width="75%" />
+</colgroup>
+<tbody valign="top">
+<tr><td>Code</td>
+<td>~15k</td>
+</tr>
+<tr><td>Buffers</td>
+<td>(number of buffers) x <tt class="docutils literal"><span class="pre">MAX_ETHERNET_PACKET_SIZE</span></tt></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" id='d2'>
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hw.html">H/W Development Platforms</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Ethernet Mac Description</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#buffers-and-queues">Buffers and Queues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#filtering">Filtering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#timestamping">Timestamping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mac-address-storage">MAC Address Storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#resource-usage">Resource Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#threads">Threads</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ports">Ports</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#memory">Memory</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="programming.html">Programming Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+
+
+    <div class="footer">
+    </div>
+  </body>
+</html>
+
+
+
