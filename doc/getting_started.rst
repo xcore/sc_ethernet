@@ -6,7 +6,7 @@ Installation
 
 The ethernet repository can be found for download at:
   
-  http://www.github.com/xmos/sc_ethernet
+  http://www.github.com/xcore/sc_ethernet
 
 Building
 --------
