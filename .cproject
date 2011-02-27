@@ -19,7 +19,7 @@
 <folderInfo id="com.xmos.cdt.toolchain.30841826.1961785845" name="/" resourcePath="">
 <toolChain id="com.xmos.cdt.toolchain.331533569" name="com.xmos.cdt.toolchain" superClass="com.xmos.cdt.toolchain">
 <targetPlatform archList="all" binaryParser="com.xmos.cdt.core.XEBinaryParser" id="com.xmos.cdt.core.platform.312514423" isAbstract="false" osList="linux,win32,macosx" superClass="com.xmos.cdt.core.platform"/>
-<builder arguments="-f Makefile" buildPath="${workspace_loc:/sc_ethernet}" command="xmake" id="com.xmos.cdt.builder.base.484433574" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="com.xmos.cdt.builder.base"/>
+<builder arguments="-f Makefile" buildPath="${workspace_loc:/sc_ethernet}" cleanBuildTarget="app_ethernet_tests.clean" command="xmake" id="com.xmos.cdt.builder.base.484433574" incrementalBuildTarget="app_ethernet_tests.all" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="com.xmos.cdt.builder.base"/>
 <tool id="com.xmos.cdt.linker.base.564215645" name="XMOS Mapper" superClass="com.xmos.cdt.linker.base">
 <inputType id="com.xmos.cdt.linker.input.xm.71127389" name="XM File"/>
 <inputType id="com.xmos.cdt.linker.input.1104586842" superClass="com.xmos.cdt.linker.input">
@@ -146,6 +146,22 @@
 <storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 <storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
 <buildTargets>
+<target name="all" path="doc" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+<buildCommand>xmake</buildCommand>
+<buildArguments>-f Makefile</buildArguments>
+<buildTarget>all</buildTarget>
+<stopOnError>true</stopOnError>
+<useDefaultCommand>true</useDefaultCommand>
+<runAllBuilders>true</runAllBuilders>
+</target>
+<target name="html" path="doc" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+<buildCommand>xmake</buildCommand>
+<buildArguments>-f Makefile</buildArguments>
+<buildTarget>html</buildTarget>
+<stopOnError>true</stopOnError>
+<useDefaultCommand>true</useDefaultCommand>
+<runAllBuilders>true</runAllBuilders>
+</target>
 <target name="all" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 <buildCommand>xmake</buildCommand>
 <buildArguments>-f .makefile</buildArguments>
@@ -158,6 +174,14 @@
 <buildCommand>xmake</buildCommand>
 <buildArguments>-f Makefile</buildArguments>
 <buildTarget>app_uart_test.all</buildTarget>
+<stopOnError>true</stopOnError>
+<useDefaultCommand>true</useDefaultCommand>
+<runAllBuilders>true</runAllBuilders>
+</target>
+<target name="app_ethernet_demo.all" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+<buildCommand>xmake</buildCommand>
+<buildArguments>-f Makefile</buildArguments>
+<buildTarget>app_ethernet_demo.all</buildTarget>
 <stopOnError>true</stopOnError>
 <useDefaultCommand>true</useDefaultCommand>
 <runAllBuilders>true</runAllBuilders>
