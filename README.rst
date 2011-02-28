@@ -22,6 +22,8 @@ Firmware Overview
 
 RX and TX are defined as functions which each run in their own thread.
 
+Full documentation can be found at http://xcore.github.com/sc_ethernet/
+
 Known Issues
 ============
 
