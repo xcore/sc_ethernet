@@ -1,14 +1,11 @@
 XCORE.com ETHERNET SOFTWARE COMPONENT
 .................................
 
-:Version: 
-  1v4
+:Stable release:  1v4
 
-:Status:
-  Feature complete
+:Status:  Feature complete
 
-:Maintainer:
-  David Norman, davidn@xmos.com
+:Maintainer:  David Norman, davidn@xmos.com
 
 Key Features
 ============
