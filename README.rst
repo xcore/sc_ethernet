@@ -1,11 +1,13 @@
 XCORE.com ETHERNET SOFTWARE COMPONENT
 .................................
 
-:Stable release:  1v4
+:Stable release:  1.4.0
 
 :Status:  Feature complete
 
-:Maintainer:  David Norman, davidn@xmos.com
+:Brief description: Ethernet MII driver
+
+:Maintainer: https://github.com/DavidNorman
 
 Key Features
 ============
