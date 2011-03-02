@@ -1,13 +1,14 @@
 XCORE.com ETHERNET SOFTWARE COMPONENT
 .................................
 
-:Stable release:  1.4.0
+:Stable release: 1.4.0
 
-:Status:  Feature complete
+:Status: Feature complete
+
+:Maintainer: https://github.com/DavidNorman
 
 :Brief description: Ethernet MII driver
 
-:Maintainer: https://github.com/DavidNorman
 
 Key Features
 ============
@@ -36,4 +37,4 @@ xcommon
 Support
 =======
 
-Issues may be submitted via the Issues tab in this github repo. Response to any issues submitted as at the discretion of the manitainer for this line.
+Issues may be submitted via the Issues tab in this github repo. Response to any issues submitted as at the discretion of the maintainer for this line.
