@@ -1,3 +1,8 @@
+// Copyright (c) 2011, XMOS Ltd, All rights reserved
+// This software is freely distributable under a derivative of the
+// University of Illinois/NCSA Open Source License posted in
+// LICENSE.txt and at <http://github.xcore.com/>
+
 #ifndef __mii_h__
 #define __mii_h__
 #include <xs1.h>

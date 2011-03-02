@@ -1,21 +1,7 @@
-/*************************************************************************
- *
- * Ethernet MAC Layer Client Test Code
- * IEEE 802.3 MAC Client
- *
- *   File        : frame_channel.xc
- *
- *************************************************************************
- *
- * Copyright (c) 2008 XMOS Ltd.
- *
- * Copyright Notice
- *
- *************************************************************************
- *
- * Functions for passing an Ethernet frame over a channel.
- *
- *************************************************************************/
+// Copyright (c) 2011, XMOS Ltd, All rights reserved
+// This software is freely distributable under a derivative of the
+// University of Illinois/NCSA Open Source License posted in
+// LICENSE.txt and at <http://github.xcore.com/>
 
 #include "frame_channel.h"
 #include <print.h>

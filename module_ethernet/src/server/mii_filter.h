@@ -1,3 +1,8 @@
+// Copyright (c) 2011, XMOS Ltd, All rights reserved
+// This software is freely distributable under a derivative of the
+// University of Illinois/NCSA Open Source License posted in
+// LICENSE.txt and at <http://github.xcore.com/>
+
 void one_port_filter(mii_packet_t buf[],
                      const int mac[2],
                      REFERENCE_PARAM(mii_queue_t, free_queue),

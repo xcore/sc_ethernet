@@ -1,24 +1,7 @@
-/*************************************************************************
- *
- * Ethernet MAC Layer Client Test Code
- * IEEE 802.3 MAC Client
- *
- *   File        : checksum.h
- *
- *************************************************************************
- *
- * Copyright (c) 2008 XMOS Ltd.
- *
- * Copyright Notice
- *
- *************************************************************************
- *
- * IP/UDP checksum routines.
- *
- * Note: tcpdump will show bad UDP checksums because they are typically
- * offloaded and computed in hardware which tcpdump doesn't see.
- *
- *************************************************************************/
+// Copyright (c) 2011, XMOS Ltd, All rights reserved
+// This software is freely distributable under a derivative of the
+// University of Illinois/NCSA Open Source License posted in
+// LICENSE.txt and at <http://github.xcore.com/>
 
 #ifndef _checksum_h_
 #define _checksum_h_

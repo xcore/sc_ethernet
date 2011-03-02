@@ -1,13 +1,7 @@
-/*
- * @ModuleName Generic frame work and definations for software component.
- * @Author Ayewin Oung
- * @Date 06/11/2006
- * @Version 1.0
- * @Description: Generic frame work and definations.
- *
- * Copyright XMOS Ltd 2008
- */
-
+// Copyright (c) 2011, XMOS Ltd, All rights reserved
+// This software is freely distributable under a derivative of the
+// University of Illinois/NCSA Open Source License posted in
+// LICENSE.txt and at <http://github.xcore.com/>
 
 #ifndef _SW_COMPS_COMMON_H_
 #define _SW_COMPS_COMMON_H_  1
