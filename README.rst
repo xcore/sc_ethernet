@@ -1,14 +1,13 @@
 XCORE.com ETHERNET SOFTWARE COMPONENT
 .................................
 
-:Version: 
-  1v4
+:Stable release:  1.4.0
 
-:Status:
-  Feature complete
+:Status:  Feature complete
 
-:Maintainer:
-  David Norman, davidn@xmos.com
+:Brief description: Ethernet MII driver
+
+:Maintainer: https://github.com/DavidNorman
 
 Key Features
 ============
@@ -21,6 +20,8 @@ Firmware Overview
 =================
 
 RX and TX are defined as functions which each run in their own thread.
+
+Full documentation can be found at http://xcore.github.com/sc_ethernet/
 
 Known Issues
 ============
