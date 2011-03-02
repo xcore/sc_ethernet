@@ -7,7 +7,7 @@ XCORE.com ETHERNET SOFTWARE COMPONENT
 
 :Maintainer: https://github.com/DavidNorman
 
-:Brief description: Ethernet MII driver
+:Description: Ethernet MII driver
 
 
 
