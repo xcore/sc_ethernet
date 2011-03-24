@@ -1,7 +1,7 @@
 XCORE.com ETHERNET SOFTWARE COMPONENT
 .................................
 
-:Stable release: 1.4.0
+:Stable release: 2.0
 
 :Status: Feature complete
 
@@ -17,6 +17,7 @@ Key Features
    * RX and TX in separate threads
    * Packet filtering by extension function
    * Memory based locking protocol
+   * FIFO based memory allocation for lower RAM overhead
 
 Firmware Overview
 =================

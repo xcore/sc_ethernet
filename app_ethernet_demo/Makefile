@@ -30,7 +30,6 @@ USED_MODULES = module_ethernet.1v4 module_locks.1v1
 
 
 # Use the latest 1v* version of module_xmos_common
-include $(XMOS_COMMON_DIR)/Makefile.common
 -include ../module_xcommon/build/Makefile.common
 -include ../../xcommon/module_xcommon/build/Makefile.common
 
