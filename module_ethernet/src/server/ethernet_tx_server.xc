@@ -73,7 +73,6 @@ void ethernet_tx_server(mii_mempool_t tx_mem,
         case ETHERNET_TX_REQ_TIMED:      
           buf = mii_malloc(tx_mem);
           if (buf) {            
-            //            printhexln(buf);
             if (cmd == ETHERNET_TX_REQ_TIMED)
               set_buf_timestamp_id(buf, i+1);
             else
@@ -113,8 +112,6 @@ void ethernet_tx_server(mii_mempool_t tx_mem,
             set_buf_complete(buf, 1);
             mii_realloc(buf, (length+(3+BUF_DATA_OFFSET*4))&~0x3); 
 
-           
-            //printhexln(buf);
             set_buf_stage(buf, 1);
 #if 0 
             if (dst_port == 0 || num_q == 1) {              

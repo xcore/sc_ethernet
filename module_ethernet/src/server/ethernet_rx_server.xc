@@ -237,10 +237,6 @@ static void processReceivedFrame(int buf,
              else 
                {
                  link_status[i].dropped_pkt_cnt++;
-                 if (i==3)
-                   printstr("d");
-                 //printstr("ERROR: MAC pkt dropped, link ");
-                 //printintln(i);
                }
            }
        }

@@ -20,7 +20,7 @@
 
 #define ERROR printstr("ERROR: "__FILE__ ":"); printintln(__LINE__);
 
-#define MAX_WIRE_DELAY_LOOPBACK 80
+#define MAX_WIRE_DELAY_LOOPBACK 92
 #define MAX_WIRE_DELAY 35000 // 350 us
 #define FILTER_BROADCAST 0xF0000000
 #define MAX_LINKS 4
@@ -114,7 +114,7 @@ void transmitter(chanend tx, chanend ready)
 	// Wait to make sure receiver is ready
 	wait(10000000);
 
-	while (len > 18)
+	while (len > 64)
 	{
 		ready :> int;
 		mac_tx(tx, txbuffer, len, ETH_BROADCAST);
@@ -127,7 +127,7 @@ int receiver(chanend rx, chanend ready)
 	unsigned char rxbuffer[1600];
 	int len = 1000;
 
-	while (len > 18)
+	while (len > 64)
 	{
 		unsigned int src_port;
 		unsigned int nbytes;
@@ -166,7 +166,7 @@ void transmitter_timed(chanend tx, chanend ready, chanend txtime)
 	// Wait to make sure receiver is ready
 	wait(10000000);
 
-	while (len > 18)
+	while (len > 64)
 	{
 		ready :> int;
 		mac_tx_timed(tx, txbuffer, len, time, ETH_BROADCAST);
@@ -181,7 +181,7 @@ int receiver_timed(chanend rx, chanend ready, chanend txtime)
 	int len = 1000;
 	unsigned int rxtime;
 
-	while (len > 18)
+	while (len > 64)
 	{
 		unsigned int src_port;
 		unsigned int nbytes;
@@ -233,7 +233,7 @@ void transmitter_filter(chanend tx, chanend ready)
 	// Wait to make sure receiver is ready
 	wait(10000000);
 
-	while (len > 18)
+	while (len > 64)
 	{
 		for (int i = 0; i < MAX_LINKS; i++)
 		{
@@ -250,7 +250,7 @@ int receiver_filter(chanend rx[], chanend ready, int links)
 	unsigned char rxbuffer[1600];
 	int len = 1000;
 
-	while (len > 18)
+	while (len > 64)
 	{
 		unsigned int src_port;
 		unsigned short etype;
