@@ -130,23 +130,19 @@ void one_port_filter(mii_packet_t buf[],
       c :> i;
 
       j = get_queue_entry(free_queue);
-
-
-      //      if (j==0)
-      //        printstr("mii buffer shortage!\n");
       
       c <: j;
 
       if (i) {
 #ifdef MAC_PROMISCUOUS
+    	  buf[i].filter_result = mac_custom_filter(buf[i].data);
           add_queue_entry(internal_q,i);          
 #else
         if (is_broadcast(buf[i].data[0])          
             ||
             compare_mac(buf[i].data,mac)) 
           {          
-
-          buf[i].filter_result = mac_custom_filter(buf[i].data);
+            buf[i].filter_result = mac_custom_filter(buf[i].data);
             add_queue_entry(internal_q,i);                               
           }
         else
