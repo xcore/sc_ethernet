@@ -1,4 +1,4 @@
-// Copyright (c) 2011, XMOS Ltd, All rights reserved
+// Copyright (c) 2011, XMOS Ltd., All rights reserved
 // This software is freely distributable under a derivative of the
 // University of Illinois/NCSA Open Source License posted in
 // LICENSE.txt and at <http://github.xcore.com/>
@@ -61,6 +61,7 @@ void phy_init_two_port(clock clk_smi,
 }
 
 
+#if 0
 #ifdef SIMULATION
 #define FAST_MODE set_thread_fast_mode_on()
 #else
@@ -92,3 +93,4 @@ void ethernet_server_two_port(mii_interface_t &mii1,
 }
                      
                      
+#endif

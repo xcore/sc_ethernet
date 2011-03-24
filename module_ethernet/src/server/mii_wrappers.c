@@ -1,4 +1,4 @@
-// Copyright (c) 2011, XMOS Ltd, All rights reserved
+// Copyright (c) 2011, XMOS Ltd., All rights reserved
 // This software is freely distributable under a derivative of the
 // University of Illinois/NCSA Open Source License posted in
 // LICENSE.txt and at <http://github.xcore.com/>
@@ -11,26 +11,66 @@
 #include "mii_filter.h"
 #include "ethernet_tx_server.h"
 #include "ethernet_rx_server.h"
+#include "mii_malloc.h"
 
 #include <print.h>
 
+#ifdef TWO_PORT_ETHERNET
+#define NUM_TX_QUEUES 2
+#else
+#define NUM_TX_QUEUES 1
+#endif
 
-mii_queue_t rx_free_queue, tx_free_queue, 
-  filter_queue, internal_queue, ts_queue;
-mii_queue_t tx_queue[2];
+mii_queue_t filter_queue, internal_queue, ts_queue;
 
-mii_packet_t mii_packet_buf[NUM_MII_TX_BUF + NUM_MII_RX_BUF+1];
+mii_queue_t tx_queue[NUM_TX_QUEUES];
+
+
+#ifdef ETHERNET_HP_QUEUE
+#define MII_RX_HP_MEMSIZE \
+      ((MII_RX_BUFSIZE_HIGH_PRIORITY + 2*sizeof(mii_packet_t) + 20)/4)
+#endif
+
+#define MII_RX_LP_MEMSIZE \
+      ((MII_RX_BUFSIZE_LOW_PRIORITY + 2*sizeof(mii_packet_t) + 20)/4)
+
+#define MII_TX_MEMSIZE \
+      ((MII_TX_BUFSIZE + 2*ETHERNET_MAX_TX_PACKET_SIZE + 20)/4)
+
+#ifdef ETHERNET_HP_QUEUE
+int rx_hp_data[MII_RX_HP_MEMSIZE];
+#endif
+
+int rx_lp_data[MII_RX_LP_MEMSIZE];
+int tx_mem_data[MII_TX_MEMSIZE];
+
+
+
+mii_mempool_t rx_mem_hp;
+
+
+mii_mempool_t rx_mem_lp, tx_mem;
+
 
 void init_mii_mem() {
   int i;  
+#ifdef ETHERNET_HP_QUEUE
+  rx_mem_hp = (mii_mempool_t) &rx_hp_data[0];
+#endif
+  rx_mem_lp = (mii_mempool_t) &rx_lp_data[0];
+  tx_mem = (mii_mempool_t) &tx_mem_data[0];
+#ifdef ETHERNET_HP_QUEUE
+  mii_init_mempool(rx_mem_hp, MII_RX_HP_MEMSIZE*4, 1518);
+#endif
+  mii_init_mempool(rx_mem_lp, MII_RX_LP_MEMSIZE*4, 1518);
+  mii_init_mempool(tx_mem, MII_TX_MEMSIZE*4, ETHERNET_MAX_TX_PACKET_SIZE);
+
   init_queues();
-  init_queue(&rx_free_queue, NUM_MII_RX_BUF, 0);
-  init_queue(&tx_free_queue, NUM_MII_TX_BUF, NUM_MII_RX_BUF);
-  init_queue(&filter_queue, 0, 0);
-  init_queue(&internal_queue, 0, 0);
-  init_queue(&ts_queue, 0, 0);
-  for(i=0;i<2;i++)
-    init_queue(&tx_queue[i], 0, 0);
+  init_queue(&filter_queue);
+  init_queue(&internal_queue);
+  init_queue(&ts_queue);
+  for(i=0;i<NUM_TX_QUEUES;i++)
+    init_queue(&tx_queue[i]);
   return;
 }
 
@@ -39,47 +79,43 @@ void mii_rx_pins_wr(port p1,
                     int i,
                     streaming chanend c)
 {
-  mii_rx_pins(&rx_free_queue, mii_packet_buf, p1, p2, i, c);
+  mii_rx_pins(rx_mem_hp, rx_mem_lp, p1, p2, i, c);
 }
 
 
 void mii_tx_pins_wr(port p,
                     int i)
 {
-  mii_tx_pins(mii_packet_buf, &tx_queue[i], &tx_free_queue, &ts_queue, p, i);
+  mii_tx_pins(tx_mem, &tx_queue[i], &ts_queue, p, i);
 }
 
-
+#if 0
 void two_port_filter_wr(const int mac[2], streaming chanend c, streaming chanend d)
 {
   two_port_filter(mii_packet_buf,
-                  mac, 
-                  &rx_free_queue, 
+                  mac,  
                   &internal_queue,
                   &tx_queue[0], 
                   &tx_queue[1],
                   c,
                   d);
 }
-
+#endif
 
 void one_port_filter_wr(const int mac[2], streaming chanend c)
 {
-  one_port_filter(mii_packet_buf,
+  one_port_filter(0,
                   mac, 
-                  &rx_free_queue, 
                   &internal_queue,
                   c);
 }
 
 void ethernet_tx_server_wr(const int mac_addr[2], chanend tx[], int num_q, int num_tx, smi_interface_t *smi1, smi_interface_t *smi2, chanend connect_status)
 {
-  ethernet_tx_server(&tx_free_queue, 
-                     &tx_queue[0], 
-                     &tx_queue[1], 
+  ethernet_tx_server(tx_mem,
+                     tx_queue, 
                      num_q,
                      &ts_queue,
-                     mii_packet_buf,
                      mac_addr,
                      tx,
                      num_tx,
@@ -90,9 +126,9 @@ void ethernet_tx_server_wr(const int mac_addr[2], chanend tx[], int num_q, int n
 
 void ethernet_rx_server_wr(chanend rx[], int num_rx)
 {
-  ethernet_rx_server(&internal_queue, 
-                     &rx_free_queue,
-                     mii_packet_buf,
+  ethernet_rx_server(rx_mem_hp,
+                     rx_mem_lp,
+                     &internal_queue, 
                      rx,
                      num_rx);
 }

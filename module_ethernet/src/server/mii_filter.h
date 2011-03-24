@@ -1,11 +1,15 @@
-// Copyright (c) 2011, XMOS Ltd, All rights reserved
+// Copyright (c) 2011, XMOS Ltd., All rights reserved
 // This software is freely distributable under a derivative of the
 // University of Illinois/NCSA Open Source License posted in
 // LICENSE.txt and at <http://github.xcore.com/>
 
-void one_port_filter(mii_packet_t buf[],
+#ifndef __mii_filter_h__
+#define __mii_filter_h__
+#include "mii_queue.h"
+#include "mii_malloc.h"
+
+void one_port_filter(mii_mempool_t rx_mem,
                      const int mac[2],
-                     REFERENCE_PARAM(mii_queue_t, free_queue),
                      REFERENCE_PARAM(mii_queue_t, internal_q),
                      streaming chanend c);
 
@@ -18,3 +22,4 @@ void two_port_filter(mii_packet_t buf[],
                      streaming chanend c0,
                      streaming chanend c1);
 
+#endif // __mii_filter_h__

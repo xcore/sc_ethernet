@@ -1,4 +1,4 @@
-// Copyright (c) 2011, XMOS Ltd, All rights reserved
+// Copyright (c) 2011, XMOS Ltd., All rights reserved
 // This software is freely distributable under a derivative of the
 // University of Illinois/NCSA Open Source License posted in
 // LICENSE.txt and at <http://github.xcore.com/>
@@ -7,6 +7,7 @@
 #include "mii.h"
 #include "mii_queue.h"
 #include "ethernet_server_def.h"
+#include "mii_malloc.h"
 #include "eth_phy.h"
 #include <print.h>
 #include <xs1.h>
@@ -36,12 +37,10 @@ void checkLink(smi_interface_t &smi,
   }
 }
 #pragma unsafe arrays
-void ethernet_tx_server(mii_queue_t &free_queue,
-                        mii_queue_t &out_q1,
-                        mii_queue_t &out_q2,
+void ethernet_tx_server(mii_mempool_t tx_mem,
+                        mii_queue_t out_q[],
                         int num_q,
                         mii_queue_t &ts_queue,
-                        mii_packet_t buf[], 
                         const int mac_addr[2],
                         chanend tx[],
                         int num_tx,
@@ -49,7 +48,7 @@ void ethernet_tx_server(mii_queue_t &free_queue,
                         smi_interface_t &?smi2, 
                         chanend ?connect_status) 
 {
-  int k;
+  int buf;
   int enabled[MAX_LINKS];
   int pendingCmd[MAX_LINKS]={0};
   timer tmr;
@@ -66,20 +65,19 @@ void ethernet_tx_server(mii_queue_t &free_queue,
   while (1) {
     for (int i=0;i<num_tx;i++) {
       int cmd = pendingCmd[i];
-      int k=0;
       int length, dst_port;
       switch (cmd) 
         {
         case ETHERNET_TX_REQ:
         case ETHERNET_TX_REQ_OFFSET2:
         case ETHERNET_TX_REQ_TIMED:      
-          k = get_queue_entry(free_queue);
-          if (k) {            
-  
+          buf = mii_malloc(tx_mem);
+          if (buf) {            
+            //            printhexln(buf);
             if (cmd == ETHERNET_TX_REQ_TIMED)
-              buf[k].timestamp_id = i+1;
+              set_buf_timestamp_id(buf, i+1);
             else
-              buf[k].timestamp_id = 0;              
+              set_buf_timestamp_id(buf, 0);         
             
 
             if (cmd == ETHERNET_TX_REQ_OFFSET2) {
@@ -88,11 +86,11 @@ void ethernet_tx_server(mii_queue_t &free_queue,
                 tx[i] :> dst_port;
                 tx[i] :> char;
                 tx[i] :> char;
-                buf[k].length = length;
+                set_buf_length(buf, length);
                 for(int j=0;j<(length+3)>>2;j++) {
                   int datum;
                   tx[i] :> datum;
-                  buf[k].data[j] = byterev(datum);  
+                  set_buf_data(buf, j, byterev(datum));
                 }
                 tx[i] :> char;
                 tx[i] :> char;
@@ -103,26 +101,33 @@ void ethernet_tx_server(mii_queue_t &free_queue,
               master {          
                 tx[i] :> length;
                 tx[i] :> dst_port;
-                buf[k].length = length;
-                for(int j=0;j<(length+3)>>2;j++)
-                  tx[i] :> buf[k].data[j];  
+                set_buf_length(buf, length);
+                for(int j=0;j<(length+3)>>2;j++) {
+                  int datum;
+                  tx[i] :> datum;
+                  set_buf_data(buf, j, datum);
+                }
               }
             }
 
-            buf[k].complete = 1;
-            
-            
+            set_buf_complete(buf, 1);
+            mii_realloc(buf, (length+(3+BUF_DATA_OFFSET*4))&~0x3); 
+
+           
+            //printhexln(buf);
+            set_buf_stage(buf, 1);
+#if 0 
             if (dst_port == 0 || num_q == 1) {              
-              add_queue_entry(out_q1, k);
+              add_queue_entry(out_q[0], buf);
             }
             else if (dst_port == ETH_BROADCAST) {
-              set_transmit_count(k, 1);       
-              add_queue_entry(out_q1, k);
-              add_queue_entry(out_q2, k);                     
+              set_transmit_count(buf, 1);       
+              add_queue_entry(out_q[0], buf);
+              add_queue_entry(out_q[1], buf);                     
             }
             else
-              add_queue_entry(out_q2, k);
-            
+              add_queue_entry(out_q[1], buf);
+#endif            
             enabled[i] = 0;
             pendingCmd[i] = 0;
           }
@@ -186,12 +191,13 @@ void ethernet_tx_server(mii_queue_t &free_queue,
         enabled[i] = 1; 
       break;
     }
-    k=get_queue_entry(ts_queue);
-    if (k != 0) {
-      int i = buf[k].timestamp_id;
-      tx[i-1] <: buf[k].timestamp;
-      if (get_and_dec_transmit_count(k) == 0) 
-        free_queue_entry(k);        
+    buf=get_queue_entry(ts_queue);
+    if (buf != 0) {
+      int i = get_buf_timestamp_id(buf);
+      int ts = get_buf_timestamp(buf);
+      tx[i-1] <: ts;
+      if (get_and_dec_transmit_count(buf) == 0) 
+        mii_free(buf);
     }
   }
 }

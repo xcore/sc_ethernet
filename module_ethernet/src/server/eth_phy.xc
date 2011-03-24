@@ -1,10 +1,14 @@
-// Copyright (c) 2011, XMOS Ltd, All rights reserved
+// Copyright (c) 2011, XMOS Ltd., All rights reserved
 // This software is freely distributable under a derivative of the
 // University of Illinois/NCSA Open Source License posted in
 // LICENSE.txt and at <http://github.xcore.com/>
 
 #include "smi.h"
 #include <print.h>
+#if __ethernet_conf_h_exists__
+#include "ethernet_conf.h"
+#endif
+
 // wait this time to establish a link (ms) before giving a connection error
 // Experience suggests that 2s may not be long enough, but 3 is.
 #define LINK_TIMEOUT_MS        3000
@@ -20,7 +24,9 @@
 // phy constants
 //////////////////////
 
+#ifndef PHY_ADDRESS
 #define PHY_ADDRESS 0x1F
+#endif
 #define PHY_ID      0x300007
 
 // SMI Registers
@@ -81,7 +87,7 @@ int eth_phy_config(int eth100, smi_interface_t &smi)
   phyid = smi_rd(PHY_ADDRESS, PHY_ID1_REG, smi);
   x = smi_rd(PHY_ADDRESS, PHY_ID2_REG, smi);
   phyid = ((x >> 10) << 16) | phyid;
-  
+
   if (phyid != PHY_ID)
     {
       // PHY_ID doesn't correspond return error
@@ -176,6 +182,6 @@ void eth_phy_loopback(int enable, smi_interface_t &smi)
 #endif
   
   smi_wr(PHY_ADDRESS, BASIC_CONTROL_REG, controlReg, smi);
-
+  controlReg = smi_rd(PHY_ADDRESS, BASIC_CONTROL_REG, smi);
 }
 
