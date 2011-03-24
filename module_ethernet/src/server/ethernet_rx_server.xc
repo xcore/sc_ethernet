@@ -1,4 +1,4 @@
-// Copyright (c) 2011, XMOS Ltd, All rights reserved
+// Copyright (c) 2011, XMOS Ltd., All rights reserved
 // This software is freely distributable under a derivative of the
 // University of Illinois/NCSA Open Source License posted in
 // LICENSE.txt and at <http://github.xcore.com/>
@@ -21,6 +21,7 @@
 #include <xclib.h>
 #include "mii.h"
 #include "mii_queue.h"
+#include "mii_malloc.h"
 #include "ethernet_rx_server.h"
 #include <print.h>
 
@@ -132,19 +133,23 @@ void serviceLinkCmd(chanend link, int linkIndex, unsigned int &cmd)
 /** This sent out recived frame to a given link layer, also track dropped packets.
  *
  */ 
+/* C wrapper that casts the int to a pointer */
+void mac_rx_send_frame(int buf,
+                       chanend link,
+                       unsigned cmd);
+
 #pragma unsafe arrays
-static void sendFrame(mii_packet_t &p, 
-                      chanend link, 
-                      unsigned int cmd)
+void mac_rx_send_frame0(mii_packet_t &p, 
+                        chanend link, 
+                        unsigned int cmd)
 {
   int i, length;
   
-  while (!p.complete);
+  //  while (!p.complete);
 
   if (cmd == ETHERNET_RX_FRAME_REQ_OFFSET2) {
     i=0;
     length = p.length;
-    
     slave {
       link <: p.src_port;
       link <: length-(i<<2);
@@ -182,71 +187,71 @@ static void sendFrame(mii_packet_t &p,
   }
 }
 
-
+\
 /** This apply ethernet frame filters on the recieved frame for each link.
  *  A received frame may be required to sent to more than one link layer.
  */
-static void processReceivedFrame(mii_packet_t buf[], 
-                                 int k,
+static void processReceivedFrame(int buf,
                                  chanend link[], 
                                  int n)
 {
    int i;
    int tcount = 0;
-
+   int result = get_buf_filter_result(buf);
    // process for each link
-   for (i = 0; i < n; i += 1)
-     {
-       int match = 0;
 
-
-
-       match = ((custom_filter_mask[i] & buf[k].filter_result));
-
-       if (match) 
-         {       
-           // We have a match, add the packet to the client's
-           // packet queue (if there is space)
-           int rdIndex = link_status[i].rdIndex;
-           int wrIndex = link_status[i].wrIndex;
-           int new_wrIndex;
-           int queue_size;
-
-           new_wrIndex = wrIndex+1;
-           new_wrIndex *= (new_wrIndex != FIFO_SIZE);
-
-           queue_size = wrIndex-rdIndex;
-           if (queue_size < 0)
-             queue_size += FIFO_SIZE;
-
-
-           if (queue_size < link_status[i].max_queue_size &&
-               new_wrIndex != rdIndex)
-             {
-               tcount++;
-               link_status[i].fifo[wrIndex] = k;
-               link_status[i].wrIndex = new_wrIndex;
-               if (!link_status[i].notified) {
-                 notify(link[i]);
-                 link_status[i].notified = 1;
+   if (result) 
+     for (i = 0; i < n; i += 1)
+       {
+         int match = 0;
+         match = (custom_filter_mask[i] & result);
+         
+         if (match) 
+           {       
+             // We have a match, add the packet to the client's
+             // packet queue (if there is space)
+             int rdIndex = link_status[i].rdIndex;
+             int wrIndex = link_status[i].wrIndex;
+             int new_wrIndex;
+             int queue_size;
+             
+             new_wrIndex = wrIndex+1;
+             new_wrIndex *= (new_wrIndex != FIFO_SIZE);
+             
+             queue_size = wrIndex-rdIndex;
+             if (queue_size < 0)
+               queue_size += FIFO_SIZE;
+             
+             
+             if (queue_size < link_status[i].max_queue_size &&
+                 new_wrIndex != rdIndex)
+               {
+                 tcount++;
+                 link_status[i].fifo[wrIndex] = buf;
+                 link_status[i].wrIndex = new_wrIndex;
+                 if (!link_status[i].notified) {
+                   notify(link[i]);
+                   link_status[i].notified = 1;
+                 }
                }
-             }
-           else 
-             {
-               link_status[i].dropped_pkt_cnt++;
-               //printstr("ERROR: MAC pkt dropped, link ");
-               //printintln(i);
-             }
-         }
-     }
-
+             else 
+               {
+                 link_status[i].dropped_pkt_cnt++;
+                 if (i==3)
+                   printstr("d");
+                 //printstr("ERROR: MAC pkt dropped, link ");
+                 //printintln(i);
+               }
+           }
+       }
+   
    
    if (tcount == 0) {
-     if (get_and_dec_transmit_count(k)==0)
-       free_queue_entry(k);
+     if (get_and_dec_transmit_count(buf)==0)
+       mii_free(buf);
    }
    else {
-     incr_transmit_count(k, tcount-1);
+     incr_transmit_count(buf, tcount-1);
    }   
    return;
 }
@@ -261,18 +266,26 @@ static void processReceivedFrame(mii_packet_t buf[],
  *  It interface with ethernet_rx_buf_ctl to handle frames 
  * 
  */
-void ethernet_rx_server(mii_queue_t &in_q,
-                        mii_queue_t &free_queue,
-                        mii_packet_t buf[],
+void ethernet_rx_server(mii_mempool_t rxmem_hp,
+                        mii_mempool_t rxmem_lp,
+                        mii_queue_t &in_q,
                         chanend link[],
                         int num_link)
 {
    int i;
    unsigned int cmd;
-
+#ifdef ETHERNET_HP_QUEUE
+   int rdptr_hp;
+#endif
+   int rdptr_lp;
   
    printstr("INFO: Ethernet Rx Server init..\n");
    //   ethernet_register_traphandler();
+
+#ifdef ETHERNET_HP_QUEUE
+   rdptr_hp = mii_init_my_rdptr(rxmem_hp);
+#endif
+   rdptr_lp = mii_init_my_rdptr(rxmem_lp);
 
    // Initialise the link filters & local data structures.
    for (i = 0; i < num_link; i += 1)
@@ -308,14 +321,14 @@ void ethernet_rx_server(mii_queue_t &in_q,
              int new_rdIndex;
                           
              if (rdIndex != wrIndex) {
-               int k = link_status[i].fifo[rdIndex];
+               int buf = link_status[i].fifo[rdIndex];
                new_rdIndex=rdIndex+1;
                new_rdIndex *= (new_rdIndex != FIFO_SIZE);
                //printstr("send\n");
-               sendFrame(buf[k], link[i], cmd);
+               mac_rx_send_frame(buf, link[i], cmd);
 
-               if (get_and_dec_transmit_count(k)==0)
-                 free_queue_entry(k);
+               if (get_and_dec_transmit_count(buf)==0)
+                 mii_free(buf);
 
                link_status[i].rdIndex = new_rdIndex;
 
@@ -334,11 +347,23 @@ void ethernet_rx_server(mii_queue_t &in_q,
          break;           
        default:
          {
-           int k;
-           k=get_queue_entry(in_q);
-           if (k != 0) {            
-             processReceivedFrame(buf, k, link, num_link);
+           int buf;
+           //           buf=get_queue_entry(in_q);
+#ifdef ETHERNET_HP_QUEUE
+           buf = mii_get_my_next_buf(rxmem_hp, rdptr_hp);
+           if (buf != 0 && get_buf_stage(buf) == 1) {            
+             rdptr_hp = mii_update_my_rdptr(rxmem_hp, rdptr_hp);
+             processReceivedFrame(buf, link, num_link);            
            }   
+           else 
+#endif
+             {
+             buf = mii_get_my_next_buf(rxmem_lp, rdptr_lp);
+             if (buf != 0 && get_buf_stage(buf) == 1) {         
+               rdptr_lp = mii_update_my_rdptr(rxmem_lp, rdptr_lp);   
+               processReceivedFrame(buf, link, num_link);
+             }   
+             }
            break;
          }
        }       

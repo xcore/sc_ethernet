@@ -1,4 +1,4 @@
-// Copyright (c) 2011, XMOS Ltd, All rights reserved
+// Copyright (c) 2011, XMOS Ltd., All rights reserved
 // This software is freely distributable under a derivative of the
 // University of Illinois/NCSA Open Source License posted in
 // LICENSE.txt and at <http://github.xcore.com/>
@@ -29,11 +29,11 @@ typedef struct mii_queue_t {
   int lock;
   int rdIndex;
   int wrIndex;
-  char fifo[MAX_ENTRIES];
+  unsigned fifo[MAX_ENTRIES];
 } mii_queue_t;
 
 
-void init_queue(REFERENCE_PARAM(mii_queue_t, q), int n, int m);
+void init_queue(REFERENCE_PARAM(mii_queue_t, q));
 int get_queue_entry(REFERENCE_PARAM(mii_queue_t, q));
 void add_queue_entry(REFERENCE_PARAM(mii_queue_t, q), int i);
 void init_queues();
@@ -41,5 +41,4 @@ void set_transmit_count(int buf_num, int count);
 int get_and_dec_transmit_count(int buf_num);
 void incr_transmit_count(int buf_num, int incr);
 int get_queue_entry_no_lock(REFERENCE_PARAM(mii_queue_t,q));
-void free_queue_entry(int i);
 #endif //__mii_queue_h__

@@ -1,0 +1,192 @@
+// Copyright (c) 2011, XMOS Ltd., All rights reserved
+// This software is freely distributable under a derivative of the
+// University of Illinois/NCSA Open Source License posted in
+// LICENSE.txt and at <http://github.xcore.com/>
+
+#include "mii.h"
+#include "swlock.h"
+#include <print.h>
+
+typedef int mii_mempool_t;
+typedef int mii_buffer_t;
+
+typedef struct mempool_info_t {
+  int *rdptr;
+  int *wrptr;
+  int *start;
+  int *end;  
+  swlock_t lock;
+  int max_packet_size;
+} mempool_info_t;
+
+typedef struct malloc_hdr_t {
+  int size;
+  mempool_info_t *info;  
+} malloc_hdr_t;
+
+#define ALLOC_SIZE_BYTES (sizeof(mii_packet_t) + 8)
+#define ALLOC_SIZE_WORDS ((ALLOC_SIZE_BYTES+3)>>2)
+
+void mii_init_mempool(mii_mempool_t mempool0, int size, int maxsize_bytes) {
+  mempool_info_t *info = (mempool_info_t *) mempool0;
+  info->max_packet_size = sizeof(mii_packet_t) + sizeof(malloc_hdr_t) - (1518-maxsize_bytes);
+  info->max_packet_size = (info->max_packet_size + 3) >> 2;
+  info->start = (int *) (mempool0 + sizeof(mempool_info_t));
+  info->end = (int *) (mempool0 + size);
+  info->end -= info->max_packet_size;
+  info->rdptr = info->start;
+  info->wrptr = info->start;
+  swlock_init(&info->lock);
+  return;
+}
+
+mii_buffer_t mii_malloc(mii_mempool_t mempool)
+{
+  mempool_info_t *info = (mempool_info_t *) mempool;
+  int *rdptr = info->rdptr;
+  int *wrptr = info->wrptr;
+  int space_left;
+  malloc_hdr_t *hdr;
+  mii_buffer_t buf;
+  mii_packet_t *pkt;
+  if (wrptr > info->end) {
+    if (rdptr == info->start)
+      return 0;
+    else
+      wrptr = info->start;
+  }
+
+  space_left = (rdptr - wrptr);
+
+  if (space_left > 0 && space_left <= info->max_packet_size) 
+    return 0;
+  
+  info->wrptr = wrptr;
+  
+  hdr = (malloc_hdr_t *) wrptr;
+  
+  hdr->size = info->max_packet_size;
+  hdr->info = info;
+  
+  buf = (mii_buffer_t) (wrptr+(sizeof(malloc_hdr_t)>>2));
+
+  pkt = (mii_packet_t *) buf;
+  pkt->tcount = 0;
+  pkt->stage = 0;
+
+  return buf;
+}
+
+void mii_realloc(mii_buffer_t buf, int n) {
+  malloc_hdr_t *hdr = (malloc_hdr_t *) ((char *) buf - sizeof(malloc_hdr_t));
+  mempool_info_t *info = (mempool_info_t *) hdr->info;
+  int *new_wrptr;
+
+  n = (n+3)>>2;
+  new_wrptr = info->wrptr + (sizeof(malloc_hdr_t)/4) + n;  
+  hdr->size = (sizeof(malloc_hdr_t)/4) + n;
+  info->wrptr = new_wrptr;
+
+  return;
+}
+
+
+void mii_free(mii_buffer_t buf) {
+  malloc_hdr_t *hdr = (malloc_hdr_t *) ((char *) buf - sizeof(malloc_hdr_t));
+  mempool_info_t *info = (mempool_info_t *) hdr->info;
+  int free_buf = 1;
+
+  swlock_acquire(&info->lock);
+
+  while (free_buf) {  
+    if ((char *) hdr == (char *) info->rdptr ||
+                      ((char *) hdr == (char *) info->start && 
+                       (char *) info->rdptr > (char *) info->end)) {
+
+      int size = hdr->size;
+      if (size < 0) size = -size;
+      hdr = (malloc_hdr_t *) ((int *) hdr + size);
+      info->rdptr = (int *) hdr;
+
+      if ((char *) hdr > (char *) info->end) 
+        hdr = (malloc_hdr_t *) info->start;
+
+      if (hdr->size > 0 || (char *) hdr == (char *) info->wrptr)
+        {
+          free_buf = 0;
+        }
+      else {
+
+      }
+    }
+    else {
+      hdr->size = -(hdr->size);
+      free_buf = 0;
+    }
+  }
+
+  swlock_release(&info->lock);
+}
+
+mii_buffer_t mii_get_next_buf(mii_mempool_t mempool)
+{
+  mempool_info_t *info = (mempool_info_t *) mempool;
+  int *rdptr = info->rdptr;
+  int *wrptr = info->wrptr;
+
+  if (rdptr == wrptr) 
+    return 0;
+
+  if (rdptr > info->end) {
+    if (wrptr == info->start)      
+      return 0;
+    else
+      rdptr = info->start;
+  }
+
+  return (mii_buffer_t) ((char *) rdptr + sizeof(malloc_hdr_t));
+}
+
+int mii_init_my_rdptr(mii_mempool_t mempool) 
+{
+  mempool_info_t *info = (mempool_info_t *) mempool;
+  return (int) info->rdptr;
+}
+
+int mii_update_my_rdptr(mii_mempool_t mempool, int rdptr0)
+{
+  mempool_info_t *info = (mempool_info_t *) mempool;
+  int *rdptr = (int *) rdptr0;
+  malloc_hdr_t *hdr;
+  int size;
+
+  if (rdptr > info->end) 
+    rdptr = info->start;
+
+  hdr = (malloc_hdr_t *) rdptr;
+  size = hdr->size;
+  if (size < 0) size = -size;
+
+  rdptr = rdptr + size;  
+
+  return (int) rdptr;
+}
+
+mii_buffer_t mii_get_my_next_buf(mii_mempool_t mempool, int rdptr0)
+{
+  mempool_info_t *info = (mempool_info_t *) mempool;
+  int *rdptr = (int *) rdptr0;
+  int *wrptr = info->wrptr;
+
+  if (rdptr == wrptr) 
+    return 0;
+
+  if (rdptr > info->end) {
+    if (wrptr == info->start)      
+      return 0;
+    else
+      rdptr = info->start;
+  }
+
+  return (mii_buffer_t) ((char *) rdptr + sizeof(malloc_hdr_t));
+}

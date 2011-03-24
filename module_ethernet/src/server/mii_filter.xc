@@ -1,4 +1,4 @@
-// Copyright (c) 2011, XMOS Ltd, All rights reserved
+// Copyright (c) 2011, XMOS Ltd., All rights reserved
 // This software is freely distributable under a derivative of the
 // University of Illinois/NCSA Open Source License posted in
 // LICENSE.txt and at <http://github.xcore.com/>
@@ -8,7 +8,12 @@
 #include "ethernet_server_def.h"
 #include <xccompat.h>
 #include <print.h>
+#include "mii_malloc.h"
 #include "mac_custom_filter.h"
+
+
+
+int mac_custom_filter_coerce(int);
 
 typedef enum 
 {
@@ -33,11 +38,11 @@ typedef struct mac_filter_t {
 #define NUM_FILTERS 4
 
 
-#define is_broadcast(x) (x & 0x1)
-#define compare_mac(x,y) (x[0] == y[0] && ((short) x[1]) == ((short) y[1]))
+#define is_broadcast(buf) (get_buf_data(buf,0) & 0x1)
+#define compare_mac(buf,mac) (get_buf_data(buf,0) == mac[0] && ((short) get_buf_data(buf,1)) == ((short) mac[1]))
 
 
-
+#if 0
 #pragma unsafe arrays
 void two_port_filter(mii_packet_t buf[],
                      const int mac[2],
@@ -105,52 +110,57 @@ void two_port_filter(mii_packet_t buf[],
 
     }
 }
-
+#endif
 
 // Smallest packet + interframe gap is 84 bytes = 6.72 us
 #pragma xta command "analyze endpoints rx_packet rx_packet"
 #pragma xta command "set required - 6.72 us"
 
 #pragma unsafe arrays
-void one_port_filter(mii_packet_t buf[],
+void one_port_filter(mii_mempool_t rx_mem,
                      const int mac[2],
-                     mii_queue_t &free_queue,
                      mii_queue_t &internal_q,
                      streaming chanend c)
 {
-  int j;
-  j = get_queue_entry(free_queue);
-  c <: j;
+  int buf;
 
   while (1) 
     {
-      int i=0;
-
 #pragma xta endpoint "rx_packet"
-      c :> i;
+      c :> buf;
 
-      j = get_queue_entry(free_queue);
-      
-      c <: j;
 
-      if (i) {
+      if (buf) {
+        
 #ifdef MAC_PROMISCUOUS
-    	  buf[i].filter_result = mac_custom_filter(buf[i].data);
-          add_queue_entry(internal_q,i);          
+        if (1)
 #else
-        if (is_broadcast(buf[i].data[0])          
+        if (is_broadcast(buf)          
             ||
-            compare_mac(buf[i].data,mac)) 
-          {          
-            buf[i].filter_result = mac_custom_filter(buf[i].data);
-            add_queue_entry(internal_q,i);                               
+            compare_mac(buf,mac)) 
+#endif
+          {     
+            int res = mac_custom_filter_coerce(buf);
+            set_buf_filter_result(buf, res);
+            //        if (!res)
+            //              mii_free(buf);
+            //            else
+              set_buf_stage(buf, 1);
+            //            add_queue_entry(internal_q, buf);              
           }
         else
-          add_queue_entry(free_queue,i);
-#endif
+          {
+            //            mii_free(buf);
+            set_buf_filter_result(buf, 0);
+            set_buf_stage(buf,1);
+          }
       }     
     }
 }
 
 
 
+int mac_custom_filter_coerce1(unsigned int buf[])
+{
+  return mac_custom_filter(buf);
+}
