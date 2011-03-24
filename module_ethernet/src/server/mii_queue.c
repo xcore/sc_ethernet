@@ -9,7 +9,7 @@
 
 extern mii_packet_t mii_packet_buf[];
 
-swlock_t queue_locks[MAX_NUM_QUEUES];
+swlock_t queue_locks[MAC_MAX_NUM_QUEUES];
 
 swlock_t tc_lock = INITIAL_SWLOCK_VALUE;
 
@@ -76,7 +76,7 @@ int get_queue_entry(mii_queue_t *q)
   else {
     i = q->fifo[rdIndex];
     rdIndex++;
-    rdIndex *= (rdIndex != MAX_ENTRIES);
+    rdIndex *= (rdIndex != MAC_MAX_ENTRIES);
     q->rdIndex = rdIndex;
   }
   swlock_release((swlock_t *) q->lock);
@@ -96,7 +96,7 @@ int get_queue_entry_no_lock(mii_queue_t *q)
   else {
     i = q->fifo[rdIndex];
     rdIndex++;
-    rdIndex *= (rdIndex != MAX_ENTRIES);
+    rdIndex *= (rdIndex != MAC_MAX_ENTRIES);
     q->rdIndex = rdIndex;
   }
   return i;
@@ -109,7 +109,7 @@ void add_queue_entry(mii_queue_t *q, int i)
   wrIndex = q->wrIndex;
   q->fifo[wrIndex] = i;
   wrIndex++;
-  wrIndex *= (wrIndex != MAX_ENTRIES);
+  wrIndex *= (wrIndex != MAC_MAX_ENTRIES);
   q->wrIndex = wrIndex;
   swlock_release((swlock_t *) q->lock);
   return;
@@ -122,7 +122,7 @@ void add_queue_entry_no_lock(mii_queue_t *q, int i)
   wrIndex = q->wrIndex;
   q->fifo[wrIndex] = i;
   wrIndex++;
-  wrIndex *= (wrIndex != MAX_ENTRIES);
+  wrIndex *= (wrIndex != MAC_MAX_ENTRIES);
   q->wrIndex = wrIndex;
   return;
 }

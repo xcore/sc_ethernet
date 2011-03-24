@@ -21,15 +21,15 @@
 #endif
 
 
-#define MAX_NUM_QUEUES 10
+#define MAC_MAX_NUM_QUEUES 10
 
-#define MAX_ENTRIES ((NUM_MII_RX_BUF<NUM_MII_TX_BUF?NUM_MII_TX_BUF:NUM_MII_RX_BUF)+1)
+#define MAC_MAX_ENTRIES ((NUM_MII_RX_BUF<NUM_MII_TX_BUF?NUM_MII_TX_BUF:NUM_MII_RX_BUF)+1)
 
 typedef struct mii_queue_t {
   int lock;
   int rdIndex;
   int wrIndex;
-  unsigned fifo[MAX_ENTRIES];
+  unsigned fifo[MAC_MAX_ENTRIES];
 } mii_queue_t;
 
 
