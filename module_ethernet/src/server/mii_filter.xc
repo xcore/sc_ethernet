@@ -129,7 +129,6 @@ void one_port_filter(mii_mempool_t rx_mem,
 #pragma xta endpoint "rx_packet"
       c :> buf;
 
-
       if (buf) {
         
 #ifdef MAC_PROMISCUOUS
@@ -142,15 +141,10 @@ void one_port_filter(mii_mempool_t rx_mem,
           {     
             int res = mac_custom_filter_coerce(buf);
             set_buf_filter_result(buf, res);
-            //        if (!res)
-            //              mii_free(buf);
-            //            else
-              set_buf_stage(buf, 1);
-            //            add_queue_entry(internal_q, buf);              
+            set_buf_stage(buf, 1);
           }
         else
           {
-            //            mii_free(buf);
             set_buf_filter_result(buf, 0);
             set_buf_stage(buf,1);
           }

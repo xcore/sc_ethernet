@@ -114,13 +114,6 @@ void serviceLinkCmd(chanend link, int linkIndex, unsigned int &cmd)
          link_status[linkIndex].max_queue_size = size;
          }
          break;
-
-         /*      case ETHERNET_RX_KILL_LINK: {
-        int j;
-         link :> j;
-         link_status[j].drop_packets = TRUE;
-        }
-        break;*/
      default:    // unreconised command.
        printstrln("eth rx unrecognized cmd");
          break;
@@ -145,8 +138,6 @@ void mac_rx_send_frame0(mii_packet_t &p,
 {
   int i, length;
   
-  //  while (!p.complete);
-
   if (cmd == ETHERNET_RX_FRAME_REQ_OFFSET2) {
     i=0;
     length = p.length;
@@ -187,7 +178,6 @@ void mac_rx_send_frame0(mii_packet_t &p,
   }
 }
 
-\
 /** This apply ethernet frame filters on the recieved frame for each link.
  *  A received frame may be required to sent to more than one link layer.
  */
@@ -320,7 +310,7 @@ void ethernet_rx_server(mii_mempool_t rxmem_hp,
                int buf = link_status[i].fifo[rdIndex];
                new_rdIndex=rdIndex+1;
                new_rdIndex *= (new_rdIndex != FIFO_SIZE);
-               //printstr("send\n");
+
                mac_rx_send_frame(buf, link[i], cmd);
 
                if (get_and_dec_transmit_count(buf)==0)
@@ -329,7 +319,6 @@ void ethernet_rx_server(mii_mempool_t rxmem_hp,
                link_status[i].rdIndex = new_rdIndex;
 
                if (new_rdIndex != wrIndex) {
-                 //printstr("notify\n");
                  notify(link[i]);
                }
                else {
@@ -340,11 +329,10 @@ void ethernet_rx_server(mii_mempool_t rxmem_hp,
                printstr("ERROR: mac request without notification\n");
              }
            }
-         break;           
+         break;
        default:
          {
            int buf;
-           //           buf=get_queue_entry(in_q);
 #ifdef ETHERNET_HP_QUEUE
            buf = mii_get_my_next_buf(rxmem_hp, rdptr_hp);
            if (buf != 0 && get_buf_stage(buf) == 1) {            
