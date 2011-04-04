@@ -7,6 +7,8 @@
 unsigned int mac_custom_filter(unsigned int data[]) 
 {
 	for (int i=0;i<6;i++){
+#pragma xta label "sc_ethernet_mac_custom_filter"
+#pragma xta command "add loop sc_ethernet_mac_custom_filter 6"
           if ((data,char[])[i] != 0xFF){
             return 0;
           }

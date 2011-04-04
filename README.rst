@@ -29,7 +29,7 @@ Full documentation can be found at http://xcore.github.com/sc_ethernet/
 Known Issues
 ============
 
-   * The rx_packet-rx_packet timing constraint fails because of the user defined packet filters. The user
+   * The rx_packet-rx_packet timing constraint may fail because of the user defined packet filters. The user
      is required to fill in the timing details inside any user specified filter in order to help the XTA
      analyze the receive filter timing correctly.
 

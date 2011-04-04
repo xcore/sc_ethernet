@@ -13,6 +13,8 @@ inline unsigned int mac_custom_filter(unsigned int data[]){
 
 	/* Unmark broadcast */
 	for (int i = 0; i < 6; i++){
+#pragma xta label "sc_ethernet_mac_custom_filter_1"
+#pragma xta command "add loop sc_ethernet_mac_custom_filter_1 6"
           if ((data, char[])[i] != 0xFF){
 			mask = 0;
 			break;
