@@ -204,102 +204,116 @@ void mii_rx_pins(mii_mempool_t rxmem_hp, mii_mempool_t rxmem_lp,
 }
 
 #pragma unsafe arrays
-void mii_tx_pins0(int k, mii_packet_t &buf, mii_queue_t &ts_queue,
-		out buffered port:32 p_mii_txd, int ifnum) {
-	register const unsigned poly = 0xEDB88320;
-	timer tmr;
-	unsigned int time;
-	int bytes_left;
-	unsigned int crc = 0;
-	unsigned int word;
-	unsigned int prev_length = 0;
-	int i = 0;
-	int j = 0;
+void mii_tx_pins(mii_mempool_t txmem,
+                  mii_queue_t &ts_queue,
+                  out buffered port:32 p_mii_txd, 
+                  int ifnum) 
+{
+  while (1) {
+    unsigned buf;
+    register const unsigned poly = 0xEDB88320;
+    timer tmr;
+    unsigned int time;
+    int bytes_left;
+    unsigned int crc = 0;
+    unsigned int word;
+    unsigned int prev_length = 0;
+    unsigned int data;
+    int i = 0;
+    int j = 0;
+  
+    buf = mii_get_next_buf(txmem);
+    if (buf == 0 || get_buf_stage(buf) != 1) 
+      continue;
 
-	bytes_left = buf.length;
+    bytes_left = get_buf_length(buf);
 
 	//  printintln(bytes_left);
 
-	p_mii_txd <: 0x55555555;
-	p_mii_txd <: 0x55555555;
-	p_mii_txd <: 0xD5555555;
+    p_mii_txd <: 0x55555555;
+    p_mii_txd <: 0x55555555;
+    p_mii_txd <: 0xD5555555;
 #ifndef TX_TIMESTAMP_END_OF_PACKET
-	tmr :> buf.timestamp;
+    tmr :> time;
+    set_buf_timestamp(buf, time);
 #endif
-
-	word = buf.data[i];
-	p_mii_txd <: word;
-	i++;
-	crc32(crc, ~word, poly);
-	bytes_left -=4;
-	j+=4;
-
-	word = buf.data[i];
-	//      while (bytes_left > 3) {
-	//  while (!buf.complete || (j< (buf.length-3))) {
-	while ((j< (buf.length-3))) {
-		p_mii_txd <: word;
-		i++;
-		crc32(crc, word, poly);
-		word = buf.data[i];
-		//bytes_left -= 4;
-		j += 4;
-	}
+    data = get_buf_data_ptr(buf);
+    
+    word = get_data_word(data, i);
+    p_mii_txd <: word;
+    i++;
+    crc32(crc, ~word, poly);
+    bytes_left -=4;
+    j+=4;
+    
+    word = get_data_word(data, i);
+    //      while (bytes_left > 3) {
+    //  while (!buf.complete || (j< (buf.length-3))) {
+    while ((j< get_buf_length(buf)-3)) {
+      p_mii_txd <: word;
+      i++;
+      crc32(crc, word, poly);
+      word = get_data_word(data, i);
+      //bytes_left -= 4;
+      j += 4;
+    }
 #ifdef TX_TIMESTAMP_END_OF_PACKET
-	tmr :> buf.timestamp;
+    tmr :> time;
+    set_buf_timestamp(buf, time);
 #endif
-	bytes_left = buf.length-j;
-	prev_length = buf.length;
-
-	switch (bytes_left)
-	{
-		case 0:
-		crc32(crc, 0, poly);
-		crc = ~crc;
-		p_mii_txd <: crc;
-		break;
-		case 1:
-		crc8shr(crc, word, poly);
-		//p_mii_txd:8 <: word;
-		partout(p_mii_txd, 8, word);
-		crc32(crc, 0, poly);
-		crc = ~crc;
-		p_mii_txd <: crc;
-		break;
-		case 2:
-		//p_mii_txd:16 <: word;
-		partout(p_mii_txd, 16, word);
-		word = crc8shr(crc, word, poly);
-		crc8shr(crc, word, poly);
-		crc32(crc, 0, poly);
-		crc = ~crc;
-		p_mii_txd <: crc;
-		break;
-		case 3:
-		//p_mii_txd:24 <: word;
-		partout(p_mii_txd, 24, word);
-		word = crc8shr(crc, word, poly);
-		word = crc8shr(crc, word, poly);
-		crc8shr(crc, word, poly);
-		crc32(crc, 0, poly);
-		crc = ~crc;
-		p_mii_txd <: crc;
-		break;
-	}
-
-	if (get_and_dec_transmit_count(k) == 0) {
-		if (buf.timestamp_id) {
-			buf.stage = 2;
-			add_queue_entry(ts_queue, k);
-		}
-		else {
-			mii_free(k);
-		}
-
-	}
-	tmr :> time;
-	time+=196;
-	tmr when timerafter(time) :> int tmp;
+    bytes_left = get_buf_length(buf)-j;
+    prev_length = get_buf_length(buf);
+    
+    switch (bytes_left)
+      {
+      case 0:
+        crc32(crc, 0, poly);
+        crc = ~crc;
+        p_mii_txd <: crc;
+        break;
+      case 1:
+        crc8shr(crc, word, poly);
+        //p_mii_txd:8 <: word;
+        partout(p_mii_txd, 8, word);
+        crc32(crc, 0, poly);
+        crc = ~crc;
+        p_mii_txd <: crc;
+        break;
+      case 2:
+        //p_mii_txd:16 <: word;
+        partout(p_mii_txd, 16, word);
+        word = crc8shr(crc, word, poly);
+        crc8shr(crc, word, poly);
+        crc32(crc, 0, poly);
+        crc = ~crc;
+        p_mii_txd <: crc;
+        break;
+      case 3:
+        //p_mii_txd:24 <: word;
+        partout(p_mii_txd, 24, word);
+        word = crc8shr(crc, word, poly);
+        word = crc8shr(crc, word, poly);
+        crc8shr(crc, word, poly);
+        crc32(crc, 0, poly);
+        crc = ~crc;
+        p_mii_txd <: crc;
+        break;
+      }
+    
+    if (get_and_dec_transmit_count(buf) == 0) {
+      if (get_buf_timestamp_id(buf)) {
+        set_buf_stage(buf, 2);
+        add_queue_entry(ts_queue, buf);
+      }
+      else {
+        mii_free(buf);
+      }
+      
+    }
+    tmr :> time;
+    time+=196;
+    tmr when timerafter(time) :> int tmp;
+  }
 }
 
 #ifdef ETH_REF_CLOCK

@@ -193,13 +193,11 @@ void mii_rx_pins(int rxmem_hp,
 
 #ifdef __XC__
 void mii_tx_pins(int mempool,
-                 mii_queue_t &in_queue,
                  mii_queue_t &ts_queue,
                  out buffered port:32 p_mii_txd,
                  int ifnum);
 #else
 void mii_tx_pins(int mempool,
-                 mii_queue_t *in_queue,
                  mii_queue_t *ts_queue,
                  port p_mii_txd,
                  int ifnum);

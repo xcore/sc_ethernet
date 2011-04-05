@@ -10,7 +10,6 @@
 
 #ifdef __XC__
 void ethernet_tx_server(mii_mempool_t tx_mem,
-                        mii_queue_t out_q[],
                         int num_q,
                         REFERENCE_PARAM(mii_queue_t,ts_q),                     
                         const int mac_addr[2],
@@ -20,7 +19,6 @@ void ethernet_tx_server(mii_mempool_t tx_mem,
                         chanend ?connect_status);xb
 #else
 void ethernet_tx_server(mii_mempool_t tx_mem,
-                        mii_queue_t out_q[],
                         int num_q,
                         REFERENCE_PARAM(mii_queue_t,ts_q),                     
                         const int mac_addr[2],

@@ -15,15 +15,8 @@
 
 #include <print.h>
 
-#ifdef TWO_PORT_ETHERNET
-#define NUM_TX_QUEUES 2
-#else
-#define NUM_TX_QUEUES 1
-#endif
 
 mii_queue_t filter_queue, internal_queue, ts_queue;
-
-mii_queue_t tx_queue[NUM_TX_QUEUES];
 
 
 #ifdef ETHERNET_HP_QUEUE
@@ -53,7 +46,6 @@ mii_mempool_t rx_mem_lp, tx_mem;
 
 
 void init_mii_mem() {
-  int i;  
 #ifdef ETHERNET_HP_QUEUE
   rx_mem_hp = (mii_mempool_t) &rx_hp_data[0];
 #endif
@@ -69,8 +61,6 @@ void init_mii_mem() {
   init_queue(&filter_queue);
   init_queue(&internal_queue);
   init_queue(&ts_queue);
-  for(i=0;i<NUM_TX_QUEUES;i++)
-    init_queue(&tx_queue[i]);
   return;
 }
 
@@ -86,7 +76,7 @@ void mii_rx_pins_wr(port p1,
 void mii_tx_pins_wr(port p,
                     int i)
 {
-  mii_tx_pins(tx_mem, &tx_queue[i], &ts_queue, p, i);
+  mii_tx_pins(tx_mem, &ts_queue, p, i);
 }
 
 #if 0
@@ -112,8 +102,7 @@ void one_port_filter_wr(const int mac[2], streaming chanend c)
 
 void ethernet_tx_server_wr(const int mac_addr[2], chanend tx[], int num_q, int num_tx, smi_interface_t *smi1, smi_interface_t *smi2, chanend connect_status)
 {
-  ethernet_tx_server(tx_mem,
-                     tx_queue, 
+  ethernet_tx_server(tx_mem, 
                      num_q,
                      &ts_queue,
                      mac_addr,

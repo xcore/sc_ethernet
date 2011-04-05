@@ -38,8 +38,7 @@ void checkLink(smi_interface_t &smi,
 }
 #pragma unsafe arrays
 void ethernet_tx_server(mii_mempool_t tx_mem,
-                        mii_queue_t out_q[],
-                        int num_q,
+                        int num_q, 
                         mii_queue_t &ts_queue,
                         const int mac_addr[2],
                         chanend tx[],
