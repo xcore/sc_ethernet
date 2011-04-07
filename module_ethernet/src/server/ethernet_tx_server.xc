@@ -37,7 +37,11 @@ void checkLink(smi_interface_t &smi,
   }
 }
 #pragma unsafe arrays
-void ethernet_tx_server(mii_mempool_t tx_mem,
+void ethernet_tx_server(
+#ifdef ETHERNET_TX_HP_QUEUE
+                        mii_mempool_t tx_mem_hp,
+#endif
+                        mii_mempool_t tx_mem_lp,
                         int num_q, 
                         mii_queue_t &ts_queue,
                         const int mac_addr[2],
@@ -65,12 +69,46 @@ void ethernet_tx_server(mii_mempool_t tx_mem,
     for (int i=0;i<num_tx;i++) {
       int cmd = pendingCmd[i];
       int length, dst_port;
+#ifdef ETHERNET_TX_HP_QUEUE
+      int hp=0;
+#endif
       switch (cmd) 
         {
         case ETHERNET_TX_REQ:
         case ETHERNET_TX_REQ_OFFSET2:
         case ETHERNET_TX_REQ_TIMED:      
-          buf = mii_malloc(tx_mem);
+#ifdef ETHERNET_TX_HP_QUEUE
+        case ETHERNET_TX_REQ_HP:
+        case ETHERNET_TX_REQ_OFFSET2_HP:
+        case ETHERNET_TX_REQ_TIMED_HP:      
+#endif
+      
+#ifdef ETHERNET_TX_HP_QUEUE    
+          switch (cmd) {
+          case ETHERNET_TX_REQ_HP:
+            cmd = ETHERNET_TX_REQ;
+            hp = 1;
+            break;
+          case ETHERNET_TX_REQ_OFFSET2_HP:
+            cmd = ETHERNET_TX_REQ_OFFSET2;
+            hp = 1;
+            break;
+          case ETHERNET_TX_REQ_TIMED_HP:
+            cmd = ETHERNET_TX_REQ_TIMED;
+            hp = 1;
+            break;
+          }
+#endif
+
+#ifdef ETHERNET_TX_HP_QUEUE
+          if (hp)
+            buf = mii_malloc(tx_mem_hp);
+          else
+            buf = mii_malloc(tx_mem_lp);
+#else
+          buf = mii_malloc(tx_mem_lp);
+#endif
+
           if (buf) {            
             if (cmd == ETHERNET_TX_REQ_TIMED)
               set_buf_timestamp_id(buf, i+1);
@@ -109,9 +147,9 @@ void ethernet_tx_server(mii_mempool_t tx_mem,
             }
 
             set_buf_complete(buf, 1);
+            set_buf_stage(buf, 1);
             mii_realloc(buf, (length+(3+BUF_DATA_OFFSET*4))&~0x3); 
 
-            set_buf_stage(buf, 1);
 #if 0 
             if (dst_port == 0 || num_q == 1) {              
               add_queue_entry(out_q[0], buf);
@@ -151,6 +189,12 @@ void ethernet_tx_server(mii_mempool_t tx_mem,
             case ETHERNET_TX_REQ:
             case ETHERNET_TX_REQ_OFFSET2:
             case ETHERNET_TX_REQ_TIMED:      
+#ifdef ETHERNET_TX_HP_QUEUE
+            case ETHERNET_TX_REQ_HP:
+            case ETHERNET_TX_REQ_OFFSET2_HP:
+            case ETHERNET_TX_REQ_TIMED_HP:      
+#endif
+
               pendingCmd[i] = cmd;
               break;
             case ETHERNET_GET_MAC_ADRS:
@@ -174,7 +218,17 @@ void ethernet_tx_server(mii_mempool_t tx_mem,
           break;
         case ETHERNET_TX_INIT_AVB_ROUTER:
             init_avb_1722_router_table();
-          break;
+          break;           
+#endif
+#if defined(ETHERNET_TX_HP_QUEUE) && defined(ETHERNET_TRAFFIC_SHAPER)
+         case ETHERNET_TX_SET_QAV_IDLE_SLOPE:
+            master
+            {
+              int slope;
+              tx[i] :> slope;
+              asm("stw %0,dp[g_mii_idle_slope]"::"r"(slope));
+            }
+         break;
 #endif
             default:
               // Unrecognized command

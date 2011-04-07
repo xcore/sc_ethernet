@@ -27,35 +27,53 @@ mii_queue_t filter_queue, internal_queue, ts_queue;
 #define MII_RX_LP_MEMSIZE \
       ((MII_RX_BUFSIZE_LOW_PRIORITY + 2*sizeof(mii_packet_t) + 20)/4)
 
-#define MII_TX_MEMSIZE \
+#define MII_TX_LP_MEMSIZE \
       ((MII_TX_BUFSIZE + 2*ETHERNET_MAX_TX_PACKET_SIZE + 20)/4)
+
+#ifdef ETHERNET_TX_HP_QUEUE
+#define MII_TX_HP_MEMSIZE \
+      ((MII_TX_BUFSIZE_HIGH_PRIORITY + 2*sizeof(mii_packet_t) + 20)/4)
+#endif
+
 
 #ifdef ETHERNET_HP_QUEUE
 int rx_hp_data[MII_RX_HP_MEMSIZE];
 #endif
 
+#ifdef ETHERNET_TX_HP_QUEUE
+int tx_hp_data[MII_TX_HP_MEMSIZE];
+#endif
+
+
+
 int rx_lp_data[MII_RX_LP_MEMSIZE];
-int tx_mem_data[MII_TX_MEMSIZE];
+int tx_lp_data[MII_TX_LP_MEMSIZE];
 
 
 
-mii_mempool_t rx_mem_hp;
+mii_mempool_t rx_mem_hp, tx_mem_hp;
 
 
-mii_mempool_t rx_mem_lp, tx_mem;
+mii_mempool_t rx_mem_lp, tx_mem_lp;
 
 
 void init_mii_mem() {
 #ifdef ETHERNET_HP_QUEUE
   rx_mem_hp = (mii_mempool_t) &rx_hp_data[0];
 #endif
+#ifdef ETHERNET_TX_HP_QUEUE
+  tx_mem_hp = (mii_mempool_t) &tx_hp_data[0];
+#endif
   rx_mem_lp = (mii_mempool_t) &rx_lp_data[0];
-  tx_mem = (mii_mempool_t) &tx_mem_data[0];
+  tx_mem_lp = (mii_mempool_t) &tx_lp_data[0];
 #ifdef ETHERNET_HP_QUEUE
   mii_init_mempool(rx_mem_hp, MII_RX_HP_MEMSIZE*4, 1518);
 #endif
+#ifdef ETHERNET_TX_HP_QUEUE
+  mii_init_mempool(tx_mem_hp, MII_TX_HP_MEMSIZE*4, 1518);
+#endif
   mii_init_mempool(rx_mem_lp, MII_RX_LP_MEMSIZE*4, 1518);
-  mii_init_mempool(tx_mem, MII_TX_MEMSIZE*4, ETHERNET_MAX_TX_PACKET_SIZE);
+  mii_init_mempool(tx_mem_lp, MII_TX_LP_MEMSIZE*4, ETHERNET_MAX_TX_PACKET_SIZE);
 
   init_queues();
   init_queue(&filter_queue);
@@ -76,7 +94,11 @@ void mii_rx_pins_wr(port p1,
 void mii_tx_pins_wr(port p,
                     int i)
 {
-  mii_tx_pins(tx_mem, &ts_queue, p, i);
+  mii_tx_pins(
+#ifdef ETHERNET_TX_HP_QUEUE
+              tx_mem_hp,
+#endif
+              tx_mem_lp, &ts_queue, p, i);
 }
 
 #if 0
@@ -102,7 +124,11 @@ void one_port_filter_wr(const int mac[2], streaming chanend c)
 
 void ethernet_tx_server_wr(const int mac_addr[2], chanend tx[], int num_q, int num_tx, smi_interface_t *smi1, smi_interface_t *smi2, chanend connect_status)
 {
-  ethernet_tx_server(tx_mem, 
+  ethernet_tx_server(
+#ifdef ETHERNET_TX_HP_QUEUE
+                     tx_mem_hp,
+#endif
+                     tx_mem_lp,
                      num_q,
                      &ts_queue,
                      mac_addr,

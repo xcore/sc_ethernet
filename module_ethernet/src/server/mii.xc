@@ -10,6 +10,7 @@
 #include <print.h>
 #include <stdlib.h>
 #include <syscall.h>
+#include "ethernet_server_def.h"
 
 // Timing tuning constants
 #define PAD_DELAY_RECEIVE    0
@@ -203,28 +204,99 @@ void mii_rx_pins(mii_mempool_t rxmem_hp, mii_mempool_t rxmem_lp,
 	return;
 }
 
+
+#if defined(ETHERNET_TX_HP_QUEUE) && defined(ETHERNET_TRAFFIC_SHAPER)
+int g_mii_idle_slope=(11<<MII_CREDIT_FRACTIONAL_BITS);
+#endif
+
 #pragma unsafe arrays
-void mii_tx_pins(mii_mempool_t txmem,
+void mii_tx_pins(
+#ifdef ETHERNET_TX_HP_QUEUE
+                 mii_mempool_t hp_queue,
+#endif
+                 mii_mempool_t lp_queue,
                   mii_queue_t &ts_queue,
                   out buffered port:32 p_mii_txd, 
                   int ifnum) 
 {
+#if defined(ETHERNET_TX_HP_QUEUE) && defined(ETHERNET_TRAFFIC_SHAPER)
+  int credit = 0;
+  int credit_time;
+#endif
+  int prev_eof_time;
+  int send_ok = 1;
+  timer tmr;  
+
+#if defined(ETHERNET_TX_HP_QUEUE) && defined(ETHERNET_TRAFFIC_SHAPER)
+  tmr :> credit_time;
+#endif
   while (1) {
-    unsigned buf;
+    unsigned buf=0;
     register const unsigned poly = 0xEDB88320;
-    timer tmr;
     unsigned int time;
     int bytes_left;
     unsigned int crc = 0;
     unsigned int word;
     unsigned int prev_length = 0;
     unsigned int data;
+
     int i = 0;
     int j = 0;
-  
-    buf = mii_get_next_buf(txmem);
-    if (buf == 0 || get_buf_stage(buf) != 1) 
-      continue;
+    int stage;
+#if defined(ETHERNET_TX_HP_QUEUE) && defined(ETHERNET_TRAFFIC_SHAPER)
+    int prev_credit_time;
+    int idle_slope;
+    int elapsed;
+#endif
+    if (!send_ok) {
+       tmr :> time;
+      if (((int) time - (int) prev_eof_time) < 200) {
+        continue;
+      }
+      else 
+        send_ok = 1;
+    }
+
+
+#ifdef ETHERNET_TX_HP_QUEUE
+    buf = mii_get_next_buf(hp_queue);
+
+    #ifdef ETHERNET_TRAFFIC_SHAPER
+    if (buf) {
+
+      if (credit < 0) {
+        asm("ldw %0,dp[g_mii_idle_slope]":"=r"(idle_slope));
+        
+        prev_credit_time = credit_time;
+        tmr :> credit_time;
+        
+        elapsed = credit_time - prev_credit_time;
+        credit += elapsed * idle_slope;
+      }
+      
+      if (credit < 0) 
+        buf = 0;      
+      else {
+        int len = get_buf_length(buf);        
+        credit = credit - len << (MII_CREDIT_FRACTIONAL_BITS+3);
+      }
+
+    }      
+    else {
+      if (credit >= 0)
+        credit = 0;
+      tmr :> credit_time;
+    }
+    #endif
+
+    if (!buf) 
+      buf = mii_get_next_buf(lp_queue);
+
+#else
+    buf = mii_get_next_buf(lp_queue);
+#endif
+
+    if (buf)  {
 
     bytes_left = get_buf_length(buf);
 
@@ -299,7 +371,8 @@ void mii_tx_pins(mii_mempool_t txmem,
         p_mii_txd <: crc;
         break;
       }
-    
+    tmr :> prev_eof_time;    
+    send_ok = 0;
     if (get_and_dec_transmit_count(buf) == 0) {
       if (get_buf_timestamp_id(buf)) {
         set_buf_stage(buf, 2);
@@ -308,11 +381,9 @@ void mii_tx_pins(mii_mempool_t txmem,
       else {
         mii_free(buf);
       }
-      
+          
     }
-    tmr :> time;
-    time+=196;
-    tmr when timerafter(time) :> int tmp;
+    }
   }
 }
 

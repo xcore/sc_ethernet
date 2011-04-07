@@ -286,8 +286,6 @@ void ethernet_rx_server(mii_mempool_t rxmem_hp,
 
    printstr("INFO: Ethernet Rx Server started..\n");
 
-
-
    // Main control loop.
    while (1)
    {

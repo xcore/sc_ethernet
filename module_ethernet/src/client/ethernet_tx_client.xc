@@ -21,11 +21,36 @@
 #include "ethernet_server_def.h"
 #include "ethernet_tx_client.h"
 
+
 #pragma unsafe arrays
 static void ethernet_send_frame_unify(chanend ethernet_tx_svr, unsigned int Buf[], int count, unsigned int &sentTime, unsigned int Cmd, int ifnum)
 {
   int i;
-  
+#ifdef ETHERNET_TX_HP_QUEUE
+  int etype;
+#endif
+
+#ifdef ETHERNET_TX_HP_QUEUE
+  etype = (unsigned short) Buf[3];
+  if (etype == 0x0081) {
+    switch (Cmd) 
+      {
+      case ETHERNET_TX_REQ:
+        Cmd = ETHERNET_TX_REQ_HP;
+        break;
+      case ETHERNET_TX_REQ_TIMED:
+        Cmd = ETHERNET_TX_REQ_TIMED_HP;
+        break;
+      case ETHERNET_TX_REQ_OFFSET2:
+        Cmd = ETHERNET_TX_REQ_OFFSET2_HP;
+        break;
+      default:
+        break;
+      }
+  }  
+#endif
+
+ 
   sentTime = 0;
 
   ethernet_tx_svr <: Cmd;
@@ -40,7 +65,7 @@ static void ethernet_send_frame_unify(chanend ethernet_tx_svr, unsigned int Buf[
   }
     
 
-  if (Cmd == ETHERNET_TX_REQ_TIMED) {
+  if (Cmd == ETHERNET_TX_REQ_TIMED || Cmd == ETHERNET_TX_REQ_TIMED_HP) {
     ethernet_tx_svr :> sentTime;
   }
   
@@ -113,6 +138,19 @@ void send_avb_1722_router_cmd(chanend c,
     c <: key1;
     c <: link;
     c <: hash;
+  }
+}
+#endif
+
+#if defined(ETHERNET_TX_HP_QUEUE) && defined(ETHERNET_TRAFFIC_SHAPER)
+void mac_set_qav_bandwidth(chanend c,
+                           int a,
+                           int b)
+{
+  int slope = ((a<<MII_CREDIT_FRACTIONAL_BITS)/(b*100));
+  c <: ETHERNET_TX_SET_QAV_IDLE_SLOPE;
+  slave {
+    c <: slope;
   }
 }
 #endif

@@ -8,8 +8,17 @@
 #include "mii_queue.h"
 #include "mii_malloc.h"
 
+#ifdef __ethernet_conf_h_exists__
+#include "ethernet_conf.h"
+#endif
+
+
 #ifdef __XC__
-void ethernet_tx_server(mii_mempool_t tx_mem,
+void ethernet_tx_server(
+#ifdef ETHERNET_TX_HP_QUEUE
+                        mii_mempool_t tx_mem_hp,
+#endif
+                        mii_mempool_t tx_mem_lp,
                         int num_q,
                         REFERENCE_PARAM(mii_queue_t,ts_q),                     
                         const int mac_addr[2],
@@ -18,7 +27,11 @@ void ethernet_tx_server(mii_mempool_t tx_mem,
                         smi_interface_t &?smi2,
                         chanend ?connect_status);xb
 #else
-void ethernet_tx_server(mii_mempool_t tx_mem,
+void ethernet_tx_server(
+#ifdef ETHERNET_TX_HP_QUEUE
+                        mii_mempool_t tx_mem_hp,
+#endif
+                        mii_mempool_t tx_mem_lp,
                         int num_q,
                         REFERENCE_PARAM(mii_queue_t,ts_q),                     
                         const int mac_addr[2],
