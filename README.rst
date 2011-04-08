@@ -18,6 +18,7 @@ Key Features
    * Packet filtering by extension function
    * Memory based locking protocol
    * FIFO based memory allocation for lower RAM overhead
+   * 802.1Qat traffic shaping support
 
 Firmware Overview
 =================
