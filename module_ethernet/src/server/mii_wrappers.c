@@ -19,7 +19,16 @@
 mii_queue_t filter_queue, internal_queue, ts_queue;
 
 
-#ifdef ETHERNET_HP_QUEUE
+#ifdef ETHERNET_RX_HP_QUEUE
+
+#ifndef MII_RX_BUFSIZE_HIGH_PRIORITY
+#define MII_RX_BUFSIZE_HIGH_PRIORITY 256
+#endif
+
+#ifndef MII_RX_BUFSIZE_LOW_PRIORITY
+#define MII_RX_BUFSIZE_LOW_PRIORITY 512
+#endif
+
 #define MII_RX_HP_MEMSIZE \
       ((MII_RX_BUFSIZE_HIGH_PRIORITY + 2*sizeof(mii_packet_t) + 20)/4)
 #endif
@@ -30,13 +39,20 @@ mii_queue_t filter_queue, internal_queue, ts_queue;
 #define MII_TX_LP_MEMSIZE \
       ((MII_TX_BUFSIZE + 2*ETHERNET_MAX_TX_PACKET_SIZE + 20)/4)
 
+
+
 #ifdef ETHERNET_TX_HP_QUEUE
+
+#ifndef MII_TX_BUFSIZE_HIGH_PRIORITY
+#define MII_TX_BUFSIZE_HIGH_PRIORITY 256
+#endif
+
 #define MII_TX_HP_MEMSIZE \
       ((MII_TX_BUFSIZE_HIGH_PRIORITY + 2*sizeof(mii_packet_t) + 20)/4)
 #endif
 
 
-#ifdef ETHERNET_HP_QUEUE
+#ifdef ETHERNET_RX_HP_QUEUE
 int rx_hp_data[MII_RX_HP_MEMSIZE];
 #endif
 
@@ -58,7 +74,7 @@ mii_mempool_t rx_mem_lp, tx_mem_lp;
 
 
 void init_mii_mem() {
-#ifdef ETHERNET_HP_QUEUE
+#ifdef ETHERNET_RX_HP_QUEUE
   rx_mem_hp = (mii_mempool_t) &rx_hp_data[0];
 #endif
 #ifdef ETHERNET_TX_HP_QUEUE
@@ -66,7 +82,7 @@ void init_mii_mem() {
 #endif
   rx_mem_lp = (mii_mempool_t) &rx_lp_data[0];
   tx_mem_lp = (mii_mempool_t) &tx_lp_data[0];
-#ifdef ETHERNET_HP_QUEUE
+#ifdef ETHERNET_RX_HP_QUEUE
   mii_init_mempool(rx_mem_hp, MII_RX_HP_MEMSIZE*4, 1518);
 #endif
 #ifdef ETHERNET_TX_HP_QUEUE

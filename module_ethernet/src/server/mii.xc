@@ -62,7 +62,7 @@ void mii_rx_pins(mii_mempool_t rxmem_hp, mii_mempool_t rxmem_lp,
 		unsigned word;
 		unsigned buf, buf_lp, dptr, dptr_lp;
 		int buf_lp_valid = 1, buf_valid;
-#ifdef ETHERNET_HP_QUEUE
+#ifdef ETHERNET_RX_HP_QUEUE
 		unsigned buf_hp, dptr_hp;
 		int buf_hp_valid = 1;
 #endif
@@ -72,12 +72,12 @@ void mii_rx_pins(mii_mempool_t rxmem_hp, mii_mempool_t rxmem_lp,
 
 #pragma xta label "mii_rx_begin"
 		buf = 0;
-#ifdef ETHERNET_HP_QUEUE
+#ifdef ETHERNET_RX_HP_QUEUE
 		buf_hp = mii_malloc(rxmem_hp);
 #endif
 		buf_lp = mii_malloc(rxmem_lp);
 
-#ifdef ETHERNET_HP_QUEUE
+#ifdef ETHERNET_RX_HP_QUEUE
 		if (!buf_hp && !buf_lp) {
 			continue;
 		}
@@ -98,7 +98,7 @@ void mii_rx_pins(mii_mempool_t rxmem_hp, mii_mempool_t rxmem_lp,
 
 		set_buf_src_port(buf_lp, 0);
 		set_buf_timestamp_id(buf_lp, 0);
-#ifdef ETHERNET_HP_QUEUE
+#ifdef ETHERNET_RX_HP_QUEUE
 		set_buf_src_port(buf_hp, 0);
 		set_buf_timestamp_id(buf_hp, 0);
 #endif
@@ -113,7 +113,7 @@ void mii_rx_pins(mii_mempool_t rxmem_hp, mii_mempool_t rxmem_lp,
 		tmr :> time;
 		set_buf_timestamp(buf_lp, time);
 		dptr_lp = get_buf_data_ptr(buf_lp);
-#ifdef ETHERNET_HP_QUEUE
+#ifdef ETHERNET_RX_HP_QUEUE
 		dptr_hp = get_buf_data_ptr(buf_hp);
 		set_buf_timestamp(buf_hp, time);
 #endif
@@ -122,7 +122,7 @@ void mii_rx_pins(mii_mempool_t rxmem_hp, mii_mempool_t rxmem_lp,
 		p_mii_rxd :> word;
 		crc32(crc, word, poly);
 		set_data_word_imm(dptr_lp, 0, word);
-#ifdef ETHERNET_HP_QUEUE
+#ifdef ETHERNET_RX_HP_QUEUE
 		set_data_word_imm(dptr_hp, 0, word);
 #endif
 
@@ -133,7 +133,7 @@ void mii_rx_pins(mii_mempool_t rxmem_hp, mii_mempool_t rxmem_lp,
 #pragma xta endpoint "mii_rx_word"                
 				case p_mii_rxd :> word:
 				set_data_word(dptr_lp, i, word);
-#ifdef ETHERNET_HP_QUEUE
+#ifdef ETHERNET_RX_HP_QUEUE
 				set_data_word(dptr_hp, i, word);
 #endif
 				crc32(crc, word, poly);
@@ -145,11 +145,11 @@ void mii_rx_pins(mii_mempool_t rxmem_hp, mii_mempool_t rxmem_lp,
 					int taillen;
 					int endbytes;
 					int error = 0;
-#ifdef ETHERNET_HP_QUEUE
+#ifdef ETHERNET_RX_HP_QUEUE
 					unsigned short etype;
 #endif
 
-#ifdef ETHERNET_HP_QUEUE
+#ifdef ETHERNET_RX_HP_QUEUE
 					etype = (unsigned short) get_data_word(dptr_lp, 3);
 
 					if (etype == 0x0081) {
@@ -298,10 +298,6 @@ void mii_tx_pins(
 
     if (buf)  {
 
-    bytes_left = get_buf_length(buf);
-
-	//  printintln(bytes_left);
-
     p_mii_txd <: 0x55555555;
     p_mii_txd <: 0x55555555;
     p_mii_txd <: 0xD5555555;
@@ -315,7 +311,10 @@ void mii_tx_pins(
     p_mii_txd <: word;
     i++;
     crc32(crc, ~word, poly);
+
+    bytes_left = get_buf_length(buf);
     bytes_left -=4;
+
     j+=4;
     
     word = get_data_word(data, i);

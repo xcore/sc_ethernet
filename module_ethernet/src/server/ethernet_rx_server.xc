@@ -260,7 +260,7 @@ void ethernet_rx_server(mii_mempool_t rxmem_hp,
 {
    int i;
    unsigned int cmd;
-#ifdef ETHERNET_HP_QUEUE
+#ifdef ETHERNET_RX_HP_QUEUE
    int rdptr_hp;
 #endif
    int rdptr_lp;
@@ -268,7 +268,7 @@ void ethernet_rx_server(mii_mempool_t rxmem_hp,
    printstr("INFO: Ethernet Rx Server init..\n");
    //   ethernet_register_traphandler();
 
-#ifdef ETHERNET_HP_QUEUE
+#ifdef ETHERNET_RX_HP_QUEUE
    rdptr_hp = mii_init_my_rdptr(rxmem_hp);
 #endif
    rdptr_lp = mii_init_my_rdptr(rxmem_lp);
@@ -331,7 +331,7 @@ void ethernet_rx_server(mii_mempool_t rxmem_hp,
        default:
          {
            int buf;
-#ifdef ETHERNET_HP_QUEUE
+#ifdef ETHERNET_RX_HP_QUEUE
            buf = mii_get_my_next_buf(rxmem_hp, rdptr_hp);
            if (buf != 0 && get_buf_stage(buf) == 1) {            
              rdptr_hp = mii_update_my_rdptr(rxmem_hp, rdptr_hp);
