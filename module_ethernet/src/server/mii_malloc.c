@@ -137,6 +137,7 @@ mii_buffer_t mii_get_next_buf(mii_mempool_t mempool)
   if (rdptr == wrptr) 
     return 0;
 
+
   if (rdptr > info->end) {
     if (wrptr == info->start)      
       return 0;

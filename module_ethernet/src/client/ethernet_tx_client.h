@@ -106,4 +106,8 @@ int mac_set_bandwidth(chanend c_mac, unsigned int bandwidth);
 
 #define ethernet_set_bandwidth mac_set_bandwidth
 
+void mac_set_qav_bandwidth(chanend c,
+                           int a,
+                           int b);
+
 #endif

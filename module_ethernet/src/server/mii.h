@@ -58,9 +58,8 @@
 #define ETHERNET_MAX_TX_PACKET_SIZE (1518)
 #endif
 
+
 #include "mii_queue.h"
-
-
 
 #ifdef __XC__
 /** Structure containing resources required for the MII ethernet interface.
@@ -192,14 +191,20 @@ void mii_rx_pins(int rxmem_hp,
 #endif
 
 #ifdef __XC__
-void mii_tx_pins(int mempool,
-                 mii_queue_t &in_queue,
+void mii_tx_pins(
+#ifdef ETHERNET_TX_HP_QUEUE
+                 int hp_mempool,
+#endif
+                 int lp_mempool,
                  mii_queue_t &ts_queue,
                  out buffered port:32 p_mii_txd,
                  int ifnum);
 #else
-void mii_tx_pins(int mempool,
-                 mii_queue_t *in_queue,
+void mii_tx_pins(
+#ifdef ETHERNET_TX_HP_QUEUE
+                 int hp_mempool,
+#endif
+                 int lp_mempool,
                  mii_queue_t *ts_queue,
                  port p_mii_txd,
                  int ifnum);
