@@ -256,7 +256,7 @@ void mii_tx_pins(
     buf = mii_get_next_buf(hp_queue);
 
     #ifdef ETHERNET_TRAFFIC_SHAPER
-    if (buf) {
+    if (buf && get_buf_stage(buf) == 1) {
 
       if (credit < 0) {
         asm("ldw %0,dp[g_mii_idle_slope]":"=r"(idle_slope));
@@ -283,14 +283,14 @@ void mii_tx_pins(
     }
     #endif
 
-    if (!buf) 
+    if (!buf || get_buf_stage(buf) != 1) 
       buf = mii_get_next_buf(lp_queue);
 
 #else
     buf = mii_get_next_buf(lp_queue);
 #endif
 
-    if (buf)  {
+    if (buf && get_buf_stage(buf) == 1)  {
 
     p_mii_txd <: 0x55555555;
     p_mii_txd <: 0x55555555;

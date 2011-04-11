@@ -188,17 +188,17 @@ int receiver(chanend rx, chanend ready, int expected_spacing)
 
 extern unsigned int mac_custom_filter(unsigned int data[]);
 
-int mac_tx_rx_data_test(chanend tx, chanend rx, int divide)
+int mac_tx_rx_data_test(chanend tx, chanend rx, int bits_per_second)
 {
 	chan ready;
 	int res;
         int expected_spacing;
-        mac_set_qav_bandwidth(tx, 100, divide);                              
+        mac_set_qav_bandwidth(tx, bits_per_second);                          
         
         printstr("Allowed bandwidth ");
-        printint(100/divide);
+        printint(bits_per_second/1000000);
         printstr("MBit\n");
-        expected_spacing = PACKET_LEN*8*divide;
+        expected_spacing = PACKET_LEN*8*(100000000/bits_per_second);
         printstr("Expected spacing: ");
         printint(expected_spacing);
         printstr(" +- ");
@@ -215,8 +215,10 @@ int mac_tx_rx_data_test(chanend tx, chanend rx, int divide)
 void runtests(chanend tx[], chanend rx[], int links)
 {
 	RUNTEST("init", init(rx, tx, links));
-	RUNTEST("traffic shaper test", mac_tx_rx_data_test(tx[0], rx[0], 2));
-	RUNTEST("traffic shaper test", mac_tx_rx_data_test(tx[0], rx[0], 4));
+	RUNTEST("traffic shaper test", mac_tx_rx_data_test(tx[0], rx[0], 
+                                                           50000000));
+	RUNTEST("traffic shaper test", mac_tx_rx_data_test(tx[0], rx[0], 
+                                                           25000000));
         //	RUNTEST("mac_tx_rx_data_test", mac_tx_rx_data_test(tx[0], rx[0], 5 << 24));
 	printstr("Complete");
 	_Exit(0);

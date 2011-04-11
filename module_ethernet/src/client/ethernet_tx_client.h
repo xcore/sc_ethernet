@@ -94,20 +94,21 @@ int mac_get_macaddr(chanend c_mac, unsigned char macaddr[]);
 
 #define ethernet_get_my_mac_adrs mac_get_macaddr
 
-
 /** This function sets the transmit 
- *  bandwidth restriction on a link to the mac server.
+ *  bandwidth restriction for Q-tagged traffice out of the mac.
+ *  It covers all Q-tagged traffic out of the mac (not just
+ *  traffic sent from this client) and sets the
+ *  output in bits per second. This value includes the ethernet header
+ *  but not the CRC, interframe gap or pre-amble.
  *
+ *  The restriction is implemented by a traffic shaper using the credit
+ *  based shaper algorithm specified in 802.1Qav.
+ * 
  *  \param   c_mac chanend connected to ethernet server
- *  \param   bandwidth The allowed bandwidth of the link in Mbps
+ *  \param   bits_per_seconds The allowed bandwidth in bits per second
  *
  */
-int mac_set_bandwidth(chanend c_mac, unsigned int bandwidth);
-
-#define ethernet_set_bandwidth mac_set_bandwidth
-
-void mac_set_qav_bandwidth(chanend c,
-                           int a,
-                           int b);
+void mac_set_qav_bandwidth(chanend c_mac,
+                           int bits_per_second);
 
 #endif

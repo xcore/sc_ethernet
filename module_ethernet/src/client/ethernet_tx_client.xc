@@ -19,8 +19,9 @@
 #include "ethernet_conf.h"
 #endif
 #include "ethernet_server_def.h"
-#include "ethernet_tx_client.h"
 
+#include "ethernet_tx_client.h"
+#include "print.h"
 
 #pragma unsafe arrays
 static void ethernet_send_frame_unify(chanend ethernet_tx_svr, unsigned int Buf[], int count, unsigned int &sentTime, unsigned int Cmd, int ifnum)
@@ -142,12 +143,13 @@ void send_avb_1722_router_cmd(chanend c,
 }
 #endif
 
+int mac_calc_idle_slope(int bps);
+
 #if defined(ETHERNET_TX_HP_QUEUE) && defined(ETHERNET_TRAFFIC_SHAPER)
 void mac_set_qav_bandwidth(chanend c,
-                           int a,
-                           int b)
+                           int bps)
 {
-  int slope = ((a<<MII_CREDIT_FRACTIONAL_BITS)/(b*100));
+  int slope = mac_calc_idle_slope(bps);
   c <: ETHERNET_TX_SET_QAV_IDLE_SLOPE;
   slave {
     c <: slope;
