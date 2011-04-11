@@ -23,6 +23,7 @@
 #pragma xta command "add exclusion mii_rx_valid_hi"
 #pragma xta command "add exclusion mii_rx_eof"
 #pragma xta command "add exclusion mii_rx_begin"
+#pragma xta command "add exclusion mii_eof_case"
 
 // This constraint is a bit tighter to make up for the slacker constraint before
 #pragma xta command "analyze endpoints mii_rx_word mii_rx_word"
@@ -141,64 +142,57 @@ void mii_rx_pins(mii_mempool_t rxmem_hp, mii_mempool_t rxmem_lp,
 				break;
 				case p_mii_rxdv when pinseq(0) :> int lo:
 				{
-					unsigned tail;
-					int taillen;
-					int endbytes;
-					int error = 0;
-#ifdef ETHERNET_RX_HP_QUEUE
-					unsigned short etype;
-#endif
-
-#ifdef ETHERNET_RX_HP_QUEUE
-					etype = (unsigned short) get_data_word(dptr_lp, 3);
-
-					if (etype == 0x0081) {
-						buf = buf_hp;
-						dptr = dptr_hp;
-						buf_valid = buf_hp_valid;
-					}
-					else {
-						buf = buf_lp;
-						dptr = dptr_lp;
-						buf_valid = buf_lp_valid;
-					}
-#else
-					buf = buf_lp;
-					dptr = dptr_lp;
-					buf_valid = buf_lp_valid;
-#endif
-
-					taillen = endin(p_mii_rxd);
-#pragma xta endpoint "mii_rx_eof"                
-					p_mii_rxd :> tail;
-
-					length = (i-1) << 2;
-					tail = tail >> (32 - taillen);
-					endbytes = (taillen >> 3);
-					length += endbytes;
-
-					if (length < 60 || length > 1514)
-					buf_valid = 0;
-
-					set_buf_length(buf, length);
-
-					if (buf_valid)
-					c <: buf;
-
-					set_data_word(dptr, i, tail);
-
-					// pass the (partial) crc for upper layers to handle
-					set_buf_crc(buf, crc);
-
+#pragma xta label "mii_eof_case"
 					endofframe = 1;
-
 					break;
 				}
 			}
 		}while (!endofframe);
 
-		if (buf && buf_valid)
-		mii_realloc(buf, (length+(3+BUF_DATA_OFFSET*4))&~0x3);
+		{
+			unsigned tail;
+			int taillen;
+			int endbytes;
+			int error = 0;
+
+#ifdef ETHERNET_RX_HP_QUEUE
+			unsigned short etype = (unsigned short) get_data_word(dptr_lp, 3);
+
+			if (etype == 0x0081) {
+				buf = buf_hp;
+				dptr = dptr_hp;
+				buf_valid = buf_hp_valid;
+			}
+			else {
+				buf = buf_lp;
+				dptr = dptr_lp;
+				buf_valid = buf_lp_valid;
+			}
+#else
+			buf = buf_lp;
+			dptr = dptr_lp;
+			buf_valid = buf_lp_valid;
+#endif
+
+			taillen = endin(p_mii_rxd);
+#pragma xta endpoint "mii_rx_eof"                
+			p_mii_rxd :> tail;
+
+			length = (i-1) << 2;
+			tail = tail >> (32 - taillen);
+			endbytes = (taillen >> 3);
+			length += endbytes;
+
+			set_buf_length(buf, length);
+			set_data_word(dptr, i, tail);
+			set_buf_crc(buf, crc);
+
+			if (length >= 60 && length <= 1514)
+			{
+				c <: buf;
+				mii_realloc(buf, (length+(3+BUF_DATA_OFFSET*4))&~0x3);
+			}
+		}
 	}
 
 	return;
@@ -318,14 +312,11 @@ void mii_tx_pins(
     j+=4;
     
     word = get_data_word(data, i);
-    //      while (bytes_left > 3) {
-    //  while (!buf.complete || (j< (buf.length-3))) {
     while ((j< get_buf_length(buf)-3)) {
       p_mii_txd <: word;
       i++;
       crc32(crc, word, poly);
       word = get_data_word(data, i);
-      //bytes_left -= 4;
       j += 4;
     }
 #ifdef TX_TIMESTAMP_END_OF_PACKET
@@ -344,14 +335,12 @@ void mii_tx_pins(
         break;
       case 1:
         crc8shr(crc, word, poly);
-        //p_mii_txd:8 <: word;
         partout(p_mii_txd, 8, word);
         crc32(crc, 0, poly);
         crc = ~crc;
         p_mii_txd <: crc;
         break;
       case 2:
-        //p_mii_txd:16 <: word;
         partout(p_mii_txd, 16, word);
         word = crc8shr(crc, word, poly);
         crc8shr(crc, word, poly);
@@ -360,7 +349,6 @@ void mii_tx_pins(
         p_mii_txd <: crc;
         break;
       case 3:
-        //p_mii_txd:24 <: word;
         partout(p_mii_txd, 24, word);
         word = crc8shr(crc, word, poly);
         word = crc8shr(crc, word, poly);
@@ -467,6 +455,3 @@ void mii_init(mii_interface_t &m) {
 
 }
 
-extern inline int get_buf_data(int buf, int n);
-extern inline void set_buf_filter_result(int buf, int x);
-extern inline int get_buf_filter_result(int buf);

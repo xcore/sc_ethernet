@@ -130,7 +130,7 @@ void one_port_filter(mii_mempool_t rx_mem,
       c :> buf;
 
       if (buf) {
-        
+
 #ifdef MAC_PROMISCUOUS
         if (1)
 #else
