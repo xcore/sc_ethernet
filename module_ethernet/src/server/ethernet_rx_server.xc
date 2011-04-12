@@ -187,7 +187,7 @@ static void processReceivedFrame(int buf,
 {
    int i;
    int tcount = 0;
-   int result = get_buf_filter_result(buf);
+   int result = mii_packet_get_filter_result(buf);
    // process for each link
 
    if (result) 
@@ -333,7 +333,7 @@ void ethernet_rx_server(mii_mempool_t rxmem_hp,
            int buf;
 #ifdef ETHERNET_RX_HP_QUEUE
            buf = mii_get_my_next_buf(rxmem_hp, rdptr_hp);
-           if (buf != 0 && get_buf_stage(buf) == 1) {            
+           if (buf != 0 && mii_packet_get_stage(buf) == 1) {
              rdptr_hp = mii_update_my_rdptr(rxmem_hp, rdptr_hp);
              processReceivedFrame(buf, link, num_link);            
            }   
@@ -341,7 +341,7 @@ void ethernet_rx_server(mii_mempool_t rxmem_hp,
 #endif
              {
              buf = mii_get_my_next_buf(rxmem_lp, rdptr_lp);
-             if (buf != 0 && get_buf_stage(buf) == 1) {         
+             if (buf != 0 && mii_packet_get_stage(buf) == 1) {
                rdptr_lp = mii_update_my_rdptr(rxmem_lp, rdptr_lp);   
                processReceivedFrame(buf, link, num_link);
              }   

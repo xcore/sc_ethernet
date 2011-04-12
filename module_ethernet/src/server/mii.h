@@ -125,19 +125,19 @@ typedef struct mii_packet_t {
 // The inline assembler version of the Get breaks.  Use a C function until
 // a tools fix is available
 #define create_buf_getset(field) \
-  inline int get_buf_##field (int buf) { \
+  inline int mii_packet_get_##field (int buf) { \
     int x; \
     asm("ldw %0,%1[" STRINGIFY(BUF_OFFSET_ ## field) "]":"=r"(x):"r"(buf)); \
     return x; \
  } \
- inline void set_buf_##field (int buf, int x) { \
+ inline void mii_packet_set_##field (int buf, int x) { \
   asm("stw %1, %0[" STRINGIFY(BUF_OFFSET_ ## field) "]"::"r"(buf),"r"(x)); \
  }
 #else
 // Temporary version of the get/set to avoid compiler issue with inline assembler
 #define create_buf_getset(field) \
- int get_buf_##field (int buf); \
- inline void set_buf_##field (int buf, int x) { \
+ int mii_packet_get_##field (int buf); \
+ inline void mii_packet_set_##field (int buf, int x) { \
   asm("stw %1, %0[" STRINGIFY(BUF_OFFSET_ ## field) "]"::"r"(buf),"r"(x)); \
  }
 #endif
@@ -151,39 +151,39 @@ create_buf_getset(timestamp_id)
 create_buf_getset(stage)
 create_buf_getset(crc)
 
-inline int get_buf_data_ptr(int buf) {
+inline int mii_packet_get_data_ptr(int buf) {
   return (buf+BUF_DATA_OFFSET*4);
 }
 
-inline void set_data_word(int data, int n, int v) {
+inline void mii_packet_set_data_word(int data, int n, int v) {
   asm("stw %0,%1[%2]"::"r"(v),"r"(data),"r"(n));
 }
 
 #ifdef ETHERNET_INLINE_PACKET_GET
-inline int get_data_word(int data, int n) {
+inline int mii_packet_get_data_word(int data, int n) {
   int x;
   asm("ldw %0,%1[%2]":"=r"(x):"r"(data),"r"(n));
   return x;
 }
 #else
-int get_data_word(int data, int n);
+int mii_packet_get_data_word(int data, int n);
 #endif
 
-#define set_data_word_imm(data, n, v) \
+#define mii_packet_set_data_word_imm(data, n, v) \
   asm("stw %0,%1[" STRINGIFY(n) "]"::"r"(v),"r"(data));
 
 
 #ifdef ETHERNET_INLINE_PACKET_GET
-inline int get_buf_data(int buf, int n) {
+inline int mii_packet_get_data(int buf, int n) {
   int x;
   asm("ldw %0,%1[%2]":"=r"(x):"r"(buf),"r"(n+BUF_DATA_OFFSET));
   return x;
 }
 #else
-int get_buf_data(int buf, int n);
+int mii_packet_get_data(int buf, int n);
 #endif
 
-inline void set_buf_data(int buf, int n, int v) {
+inline void mii_packet_set_data(int buf, int n, int v) {
   asm("stw %0,%1[%2]"::"r"(v),"r"(buf),"r"(n+BUF_DATA_OFFSET));
   return;
 }

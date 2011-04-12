@@ -195,18 +195,18 @@ mii_buffer_t mii_get_my_next_buf(mii_mempool_t mempool, int rdptr0)
 // These are the non-inline implementations of the mii_packet member
 // get functions
 
-int get_buf_data(int buf, int n)
+int mii_packet_get_data(int buf, int n)
 {
 	return (int)(((mii_packet_t*)buf)->data[n]);
 }
 
-int get_data_word(int data, int n)
+int mii_packet_get_data_word(int data, int n)
 {
 	return ((unsigned int*)data)[n];
 }
 
 #define gen_get_field(field) \
-	int get_buf_##field (int buf) \
+	int mii_packet_get_##field (int buf) \
 	{ \
 		return ((mii_packet_t*)buf)->field; \
 	}

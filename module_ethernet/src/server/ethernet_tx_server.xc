@@ -111,9 +111,9 @@ void ethernet_tx_server(
 
           if (buf) {            
             if (cmd == ETHERNET_TX_REQ_TIMED)
-              set_buf_timestamp_id(buf, i+1);
+              mii_packet_set_timestamp_id(buf, i+1);
             else
-              set_buf_timestamp_id(buf, 0);         
+              mii_packet_set_timestamp_id(buf, 0);
             
 
             if (cmd == ETHERNET_TX_REQ_OFFSET2) {
@@ -122,11 +122,11 @@ void ethernet_tx_server(
                 tx[i] :> dst_port;
                 tx[i] :> char;
                 tx[i] :> char;
-                set_buf_length(buf, length);
+                mii_packet_set_length(buf, length);
                 for(int j=0;j<(length+3)>>2;j++) {
                   int datum;
                   tx[i] :> datum;
-                  set_buf_data(buf, j, byterev(datum));
+                  mii_packet_set_data(buf, j, byterev(datum));
                 }
                 tx[i] :> char;
                 tx[i] :> char;
@@ -137,17 +137,17 @@ void ethernet_tx_server(
               master {          
                 tx[i] :> length;
                 tx[i] :> dst_port;
-                set_buf_length(buf, length);
+                mii_packet_set_length(buf, length);
                 for(int j=0;j<(length+3)>>2;j++) {
                   int datum;
                   tx[i] :> datum;
-                  set_buf_data(buf, j, datum);
+                  mii_packet_set_data(buf, j, datum);
                 }
               }
             }
 
-            set_buf_complete(buf, 1);
-            set_buf_stage(buf, 1);
+            mii_packet_set_complete(buf, 1);
+            mii_packet_set_stage(buf, 1);
             mii_realloc(buf, (length+(3+BUF_DATA_OFFSET*4))&~0x3); 
 
 #if 0 
@@ -243,8 +243,8 @@ void ethernet_tx_server(
     }
     buf=get_queue_entry(ts_queue);
     if (buf != 0) {
-      int i = get_buf_timestamp_id(buf);
-      int ts = get_buf_timestamp(buf);
+      int i = mii_packet_get_timestamp_id(buf);
+      int ts = mii_packet_get_timestamp(buf);
       tx[i-1] <: ts;
       if (get_and_dec_transmit_count(buf) == 0) 
         mii_free(buf);

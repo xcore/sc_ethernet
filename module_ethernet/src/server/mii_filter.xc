@@ -38,8 +38,8 @@ typedef struct mac_filter_t {
 #define NUM_FILTERS 4
 
 
-#define is_broadcast(buf) (get_buf_data(buf,0) & 0x1)
-#define compare_mac(buf,mac) (get_buf_data(buf,0) == mac[0] && ((short) get_buf_data(buf,1)) == ((short) mac[1]))
+#define is_broadcast(buf) (mii_packet_get_data(buf,0) & 0x1)
+#define compare_mac(buf,mac) (mii_packet_get_data(buf,0) == mac[0] && ((short) mii_packet_get_data(buf,1)) == ((short) mac[1]))
 
 
 #if 0
@@ -140,13 +140,13 @@ void one_port_filter(mii_mempool_t rx_mem,
 #endif
           {     
             int res = mac_custom_filter_coerce(buf);
-            set_buf_filter_result(buf, res);
-            set_buf_stage(buf, 1);
+            mii_packet_set_filter_result(buf, res);
+            mii_packet_set_stage(buf, 1);
           }
         else
           {
-            set_buf_filter_result(buf, 0);
-            set_buf_stage(buf,1);
+        	mii_packet_set_filter_result(buf, 0);
+        	mii_packet_set_stage(buf,1);
           }
       }     
     }

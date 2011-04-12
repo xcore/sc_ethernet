@@ -94,8 +94,19 @@ int mac_get_macaddr(chanend c_mac, unsigned char macaddr[]);
 
 #define ethernet_get_my_mac_adrs mac_get_macaddr
 
+/** Adjust the mac level router table
+ * \todo - fill this in - maybe change the name to something non-AVB
+ *         specific.  can it be useful outside of AVB?
+ *
+ */
+void send_avb_1722_router_cmd(chanend c,
+                              unsigned key0,
+                              unsigned key1,
+                              unsigned link,
+                              unsigned hash);
+
 /** This function sets the transmit 
- *  bandwidth restriction for Q-tagged traffice out of the mac.
+ *  bandwidth restriction for Q-tagged traffic out of the mac.
  *  It covers all Q-tagged traffic out of the mac (not just
  *  traffic sent from this client) and sets the
  *  output in bits per second. This value includes the ethernet header

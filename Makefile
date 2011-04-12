@@ -40,7 +40,7 @@
 # This variable should contain a space separated list of all
 # the directories containing buildable applications (usually
 # prefixed with the app_ prefix)
-BUILD_SUBDIRS = app_ethernet_demo app_ethernet_loopback app_ethernet_tests
+BUILD_SUBDIRS = app_ethernet_demo app_ethernet_loopback
 
 # This variable should contain a space separated list of all
 # the directories containing buildable plugins (usually
@@ -49,7 +49,7 @@ PLUGIN_SUBDIRS =
 
 # This variable should contain a space separated list of all
 # the directories containing applications with a 'test' make target
-TEST_SUBDIRS = app_ethernet_tests
+TEST_SUBDIRS = test_regression test_ethernet_qav
 
 # Provided that the above variables are set you shouldn't need to modify
 # the targets below here. 

@@ -97,11 +97,11 @@ void mii_rx_pins(mii_mempool_t rxmem_hp, mii_mempool_t rxmem_lp,
 		continue;
 #endif
 
-		set_buf_src_port(buf_lp, 0);
-		set_buf_timestamp_id(buf_lp, 0);
+		mii_packet_set_src_port(buf_lp, 0);
+		mii_packet_set_timestamp_id(buf_lp, 0);
 #ifdef ETHERNET_RX_HP_QUEUE
-		set_buf_src_port(buf_hp, 0);
-		set_buf_timestamp_id(buf_hp, 0);
+		mii_packet_set_src_port(buf_hp, 0);
+		mii_packet_set_timestamp_id(buf_hp, 0);
 #endif
 
 #pragma xta endpoint "mii_rx_valid_hi"                
@@ -112,19 +112,19 @@ void mii_rx_pins(mii_mempool_t rxmem_hp, mii_mempool_t rxmem_lp,
 
 #pragma xta endpoint "mii_rx_after_preamble"                    
 		tmr :> time;
-		set_buf_timestamp(buf_lp, time);
-		dptr_lp = get_buf_data_ptr(buf_lp);
+		mii_packet_set_timestamp(buf_lp, time);
+		dptr_lp = mii_packet_get_data_ptr(buf_lp);
 #ifdef ETHERNET_RX_HP_QUEUE
-		dptr_hp = get_buf_data_ptr(buf_hp);
-		set_buf_timestamp(buf_hp, time);
+		dptr_hp = mii_packet_get_data_ptr(buf_hp);
+		mii_packet_set_timestamp(buf_hp, time);
 #endif
 
 #pragma xta endpoint "mii_rx_first_word"
 		p_mii_rxd :> word;
 		crc32(crc, word, poly);
-		set_data_word_imm(dptr_lp, 0, word);
+		mii_packet_set_data_word_imm(dptr_lp, 0, word);
 #ifdef ETHERNET_RX_HP_QUEUE
-		set_data_word_imm(dptr_hp, 0, word);
+		mii_packet_set_data_word_imm(dptr_hp, 0, word);
 #endif
 
 		do
@@ -133,9 +133,9 @@ void mii_rx_pins(mii_mempool_t rxmem_hp, mii_mempool_t rxmem_lp,
 			{
 #pragma xta endpoint "mii_rx_word"                
 				case p_mii_rxd :> word:
-				set_data_word(dptr_lp, i, word);
+					mii_packet_set_data_word(dptr_lp, i, word);
 #ifdef ETHERNET_RX_HP_QUEUE
-				set_data_word(dptr_hp, i, word);
+				mii_packet_set_data_word(dptr_hp, i, word);
 #endif
 				crc32(crc, word, poly);
 				i++;
@@ -156,7 +156,7 @@ void mii_rx_pins(mii_mempool_t rxmem_hp, mii_mempool_t rxmem_lp,
 			int error = 0;
 
 #ifdef ETHERNET_RX_HP_QUEUE
-			unsigned short etype = (unsigned short) get_data_word(dptr_lp, 3);
+			unsigned short etype = (unsigned short) mii_packet_get_data_word(dptr_lp, 3);
 
 			if (etype == 0x0081) {
 				buf = buf_hp;
@@ -183,9 +183,9 @@ void mii_rx_pins(mii_mempool_t rxmem_hp, mii_mempool_t rxmem_lp,
 			endbytes = (taillen >> 3);
 			length += endbytes;
 
-			set_buf_length(buf, length);
-			set_data_word(dptr, i, tail);
-			set_buf_crc(buf, crc);
+			mii_packet_set_length(buf, length);
+			mii_packet_set_data_word(dptr, i, tail);
+			mii_packet_set_crc(buf, crc);
 
 			if (length >= 60 && length <= 1514)
 			{
@@ -231,7 +231,6 @@ void mii_tx_pins(
     int bytes_left;
     unsigned int crc = 0;
     unsigned int word;
-    unsigned int prev_length = 0;
     unsigned int data;
 
     int i = 0;
@@ -256,7 +255,7 @@ void mii_tx_pins(
     buf = mii_get_next_buf(hp_queue);
 
     #ifdef ETHERNET_TRAFFIC_SHAPER
-    if (buf && get_buf_stage(buf) == 1) {
+    if (buf && mii_packet_get_stage(buf) == 1) {
 
       if (credit < 0) {
         asm("ldw %0,dp[g_mii_idle_slope]":"=r"(idle_slope));
@@ -271,7 +270,7 @@ void mii_tx_pins(
       if (credit < 0) 
         buf = 0;      
       else {
-        int len = get_buf_length(buf);        
+        int len = mii_packet_get_length(buf);
         credit = credit - len << (MII_CREDIT_FRACTIONAL_BITS+3);
       }
 
@@ -283,48 +282,45 @@ void mii_tx_pins(
     }
     #endif
 
-    if (!buf || get_buf_stage(buf) != 1) 
+    if (!buf || mii_packet_get_stage(buf) != 1)
       buf = mii_get_next_buf(lp_queue);
 
 #else
     buf = mii_get_next_buf(lp_queue);
 #endif
 
-    if (buf && get_buf_stage(buf) == 1)  {
+    if (buf && mii_packet_get_stage(buf) == 1)  {
 
     p_mii_txd <: 0x55555555;
     p_mii_txd <: 0x55555555;
     p_mii_txd <: 0xD5555555;
 #ifndef TX_TIMESTAMP_END_OF_PACKET
     tmr :> time;
-    set_buf_timestamp(buf, time);
+    mii_packet_set_timestamp(buf, time);
 #endif
-    data = get_buf_data_ptr(buf);
+    data = mii_packet_get_data_ptr(buf);
     
-    word = get_data_word(data, i);
+    word = mii_packet_get_data_word(data, i);
     p_mii_txd <: word;
     i++;
     crc32(crc, ~word, poly);
 
-    bytes_left = get_buf_length(buf);
-    bytes_left -=4;
-
     j+=4;
     
-    word = get_data_word(data, i);
-    while ((j< get_buf_length(buf)-3)) {
+    word = mii_packet_get_data_word(data, i);
+    while ((j< mii_packet_get_length(buf)-3)) {
       p_mii_txd <: word;
       i++;
       crc32(crc, word, poly);
-      word = get_data_word(data, i);
+      word = mii_packet_get_data_word(data, i);
       j += 4;
     }
 #ifdef TX_TIMESTAMP_END_OF_PACKET
     tmr :> time;
-    set_buf_timestamp(buf, time);
+    mii_packet_set_timestamp(buf, time);
 #endif
-    bytes_left = get_buf_length(buf)-j;
-    prev_length = get_buf_length(buf);
+
+    bytes_left = mii_packet_get_length(buf)-j;
     
     switch (bytes_left)
       {
@@ -361,8 +357,8 @@ void mii_tx_pins(
     tmr :> prev_eof_time;    
     send_ok = 0;
     if (get_and_dec_transmit_count(buf) == 0) {
-      if (get_buf_timestamp_id(buf)) {
-        set_buf_stage(buf, 2);
+      if (mii_packet_get_timestamp_id(buf)) {
+    	mii_packet_set_stage(buf, 2);
         add_queue_entry(ts_queue, buf);
       }
       else {
