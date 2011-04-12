@@ -30,14 +30,14 @@ mii_queue_t filter_queue, internal_queue, ts_queue;
 #endif
 
 #define MII_RX_HP_MEMSIZE \
-      ((MII_RX_BUFSIZE_HIGH_PRIORITY + 2*sizeof(mii_packet_t) + 20)/4)
+  ((MII_RX_BUFSIZE_HIGH_PRIORITY +  2*sizeof(mii_packet_t) + 20)/4)
 #endif
 
 #define MII_RX_LP_MEMSIZE \
       ((MII_RX_BUFSIZE_LOW_PRIORITY + 2*sizeof(mii_packet_t) + 20)/4)
 
 #define MII_TX_LP_MEMSIZE \
-      ((MII_TX_BUFSIZE + 2*ETHERNET_MAX_TX_PACKET_SIZE + 20)/4)
+    ((MII_TX_BUFSIZE + sizeof(mii_packet_t) + 20)/4)
 
 
 
@@ -48,7 +48,7 @@ mii_queue_t filter_queue, internal_queue, ts_queue;
 #endif
 
 #define MII_TX_HP_MEMSIZE \
-      ((MII_TX_BUFSIZE_HIGH_PRIORITY + 2*sizeof(mii_packet_t) + 20)/4)
+      ((MII_TX_BUFSIZE_HIGH_PRIORITY +(ETHERNET_MAX_TX_HP_PACKET_SIZE + MII_PACKET_HEADER_SIZE) + 20)/4)
 #endif
 
 

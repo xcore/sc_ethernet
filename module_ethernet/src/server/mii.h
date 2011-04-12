@@ -58,6 +58,10 @@
 #define ETHERNET_MAX_TX_PACKET_SIZE (1518)
 #endif
 
+#ifndef ETHERNET_MAX_TX_HP_PACKET_SIZE
+#define ETHERNET_MAX_TX_HP_PACKET_SIZE (1518)
+#endif
+
 
 #include "mii_queue.h"
 
@@ -113,6 +117,8 @@ typedef struct mii_packet_t {
   #define BUF_DATA_OFFSET 9
   unsigned int data[(MAX_ETHERNET_PACKET_SIZE+3)/4];
 } mii_packet_t;
+
+#define MII_PACKET_HEADER_SIZE (sizeof(mii_packet_t) - ((MAX_ETHERNET_PACKET_SIZE+3)/4)*4)
 
 #define STRINGIFY0(x) #x
 #define STRINGIFY(x) STRINGIFY0(x)
