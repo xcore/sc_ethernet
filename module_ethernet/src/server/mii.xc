@@ -84,9 +84,8 @@ void mii_rx_pins(mii_mempool_t rxmem_hp, mii_mempool_t rxmem_lp,
 		}
 
 		if (!buf_hp) {
-			printstrln("hp buf ovr");
 			buf_hp_valid = 0;
-			buf_hp = buf_lp;
+                        buf_hp = buf_lp;
 		}
 		else if (!buf_lp) {
 			buf_lp_valid = 0;
