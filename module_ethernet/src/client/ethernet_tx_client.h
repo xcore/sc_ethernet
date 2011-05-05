@@ -41,6 +41,10 @@ void mac_tx(chanend c_mac, unsigned int buffer[], int nbytes, int ifnum);
 /** Sends an ethernet frame. Frame includes dest/src MAC address(s), type
  *  and payload.
  *
+ *  The packet should start at offset 2 in the buffer.  This allows the packet
+ *  to be constructed with alignment on a different boundary, allowing for
+ *  more efficient construction where many word values are not naturally aligned
+ *  on word boundaries.
  *
  *  \param c_mac     channel end to tx server.
  *  \param buffer[]  byte array containing the ethernet frame. *This must

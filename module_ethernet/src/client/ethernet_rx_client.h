@@ -163,6 +163,19 @@ void mac_set_queue_size(chanend c_mac_svr, int x);
  **/
 void mac_set_custom_filter(chanend c_mac_svr, int x);
 
+/** Receive a packet starting at the second byte of a buffer
+ *
+ *  This is useful when the contents of the packet should be aligned on
+ *  a different boundary.
+ *
+ *  \param c_mac   chanend of receive server.
+ *  \param buffer  The buffer to fill with the incoming packet
+ *  \param len        A reference parameter to be filled with the length of
+ *                   the received packet in bytes.
+ *  \param src_port   A reference parameter to be filled with the ethernet
+ *                   port the packet came from.
+ *
+ */
 #ifdef __XC__
 #pragma select handler
 #endif
