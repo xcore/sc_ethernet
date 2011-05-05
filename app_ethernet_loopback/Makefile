@@ -23,7 +23,7 @@ XCC_FLAGS = -g -DMAC_CUSTOM_FILTER -report
 
 # The USED_MODULES variable lists other module used by the application. 
 
-USED_MODULES = module_ethernet.1v4 module_locks.1v1
+USED_MODULES = module_ethernet module_locks
 
 #=============================================================================
 # The following part of the Makefile includes the common build infrastructure
