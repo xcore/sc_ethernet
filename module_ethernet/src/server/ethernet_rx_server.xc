@@ -90,11 +90,9 @@ void serviceLinkCmd(chanend link, int linkIndex, unsigned int &cmd)
       break;
       // overflow count return
       case ETHERNET_RX_OVERFLOW_CNT_REQ:
-         link <: ETHERNET_REQ_ACK;
          link <: link_status[linkIndex].dropped_pkt_cnt;     
          break;
       case ETHERNET_RX_OVERFLOW_CLEAR_REQ:
-         link <: ETHERNET_REQ_ACK;
          link_status[linkIndex].dropped_pkt_cnt = 0;
          break;
       case ETHERNET_RX_DROP_PACKETS_SET: {        

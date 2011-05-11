@@ -134,48 +134,23 @@ void mac_set_custom_filter(chanend mac_svr, int x)
   return;
 }
 
-
-#if 0
-
-/* These functions are currently unsupported */
-
 /** Returns the number of *lost* frames between MII and Ethernet layer.
  */
-int mac_get_overflowcnt(chanend ethernet_rx_svr)
+int mac_get_overflowcnt(chanend mac_svr)
 {
   int result;
-  
-  master {
-    //ethernet_rx_svr <: (unsigned int) ETHERNET_RX_OVERFLOW_CNT_REQ;
-    ethernet_rx_svr <: (unsigned int) ETHERNET_RX_OVERFLOW_CNT_REQ;
-
-    ethernet_rx_svr :> result;
-
-    if (result == ETHERNET_REQ_ACK) {
-      // get the count
-      ethernet_rx_svr :> result;
-    } else {
-      // NACK or invalid response.
-      result = -1;
-    }    
-  }
+  send_cmd(mac_svr, ETHERNET_RX_OVERFLOW_CNT_REQ);
+  mac_svr :> result;
   return (result);
 }
 
 
 /** Reset the overflow counter
  */
-void mac_reset_overflowcnt(chanend ethernet_rx_svr)
+void mac_reset_overflowcnt(chanend mac_svr)
 {
-  int response;
-
-  master {
-
-    ethernet_rx_svr <: (unsigned int) ETHERNET_RX_OVERFLOW_CLEAR_REQ;	
-
-    ethernet_rx_svr :> response;
-  }
+  send_cmd(mac_svr, ETHERNET_RX_OVERFLOW_CLEAR_REQ);
   return;
 }
 
-#endif
+

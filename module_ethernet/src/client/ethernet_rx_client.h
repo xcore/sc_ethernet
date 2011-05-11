@@ -163,6 +163,23 @@ void mac_set_queue_size(chanend c_mac_svr, int x);
  **/
 void mac_set_custom_filter(chanend c_mac_svr, int x);
 
+/** Read the number of packets 'dropped' between the MII and the ethernet rx server
+ *
+ *  When processing a packet, the MII RX pins and filter will push a received packet
+ *  onto a queue of received packets, and inform the rx server that there has been
+ *  a packet received.  If there are no entries left in this queue, then the packet
+ *  received and filtered will be discarded.  This returns the number of discards.
+ *
+ *  \param c_mac_svr   chanend of receive server.
+ */
+int mac_get_overflowcnt(chanend mac_svr);
+
+/** Reset the number of packets 'dropped' between the MII and the ethernet rx server
+ *
+ *  \param c_mac_svr   chanend of receive server.
+ */
+void mac_reset_overflowcnt(chanend mac_svr);
+
 /** Receive a packet starting at the second byte of a buffer
  *
  *  This is useful when the contents of the packet should be aligned on
