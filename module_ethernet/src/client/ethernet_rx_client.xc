@@ -144,13 +144,10 @@ int mac_get_overflowcnt(chanend mac_svr)
   return (result);
 }
 
-
-/** Reset the overflow counter
- */
-void mac_reset_overflowcnt(chanend mac_svr)
+int mac_get_mii_overflowcnt(chanend mac_svr)
 {
-  send_cmd(mac_svr, ETHERNET_RX_OVERFLOW_CLEAR_REQ);
-  return;
+  int result;
+  send_cmd(mac_svr, ETHERNET_RX_OVERFLOW_MII_CNT_REQ);
+  mac_svr :> result;
+  return (result);
 }
-
-

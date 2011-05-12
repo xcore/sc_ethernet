@@ -236,6 +236,6 @@ void mii_tx_pins(
                  int ifnum);
 #endif
 
-
+unsigned int ethernet_get_number_of_dropped_lp_mii_packets();
 
 #endif

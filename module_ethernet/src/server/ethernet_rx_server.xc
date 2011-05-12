@@ -92,8 +92,8 @@ void serviceLinkCmd(chanend link, int linkIndex, unsigned int &cmd)
       case ETHERNET_RX_OVERFLOW_CNT_REQ:
          link <: link_status[linkIndex].dropped_pkt_cnt;     
          break;
-      case ETHERNET_RX_OVERFLOW_CLEAR_REQ:
-         link_status[linkIndex].dropped_pkt_cnt = 0;
+      case ETHERNET_RX_OVERFLOW_MII_CNT_REQ:
+         link <: ethernet_get_number_of_dropped_lp_mii_packets();
          break;
       case ETHERNET_RX_DROP_PACKETS_SET: {        
          int drop_packets;
