@@ -263,7 +263,7 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 			// we are missing the CRC for the tail bytes, and the CRC check
 			mii_packet_set_crc(buf, crc);
 
-			if (length >= 60 && length <= 1514) {
+			if (length >= 60) {
 				c <: buf;
 				mii_realloc(buf, (length+(BUF_DATA_OFFSET*4)));
 			}
