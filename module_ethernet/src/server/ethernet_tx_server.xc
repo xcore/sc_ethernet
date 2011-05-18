@@ -148,7 +148,7 @@ void ethernet_tx_server(
 
             mii_packet_set_complete(buf, 1);
             mii_packet_set_stage(buf, 1);
-            mii_realloc(buf, (length+(3+BUF_DATA_OFFSET*4))&~0x3); 
+            mii_realloc(buf, (length+(BUF_DATA_OFFSET*4)));
 
 #if 0 
             if (dst_port == 0 || num_q == 1) {              

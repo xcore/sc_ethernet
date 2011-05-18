@@ -80,12 +80,9 @@ mii_buffer_t mii_malloc(mii_mempool_t mempool)
 void mii_realloc(mii_buffer_t buf, int n) {
   malloc_hdr_t *hdr = (malloc_hdr_t *) ((char *) buf - sizeof(malloc_hdr_t));
   mempool_info_t *info = (mempool_info_t *) hdr->info;
-  int *new_wrptr;
 
-  n = (n+3)>>2;
-  new_wrptr = info->wrptr + (sizeof(malloc_hdr_t)/4) + n;  
-  hdr->size = (sizeof(malloc_hdr_t)/4) + n;
-  info->wrptr = new_wrptr;
+  hdr->size = (sizeof(malloc_hdr_t)/4) + ((n+3)>>2);
+  info->wrptr += (hdr->size);
 
   return;
 }

@@ -25,13 +25,12 @@
 
 // Receive timing constraints
 
-#pragma xta command "add loop mii_rx_begin 1"
-
 #pragma xta command "remove exclusion *"
 #pragma xta command "add exclusion mii_rx_valid_hi"
 #pragma xta command "add exclusion mii_rx_eof"
 #pragma xta command "add exclusion mii_rx_begin"
 #pragma xta command "add exclusion mii_eof_case"
+#pragma xta command "add exclusion mii_no_availible_buffers"
 
 // Start of frame to first word is 32 bits = 320ns
 #pragma xta command "analyze endpoints mii_rx_sof mii_rx_first_word"
@@ -57,6 +56,7 @@
 #pragma xta command "remove exclusion *"
 #pragma xta command "add exclusion mii_rx_after_preamble"
 #pragma xta command "add exclusion mii_rx_eof"
+#pragma xta command "add exclusion mii_no_availible_buffers"
 #pragma xta command "analyze endpoints mii_rx_eof mii_rx_sof"
 #pragma xta command "set required - 1520 ns"
 
@@ -133,6 +133,8 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 
 	while (1)
 	{
+#pragma xta label "mii_rx_begin"
+
 		unsigned i;
 		int endofframe;
 		unsigned crc;
@@ -144,35 +146,27 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 		unsigned buf_hp, dptr_hp;
 #endif
 
-#pragma xta label "mii_rx_begin"
-
 #ifdef ETHERNET_RX_HP_QUEUE
 		buf_hp = mii_malloc(rxmem_hp);
 #endif
 		buf_lp = mii_malloc(rxmem_lp);
 
 #ifdef ETHERNET_RX_HP_QUEUE
-		if (!buf_hp && !buf_lp) {
-#ifdef ETHERNET_COUNT_PACKETS
-			ethernet_mii_no_queue_entries++;
-#endif
-			continue;
-		}
-
 		if (!buf_hp) {
 			buf_hp = buf_lp;
 		}
 		else if (!buf_lp) {
 			buf_lp = buf_hp;
 		}
-#else
+#endif
+
 		if (!buf_lp) {
+#pragma xta label "mii_no_availible_buffers"
 #ifdef ETHERNET_COUNT_PACKETS
 			ethernet_mii_no_queue_entries++;
 #endif
 			continue;
 		}
-#endif
 
 #pragma xta endpoint "mii_rx_valid_hi"
 		p_mii_rxdv when pinseq(1) :> int hi;
@@ -180,24 +174,13 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 #pragma xta endpoint "mii_rx_sof"
 		p_mii_rxd when pinseq(0xD) :> int sof;
 
-		mii_packet_set_src_port(buf_lp, 0);
-		mii_packet_set_timestamp_id(buf_lp, 0);
-#ifdef ETHERNET_RX_HP_QUEUE
-		mii_packet_set_src_port(buf_hp, 0);
-		mii_packet_set_timestamp_id(buf_hp, 0);
-#endif
-
-#pragma xta endpoint "mii_rx_after_preamble"                    
+#pragma xta endpoint "mii_rx_after_preamble"
 		tmr :> time;
-		mii_packet_set_timestamp(buf_lp, time);
 		dptr_lp = mii_packet_get_data_ptr(buf_lp);
 #ifdef ETHERNET_RX_HP_QUEUE
 		dptr_hp = mii_packet_get_data_ptr(buf_hp);
-		mii_packet_set_timestamp(buf_hp, time);
 #endif
 
-		i = 1;
-		endofframe = 0;
 		crc = 0x9226F562;
 
 #pragma xta endpoint "mii_rx_first_word"
@@ -207,6 +190,9 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 #ifdef ETHERNET_RX_HP_QUEUE
 		mii_packet_set_data_word_imm(dptr_hp, 0, word);
 #endif
+
+		i = 1;
+		endofframe = 0;
 
 		do
 		{
@@ -258,20 +244,28 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 			dptr = dptr_lp;
 #endif
 
-			taillen = endin(p_mii_rxd);
-#pragma xta endpoint "mii_rx_eof"                
-			p_mii_rxd :> tail;
+			mii_packet_set_src_port(buf, 0);
+			mii_packet_set_timestamp_id(buf, 0);
+			mii_packet_set_timestamp(buf, time);
 
+			taillen = endin(p_mii_rxd);
 			length = ((i-1) << 2) + (taillen >> 3);
-			tail = tail >> (32 - taillen);
 
 			mii_packet_set_length(buf, length);
+
+#pragma xta endpoint "mii_rx_eof"
+			p_mii_rxd :> tail;
+
+			tail = tail >> (32 - taillen);
+
 			mii_packet_set_data_word(dptr, i, tail);
+
+			// we are missing the CRC for the tail bytes, and the CRC check
 			mii_packet_set_crc(buf, crc);
 
 			if (length >= 60 && length <= 1514) {
 				c <: buf;
-				mii_realloc(buf, (length+(3+BUF_DATA_OFFSET*4))&~0x3);
+				mii_realloc(buf, (length+(BUF_DATA_OFFSET*4)));
 			}
 #ifdef ETHERNET_COUNT_PACKETS
 			else {
