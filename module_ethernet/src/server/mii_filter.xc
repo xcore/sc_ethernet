@@ -41,6 +41,16 @@ typedef struct mac_filter_t {
 #define is_broadcast(buf) (mii_packet_get_data(buf,0) & 0x1)
 #define compare_mac(buf,mac) (mii_packet_get_data(buf,0) == mac[0] && ((short) mii_packet_get_data(buf,1)) == ((short) mac[1]))
 
+#ifdef ETHERNET_COUNT_PACKETS
+static unsigned ethernet_filtered_by_address=0;
+static unsigned ethernet_filtered_by_user_filter=0;
+
+void ethernet_get_filter_counts(unsigned& address, unsigned& filter)
+{
+	address=ethernet_filtered_by_address;
+	filter=ethernet_filtered_by_user_filter;
+}
+#endif
 
 #if 0
 #pragma unsafe arrays
@@ -140,11 +150,17 @@ void one_port_filter(mii_mempool_t rx_mem,
 #endif
           {     
             int res = mac_custom_filter_coerce(buf);
+#ifdef ETHERNET_COUNT_PACKETS
+            if (res == 0) ethernet_filtered_by_user_filter++;
+#endif
             mii_packet_set_filter_result(buf, res);
             mii_packet_set_stage(buf, 1);
           }
         else
           {
+#ifdef ETHERNET_COUNT_PACKETS
+        	ethernet_filtered_by_address++;
+#endif
         	mii_packet_set_filter_result(buf, 0);
         	mii_packet_set_stage(buf,1);
           }

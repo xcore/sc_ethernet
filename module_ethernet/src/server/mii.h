@@ -236,6 +236,11 @@ void mii_tx_pins(
                  int ifnum);
 #endif
 
-unsigned int ethernet_get_number_of_dropped_lp_mii_packets();
+#ifdef ETHERNET_COUNT_PACKETS
+void ethernet_get_mii_counts(REFERENCE_PARAM(unsigned,dropped),
+		                     REFERENCE_PARAM(unsigned,dropped_lp),
+		                     REFERENCE_PARAM(unsigned,dropped_hp),
+		                     REFERENCE_PARAM(unsigned,bad_length));
+#endif
 
 #endif

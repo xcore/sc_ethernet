@@ -22,6 +22,7 @@
 #include "mii.h"
 #include "mii_queue.h"
 #include "mii_malloc.h"
+#include "mii_filter.h"
 #include "ethernet_rx_server.h"
 #include <print.h>
 
@@ -88,13 +89,24 @@ void serviceLinkCmd(chanend link, int linkIndex, unsigned int &cmd)
          custom_filter_mask[linkIndex] = filter_value;       
        } 
       break;
+#ifdef ETHERNET_COUNT_PACKETS
       // overflow count return
       case ETHERNET_RX_OVERFLOW_CNT_REQ:
-         link <: link_status[linkIndex].dropped_pkt_cnt;     
+         link <: link_status[linkIndex].dropped_pkt_cnt;
          break;
-      case ETHERNET_RX_OVERFLOW_MII_CNT_REQ:
-         link <: ethernet_get_number_of_dropped_lp_mii_packets();
+      case ETHERNET_RX_OVERFLOW_MII_CNT_REQ: {
+    	  unsigned mii_dropped, mii_dropped_lp, mii_dropped_hp, bad_length, address, filter;
+    	  ethernet_get_mii_counts(mii_dropped,mii_dropped_lp, mii_dropped_hp, bad_length);
+    	  ethernet_get_filter_counts(address, filter);
+          link <: mii_dropped;
+          link <: mii_dropped_lp;
+          link <: mii_dropped_hp;
+          link <: bad_length;
+          link <: address;
+          link <: filter;
+         }
          break;
+#endif
       case ETHERNET_RX_DROP_PACKETS_SET: {        
          int drop_packets;
          link :> drop_packets;
@@ -263,9 +275,6 @@ void ethernet_rx_server(mii_mempool_t rxmem_hp,
 #endif
    int rdptr_lp;
   
-   printstr("INFO: Ethernet Rx Server init..\n");
-   //   ethernet_register_traphandler();
-
 #ifdef ETHERNET_RX_HP_QUEUE
    rdptr_hp = mii_init_my_rdptr(rxmem_hp);
 #endif

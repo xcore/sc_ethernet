@@ -136,18 +136,32 @@ void mac_set_custom_filter(chanend mac_svr, int x)
 
 /** Returns the number of *lost* frames between MII and Ethernet layer.
  */
-int mac_get_overflowcnt(chanend mac_svr)
+void mac_get_link_counters(chanend mac_svr, int& dropped)
 {
-  int result;
+#ifdef ETHERNET_COUNT_PACKETS
   send_cmd(mac_svr, ETHERNET_RX_OVERFLOW_CNT_REQ);
-  mac_svr :> result;
-  return (result);
+  mac_svr :> dropped;
+#endif
 }
 
-int mac_get_mii_overflowcnt(chanend mac_svr)
+void mac_get_global_counters(chanend mac_svr,
+		                     unsigned& mii_overflow,
+		                     unsigned& mii_lp_overflow,
+		                     unsigned& mii_hp_overflow,
+		                     unsigned& bad_length,
+		                     unsigned& mismatched_address,
+		                     unsigned& filtered
+		                     )
 {
-  int result;
+#ifdef ETHERNET_COUNT_PACKETS
   send_cmd(mac_svr, ETHERNET_RX_OVERFLOW_MII_CNT_REQ);
-  mac_svr :> result;
-  return (result);
+  mac_svr :> mii_overflow;
+  mac_svr :> mii_lp_overflow;
+  mac_svr :> mii_hp_overflow;
+  mac_svr :> bad_length;
+  mac_svr :> mismatched_address;
+  mac_svr :> filtered;
+#endif
 }
+
+

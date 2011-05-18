@@ -163,24 +163,31 @@ void mac_set_queue_size(chanend c_mac_svr, int x);
  **/
 void mac_set_custom_filter(chanend c_mac_svr, int x);
 
-/** Read the per link number of packets 'dropped' between the MII and the ethernet rx server
+/** Read counts of packets processed by the links
  *
- *  When processing a packet, the MII RX pins and filter will push a received packet
- *  onto a queue of received packets, and inform the rx server that there has been
- *  a packet received.  If there are no entries left in this queue, then the packet
- *  received and filtered will be discarded.  This returns the number of discards.
- *
- *  \param c_mac_svr   chanend of receive server.
+ *  \param mac_svr   chanend of receive server.
+ *  \param overflow  the count of the number dropped due to link fifo overflow
  */
-int mac_get_overflowcnt(chanend mac_svr);
+void mac_get_link_counters(chanend mac_svr, REFERENCE_PARAM(int,overflow));
 
-/** Read the number of packets 'dropped' in the MII
+/** Read global counters
  *
- *  This is because the packet queue has run out of space.
- *
- *  \param c_mac_svr   chanend of receive server.
+ *  \param mac_svr              chanend of receive server.
+ *  \param mii_overflow         MII rx couldn't allocate space in both the LP and HP fifos
+ *  \param mii_lp_overflow      MII rx received an low priority packet but there was no space in LP fifo
+ *  \param mii_hp_overflow      MII rx received an high priority packet but there was no space in HP fifo
+ *  \param bad_length           The length of the received packet was out of the valid range
+ *  \param mismatched_address   The packet was not addressed to this Mac
+ *  \param filtered             The user filter function returned zero
  */
-int mac_get_mii_overflowcnt(chanend mac_svr);
+void mac_get_global_counters(chanend mac_svr,
+		                     REFERENCE_PARAM(unsigned,mii_overflow),
+		                     REFERENCE_PARAM(unsigned,mii_lp_overflow),
+		                     REFERENCE_PARAM(unsigned,mii_hp_overflow),
+		                     REFERENCE_PARAM(unsigned,bad_length),
+		                     REFERENCE_PARAM(unsigned,mismatched_address),
+		                     REFERENCE_PARAM(unsigned,filtered)
+		                     );
 
 /** Receive a packet starting at the second byte of a buffer
  *

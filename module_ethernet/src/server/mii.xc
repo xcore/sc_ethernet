@@ -20,8 +20,12 @@
 // After-init delay (used at the end of mii_init)
 #define PHY_INIT_DELAY 10000000
 
+#define ETHERNET_IFS_AS_REF_CLOCK_COUNT  (96)   // 12 bytes
+
+
 // Receive timing constraints
 
+#pragma xta command "remove exclusion *"
 #pragma xta command "add exclusion mii_rx_valid_hi"
 #pragma xta command "add exclusion mii_rx_eof"
 #pragma xta command "add exclusion mii_rx_begin"
@@ -42,11 +46,12 @@
 #pragma xta command "remove exclusion mii_rx_valid_hi"
 #pragma xta command "remove exclusion mii_rx_eof"
 
-#pragma xta command "add exclusion mii_rx_word"
+// The Ethernet IFS is 12 octets = 96 bits - 960ns, but we do 8 octets
+#pragma xta command "remove exclusion *"
 #pragma xta command "add exclusion mii_rx_after_preamble"
 #pragma xta command "add exclusion mii_rx_eof"
 #pragma xta command "analyze endpoints mii_rx_eof mii_rx_sof"
-#pragma xta command "set required - 1520 ns"
+#pragma xta command "set required - 960 ns"
 
 // Transmit timing constraints
 
@@ -57,7 +62,7 @@
 #pragma xta command "add loop mii_tx_loop 1"
 
 #pragma xta command "analyze endpoints mii_tx_sof mii_tx_first_word"
-#pragma xta command "set required - 960 ns"
+#pragma xta command "set required - 640 ns"
 
 #pragma xta command "analyze endpoints mii_tx_first_word mii_tx_word"
 #pragma xta command "set required - 320 ns"
@@ -82,23 +87,28 @@
 #pragma xta command "analyze endpoints mii_tx_final_partword_1 mii_tx_crc_1"
 #pragma xta command "set required - 80 ns"
 
-#pragma xta command "analyze endpoints mii_tx_final_partword_1 mii_tx_crc_2"
+#pragma xta command "analyze endpoints mii_tx_final_partword_2 mii_tx_crc_2"
 #pragma xta command "set required - 160 ns"
 
 #pragma xta command "analyze endpoints mii_tx_final_partword_3 mii_tx_crc_3"
 #pragma xta command "set required - 240 ns"
 
-#ifdef ETHERNET_COUNT_DROPPED_MII_PACKETS
-static unsigned int ethernet_number_of_dropped_mii_packets;
-#endif
+#ifdef ETHERNET_COUNT_PACKETS
+static unsigned int ethernet_mii_no_queue_entries = 0;
+static unsigned int ethernet_mii_no_lp_queue_entry = 0;
+static unsigned int ethernet_mii_no_hp_queue_entry = 0;
+static unsigned int ethernet_mii_bad_length = 0;
 
-unsigned int ethernet_get_number_of_dropped_lp_mii_packets() {
-#ifdef ETHERNET_COUNT_DROPPED_MII_PACKETS
-	return ethernet_number_of_dropped_mii_packets;
-#else
-	return 0;
-#endif
+void ethernet_get_mii_counts(unsigned& dropped,
+		                     unsigned& dropped_lp,
+		                     unsigned& dropped_hp,
+		                     unsigned& bad_length) {
+	dropped = ethernet_mii_no_queue_entries;
+	dropped_lp = ethernet_mii_no_lp_queue_entry;
+	dropped_hp = ethernet_mii_no_hp_queue_entry;
+	bad_length = ethernet_mii_bad_length;
 }
+#endif
 
 #pragma unsafe arrays
 void mii_rx_pins(mii_mempool_t rxmem_hp,
@@ -119,18 +129,16 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 		int length;
 		unsigned time;
 		unsigned word;
-		unsigned buf, buf_lp, dptr, dptr_lp;
-		int buf_lp_valid = 1, buf_valid;
+		unsigned buf_lp, dptr_lp;
 #ifdef ETHERNET_RX_HP_QUEUE
 		unsigned buf_hp, dptr_hp;
-		int buf_hp_valid = 1;
 #endif
 
 		int endofframe = 0;
 		unsigned crc = 0x9226F562;
 
 #pragma xta label "mii_rx_begin"
-		buf = 0;
+
 #ifdef ETHERNET_RX_HP_QUEUE
 		buf_hp = mii_malloc(rxmem_hp);
 #endif
@@ -138,24 +146,22 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 
 #ifdef ETHERNET_RX_HP_QUEUE
 		if (!buf_hp && !buf_lp) {
-#ifdef ETHERNET_COUNT_DROPPED_MII_PACKETS
-			ethernet_number_of_dropped_mii_packets++;
+#ifdef ETHERNET_COUNT_PACKETS
+			ethernet_mii_no_queue_entries++;
 #endif
 			continue;
 		}
 
 		if (!buf_hp) {
-			buf_hp_valid = 0;
 			buf_hp = buf_lp;
 		}
 		else if (!buf_lp) {
-			buf_lp_valid = 0;
 			buf_lp = buf_hp;
 		}
 #else
 		if (!buf_lp) {
-#ifdef ETHERNET_COUNT_DROPPED_MII_PACKETS
-			ethernet_number_of_dropped_mii_packets++;
+#ifdef ETHERNET_COUNT_PACKETS
+			ethernet_mii_no_queue_entries++;
 #endif
 			continue;
 		}
@@ -214,10 +220,10 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 		} while (!endofframe);
 
 		{
+			int buf;
+			int dptr;
 			unsigned tail;
 			int taillen;
-			int endbytes;
-			int error = 0;
 
 #ifdef ETHERNET_RX_HP_QUEUE
 			unsigned short etype = (unsigned short) mii_packet_get_data_word(dptr_lp, 3);
@@ -225,17 +231,20 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 			if (etype == 0x0081) {
 				buf = buf_hp;
 				dptr = dptr_hp;
-				buf_valid = buf_hp_valid;
+#ifdef ETHERNET_COUNT_PACKETS
+				if (dptr==0) ethernet_mii_no_hp_queue_entry++;
+#endif
 			}
 			else {
 				buf = buf_lp;
 				dptr = dptr_lp;
-				buf_valid = buf_lp_valid;
+#ifdef ETHERNET_COUNT_PACKETS
+				if (dptr==0) ethernet_mii_no_lp_queue_entry++;
+#endif
 			}
 #else
 			buf = buf_lp;
 			dptr = dptr_lp;
-			buf_valid = buf_lp_valid;
 #endif
 
 			taillen = endin(p_mii_rxd);
@@ -244,18 +253,21 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 
 			length = (i-1) << 2;
 			tail = tail >> (32 - taillen);
-			endbytes = (taillen >> 3);
-			length += endbytes;
+			length += (taillen >> 3);
 
 			mii_packet_set_length(buf, length);
 			mii_packet_set_data_word(dptr, i, tail);
 			mii_packet_set_crc(buf, crc);
 
-			if (length >= 60 && length <= 1514)
-			{
+			if (length >= 60 && length <= 1514) {
 				c <: buf;
 				mii_realloc(buf, (length+(3+BUF_DATA_OFFSET*4))&~0x3);
 			}
+#ifdef ETHERNET_COUNT_PACKETS
+			else {
+				ethernet_mii_bad_length++;
+			}
+#endif
 		}
 	}
 
@@ -306,7 +318,7 @@ void mii_tx_pins(
 #endif
 		if (!send_ok) {
 			tmr :> time;
-			if (((int) time - (int) prev_eof_time) < 200) {
+			if (((int) time - (int) prev_eof_time) < ETHERNET_IFS_AS_REF_CLOCK_COUNT) {
 				continue;
 			}
 			else
