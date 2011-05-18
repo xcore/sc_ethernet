@@ -25,16 +25,15 @@
 
 // Receive timing constraints
 
+#pragma xta command "add loop mii_rx_begin 1"
+
 #pragma xta command "remove exclusion *"
 #pragma xta command "add exclusion mii_rx_valid_hi"
 #pragma xta command "add exclusion mii_rx_eof"
 #pragma xta command "add exclusion mii_rx_begin"
 #pragma xta command "add exclusion mii_eof_case"
 
-// This constraint is a bit tighter to make up for the slacker constraint before
-#pragma xta command "analyze endpoints mii_rx_word mii_rx_word"
-#pragma xta command "set required - 300 ns"
-
+// Start of frame to first word is 32 bits = 320ns
 #pragma xta command "analyze endpoints mii_rx_sof mii_rx_first_word"
 #pragma xta command "set required - 320 ns"
 
@@ -43,15 +42,23 @@
 #pragma xta command "analyze endpoints mii_rx_first_word mii_rx_word"
 #pragma xta command "set required - 340 ns"
 
-#pragma xta command "remove exclusion mii_rx_valid_hi"
-#pragma xta command "remove exclusion mii_rx_eof"
+// Word to word timing is 32 bits = 320ns, but this constraint is a bit tighter
+// to make up for the slacker constraint before
+#pragma xta command "analyze endpoints mii_rx_word mii_rx_word"
+#pragma xta command "set required - 300 ns"
 
-// The Ethernet IFS is 12 octets = 96 bits - 960ns, but we do 8 octets
+// The end of frame timing is 12 octets IFS + 7 octets preamble = 152 bits - 1520ns
+//
+// note: the RXDV will come low with the start of the pre-amble, but the code
+//       checks for a valid RXDV and then starts hunting for the 'D' nibble at
+//       the end of the pre-amble, so we don't need to spot the rising edge of
+//       the RXDV, only the point where RXDV is valid and there is a 'D' on the
+//       data lines.
 #pragma xta command "remove exclusion *"
 #pragma xta command "add exclusion mii_rx_after_preamble"
 #pragma xta command "add exclusion mii_rx_eof"
 #pragma xta command "analyze endpoints mii_rx_eof mii_rx_sof"
-#pragma xta command "set required - 960 ns"
+#pragma xta command "set required - 1520 ns"
 
 // Transmit timing constraints
 
@@ -93,6 +100,7 @@
 #pragma xta command "analyze endpoints mii_tx_final_partword_3 mii_tx_crc_3"
 #pragma xta command "set required - 240 ns"
 
+
 #ifdef ETHERNET_COUNT_PACKETS
 static unsigned int ethernet_mii_no_queue_entries = 0;
 static unsigned int ethernet_mii_no_lp_queue_entry = 0;
@@ -125,7 +133,9 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 
 	while (1)
 	{
-		unsigned i = 1;
+		unsigned i;
+		int endofframe;
+		unsigned crc;
 		int length;
 		unsigned time;
 		unsigned word;
@@ -133,9 +143,6 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 #ifdef ETHERNET_RX_HP_QUEUE
 		unsigned buf_hp, dptr_hp;
 #endif
-
-		int endofframe = 0;
-		unsigned crc = 0x9226F562;
 
 #pragma xta label "mii_rx_begin"
 
@@ -167,18 +174,18 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 		}
 #endif
 
+#pragma xta endpoint "mii_rx_valid_hi"
+		p_mii_rxdv when pinseq(1) :> int hi;
+
+#pragma xta endpoint "mii_rx_sof"
+		p_mii_rxd when pinseq(0xD) :> int sof;
+
 		mii_packet_set_src_port(buf_lp, 0);
 		mii_packet_set_timestamp_id(buf_lp, 0);
 #ifdef ETHERNET_RX_HP_QUEUE
 		mii_packet_set_src_port(buf_hp, 0);
 		mii_packet_set_timestamp_id(buf_hp, 0);
 #endif
-
-#pragma xta endpoint "mii_rx_valid_hi"                
-		p_mii_rxdv when pinseq(1) :> int hi;
-
-#pragma xta endpoint "mii_rx_sof"                    
-		p_mii_rxd when pinseq(0xD) :> int sof;
 
 #pragma xta endpoint "mii_rx_after_preamble"                    
 		tmr :> time;
@@ -188,6 +195,10 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 		dptr_hp = mii_packet_get_data_ptr(buf_hp);
 		mii_packet_set_timestamp(buf_hp, time);
 #endif
+
+		i = 1;
+		endofframe = 0;
+		crc = 0x9226F562;
 
 #pragma xta endpoint "mii_rx_first_word"
 		p_mii_rxd :> word;
@@ -251,9 +262,8 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 #pragma xta endpoint "mii_rx_eof"                
 			p_mii_rxd :> tail;
 
-			length = (i-1) << 2;
+			length = ((i-1) << 2) + (taillen >> 3);
 			tail = tail >> (32 - taillen);
-			length += (taillen >> 3);
 
 			mii_packet_set_length(buf, length);
 			mii_packet_set_data_word(dptr, i, tail);
