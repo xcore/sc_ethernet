@@ -48,7 +48,6 @@ mii_buffer_t mii_malloc(mii_mempool_t mempool)
   int space_left;
   malloc_hdr_t *hdr;
   mii_buffer_t buf;
-  mii_packet_t *pkt;
   if (wrptr > info->end) {
     if (rdptr == info->start)
       return 0;
@@ -64,15 +63,9 @@ mii_buffer_t mii_malloc(mii_mempool_t mempool)
   info->wrptr = wrptr;
   
   hdr = (malloc_hdr_t *) wrptr;
-  
-  hdr->size = info->max_packet_size;
   hdr->info = info;
   
   buf = (mii_buffer_t) (wrptr+(sizeof(malloc_hdr_t)>>2));
-
-  pkt = (mii_packet_t *) buf;
-  pkt->tcount = 0;
-  pkt->stage = 0;
 
   return buf;
 }
@@ -80,8 +73,14 @@ mii_buffer_t mii_malloc(mii_mempool_t mempool)
 void mii_realloc(mii_buffer_t buf, int n) {
   malloc_hdr_t *hdr = (malloc_hdr_t *) ((char *) buf - sizeof(malloc_hdr_t));
   mempool_info_t *info = (mempool_info_t *) hdr->info;
+  mii_packet_t *pkt;
 
   hdr->size = (sizeof(malloc_hdr_t)/4) + ((n+3)>>2);
+
+  pkt = (mii_packet_t *) buf;
+  pkt->tcount = 0;
+  pkt->stage = 0;
+
   info->wrptr += (hdr->size);
 
   return;
