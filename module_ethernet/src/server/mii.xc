@@ -179,13 +179,9 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 #ifdef ETHERNET_COUNT_PACKETS
 			ethernet_mii_no_queue_entries++;
 #endif
+			p_mii_rxdv when pinseq(0) :> int hi;
 			continue;
 		}
-
-
-#ifdef ETHERNET_RX_HP_QUEUE
-		dptr_hp = mii_packet_get_data_ptr(buf_hp);
-#endif
 
 		crc = 0x9226F562;
 
