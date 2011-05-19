@@ -152,21 +152,12 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 		buf_lp = mii_malloc(rxmem_lp);
 
 #ifdef ETHERNET_RX_HP_QUEUE
-		if (!buf_hp) {
-			buf_hp = buf_lp;
-		}
-		else if (!buf_lp) {
-			buf_lp = buf_hp;
+		if (buf_hp) {
+			dptr_hp = mii_packet_get_data_ptr(buf_hp);
+		} else {
+			dptr_hp = 0;
 		}
 #endif
-
-		if (!buf_lp) {
-#pragma xta label "mii_no_availible_buffers"
-#ifdef ETHERNET_COUNT_PACKETS
-			ethernet_mii_no_queue_entries++;
-#endif
-			continue;
-		}
 
 #pragma xta endpoint "mii_rx_valid_hi"
 		p_mii_rxdv when pinseq(1) :> int hi;
@@ -176,7 +167,22 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 
 #pragma xta endpoint "mii_rx_after_preamble"
 		tmr :> time;
-		dptr_lp = mii_packet_get_data_ptr(buf_lp);
+
+		if (buf_lp) {
+			dptr_lp = mii_packet_get_data_ptr(buf_lp);
+#ifdef ETHERNET_RX_HP_QUEUE
+		} else if (buf_hp) {
+			dptr_lp = buf_hp;
+#endif
+		} else {
+#pragma xta label "mii_no_availible_buffers"
+#ifdef ETHERNET_COUNT_PACKETS
+			ethernet_mii_no_queue_entries++;
+#endif
+			continue;
+		}
+
+
 #ifdef ETHERNET_RX_HP_QUEUE
 		dptr_hp = mii_packet_get_data_ptr(buf_hp);
 #endif
@@ -244,11 +250,17 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 			dptr = dptr_lp;
 #endif
 
+			taillen = endin(p_mii_rxd);
+
+			if (!buf) {
+				p_mii_rxd :> tail;
+				continue;
+			}
+
 			mii_packet_set_src_port(buf, 0);
 			mii_packet_set_timestamp_id(buf, 0);
 			mii_packet_set_timestamp(buf, time);
 
-			taillen = endin(p_mii_rxd);
 			length = ((i-1) << 2) + (taillen >> 3);
 
 			mii_packet_set_length(buf, length);
