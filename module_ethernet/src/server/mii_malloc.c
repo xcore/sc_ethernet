@@ -75,12 +75,11 @@ void mii_realloc(mii_buffer_t buf, int n) {
   mii_packet_t *pkt;
 
   hdr->size = (sizeof(malloc_hdr_t)/4) + ((n+3)>>2);
+  info->wrptr += (hdr->size);
 
   pkt = (mii_packet_t *) buf;
   pkt->tcount = 0;
   pkt->stage = 0;
-
-  info->wrptr += (hdr->size);
 
   return;
 }
