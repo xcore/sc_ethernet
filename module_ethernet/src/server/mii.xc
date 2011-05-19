@@ -390,14 +390,15 @@ void mii_tx_pins(
 			i++;
 			crc32(crc, ~word, poly);
 
-			while (i < word_count) {
+			do {
 #pragma xta label "mii_tx_loop"
 				word = mii_packet_get_data_word(data, i);
 				i++;
 				crc32(crc, word, poly);
 #pragma xta endpoint "mii_tx_word"
 				p_mii_txd <: word;
-			}
+			} while (i < word_count);
+
 #ifdef TX_TIMESTAMP_END_OF_PACKET
 			tmr :> time;
 			mii_packet_set_timestamp(buf, time);
