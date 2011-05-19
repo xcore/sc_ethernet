@@ -257,19 +257,21 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 			mii_packet_set_timestamp_id(buf, 0);
 			mii_packet_set_timestamp(buf, time);
 
+			// Calculate final length
 			length = ((i-1) << 2) + (taillen >> 3);
-
 			mii_packet_set_length(buf, length);
+
+			// The remainder of the CRC calculation and the test takes place in the filter thread
+			mii_packet_set_crc(buf, crc);
+
+			taillen = (32 - taillen);
 
 #pragma xta endpoint "mii_rx_eof"
 			p_mii_rxd :> tail;
 
-			tail = tail >> (32 - taillen);
+			tail = tail >> taillen;
 
 			mii_packet_set_data_word(dptr, i, tail);
-
-			// we are missing the CRC for the tail bytes, and the CRC check
-			mii_packet_set_crc(buf, crc);
 
 			if (length >= 60) {
 				c <: buf;

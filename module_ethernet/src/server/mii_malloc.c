@@ -16,7 +16,7 @@ typedef struct mempool_info_t {
   int *start;
   int *end;  
   swlock_t lock;
-  int max_packet_size;
+  unsigned max_packet_size;
 } mempool_info_t;
 
 typedef struct malloc_hdr_t {
@@ -45,7 +45,7 @@ mii_buffer_t mii_malloc(mii_mempool_t mempool)
   mempool_info_t *info = (mempool_info_t *) mempool;
   int *rdptr = info->rdptr;
   int *wrptr = info->wrptr;
-  int space_left;
+
   malloc_hdr_t *hdr;
   mii_buffer_t buf;
   if (wrptr > info->end) {
@@ -55,9 +55,8 @@ mii_buffer_t mii_malloc(mii_mempool_t mempool)
       wrptr = info->start;
   }
 
-  space_left = (rdptr - wrptr);
-
-  if (space_left > 0 && space_left <= info->max_packet_size) 
+  // Test for space left in the range 1 -> mxa_packet_size
+  if (((unsigned)rdptr - (unsigned)wrptr - 1) < info->max_packet_size)
     return 0;
   
   info->wrptr = wrptr;
