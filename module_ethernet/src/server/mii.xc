@@ -26,7 +26,6 @@
 // Receive timing constraints
 
 #pragma xta command "remove exclusion *"
-#pragma xta command "add exclusion mii_rx_valid_hi"
 #pragma xta command "add exclusion mii_rx_eof"
 #pragma xta command "add exclusion mii_rx_begin"
 #pragma xta command "add exclusion mii_eof_case"
@@ -158,9 +157,6 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 			dptr_hp = 0;
 		}
 #endif
-
-#pragma xta endpoint "mii_rx_valid_hi"
-		p_mii_rxdv when pinseq(1) :> int hi;
 
 #pragma xta endpoint "mii_rx_sof"
 		p_mii_rxd when pinseq(0xD) :> int sof;
