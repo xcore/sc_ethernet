@@ -205,6 +205,7 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 				crc32(crc, word, poly);
 				i++;
 				break;
+#pragma xta endpoint "mii_rx_eof"
 				case p_mii_rxdv when pinseq(0) :> int lo:
 				{
 #pragma xta label "mii_eof_case"
@@ -261,8 +262,6 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 			mii_packet_set_crc(buf, crc);
 
 			taillen = (32 - taillen);
-
-#pragma xta endpoint "mii_rx_eof"
 			p_mii_rxd :> tail;
 
 			tail = tail >> taillen;
