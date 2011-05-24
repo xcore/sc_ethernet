@@ -56,7 +56,7 @@
 #pragma xta command "analyze endpoints mii_rx_word mii_rx_word"
 #pragma xta command "set required - 300 ns"
 
-// The end of frame timing is 12 octets IFS + 7 octets preamble = 152 bits - 1520ns
+// The end of frame timing is 12 octets IFS + 7 octets preamble + 1 nibble preamble = 156 bits - 1560ns
 //
 // note: the RXDV will come low with the start of the pre-amble, but the code
 //       checks for a valid RXDV and then starts hunting for the 'D' nibble at
@@ -70,7 +70,7 @@
 #pragma xta command "add exclusion mii_rx_correct_priority_buffer_unavailable"
 #pragma xta command "add exclusion mii_rx_data_inner_loop"
 #pragma xta command "analyze endpoints mii_rx_eof mii_rx_sof"
-#pragma xta command "set required - 1520 ns"
+#pragma xta command "set required - 1640 ns"
 
 // Transmit timing constraints
 
