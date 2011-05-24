@@ -5,10 +5,9 @@
 
 #include "mii.h"
 #include "swlock.h"
-#include <print.h>
 
-typedef int mii_mempool_t;
-typedef int mii_buffer_t;
+typedef unsigned mii_mempool_t;
+typedef unsigned mii_buffer_t;
 
 typedef struct mempool_info_t {
   int *rdptr;
@@ -40,36 +39,37 @@ void mii_init_mempool(mii_mempool_t mempool0, int size, int maxsize_bytes) {
   return;
 }
 
-mii_buffer_t mii_malloc(mii_mempool_t mempool)
+mii_buffer_t mii_reserve(mii_mempool_t mempool)
 {
   mempool_info_t *info = (mempool_info_t *) mempool;
   int *rdptr = info->rdptr;
   int *wrptr = info->wrptr;
 
   malloc_hdr_t *hdr;
-  mii_buffer_t buf;
   if (wrptr > info->end) {
     if (rdptr == info->start)
+    {
       return 0;
+    }
     else
       wrptr = info->start;
   }
 
   // Test for space left in the range 1 -> mxa_packet_size
   if (((unsigned)rdptr - (unsigned)wrptr - 1) < info->max_packet_size)
+  {
     return 0;
+  }
   
   info->wrptr = wrptr;
   
   hdr = (malloc_hdr_t *) wrptr;
   hdr->info = info;
   
-  buf = (mii_buffer_t) (wrptr+(sizeof(malloc_hdr_t)>>2));
-
-  return buf;
+  return (mii_buffer_t) (wrptr+(sizeof(malloc_hdr_t)>>2));
 }
 
-void mii_realloc(mii_buffer_t buf, int n) {
+void mii_commit(mii_buffer_t buf, int n) {
   malloc_hdr_t *hdr = (malloc_hdr_t *) ((char *) buf - sizeof(malloc_hdr_t));
   mempool_info_t *info = (mempool_info_t *) hdr->info;
   mii_packet_t *pkt;

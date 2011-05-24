@@ -14,9 +14,5 @@ OPTIONAL_HEADERS += ethernet_conf.h
 MODULE_XCC_XC_FLAGS = $(XCC_FLAGS) -g -O3
 MODULE_XCC_C_FLAGS = $(XCC_FLAGS) -std=c99 -g -Os
 
-OPTIONAL_HEADERS += ethernet_conf.h
+XCC_FLAGS_mii_malloc.c = $(XCC_FLAGS) -O3 -g
 
-#$(warning Compiling some ethernet code at -O0 for debugging)
-#XCC_FLAGS_mii_malloc.c = $(XCC_FLAGS) -O0 -g
-#
-#-O3

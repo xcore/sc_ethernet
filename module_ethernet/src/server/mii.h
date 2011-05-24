@@ -201,15 +201,15 @@ inline void mii_packet_set_data(int buf, int n, int v) {
 
 
 #ifdef __XC__
-void mii_rx_pins(int rxmem_hp,
-                 int rxmem_lp,
+void mii_rx_pins(unsigned rxmem_hp,
+                 unsigned rxmem_lp,
                  in port p_mii_rxdv,
                  in buffered port:32 p_mii_rxd,
                  int ifnum,
                  streaming chanend c);
 #else
-void mii_rx_pins(int rxmem_hp,
-                 int rxmem_lp,
+void mii_rx_pins(unsigned rxmem_hp,
+                 unsigned rxmem_lp,
                  port p_mii_rxdv,
                  port p_mii_rxd,
                  int ifnum,
@@ -219,28 +219,25 @@ void mii_rx_pins(int rxmem_hp,
 #ifdef __XC__
 void mii_tx_pins(
 #ifdef ETHERNET_TX_HP_QUEUE
-                 int hp_mempool,
+                 unsigned hp_mempool,
 #endif
-                 int lp_mempool,
+                 unsigned lp_mempool,
                  mii_queue_t &ts_queue,
                  out buffered port:32 p_mii_txd,
                  int ifnum);
 #else
 void mii_tx_pins(
 #ifdef ETHERNET_TX_HP_QUEUE
-                 int hp_mempool,
+                 unsigned hp_mempool,
 #endif
-                 int lp_mempool,
+                 unsigned lp_mempool,
                  mii_queue_t *ts_queue,
                  port p_mii_txd,
                  int ifnum);
 #endif
 
 #ifdef ETHERNET_COUNT_PACKETS
-void ethernet_get_mii_counts(REFERENCE_PARAM(unsigned,dropped),
-		                     REFERENCE_PARAM(unsigned,dropped_lp),
-		                     REFERENCE_PARAM(unsigned,dropped_hp),
-		                     REFERENCE_PARAM(unsigned,bad_length));
+void ethernet_get_mii_counts(REFERENCE_PARAM(unsigned,dropped));
 #endif
 
 #endif

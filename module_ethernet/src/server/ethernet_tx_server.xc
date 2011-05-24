@@ -51,7 +51,7 @@ void ethernet_tx_server(
                         smi_interface_t &?smi2, 
                         chanend ?connect_status) 
 {
-  int buf;
+  unsigned buf;
   int enabled[MAX_LINKS];
   int pendingCmd[MAX_LINKS]={0};
   timer tmr;
@@ -102,11 +102,11 @@ void ethernet_tx_server(
 
 #ifdef ETHERNET_TX_HP_QUEUE
           if (hp)
-            buf = mii_malloc(tx_mem_hp);
+            buf = mii_reserve(tx_mem_hp);
           else
-            buf = mii_malloc(tx_mem_lp);
+            buf = mii_reserve(tx_mem_lp);
 #else
-          buf = mii_malloc(tx_mem_lp);
+          buf = mii_reserve(tx_mem_lp);
 #endif
 
           if (buf) {            
@@ -146,7 +146,7 @@ void ethernet_tx_server(
               }
             }
 
-            mii_realloc(buf, (length+(BUF_DATA_OFFSET*4)));
+            mii_commit(buf, (length+(BUF_DATA_OFFSET*4)));
 
             mii_packet_set_complete(buf, 1);
             mii_packet_set_stage(buf, 1);

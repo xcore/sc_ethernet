@@ -35,13 +35,24 @@
 #pragma xta command "analyze endpoints mii_rx_sof mii_rx_first_word"
 #pragma xta command "set required - 320 ns"
 
-// This constaint is a bit slack but the following one is tighter so it all 
-// evens out using the extra word buffer in the port
-#pragma xta command "analyze endpoints mii_rx_first_word mii_rx_word"
-#pragma xta command "set required - 340 ns"
+#pragma xta command "analyze endpoints mii_rx_first_word mii_rx_second_word"
+#pragma xta command "set required - 320 ns"
 
-// Word to word timing is 32 bits = 320ns, but this constraint is a bit tighter
-// to make up for the slacker constraint before
+#pragma xta command "analyze endpoints mii_rx_second_word mii_rx_third_word"
+#pragma xta command "set required - 320 ns"
+
+#pragma xta command "analyze endpoints mii_rx_third_word mii_rx_ethertype_word"
+#pragma xta command "set required - 320 ns"
+
+#pragma xta command "analyze endpoints mii_rx_ethertype_word mii_rx_fifth_word"
+#pragma xta command "set required - 320 ns"
+
+#pragma xta command "analyze endpoints mii_rx_fifth_word mii_rx_sixth_word"
+#pragma xta command "set required - 320 ns"
+
+#pragma xta command "analyze endpoints mii_rx_sixth_word mii_rx_word"
+#pragma xta command "set required - 320 ns"
+
 #pragma xta command "analyze endpoints mii_rx_word mii_rx_word"
 #pragma xta command "set required - 300 ns"
 
@@ -56,6 +67,8 @@
 #pragma xta command "add exclusion mii_rx_after_preamble"
 #pragma xta command "add exclusion mii_rx_eof"
 #pragma xta command "add exclusion mii_no_availible_buffers"
+#pragma xta command "add exclusion mii_rx_correct_priority_buffer_unavailable"
+#pragma xta command "add exclusion mii_rx_data_inner_loop"
 #pragma xta command "analyze endpoints mii_rx_eof mii_rx_sof"
 #pragma xta command "set required - 1520 ns"
 
@@ -102,18 +115,9 @@
 
 #ifdef ETHERNET_COUNT_PACKETS
 static unsigned int ethernet_mii_no_queue_entries = 0;
-static unsigned int ethernet_mii_no_lp_queue_entry = 0;
-static unsigned int ethernet_mii_no_hp_queue_entry = 0;
-static unsigned int ethernet_mii_bad_length = 0;
 
-void ethernet_get_mii_counts(unsigned& dropped,
-		                     unsigned& dropped_lp,
-		                     unsigned& dropped_hp,
-		                     unsigned& bad_length) {
+void ethernet_get_mii_counts(unsigned& dropped) {
 	dropped = ethernet_mii_no_queue_entries;
-	dropped_lp = ethernet_mii_no_lp_queue_entry;
-	dropped_hp = ethernet_mii_no_hp_queue_entry;
-	bad_length = ethernet_mii_bad_length;
 }
 #endif
 
@@ -140,15 +144,16 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 		int length;
 		unsigned time;
 		unsigned word;
+		unsigned buf, dptr;
 		unsigned buf_lp, dptr_lp;
 #ifdef ETHERNET_RX_HP_QUEUE
 		unsigned buf_hp, dptr_hp;
 #endif
 
 #ifdef ETHERNET_RX_HP_QUEUE
-		buf_hp = mii_malloc(rxmem_hp);
+		buf_hp = mii_reserve(rxmem_hp);
 #endif
-		buf_lp = mii_malloc(rxmem_lp);
+		buf_lp = mii_reserve(rxmem_lp);
 
 #ifdef ETHERNET_RX_HP_QUEUE
 		if (buf_hp) {
@@ -189,19 +194,82 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 		mii_packet_set_data_word_imm(dptr_hp, 0, word);
 #endif
 
-		i = 1;
+#pragma xta endpoint "mii_rx_second_word"
+		p_mii_rxd :> word;
+		crc32(crc, word, poly);
+		mii_packet_set_data_word_imm(dptr_lp, 1, word);
+#ifdef ETHERNET_RX_HP_QUEUE
+		mii_packet_set_data_word_imm(dptr_hp, 1, word);
+#endif
+
+#pragma xta endpoint "mii_rx_third_word"
+		p_mii_rxd :> word;
+		crc32(crc, word, poly);
+		mii_packet_set_data_word_imm(dptr_lp, 2, word);
+#ifdef ETHERNET_RX_HP_QUEUE
+		mii_packet_set_data_word_imm(dptr_hp, 2, word);
+#endif
+
+#pragma xta endpoint "mii_rx_ethertype_word"
+		p_mii_rxd :> word;
+		crc32(crc, word, poly);
+		mii_packet_set_data_word_imm(dptr_lp, 3, word);
+#ifdef ETHERNET_RX_HP_QUEUE
+		mii_packet_set_data_word_imm(dptr_hp, 3, word);
+#endif
+
+		{
+#ifdef ETHERNET_RX_HP_QUEUE
+		unsigned short etype = (unsigned short)word;
+
+		if (etype == 0x0081) {
+			buf = buf_hp;
+			dptr = dptr_hp;
+		}
+		else {
+			buf = buf_lp;
+			dptr = dptr_lp;
+		}
+#else
+		buf = buf_lp;
+		dptr = dptr_lp;
+#endif
+		}
+
+#pragma xta endpoint "mii_rx_fifth_word"
+		p_mii_rxd :> word;
+		crc32(crc, word, poly);
+		mii_packet_set_data_word_imm(dptr, 4, word);
+
+		mii_packet_set_src_port(buf, 0);
+		mii_packet_set_timestamp_id(buf, 0);
+		mii_packet_set_timestamp(buf, time);
+
+#pragma xta endpoint "mii_rx_sixth_word"
+		p_mii_rxd :> word;
+		crc32(crc, word, poly);
+		mii_packet_set_data_word_imm(dptr, 5, word);
+
+		if (!buf) {
+#pragma xta label "mii_rx_correct_priority_buffer_unavailable"
+			p_mii_rxdv when pinseq(0) :> int hi;
+#ifdef ETHERNET_COUNT_PACKETS
+			ethernet_mii_no_queue_entries++;
+#endif
+			continue;
+		}
+
+		i = 6;
 		endofframe = 0;
 
 		do
 		{
+#pragma xta label "mii_rx_data_inner_loop"
 			select
 			{
 #pragma xta endpoint "mii_rx_word"                
 				case p_mii_rxd :> word:
-				mii_packet_set_data_word(dptr_lp, i, word);
-#ifdef ETHERNET_RX_HP_QUEUE
-				mii_packet_set_data_word(dptr_hp, i, word);
-#endif
+				mii_packet_set_data_word(dptr, i, word);
 				crc32(crc, word, poly);
 				i++;
 				break;
@@ -216,43 +284,10 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 		} while (!endofframe);
 
 		{
-			int buf;
-			int dptr;
 			unsigned tail;
 			int taillen;
 
-#ifdef ETHERNET_RX_HP_QUEUE
-			unsigned short etype = (unsigned short) mii_packet_get_data_word(dptr_lp, 3);
-
-			if (etype == 0x0081) {
-				buf = buf_hp;
-				dptr = dptr_hp;
-#ifdef ETHERNET_COUNT_PACKETS
-				if (dptr==0) ethernet_mii_no_hp_queue_entry++;
-#endif
-			}
-			else {
-				buf = buf_lp;
-				dptr = dptr_lp;
-#ifdef ETHERNET_COUNT_PACKETS
-				if (dptr==0) ethernet_mii_no_lp_queue_entry++;
-#endif
-			}
-#else
-			buf = buf_lp;
-			dptr = dptr_lp;
-#endif
-
 			taillen = endin(p_mii_rxd);
-
-			if (!buf) {
-				p_mii_rxd :> tail;
-				continue;
-			}
-
-			mii_packet_set_src_port(buf, 0);
-			mii_packet_set_timestamp_id(buf, 0);
-			mii_packet_set_timestamp(buf, time);
 
 			// Calculate final length
 			length = ((i-1) << 2) + (taillen >> 3);
@@ -261,22 +296,14 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 			// The remainder of the CRC calculation and the test takes place in the filter thread
 			mii_packet_set_crc(buf, crc);
 
-			taillen = (32 - taillen);
 			p_mii_rxd :> tail;
 
-			tail = tail >> taillen;
+			tail = tail >> (32 - taillen);
 
 			mii_packet_set_data_word(dptr, i, tail);
 
-			if (length >= 60) {
-				c <: buf;
-				mii_realloc(buf, (length+(BUF_DATA_OFFSET*4)));
-			}
-#ifdef ETHERNET_COUNT_PACKETS
-			else {
-				ethernet_mii_bad_length++;
-			}
-#endif
+			c <: buf;
+			mii_commit(buf, (length+(BUF_DATA_OFFSET*4)));
 		}
 	}
 

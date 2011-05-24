@@ -23,7 +23,9 @@ void two_port_filter(mii_packet_t buf[],
                      streaming chanend c1);
 
 #ifdef ETHERNET_COUNT_PACKETS
-void ethernet_get_filter_counts(REFERENCE_PARAM(unsigned,address), REFERENCE_PARAM(unsigned,filter));
+void ethernet_get_filter_counts(REFERENCE_PARAM(unsigned,address),
+								REFERENCE_PARAM(unsigned,filter),
+								REFERENCE_PARAM(unsigned,length));
 #endif
 
 #endif // __mii_filter_h__

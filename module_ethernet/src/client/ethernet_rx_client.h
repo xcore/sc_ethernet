@@ -174,16 +174,12 @@ void mac_get_link_counters(chanend mac_svr, REFERENCE_PARAM(int,overflow));
  *
  *  \param mac_svr              chanend of receive server.
  *  \param mii_overflow         MII rx couldn't allocate space in both the LP and HP fifos
- *  \param mii_lp_overflow      MII rx received an low priority packet but there was no space in LP fifo
- *  \param mii_hp_overflow      MII rx received an high priority packet but there was no space in HP fifo
  *  \param bad_length           The length of the received packet was out of the valid range
  *  \param mismatched_address   The packet was not addressed to this Mac
  *  \param filtered             The user filter function returned zero
  */
 void mac_get_global_counters(chanend mac_svr,
 		                     REFERENCE_PARAM(unsigned,mii_overflow),
-		                     REFERENCE_PARAM(unsigned,mii_lp_overflow),
-		                     REFERENCE_PARAM(unsigned,mii_hp_overflow),
 		                     REFERENCE_PARAM(unsigned,bad_length),
 		                     REFERENCE_PARAM(unsigned,mismatched_address),
 		                     REFERENCE_PARAM(unsigned,filtered)

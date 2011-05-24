@@ -146,8 +146,6 @@ void mac_get_link_counters(chanend mac_svr, int& dropped)
 
 void mac_get_global_counters(chanend mac_svr,
 		                     unsigned& mii_overflow,
-		                     unsigned& mii_lp_overflow,
-		                     unsigned& mii_hp_overflow,
 		                     unsigned& bad_length,
 		                     unsigned& mismatched_address,
 		                     unsigned& filtered
@@ -156,8 +154,6 @@ void mac_get_global_counters(chanend mac_svr,
 #ifdef ETHERNET_COUNT_PACKETS
   send_cmd(mac_svr, ETHERNET_RX_OVERFLOW_MII_CNT_REQ);
   mac_svr :> mii_overflow;
-  mac_svr :> mii_lp_overflow;
-  mac_svr :> mii_hp_overflow;
   mac_svr :> bad_length;
   mac_svr :> mismatched_address;
   mac_svr :> filtered;

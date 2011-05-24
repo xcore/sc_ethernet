@@ -8,15 +8,14 @@
 #include <mii.h>
 #include <xccompat.h>
 
-typedef int mii_mempool_t;
-typedef int mii_buffer_t;
+typedef unsigned mii_mempool_t;
+typedef unsigned mii_buffer_t;
 
 void mii_init_mempool(mii_mempool_t mempool0, int size, int maxsize_bytes);
 
-mii_buffer_t mii_malloc(mii_mempool_t mempool);
+mii_buffer_t mii_reserve(mii_mempool_t mempool);
 
-
-void mii_realloc(mii_buffer_t buf, int n);
+void mii_commit(mii_buffer_t buf, int n);
 
 void mii_free(mii_buffer_t);
 
