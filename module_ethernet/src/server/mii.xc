@@ -185,6 +185,7 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 		}
 
 		crc = 0x9226F562;
+		if (!dptr_hp) dptr_hp = dptr_lp;
 
 #pragma xta endpoint "mii_rx_first_word"
 		p_mii_rxd :> word;
@@ -241,15 +242,6 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 		crc32(crc, word, poly);
 		mii_packet_set_data_word_imm(dptr, 4, word);
 
-		mii_packet_set_src_port(buf, 0);
-		mii_packet_set_timestamp_id(buf, 0);
-		mii_packet_set_timestamp(buf, time);
-
-#pragma xta endpoint "mii_rx_sixth_word"
-		p_mii_rxd :> word;
-		crc32(crc, word, poly);
-		mii_packet_set_data_word_imm(dptr, 5, word);
-
 		if (!buf) {
 #pragma xta label "mii_rx_correct_priority_buffer_unavailable"
 			p_mii_rxdv when pinseq(0) :> int hi;
@@ -258,6 +250,15 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 #endif
 			continue;
 		}
+
+#pragma xta endpoint "mii_rx_sixth_word"
+		p_mii_rxd :> word;
+		crc32(crc, word, poly);
+		mii_packet_set_data_word_imm(dptr, 5, word);
+
+		mii_packet_set_src_port(buf, 0);
+		mii_packet_set_timestamp_id(buf, 0);
+		mii_packet_set_timestamp(buf, time);
 
 		i = 6;
 		endofframe = 0;
