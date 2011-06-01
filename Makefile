@@ -40,7 +40,7 @@
 # This variable should contain a space separated list of all
 # the directories containing buildable applications (usually
 # prefixed with the app_ prefix)
-BUILD_SUBDIRS = app_ethernet_demo app_ethernet_loopback
+BUILD_SUBDIRS = app_ethernet_demo app_ethernet_loopback app_mii_single_thread_demo
 
 # This variable should contain a space separated list of all
 # the directories containing buildable plugins (usually
