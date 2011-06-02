@@ -185,7 +185,10 @@ void mii_rx_pins(mii_mempool_t rxmem_hp,
 		}
 
 		crc = 0x9226F562;
+
+#ifdef ETHERNET_RX_HP_QUEUE
 		if (!dptr_hp) dptr_hp = dptr_lp;
+#endif
 
 #pragma xta endpoint "mii_rx_first_word"
 		p_mii_rxd :> word;
