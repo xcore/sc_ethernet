@@ -1,0 +1,48 @@
+load a.xe
+
+config threads 0 2 8
+
+remove core 0 0
+remove core 0 1
+remove core 0 3
+
+add branch _outRout.br0 mii_rxd mii_rxdv0 mii_rxdv1 mii_rxd_preamble
+add branch _outRout.br1 mii_rxd mii_rxdv0 mii_rxdv1 mii_rxd_preamble
+add branch _outRout.br2 mii_rxd mii_rxdv0 mii_rxdv1 mii_rxd_preamble
+add branch _outRout.br3 mii_rxd mii_rxdv0 mii_rxdv1 mii_rxd_preamble
+add branch _outRout.br4 mii_rxd mii_rxdv0 mii_rxdv1 mii_rxd_preamble
+add branch _outRout.br5 mii_rxd mii_rxdv0 mii_rxdv1 mii_rxd_preamble
+add branch _outRout.br6 mii_rxd mii_rxdv0 mii_rxdv1 mii_rxd_preamble
+add branch _outRout.br7 mii_rxd mii_rxdv0 mii_rxdv1 mii_rxd_preamble
+add branch _outRout.br8 mii_rxd mii_rxdv0 mii_rxdv1 mii_rxd_preamble
+add branch _outRout.br9 mii_rxd mii_rxdv0 mii_rxdv1 mii_rxd_preamble
+add branch _outRout.br10 mii_rxd mii_rxdv0 mii_rxdv1 mii_rxd_preamble
+add branch _outRout.br0a mii_rxd mii_rxdv0 mii_rxdv1 mii_rxd_preamble
+
+add branch _inRout.br0 receivingOut preamble1 preamble2 preamble3 outFirst outPacket outTail outCRC0 outCRC1 outCRC2 outCRC3
+add branch _inRout.br1 receivingOut preamble1 preamble2 preamble3 outFirst outPacket outTail outCRC0 outCRC1 outCRC2 outCRC3
+add branch _inRout.br2 receivingOut preamble1 preamble2 preamble3 outFirst outPacket outTail outCRC0 outCRC1 outCRC2 outCRC3
+add branch _inRout.br3 receivingOut preamble1 preamble2 preamble3 outFirst outPacket outTail outCRC0 outCRC1 outCRC2 outCRC3
+add branch _brulet Tail0 Tail1 Tail2 Tail3
+
+analyse path _out.1 _out.2
+set required - 320 ns
+analyse path _out.2 _out.3
+set exclusion - _out.5ex0
+set required - 320 ns
+analyse path _out.3 _out.4
+set required - 320 ns
+analyse path _out.4 _out.5
+set required - 320 ns
+analyse path _out.5 _out.6
+set required - 320 ns
+set exclusion - _out.5ex0
+analyse path _out.5 _out.5
+set required - 320 ns
+set exclusion - _out.5ex0
+set exclusion - _out.5ex1
+analyse path _out.6 _out.0
+set required - 320 ns
+
+print summary
+
