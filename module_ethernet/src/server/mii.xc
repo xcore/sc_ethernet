@@ -70,7 +70,7 @@
 #pragma xta command "add exclusion mii_rx_correct_priority_buffer_unavailable"
 #pragma xta command "add exclusion mii_rx_data_inner_loop"
 #pragma xta command "analyze endpoints mii_rx_eof mii_rx_sof"
-#pragma xta command "set required - 1640 ns"
+#pragma xta command "set required - 1560 ns"
 
 // Transmit timing constraints
 
