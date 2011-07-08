@@ -175,8 +175,6 @@ void ethernet_getmac_otp(port otp_data, out port otp_addr, port otp_ctrl, char m
 		macaddr[3] = (wrd_macaddr[1] >> 16) & 0xFF;
 		macaddr[4] = (wrd_macaddr[1] >> 8) & 0xFF;
 		macaddr[5] = (wrd_macaddr[1]) & 0xFF;
-
-		printstr("Using programmed MAC address\n");
 	}
 	else
 	{
@@ -211,7 +209,5 @@ void ethernet_getmac_otp(port otp_data, out port otp_addr, port otp_ctrl, char m
 		macaddr[3] = (OTPId >> 16) & 0xFF;
 		macaddr[4] = (OTPId >> 8) & 0xFF;
 		macaddr[5] = OTPId & 0xFF;
-
-		printstr("Using random MAC address\n");
 	}
 }

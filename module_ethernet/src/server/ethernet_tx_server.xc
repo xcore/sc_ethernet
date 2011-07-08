@@ -32,7 +32,6 @@ void checkLink(smi_interface_t &smi,
     outuchar(c, new_status);
     outuchar(c, 0);
     outct(c, XS1_CT_END);
-    //    inct(c, XS1_CT_END);
     phy_status = new_status;
   }
 }

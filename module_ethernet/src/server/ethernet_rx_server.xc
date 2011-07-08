@@ -123,7 +123,6 @@ void serviceLinkCmd(chanend link, int linkIndex, unsigned int &cmd)
          }
          break;
      default:    // unreconised command.
-       printstrln("eth rx unrecognized cmd");
          break;
    }
 
@@ -289,8 +288,6 @@ void ethernet_rx_server(mii_mempool_t rxmem_hp,
       custom_filter_mask[i] = 0;
    }
 
-   printstr("INFO: Ethernet Rx Server started..\n");
-
    // Main control loop.
    while (1)
    {
@@ -329,7 +326,7 @@ void ethernet_rx_server(mii_mempool_t rxmem_hp,
                }               
              }
               else { 
-               printstr("ERROR: mac request without notification\n");
+               // mac request without notification
              }
            }
          break;
