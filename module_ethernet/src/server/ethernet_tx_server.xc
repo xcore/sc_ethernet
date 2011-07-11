@@ -43,7 +43,7 @@ void ethernet_tx_server(
 #endif
                         mii_mempool_t tx_mem_lp[],
                         int num_q, 
-                        mii_queue_t &ts_queue,
+                        mii_queue_t ts_queue[],
                         const int mac_addr[2],
                         chanend tx[],
                         int num_tx,
@@ -180,11 +180,11 @@ void ethernet_tx_server(
             {
             case ETHERNET_TX_REQ:
             case ETHERNET_TX_REQ_OFFSET2:
-            case ETHERNET_TX_REQ_TIMED:      
-#ifdef ETHERNET_TX_HP_QUEUE
+            case ETHERNET_TX_REQ_TIMED:
+#if defined(ETHERNET_TX_HP_QUEUE)
             case ETHERNET_TX_REQ_HP:
             case ETHERNET_TX_REQ_OFFSET2_HP:
-            case ETHERNET_TX_REQ_TIMED_HP:      
+            case ETHERNET_TX_REQ_TIMED_HP:
 #endif
 
               pendingCmd[i] = cmd;
@@ -235,13 +235,15 @@ void ethernet_tx_server(
     }
 
     // Reply with timestamps where client is requesting them
-    buf[0]=get_queue_entry(ts_queue);
-    if (buf[0] != 0) {
-      int i = mii_packet_get_timestamp_id(buf[0]);
-      int ts = mii_packet_get_timestamp(buf[0]);
-      tx[i-1] <: ts;
-      if (get_and_dec_transmit_count(buf[0]) == 0)
-        mii_free(buf[0]);
+    for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
+    	buf[p]=get_queue_entry(ts_queue[p]);
+    	if (buf[p] != 0) {
+    		int i = mii_packet_get_timestamp_id(buf[p]);
+    		int ts = mii_packet_get_timestamp(buf[p]);
+    		tx[i-1] <: ts;
+    		if (get_and_dec_transmit_count(buf[p]) == 0)
+    			mii_free(buf[p]);
+    	}
     }
   }
 }

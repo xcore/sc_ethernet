@@ -32,7 +32,6 @@ typedef struct mii_queue_t {
   unsigned fifo[MAC_MAX_ENTRIES];
 } mii_queue_t;
 
-
 void init_queue(REFERENCE_PARAM(mii_queue_t, q));
 int get_queue_entry(REFERENCE_PARAM(mii_queue_t, q));
 void add_queue_entry(REFERENCE_PARAM(mii_queue_t, q), int i);

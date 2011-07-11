@@ -17,7 +17,7 @@
 
 
 // Queue of timestamps for transmitted packets
-mii_queue_t ts_queue;
+mii_queue_t ts_queue[NUM_ETHERNET_PORTS];
 
 
 #ifdef ETHERNET_RX_HP_QUEUE
@@ -99,9 +99,10 @@ void init_mii_mem() {
 #endif
 		mii_init_mempool(rx_mem_lp[i], MII_RX_LP_MEMSIZE*4, 1518);
 		mii_init_mempool(tx_mem_lp[i], MII_TX_LP_MEMSIZE*4, ETHERNET_MAX_TX_PACKET_SIZE);
+
+		init_queue(&ts_queue[i]);
 	}
 	init_queues();
-	init_queue(&ts_queue);
 	return;
 }
 
@@ -125,7 +126,7 @@ void mii_tx_pins_wr(port p,
 #ifdef ETHERNET_TX_HP_QUEUE
               tx_mem_hp[i],
 #endif
-              tx_mem_lp[i], &ts_queue, p, i);
+              tx_mem_lp[i], &ts_queue[i], p, i);
 }
 
 void ethernet_tx_server_wr(const int mac_addr[2], chanend tx[], int num_q, int num_tx, smi_interface_t *smi1, smi_interface_t *smi2, chanend connect_status)
@@ -136,7 +137,7 @@ void ethernet_tx_server_wr(const int mac_addr[2], chanend tx[], int num_q, int n
 #endif
                      tx_mem_lp,
                      num_q,
-                     &ts_queue,
+                     ts_queue,
                      mac_addr,
                      tx,
                      num_tx,
