@@ -16,7 +16,8 @@
 #include <print.h>
 
 
-mii_queue_t filter_queue, internal_queue, ts_queue;
+// Queue of timestamps for transmitted packets
+mii_queue_t ts_queue;
 
 
 #ifdef ETHERNET_RX_HP_QUEUE
@@ -53,49 +54,55 @@ mii_queue_t filter_queue, internal_queue, ts_queue;
 
 
 #ifdef ETHERNET_RX_HP_QUEUE
-int rx_hp_data[MII_RX_HP_MEMSIZE];
+int rx_hp_data[NUM_ETHERNET_PORTS][MII_RX_HP_MEMSIZE];
 #endif
 
 #ifdef ETHERNET_TX_HP_QUEUE
-int tx_hp_data[MII_TX_HP_MEMSIZE];
+int tx_hp_data[NUM_ETHERNET_PORTS][MII_TX_HP_MEMSIZE];
 #endif
 
 
 
-int rx_lp_data[MII_RX_LP_MEMSIZE];
-int tx_lp_data[MII_TX_LP_MEMSIZE];
+int rx_lp_data[NUM_ETHERNET_PORTS][MII_RX_LP_MEMSIZE];
+int tx_lp_data[NUM_ETHERNET_PORTS][MII_TX_LP_MEMSIZE];
 
 
 
-mii_mempool_t rx_mem_hp, tx_mem_hp;
+#ifdef ETHERNET_RX_HP_QUEUE
+mii_mempool_t rx_mem_hp[NUM_ETHERNET_PORTS];
+#endif
 
+#ifdef ETHERNET_TX_HP_QUEUE
+mii_mempool_t tx_mem_hp[NUM_ETHERNET_PORTS];
+#endif
 
-mii_mempool_t rx_mem_lp, tx_mem_lp;
+mii_mempool_t rx_mem_lp[NUM_ETHERNET_PORTS];
+
+mii_mempool_t tx_mem_lp[NUM_ETHERNET_PORTS];
 
 
 void init_mii_mem() {
+	for (int i=0; i<NUM_ETHERNET_PORTS; ++i) {
 #ifdef ETHERNET_RX_HP_QUEUE
-  rx_mem_hp = (mii_mempool_t) &rx_hp_data[0];
+		rx_mem_hp[i] = (mii_mempool_t) &rx_hp_data[i][0];
 #endif
 #ifdef ETHERNET_TX_HP_QUEUE
-  tx_mem_hp = (mii_mempool_t) &tx_hp_data[0];
+		tx_mem_hp[i] = (mii_mempool_t) &tx_hp_data[i][0];
 #endif
-  rx_mem_lp = (mii_mempool_t) &rx_lp_data[0];
-  tx_mem_lp = (mii_mempool_t) &tx_lp_data[0];
+		rx_mem_lp[i] = (mii_mempool_t) &rx_lp_data[i][0];
+		tx_mem_lp[i] = (mii_mempool_t) &tx_lp_data[i][0];
 #ifdef ETHERNET_RX_HP_QUEUE
-  mii_init_mempool(rx_mem_hp, MII_RX_HP_MEMSIZE*4, 1518);
+		mii_init_mempool(rx_mem_hp[i], MII_RX_HP_MEMSIZE*4, 1518);
 #endif
 #ifdef ETHERNET_TX_HP_QUEUE
-  mii_init_mempool(tx_mem_hp, MII_TX_HP_MEMSIZE*4, 1518);
+		mii_init_mempool(tx_mem_hp[i], MII_TX_HP_MEMSIZE*4, 1518);
 #endif
-  mii_init_mempool(rx_mem_lp, MII_RX_LP_MEMSIZE*4, 1518);
-  mii_init_mempool(tx_mem_lp, MII_TX_LP_MEMSIZE*4, ETHERNET_MAX_TX_PACKET_SIZE);
-
-  init_queues();
-  init_queue(&filter_queue);
-  init_queue(&internal_queue);
-  init_queue(&ts_queue);
-  return;
+		mii_init_mempool(rx_mem_lp[i], MII_RX_LP_MEMSIZE*4, 1518);
+		mii_init_mempool(tx_mem_lp[i], MII_TX_LP_MEMSIZE*4, ETHERNET_MAX_TX_PACKET_SIZE);
+	}
+	init_queues();
+	init_queue(&ts_queue);
+	return;
 }
 
 void mii_rx_pins_wr(port p1,
@@ -103,7 +110,11 @@ void mii_rx_pins_wr(port p1,
                     int i,
                     streaming chanend c)
 {
-  mii_rx_pins(rx_mem_hp, rx_mem_lp, p1, p2, i, c);
+  mii_rx_pins(
+#ifdef ETHERNET_RX_HP_QUEUE
+		  rx_mem_hp[i],
+#endif
+		  rx_mem_lp[i], p1, p2, i, c);
 }
 
 
@@ -112,30 +123,9 @@ void mii_tx_pins_wr(port p,
 {
   mii_tx_pins(
 #ifdef ETHERNET_TX_HP_QUEUE
-              tx_mem_hp,
+              tx_mem_hp[i],
 #endif
-              tx_mem_lp, &ts_queue, p, i);
-}
-
-#if 0
-void two_port_filter_wr(const int mac[2], streaming chanend c, streaming chanend d)
-{
-  two_port_filter(mii_packet_buf,
-                  mac,  
-                  &internal_queue,
-                  &tx_queue[0], 
-                  &tx_queue[1],
-                  c,
-                  d);
-}
-#endif
-
-void one_port_filter_wr(const int mac[2], streaming chanend c)
-{
-  one_port_filter(0,
-                  mac, 
-                  &internal_queue,
-                  c);
+              tx_mem_lp[i], &ts_queue, p, i);
 }
 
 void ethernet_tx_server_wr(const int mac_addr[2], chanend tx[], int num_q, int num_tx, smi_interface_t *smi1, smi_interface_t *smi2, chanend connect_status)
@@ -157,9 +147,11 @@ void ethernet_tx_server_wr(const int mac_addr[2], chanend tx[], int num_q, int n
 
 void ethernet_rx_server_wr(chanend rx[], int num_rx)
 {
-  ethernet_rx_server(rx_mem_hp,
+  ethernet_rx_server(
+#ifdef ETHERNET_RX_HP_QUEUE
+					 rx_mem_hp,
+#endif
                      rx_mem_lp,
-                     &internal_queue, 
                      rx,
                      num_rx);
 }

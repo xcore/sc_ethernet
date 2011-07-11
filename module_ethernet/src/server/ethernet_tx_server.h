@@ -16,22 +16,22 @@
 #ifdef __XC__
 void ethernet_tx_server(
 #ifdef ETHERNET_TX_HP_QUEUE
-                        mii_mempool_t tx_mem_hp,
+                        mii_mempool_t tx_mem_hp[],
 #endif
-                        mii_mempool_t tx_mem_lp,
+                        mii_mempool_t tx_mem_lp[],
                         int num_q,
                         REFERENCE_PARAM(mii_queue_t,ts_q),                     
                         const int mac_addr[2],
                         chanend tx[], int num_tx,
                         smi_interface_t &?smi1,
                         smi_interface_t &?smi2,
-                        chanend ?connect_status);xb
+                        chanend ?connect_status);
 #else
 void ethernet_tx_server(
 #ifdef ETHERNET_TX_HP_QUEUE
-                        mii_mempool_t tx_mem_hp,
+                        mii_mempool_t tx_mem_hp[],
 #endif
-                        mii_mempool_t tx_mem_lp,
+                        mii_mempool_t tx_mem_lp[],
                         int num_q,
                         REFERENCE_PARAM(mii_queue_t,ts_q),                     
                         const int mac_addr[2],

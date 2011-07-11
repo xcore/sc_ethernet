@@ -122,12 +122,15 @@ void ethernet_get_mii_counts(unsigned& dropped) {
 #endif
 
 #pragma unsafe arrays
-void mii_rx_pins(mii_mempool_t rxmem_hp,
-				 mii_mempool_t rxmem_lp,
-				 in port p_mii_rxdv,
-				 in buffered port:32 p_mii_rxd,
-				 int ifnum,
-				 streaming chanend c)
+void mii_rx_pins(
+#ifdef ETHERNET_RX_HP_QUEUE
+		mii_mempool_t rxmem_hp,
+#endif
+		mii_mempool_t rxmem_lp,
+		in port p_mii_rxdv,
+		in buffered port:32 p_mii_rxd,
+		int ifnum,
+		streaming chanend c)
 {
 	timer tmr;
 	unsigned poly = 0xEDB88320;

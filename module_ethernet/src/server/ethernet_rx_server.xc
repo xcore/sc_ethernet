@@ -259,23 +259,27 @@ static void processReceivedFrame(int buf,
  *  It interface with ethernet_rx_buf_ctl to handle frames 
  * 
  */
-void ethernet_rx_server(mii_mempool_t rxmem_hp,
-                        mii_mempool_t rxmem_lp,
-                        mii_queue_t &in_q,
-                        chanend link[],
-                        int num_link)
+void ethernet_rx_server(
+#ifdef ETHERNET_RX_HP_QUEUE
+		mii_mempool_t rxmem_hp[],
+#endif
+		mii_mempool_t rxmem_lp[],
+		chanend link[],
+		int num_link)
 {
    int i;
    unsigned int cmd;
 #ifdef ETHERNET_RX_HP_QUEUE
-   int rdptr_hp;
+   int rdptr_hp[NUM_ETHERNET_PORTS];
 #endif
-   int rdptr_lp;
-  
+   int rdptr_lp[NUM_ETHERNET_PORTS];
+
+   for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
 #ifdef ETHERNET_RX_HP_QUEUE
-   rdptr_hp = mii_init_my_rdptr(rxmem_hp);
+	   rdptr_hp[p] = mii_init_my_rdptr(rxmem_hp[p]);
 #endif
-   rdptr_lp = mii_init_my_rdptr(rxmem_lp);
+	   rdptr_lp[p] = mii_init_my_rdptr(rxmem_lp[p]);
+   }
 
    // Initialise the link filters & local data structures.
    for (i = 0; i < num_link; i += 1)
@@ -332,26 +336,28 @@ void ethernet_rx_server(mii_mempool_t rxmem_hp,
          break;
        default:
          {
-           int buf;
 #ifdef ETHERNET_RX_HP_QUEUE
-           buf = mii_get_my_next_buf(rxmem_hp, rdptr_hp);
-           if (buf != 0 && mii_packet_get_stage(buf) == 1) {
-             rdptr_hp = mii_update_my_rdptr(rxmem_hp, rdptr_hp);
-             processReceivedFrame(buf, link, num_link);            
-           }   
-           else 
+           for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
+        	   int buf = mii_get_my_next_buf(rxmem_hp[p], rdptr_hp[p]);
+        	   if (buf != 0 && mii_packet_get_stage(buf) == 1) {
+        		   rdptr_hp[p] = mii_update_my_rdptr(rxmem_hp[p], rdptr_hp[p]);
+        		   processReceivedFrame(buf, link, num_link);
+        		   break;
+        	   }
+           }
+
 #endif
-             {
-             buf = mii_get_my_next_buf(rxmem_lp, rdptr_lp);
-             if (buf != 0 && mii_packet_get_stage(buf) == 1) {
-               rdptr_lp = mii_update_my_rdptr(rxmem_lp, rdptr_lp);   
-               processReceivedFrame(buf, link, num_link);
-             }   
-             }
+           for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
+        	   int buf = mii_get_my_next_buf(rxmem_lp[p], rdptr_lp[p]);
+        	   if (buf != 0 && mii_packet_get_stage(buf) == 1) {
+        		   rdptr_lp[p] = mii_update_my_rdptr(rxmem_lp[p], rdptr_lp[p]);
+        		   processReceivedFrame(buf, link, num_link);
+                   break;
+        	   }
+		   }
            break;
          }
        }       
    }
-   
 }
 

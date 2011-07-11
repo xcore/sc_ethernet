@@ -12,6 +12,10 @@
 #include "ethernet_conf.h"
 #endif
 
+#ifndef NUM_ETHERNET_PORTS
+#define NUM_ETHERNET_PORTS (1)
+#endif
+
 #ifndef MAX_ETHERNET_PACKET_SIZE
 #define MAX_ETHERNET_PACKET_SIZE (1518)
 #endif
@@ -22,10 +26,6 @@
 
 #ifndef NUM_MII_TX_BUF 
 #define NUM_MII_TX_BUF 5
-#endif
-
-#ifndef MAC_REQUIRED_WORDS_TO_FILTER
-#define MAC_REQUIRED_WORDS_TO_FILTER (4)
 #endif
 
 #ifdef ETHERNET_RX_HP_QUEUE
@@ -201,19 +201,25 @@ inline void mii_packet_set_data(int buf, int n, int v) {
 
 
 #ifdef __XC__
-void mii_rx_pins(unsigned rxmem_hp,
-                 unsigned rxmem_lp,
-                 in port p_mii_rxdv,
-                 in buffered port:32 p_mii_rxd,
-                 int ifnum,
-                 streaming chanend c);
+void mii_rx_pins(
+#ifdef ETHERNET_RX_HP_QUEUE
+		unsigned rxmem_hp,
+#endif
+		 unsigned rxmem_lp,
+		 in port p_mii_rxdv,
+		 in buffered port:32 p_mii_rxd,
+		 int ifnum,
+		 streaming chanend c);
 #else
-void mii_rx_pins(unsigned rxmem_hp,
-                 unsigned rxmem_lp,
-                 port p_mii_rxdv,
-                 port p_mii_rxd,
-                 int ifnum,
-                 chanend c);
+void mii_rx_pins(
+#ifdef ETHERNET_RX_HP_QUEUE
+		unsigned rxmem_hp,
+#endif
+		 unsigned rxmem_lp,
+		 port p_mii_rxdv,
+		 port p_mii_rxd,
+		 int ifnum,
+		 chanend c);
 #endif
 
 #ifdef __XC__

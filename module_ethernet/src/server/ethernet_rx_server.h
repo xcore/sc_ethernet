@@ -36,10 +36,12 @@
  *   
  */
 
-void ethernet_rx_server(mii_mempool_t rxmem_hp,
-                        mii_mempool_t rxmem_lp,
-                        REFERENCE_PARAM(mii_queue_t, in_q),
-                        chanend link[],
-                        int num_links);
+void ethernet_rx_server(
+#ifdef ETHERNET_RX_HP_QUEUE
+		mii_mempool_t rxmem_hp[],
+#endif
+		mii_mempool_t rxmem_lp[],
+		chanend link[],
+		int num_links);
 #endif
 
