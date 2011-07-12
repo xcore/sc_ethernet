@@ -49,7 +49,7 @@ PLUGIN_SUBDIRS =
 
 # This variable should contain a space separated list of all
 # the directories containing applications with a 'test' make target
-TEST_SUBDIRS = test_regression test_ethernet_qav
+TEST_SUBDIRS = test_regression test_ethernet_qav test_ethernet_2_port
 
 # Provided that the above variables are set you shouldn't need to modify
 # the targets below here. 

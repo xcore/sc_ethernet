@@ -10,6 +10,7 @@
 #include <mii_filter.h>
 #include "eth_phy.h"
 
+#if (NUM_ETHERNET_PORTS == 1)
 
 void phy_init(clock clk_smi,
               out port ?p_mii_resetn,
@@ -22,7 +23,6 @@ void phy_init(clock clk_smi,
   eth_phy_config(1, smi0);
 }
 
-
 void ethernet_server(mii_interface_t &m,
                      int mac_address[],
                      chanend rx[],
@@ -33,7 +33,6 @@ void ethernet_server(mii_interface_t &m,
                      chanend ?connect_status)
 {
   streaming chan c[1];
-  if (NUM_ETHERNET_PORTS != 1) return;
   init_mii_mem();
   par {
     // These thrads all communicate internally via shared memory
@@ -45,7 +44,10 @@ void ethernet_server(mii_interface_t &m,
     ethernet_filter(mac_address, c);
   }
 }
+#endif
 
+
+#if (NUM_ETHERNET_PORTS == 2)
 void phy_init_two_port(clock clk_smi,
                        out port ?p_mii_resetn,
                        smi_interface_t &smi0,
@@ -70,7 +72,8 @@ void ethernet_server_two_port(mii_interface_t &mii1,
                               int num_rx,
                               chanend tx[],
                               int num_tx,
-                              smi_interface_t ?smi[2],
+                              smi_interface_t &?smi1,
+                              smi_interface_t &?smi2,
                               chanend ?connect_status)
 {
   streaming chan cs[2];
@@ -85,7 +88,10 @@ void ethernet_server_two_port(mii_interface_t &mii1,
     mii_tx_pins(mii2.p_mii_txd, 1);
     ethernet_filter(mac_address, cs);
     ethernet_rx_server(rx, num_rx);
-    ethernet_tx_server(mac_address, tx, 2, num_tx, smi[0], smi[1], connect_status);
+    ethernet_tx_server(mac_address, tx, 2, num_tx, smi1, smi2, connect_status);
   }
 }
-                     
+#endif
+
+
+

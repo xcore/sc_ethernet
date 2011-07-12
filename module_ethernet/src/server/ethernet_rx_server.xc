@@ -26,8 +26,6 @@
 #include "ethernet_rx_server.h"
 #include <print.h>
 
-#define FIFO_SIZE MAX_CLIENT_QUEUE_SIZE
-
 // data structure to keep track of link layer status.
 typedef struct
 {
@@ -36,7 +34,7 @@ typedef struct
    int max_queue_size;
    int rdIndex;
    int wrIndex;
-   int fifo[FIFO_SIZE];
+   int fifo[NUM_MII_RX_BUF];
 } LinkLayerStatus_t;
 
 // Local data structures.
@@ -112,7 +110,7 @@ void serviceLinkCmd(chanend link, int linkIndex, unsigned int &cmd)
            link_status[linkIndex].max_queue_size = 1;
          }
          else {
-           link_status[linkIndex].max_queue_size = MAX_CLIENT_QUEUE_SIZE;
+           link_status[linkIndex].max_queue_size = NUM_MII_RX_BUF;
          }       
          }
          break;
@@ -213,11 +211,11 @@ static void processReceivedFrame(int buf,
              int queue_size;
              
              new_wrIndex = wrIndex+1;
-             new_wrIndex *= (new_wrIndex != FIFO_SIZE);
+             new_wrIndex *= (new_wrIndex != NUM_MII_RX_BUF);
              
              queue_size = wrIndex-rdIndex;
              if (queue_size < 0)
-               queue_size += FIFO_SIZE;
+               queue_size += NUM_MII_RX_BUF;
              
              
              if (queue_size < link_status[i].max_queue_size &&
@@ -313,7 +311,7 @@ void ethernet_rx_server(
              if (rdIndex != wrIndex) {
                int buf = link_status[i].fifo[rdIndex];
                new_rdIndex=rdIndex+1;
-               new_rdIndex *= (new_rdIndex != FIFO_SIZE);
+               new_rdIndex *= (new_rdIndex != NUM_MII_RX_BUF);
 
                mac_rx_send_frame(buf, link[i], cmd);
 

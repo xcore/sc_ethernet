@@ -96,7 +96,8 @@ void ethernet_server_two_port(mii_interface_t &mii1,
                               int num_rx,
                               chanend tx[],
                               int num_tx,
-                              smi_interface_t ?smi[2],
+                              smi_interface_t &?smi1,
+                              smi_interface_t &?smi2,
                               chanend ?connect_status);
 
 #endif

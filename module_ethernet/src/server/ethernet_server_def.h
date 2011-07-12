@@ -25,10 +25,6 @@
 #define MAX_ETHERNET_CLIENTS   (4)      // Number of link layers to support
 #endif
 
-#ifndef MAX_CLIENT_QUEUE_SIZE 
-#define MAX_CLIENT_QUEUE_SIZE  NUM_MII_RX_BUF
-#endif
-
 /*****************************************************************************
  *
  *  DO NOT CHANGE THESE.

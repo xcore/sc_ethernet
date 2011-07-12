@@ -135,7 +135,7 @@ void ethernet_tx_server(
             			  int datum;
             			  tx[i] :> datum;
             			  for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
-            				  mii_packet_set_data(buf[0], j, datum);
+            				  mii_packet_set_data(buf[p], j, datum);
             			  }
             		  }
             	  }
