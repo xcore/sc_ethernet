@@ -134,10 +134,14 @@ Ethernet Phy API
 
 .. doxygenfunction:: phy_init
 
+.. doxygenfunction:: phy_init_two_port
+
 MAC Server API
 --------------
 
 .. doxygenfunction:: ethernet_server
+
+.. doxygenfunction:: ethernet_server_two_port
 
 
 RX Client API
