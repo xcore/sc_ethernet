@@ -31,6 +31,64 @@ code. This file can set the following defines:
     The maximum number of clients that can be connected to the
     :c:func:`ethernet_server` function via the rx and tx channel arrays.
 
+**NUM_ETHERNET_PORTS**
+
+    The number of ethernet ports to support.  Maximum value is 2 in
+    the current implementation.
+
+**ETHERNET_TX_HP_QUEUE**
+
+    Define this constant to include the high priority transmit queueing
+    mechanism.  This enables frames which have an ethernet VLAN priority
+    tag to be queued in a high priority queue, which in turn can be
+    managed with the 802.1qav transmit traffic shaper.  
+
+**ETHERNET_RX_HP_QUEUE**
+
+    Define this constant to include high priority reception of ethernet
+    VLAN priority tagged traffic.  This traffic will be queued into a
+    fast queue and delivered to the clients ahead of non-tagged traffic. 
+
+**ETHERNET_TRAFFIC_SHAPER**
+
+    If high priority transmit queueing is in use (see *ETHERNET_TX_HP_QUEUE*)
+    then this enables the 802.1qav traffic shaping algorithm. 
+
+**MII_RX_BUFSIZE_HIGH_PRIORITY**
+
+    The number of quadlets (4 byte integers) of space in the high
+    priority receive buffer.  The buffer will actually be two full
+    packets longer than this to avoid the need to be circular. This
+    constant applies when the high priority receive queue is in use.
+    
+**MII_RX_BUFSIZE_LOW_PRIORITY**
+
+    The number of quadlets (4 byte integers) of space in the low
+    priority receive buffer.  The buffer will actually be two full
+    packets longer than this to avoid the need to be circular. This
+    constant applies when the high priority receive is in use.
+
+**MII_RX_BUFSIZE**
+
+    The number of quadlets (4 byte integers) of space in the low
+    priority receive buffer.  The buffer will actually be two full
+    packets longer than this to avoid the need to be circular. This
+    constant applies when the high priority receive is not in use.
+
+**MII_TX_BUFSIZE**
+
+    The number of quadlets (4 byte integers) of space in the low
+    priority transmit buffer.  The buffer will actually be two full
+    packets longer than this to avoid the need to be circular.
+
+**MII_TX_BUFSIZE_HIGH_PRIORITY**
+
+    The number of quadlets (4 byte integers) of space in the high
+    priority transmit buffer.  The buffer will actually be two full
+    packets longer than this to avoid the need to be circular. This
+    constant applies when the high priority receive is in use.
+
+
 Custom Filter Function
 ----------------------
 

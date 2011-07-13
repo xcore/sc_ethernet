@@ -16,6 +16,10 @@
 #define NUM_ETHERNET_PORTS (1)
 #endif
 
+#if NUM_ETHERNET_PORTS > 2
+#error NUM_ETHERNET_PORTS cannot be larger than 2
+#endif
+
 #ifndef MAX_ETHERNET_PACKET_SIZE
 #define MAX_ETHERNET_PACKET_SIZE (1518)
 #endif
