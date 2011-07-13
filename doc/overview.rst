@@ -9,6 +9,9 @@ distribute packets in arbitrary ways. In addition the MII layer will
 accurately timestamp packets on ingress and egress and pass this
 information through the MAC to the ethernet client.
 
+The code supports one or two PHY devices, both connected to the same
+xcore.  Currently there is no inter-port packet forwarding supported.
+
 Component Summary
 +++++++++++++++++
 

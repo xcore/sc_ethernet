@@ -8,6 +8,7 @@ development platforms can be used:
   * XDK XS1-G Development Kit (http://www.xmos.com/products/development-kits/xs1-g-development-kit)
   * XP-DSC-BLDC Motor Control Platform (http://www.xmos.com/development-kits/motor-control-platform)
   * XK-AVB-LC-SYS AVB Audio Endpoint (http://www.xmos.com/products/reference-designs/avbl2)
+  * XC-3 Dual-port Ethernet Kit (http://www.xmos.com/products/development-kits/xc-3-led-tile-kit)
 
 For developing an application specific board with ethernet please
 refer to the hardware guides for the above boards with example
