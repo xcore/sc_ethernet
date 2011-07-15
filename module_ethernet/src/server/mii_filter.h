@@ -9,6 +9,10 @@
 #include "mii_queue.h"
 #include "mii_malloc.h"
 
+//! This define is the last bit in the filter bitfield, and is set when the
+//! system has to forward the packet to the other ethernet ports
+#define MII_FILTER_FORWARD_TO_OTHER_PORTS (0x80000000)
+
 void ethernet_filter(const int mac[2], streaming chanend c[NUM_ETHERNET_PORTS]);
 
 #ifdef ETHERNET_COUNT_PACKETS

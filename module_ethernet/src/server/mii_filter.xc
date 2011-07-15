@@ -9,6 +9,7 @@
 #include <xccompat.h>
 #include <print.h>
 #include "mii_malloc.h"
+#include "mii_filter.h"
 #include "mac_custom_filter.h"
 
 // Smallest packet + interframe gap is 84 bytes = 6.72 us
@@ -78,23 +79,32 @@ void ethernet_filter(const int mac[2], streaming chanend c[NUM_ETHERNET_PORTS])
           mii_packet_set_filter_result(buf, 0);
           mii_packet_set_stage(buf,1);
         }
+        else {
+        	int broadcast = is_broadcast(buf);
+        	int unicast = compare_mac(buf,mac);
+        	int res=0;
+#if (NUM_ETHERNET_PORTS > 1) && !defined(DISABLE_ETHERNET_PORT_FORWARDING)
+    		if (!unicast) {
+    			res |= MII_FILTER_FORWARD_TO_OTHER_PORTS;
+    		}
+#endif
 #ifdef MAC_PROMISCUOUS
-        else if (1) {
+    		if (1) {
 #else
-        else if (is_broadcast(buf) || compare_mac(buf,mac)) {
+        	if (broadcast || unicast) {
 #endif
-          int res = mac_custom_filter_coerce(buf);
+        		int filter_result = mac_custom_filter_coerce(buf);
 #ifdef ETHERNET_COUNT_PACKETS
-          if (res == 0) ethernet_filtered_by_user_filter++;
+        		if (filter_result == 0) ethernet_filtered_by_user_filter++;
 #endif
-          mii_packet_set_filter_result(buf, res);
-          mii_packet_set_stage(buf, 1);
-        } else {
+        		res |= filter_result;
+        	} else {
 #ifdef ETHERNET_COUNT_PACKETS
-          ethernet_filtered_by_address++;
+        		ethernet_filtered_by_address++;
 #endif
-          mii_packet_set_filter_result(buf, 0);
-          mii_packet_set_stage(buf,1);
+        	}
+    		mii_packet_set_filter_result(buf, res);
+    		mii_packet_set_stage(buf, 1);
         }
       }
       break;

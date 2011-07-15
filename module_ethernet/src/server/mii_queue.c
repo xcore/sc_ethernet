@@ -26,27 +26,12 @@ int get_and_dec_transmit_count(int buf0)
   return count;
 }
 
-void set_transmit_count(int buf0, int count) 
-{
-  mii_packet_t *buf = (mii_packet_t *) buf0;
-  swlock_acquire(&tc_lock);
-  buf->tcount = count;
-  swlock_release(&tc_lock);
-}
-
 void incr_transmit_count(int buf0, int incr) 
 {
   mii_packet_t *buf = (mii_packet_t *) buf0;
   swlock_acquire(&tc_lock);
   buf->tcount += incr;
   swlock_release(&tc_lock);
-}
-
-
-void init_queues()
-{
-  //  init_swlocks();
-  //swlock_init(&tc_lock);
 }
 
 void init_queue(mii_queue_t *q)

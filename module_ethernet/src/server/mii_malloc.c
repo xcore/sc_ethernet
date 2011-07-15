@@ -206,7 +206,6 @@ int mii_packet_get_data_word(int data, int n)
 	}
 
 gen_get_field(length)
-gen_get_field(complete)
 gen_get_field(timestamp)
 gen_get_field(filter_result)
 gen_get_field(src_port)

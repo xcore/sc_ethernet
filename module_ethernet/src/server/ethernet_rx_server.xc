@@ -195,14 +195,12 @@ static void processReceivedFrame(int buf,
    int result = mii_packet_get_filter_result(buf);
    // process for each link
 
-   if (result) 
-     for (i = 0; i < n; i += 1)
-       {
+   if (result) {
+     for (i = 0; i < n; i += 1) {
          int match = 0;
          match = (custom_filter_mask[i] & result);
          
-         if (match) 
-           {       
+         if (match) {
              // We have a match, add the packet to the client's
              // packet queue (if there is space)
              int rdIndex = link_status[i].rdIndex;
@@ -219,8 +217,7 @@ static void processReceivedFrame(int buf,
              
              
              if (queue_size < link_status[i].max_queue_size &&
-                 new_wrIndex != rdIndex)
-               {
+                 new_wrIndex != rdIndex) {
                  tcount++;
                  link_status[i].fifo[wrIndex] = buf;
                  link_status[i].wrIndex = new_wrIndex;
@@ -228,14 +225,20 @@ static void processReceivedFrame(int buf,
                    notify(link[i]);
                    link_status[i].notified = 1;
                  }
-               }
-             else 
-               {
+               } else {
                  link_status[i].dropped_pkt_cnt++;
                }
            }
        }
-   
+
+#if (NUM_ETHERNET_PORTS > 1) && !defined(DISABLE_ETHERNET_PORT_FORWARDING)
+	   // Forward to other ports
+       if (result & MII_FILTER_FORWARD_TO_OTHER_PORTS) {
+    	   tcount += (NUM_ETHERNET_PORTS-1);
+    	   mii_packet_set_stage(buf, 3);
+       }
+#endif
+   }
    
    if (tcount == 0) {
      if (get_and_dec_transmit_count(buf)==0)

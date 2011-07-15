@@ -102,7 +102,6 @@ void init_mii_mem() {
 
 		init_queue(&ts_queue[i]);
 	}
-	init_queues();
 	return;
 }
 
@@ -123,10 +122,16 @@ void mii_tx_pins_wr(port p,
                     int i)
 {
   mii_tx_pins(
+#if (NUM_ETHERNET_PORTS > 1) && !defined(DISABLE_ETHERNET_PORT_FORWARDING)
 #ifdef ETHERNET_TX_HP_QUEUE
-              tx_mem_hp[i],
+				rx_mem_hp,
 #endif
-              tx_mem_lp[i], &ts_queue[i], p, i);
+				rx_mem_lp,
+#endif
+#ifdef ETHERNET_TX_HP_QUEUE
+				tx_mem_hp[i],
+#endif
+				tx_mem_lp[i], &ts_queue[i], p, i);
 }
 
 void ethernet_tx_server_wr(const int mac_addr[2], chanend tx[], int num_q, int num_tx, smi_interface_t *smi1, smi_interface_t *smi2, chanend connect_status)
