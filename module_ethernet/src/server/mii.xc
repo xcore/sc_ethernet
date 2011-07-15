@@ -112,6 +112,17 @@
 #pragma xta command "analyze endpoints mii_tx_final_partword_3 mii_tx_crc_3"
 #pragma xta command "set required - 240 ns"
 
+// check the transmit interframe space.  It should ideally be quite close to 1560, which will
+// allow the timer check to control the transmission rather than being instruction time bound
+
+//#pragma xta command "remove exclusion *"
+//#pragma xta command "add exclusion mii_tx_sof"
+
+//#pragma xta command "add loop mii_tx_main_loop 1"
+
+//#pragma xta command "analyze endpoints mii_tx_end mii_tx_start"
+//#pragma xta command "set required - 1560 ns"
+
 
 #ifdef ETHERNET_COUNT_PACKETS
 static unsigned int ethernet_mii_no_queue_entries = 0;
@@ -438,14 +449,15 @@ void mii_tx_pins(
 	int credit_time;
 #endif
 	int prev_eof_time, time;
-	int send_ok = 1;
 	timer tmr;
+	int ok_to_transmit=1;
 
 #if defined(ETHERNET_TX_HP_QUEUE) && defined(ETHERNET_TRAFFIC_SHAPER)
 	tmr :> credit_time;
 #endif
 	while (1) {
-		unsigned buf = 0;
+#pragma xta label "mii_tx_main_loop"
+		unsigned buf;
 		int bytes_left;
 
 		int stage;
@@ -454,14 +466,6 @@ void mii_tx_pins(
 		int idle_slope;
 		int elapsed;
 #endif
-		if (!send_ok) {
-			tmr :> time;
-			if (((int) time - (int) prev_eof_time) < ETHERNET_IFS_AS_REF_CLOCK_COUNT) {
-				continue;
-			}
-			else
-			send_ok = 1;
-		}
 
 #ifdef ETHERNET_TX_HP_QUEUE
 		buf = mii_get_next_buf(hp_queue);
@@ -521,21 +525,31 @@ void mii_tx_pins(
 		}
 #endif
 
-		if (buf && ((mii_packet_get_stage(buf) == 1) || (mii_packet_get_stage(buf) == 3))) {
+		// Check that we are out of the IFS period
+		tmr :> time;
+		if (((int) time - (int) prev_eof_time) >= ETHERNET_IFS_AS_REF_CLOCK_COUNT) {
+			ok_to_transmit = 1;
+		}
+
+		if (buf && ok_to_transmit) {
+			stage = mii_packet_get_stage(buf);
+			if ((stage == 1) || (stage == 3)) {
 
 #pragma xta endpoint "mii_tx_start"
-			mii_transmit_packet(buf, p_mii_txd, tmr);
+				mii_transmit_packet(buf, p_mii_txd, tmr);
 #pragma xta endpoint "mii_tx_end"
 
-			tmr :> prev_eof_time;
-			send_ok = 0;
-			if (get_and_dec_transmit_count(buf) == 0) {
-				if (mii_packet_get_timestamp_id(buf)) {
-					mii_packet_set_stage(buf, 2);
-					add_queue_entry(ts_queue, buf);
-				}
-				else {
-					mii_free(buf);
+				tmr :> prev_eof_time;
+				ok_to_transmit = 0;
+
+				if (get_and_dec_transmit_count(buf) == 0) {
+					if (mii_packet_get_timestamp_id(buf)) {
+						mii_packet_set_stage(buf, 2);
+						add_queue_entry(ts_queue, buf);
+					}
+					else {
+						mii_free(buf);
+					}
 				}
 			}
 		}
