@@ -4,17 +4,28 @@
 // LICENSE.txt and at <http://github.xcore.com/>
 
 #include "mii.h"
+
+#ifndef ETHERNET_USE_HARDWARE_LOCKS
 #include "swlock.h"
+#else
+#include "hwlock.h"
+#endif
 
 typedef unsigned mii_mempool_t;
 typedef unsigned mii_buffer_t;
+
+#ifdef ETHERNET_USE_HARDWARE_LOCKS
+extern hwlock_t ethernet_memory_lock;
+#endif
 
 typedef struct mempool_info_t {
   int *rdptr;
   int *wrptr;
   int *start;
-  int *end;  
+  int *end;
+#ifndef ETHERNET_USE_HARDWARE_LOCKS
   swlock_t lock;
+#endif
   unsigned max_packet_size;
 } mempool_info_t;
 
@@ -35,7 +46,9 @@ void mii_init_mempool(mii_mempool_t mempool0, int size, int maxsize_bytes) {
   info->end -= info->max_packet_size;
   info->rdptr = info->start;
   info->wrptr = info->start;
+#ifndef ETHERNET_USE_HARDWARE_LOCKS
   swlock_init(&info->lock);
+#endif
   return;
 }
 
@@ -90,38 +103,52 @@ void mii_free(mii_buffer_t buf) {
   mempool_info_t *info = (mempool_info_t *) hdr->info;
   int free_buf = 1;
 
+#ifndef ETHERNET_USE_HARDWARE_LOCKS
   swlock_acquire(&info->lock);
+#else
+  __hwlock_acquire(ethernet_memory_lock);
+#endif
 
-  while (free_buf) {  
+  do {
+	// If we are freeing the oldest packet in the fifo then actually
+	// move the rd_ptr.
     if ((char *) hdr == (char *) info->rdptr ||
                       ((char *) hdr == (char *) info->start && 
                        (char *) info->rdptr > (char *) info->end)) {
 
       int size = hdr->size;
-      if (size < 0) size = -size;
+      if (size < 0) size = ~size;
       hdr = (malloc_hdr_t *) ((int *) hdr + size);
       info->rdptr = (int *) hdr;
 
-      if ((char *) hdr > (char *) info->end) 
+      // Wrap to the start of the buffer
+      if ((char *) hdr > (char *) info->end) {
         hdr = (malloc_hdr_t *) info->start;
-
-      if (hdr->size > 0 || (char *) hdr == (char *) info->wrptr)
-        {
-          free_buf = 0;
-        }
-      else {
-
       }
-    }
-    else {
-      hdr->size = -(hdr->size);
+
+      // If we have an unfreed packet, or have hit the end of the
+      // mempool fifo then stop
+      if (hdr->size > 0 || (char *) hdr == (char *) info->wrptr) {
+          free_buf = 0;
+      }
+    } else {
+      // If this isn't the oldest packet in the queue then just mark it
+      // as free by making the size = -size
+      hdr->size = ~(hdr->size);
       free_buf = 0;
     }
-  }
+  } while (free_buf);
 
+#ifndef ETHERNET_USE_HARDWARE_LOCKS
   swlock_release(&info->lock);
+#else
+  __hwlock_release(ethernet_memory_lock);
+#endif
 }
 
+/*
+ *
+ */
 mii_buffer_t mii_get_next_buf(mii_mempool_t mempool)
 {
   mempool_info_t *info = (mempool_info_t *) mempool;
@@ -147,6 +174,7 @@ int mii_init_my_rdptr(mii_mempool_t mempool)
   mempool_info_t *info = (mempool_info_t *) mempool;
   return (int) info->rdptr;
 }
+
 
 int mii_update_my_rdptr(mii_mempool_t mempool, int rdptr0)
 {

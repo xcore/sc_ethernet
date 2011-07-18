@@ -35,7 +35,6 @@ typedef struct mii_queue_t {
 void init_queue(REFERENCE_PARAM(mii_queue_t, q));
 int get_queue_entry(REFERENCE_PARAM(mii_queue_t, q));
 void add_queue_entry(REFERENCE_PARAM(mii_queue_t, q), int i);
-int get_queue_entry_no_lock(REFERENCE_PARAM(mii_queue_t,q));
 
 int get_and_dec_transmit_count(int buf_num);
 void incr_transmit_count(int buf_num, int incr);

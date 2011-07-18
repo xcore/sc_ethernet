@@ -15,10 +15,14 @@
 
 #include <print.h>
 
-
 // Queue of timestamps for transmitted packets
 mii_queue_t ts_queue[NUM_ETHERNET_PORTS];
 
+// This is the single ethernet hardware lock when we are using hardware locking
+#ifdef ETHERNET_USE_HARDWARE_LOCKS
+#include "hwlock.h"
+hwlock_t ethernet_memory_lock = 0;
+#endif
 
 #ifdef ETHERNET_RX_HP_QUEUE
 
@@ -82,6 +86,11 @@ mii_mempool_t tx_mem_lp[NUM_ETHERNET_PORTS];
 
 
 void init_mii_mem() {
+
+#ifdef ETHERNET_USE_HARDWARE_LOCKS
+	ethernet_memory_lock = __hwlock_init();
+#endif
+
 	for (int i=0; i<NUM_ETHERNET_PORTS; ++i) {
 #ifdef ETHERNET_RX_HP_QUEUE
 		rx_mem_hp[i] = (mii_mempool_t) &rx_hp_data[i][0];

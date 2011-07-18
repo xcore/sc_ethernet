@@ -117,11 +117,12 @@
 
 //#pragma xta command "remove exclusion *"
 //#pragma xta command "add exclusion mii_tx_sof"
-
-//#pragma xta command "add loop mii_tx_main_loop 1"
+//#pragma xta command "add exclusion mii_tx_buffer_not_marked_for_transmission"
+//#pragma xta command "add exclusion mii_tx_not_valid_to_transmit"
 
 //#pragma xta command "analyze endpoints mii_tx_end mii_tx_start"
 //#pragma xta command "set required - 1560 ns"
+
 
 
 #ifdef ETHERNET_COUNT_PACKETS
@@ -531,26 +532,31 @@ void mii_tx_pins(
 			ok_to_transmit = 1;
 		}
 
-		if (buf && ok_to_transmit) {
-			stage = mii_packet_get_stage(buf);
-			if ((stage == 1) || (stage == 3)) {
+		if (!buf || !ok_to_transmit) {
+#pragma xta endpoint "mii_tx_not_valid_to_transmit"
+			continue;
+		}
+
+		stage = mii_packet_get_stage(buf);
+		if ((stage != 1) && (stage != 3)) {
+#pragma xta endpoint "mii_tx_buffer_not_marked_for_transmission"
+			continue;
+		}
 
 #pragma xta endpoint "mii_tx_start"
-				mii_transmit_packet(buf, p_mii_txd, tmr);
+		mii_transmit_packet(buf, p_mii_txd, tmr);
 #pragma xta endpoint "mii_tx_end"
 
-				tmr :> prev_eof_time;
-				ok_to_transmit = 0;
+		tmr :> prev_eof_time;
+		ok_to_transmit = 0;
 
-				if (get_and_dec_transmit_count(buf) == 0) {
-					if (mii_packet_get_timestamp_id(buf)) {
-						mii_packet_set_stage(buf, 2);
-						add_queue_entry(ts_queue, buf);
-					}
-					else {
-						mii_free(buf);
-					}
-				}
+		if (get_and_dec_transmit_count(buf) == 0) {
+			if (mii_packet_get_timestamp_id(buf)) {
+				mii_packet_set_stage(buf, 2);
+				add_queue_entry(ts_queue, buf);
+			}
+			else {
+				mii_free(buf);
 			}
 		}
 	}
