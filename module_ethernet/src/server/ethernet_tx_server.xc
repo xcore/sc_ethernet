@@ -44,7 +44,7 @@ void ethernet_tx_server(
                         mii_mempool_t tx_mem_lp[],
                         int num_q, 
                         mii_queue_t ts_queue[],
-                        const int mac_addr[2],
+                        const int mac_addr[][2],
                         chanend tx[],
                         int num_tx,
                         smi_interface_t &?smi1, 
@@ -194,8 +194,10 @@ void ethernet_tx_server(
               break;
             case ETHERNET_GET_MAC_ADRS:
               slave {
+            	unsigned n;
+            	tx[i] :> n;
                 for (int j=0;j< 6;j++) {
-                  tx[i] <: (char) (mac_addr,char[])[j];
+                  tx[i] <: (char) (mac_addr[n],char[])[j];
                 }
               }
               break;

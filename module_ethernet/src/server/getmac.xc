@@ -211,6 +211,12 @@ void ethernet_getmac_otp_indexed(port otp_data, out port otp_addr, port otp_ctrl
 	}
 }
 
+void ethernet_getmac_otp_count(port otp_data, out port otp_addr, port otp_ctrl, int macaddr[][2], unsigned count)
+{
+	for (unsigned int n=0; n<count; n++) {
+		ethernet_getmac_otp_indexed(otp_data, otp_addr, otp_ctrl, (macaddr[n], char[]), n);
+	}
+}
 
 void ethernet_getmac_otp(port otp_data, out port otp_addr, port otp_ctrl, char macaddr[])
 {

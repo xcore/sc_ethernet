@@ -40,8 +40,8 @@ void ethernet_server(mii_interface_t &m,
     mii_rx_pins(m.p_mii_rxdv, m.p_mii_rxd, 0, c[0]);
     mii_tx_pins(m.p_mii_txd, 0);
     ethernet_rx_server(rx, num_rx);
-    ethernet_tx_server(mac_address, tx, 1, num_tx, smi, null, connect_status);  
-    ethernet_filter(mac_address, c);
+    ethernet_tx_server((mac_address, int[][2]), tx, 1, num_tx, smi, null, connect_status);
+    ethernet_filter((mac_address, int[][2]), c);
   }
 }
 #endif
@@ -67,7 +67,7 @@ void phy_init_two_port(clock clk_smi,
 
 void ethernet_server_two_port(mii_interface_t &mii1,
                               mii_interface_t &mii2,
-                              int mac_address[],
+                              int mac_address[][2],
                               chanend rx[],
                               int num_rx,
                               chanend tx[],

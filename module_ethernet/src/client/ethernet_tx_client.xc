@@ -107,14 +107,16 @@ void mac_tx_timed(chanend ethernet_tx_svr, unsigned int Buf[], int count, unsign
 }
 
 
-int mac_get_macaddr(chanend ethernet_tx_svr, unsigned char Buf[])
+int mac_get_macaddr_n(chanend ethernet_tx_svr, unsigned n, unsigned char Buf[])
 {
   int i;
 
     
   ethernet_tx_svr <: ETHERNET_GET_MAC_ADRS;
-   
+
   master {
+    ethernet_tx_svr <: n;
+
     // transfer start of data.
     for (i = 0; i < 6; i++)
       {
@@ -123,6 +125,11 @@ int mac_get_macaddr(chanend ethernet_tx_svr, unsigned char Buf[])
   }
 
   return 0;   
+}
+
+int mac_get_macaddr(chanend ethernet_tx_svr, unsigned char Buf[])
+{
+	return mac_get_macaddr_n(ethernet_tx_svr, 0, Buf);
 }
 
 

@@ -116,8 +116,8 @@ void ethernet_server(mii_interface_t &mii,
  *                              server will connect to
  *  \param mii2                 The second mii interface resources that the
  *                              server will connect to
- *  \param mac_address          The mac_address the server will use.
- *                              This should be a two-word array that stores the
+ *  \param mac_address          An array of mac addresses the server will use.
+ *                              Each address is in a two-word array that stores the
  *                              6-byte macaddr in a little endian manner (so
  *                              reinterpreting the array as a char array is as
  *                              one would expect)
@@ -156,7 +156,7 @@ void ethernet_server(mii_interface_t &mii,
  **/
 void ethernet_server_two_port(mii_interface_t &mii1,
                               mii_interface_t &mii2,
-                              int mac_address[],
+                              int mac_address[][2],
                               chanend rx[],
                               int num_rx,
                               chanend tx[],

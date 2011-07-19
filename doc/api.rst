@@ -129,6 +129,10 @@ OTP MAC Address Reading
 
 .. doxygenfunction:: ethernet_getmac_otp
 
+.. doxygenfunction:: ethernet_getmac_otp_indexed
+
+.. doxygenfunction:: ethernet_getmac_otp_count
+
 Ethernet Phy API
 ----------------
 
@@ -195,4 +199,8 @@ Configuration Functions
 +++++++++++++++++++++++
 
 .. doxygenfunction:: mac_get_macaddr
+
+.. doxygenfunction:: mac_get_macaddr_n
+
+
 

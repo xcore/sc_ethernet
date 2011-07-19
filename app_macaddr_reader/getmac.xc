@@ -1,7 +1,18 @@
-// Copyright (c) 2011, XMOS Ltd, All rights reserved
+// Copyright (c) 2011, XMOS Ltd., All rights reserved
 // This software is freely distributable under a derivative of the
 // University of Illinois/NCSA Open Source License posted in
 // LICENSE.txt and at <http://github.xcore.com/>
+
+/*************************************************************************
+ *
+ * Ethernet MAC Layer Implementation
+ * IEEE 802.3 Device MAC Address
+ *
+ *
+ *
+ * Retreives three bytes of MAC address from OTP.
+ *
+ *************************************************************************/
 
 #include <xs1.h>
 #include <platform.h>
@@ -148,7 +159,6 @@ static int getMacAddrAux(port otp_data, out port otp_addr, port otp_ctrl, unsign
 	}
 }
 
-
 void ethernet_getmac_otp_indexed(port otp_data, out port otp_addr, port otp_ctrl, char macaddr[], unsigned index)
 {
 	unsigned int OTPId;
@@ -164,8 +174,6 @@ void ethernet_getmac_otp_indexed(port otp_data, out port otp_addr, port otp_ctrl
 		macaddr[3] = (wrd_macaddr[1] >> 16) & 0xFF;
 		macaddr[4] = (wrd_macaddr[1] >> 8) & 0xFF;
 		macaddr[5] = (wrd_macaddr[1]) & 0xFF;
-
-		printstr("Using programmed MAC address\n");
 	}
 	else
 	{
@@ -200,8 +208,13 @@ void ethernet_getmac_otp_indexed(port otp_data, out port otp_addr, port otp_ctrl
 		macaddr[3] = (OTPId >> 16) & 0xFF;
 		macaddr[4] = (OTPId >> 8) & 0xFF;
 		macaddr[5] = (OTPId & 0xFF) + index;
+	}
+}
 
-		printstr("Using random MAC address\n");
+void ethernet_getmac_otp_count(port otp_data, out port otp_addr, port otp_ctrl, int macaddr[][2], unsigned count)
+{
+	for (unsigned int n=0; n<count; n++) {
+		ethernet_getmac_otp_indexed(otp_data, otp_addr, otp_ctrl, (macaddr[n], char[]), n);
 	}
 }
 
@@ -209,5 +222,4 @@ void ethernet_getmac_otp(port otp_data, out port otp_addr, port otp_ctrl, char m
 {
 	ethernet_getmac_otp_indexed(otp_data, otp_addr, otp_ctrl, macaddr, 0);
 }
-
 
