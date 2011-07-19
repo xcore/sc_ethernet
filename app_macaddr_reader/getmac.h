@@ -9,4 +9,6 @@
 // Retrieves least significant 24bits from MAC address stored in OTP
 void ethernet_getmac_otp(port otp_data, out port otp_addr, port otp_ctrl, char macaddr[]);
 
+void ethernet_getmac_otp_indexed(port otp_data, out port otp_addr, port otp_ctrl, char macaddr[], unsigned index);
+
 #endif

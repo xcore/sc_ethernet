@@ -29,28 +29,33 @@ int main(void)
 		{
 			int mac_address[2];
 
-			// Get the MAC Address
-			ethernet_getmac_otp(otp_data, otp_addr, otp_ctrl, (mac_address, char[]));
+			for (unsigned int n=0; n<8; n++) {
+				// Get the MAC Address
+				ethernet_getmac_otp_indexed(otp_data, otp_addr, otp_ctrl, (mac_address, char[]), n);
 
-			// Print it out
-			printstr("MAC Address: ");
-			printhex( ( ( mac_address[0] >> 4 ) & 0xF ) );
-			printhex( ( mac_address[0] & 0xF ) );
-			printchar(':');
-			printhex( ( ( mac_address[0] >> 12 ) & 0xF ) );
-			printhex( ( ( mac_address[0] >> 8 ) & 0xF ) );
-			printchar(':');
-			printhex( ( ( mac_address[0] >> 20 ) & 0xF ) );
-			printhex( ( ( mac_address[0] >> 16 ) & 0xF ) );
-			printchar(':');
-			printhex( ( ( mac_address[0] >> 28 ) & 0xF ) );
-			printhex( ( ( mac_address[0] >> 24 ) & 0xF ) );
-			printchar(':');
-			printhex( ( ( mac_address[1] >> 4 ) & 0xF ) );
-			printhex( ( mac_address[1] & 0xF ) );
-			printchar(':');
-			printhex( ( ( mac_address[1] >> 12 ) & 0xF ) );
-			printhex( ( ( mac_address[1] >> 8 ) & 0xF ) );
+				// Print it out
+				printstr("MAC Address ");
+				printuint(n);
+				printstr(": ");
+				printhex( ( ( mac_address[0] >> 4 ) & 0xF ) );
+				printhex( ( mac_address[0] & 0xF ) );
+				printchar(':');
+				printhex( ( ( mac_address[0] >> 12 ) & 0xF ) );
+				printhex( ( ( mac_address[0] >> 8 ) & 0xF ) );
+				printchar(':');
+				printhex( ( ( mac_address[0] >> 20 ) & 0xF ) );
+				printhex( ( ( mac_address[0] >> 16 ) & 0xF ) );
+				printchar(':');
+				printhex( ( ( mac_address[0] >> 28 ) & 0xF ) );
+				printhex( ( ( mac_address[0] >> 24 ) & 0xF ) );
+				printchar(':');
+				printhex( ( ( mac_address[1] >> 4 ) & 0xF ) );
+				printhex( ( mac_address[1] & 0xF ) );
+				printchar(':');
+				printhex( ( ( mac_address[1] >> 12 ) & 0xF ) );
+				printhex( ( ( mac_address[1] >> 8 ) & 0xF ) );
+				printchar('\n');
+			}
 		}
 	}
 

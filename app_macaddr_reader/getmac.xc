@@ -149,13 +149,13 @@ static int getMacAddrAux(port otp_data, out port otp_addr, port otp_ctrl, unsign
 }
 
 
-void ethernet_getmac_otp(port otp_data, out port otp_addr, port otp_ctrl, char macaddr[])
+void ethernet_getmac_otp_indexed(port otp_data, out port otp_addr, port otp_ctrl, char macaddr[], unsigned index)
 {
 	unsigned int OTPId;
 	unsigned int wrd_macaddr[2];
 	timer tmr;
 
-	if (getMacAddrAux(otp_data, otp_addr, otp_ctrl, 0, wrd_macaddr) == 0)
+	if (getMacAddrAux(otp_data, otp_addr, otp_ctrl, index, wrd_macaddr) == 0)
 	{
 		// Valid MAC address found
 		macaddr[0] = (wrd_macaddr[0] >> 8) & 0xFF;
@@ -199,8 +199,15 @@ void ethernet_getmac_otp(port otp_data, out port otp_addr, port otp_ctrl, char m
 		macaddr[2] = 0x97;
 		macaddr[3] = (OTPId >> 16) & 0xFF;
 		macaddr[4] = (OTPId >> 8) & 0xFF;
-		macaddr[5] = OTPId & 0xFF;
+		macaddr[5] = (OTPId & 0xFF) + index;
 
 		printstr("Using random MAC address\n");
 	}
 }
+
+void ethernet_getmac_otp(port otp_data, out port otp_addr, port otp_ctrl, char macaddr[])
+{
+	ethernet_getmac_otp_indexed(otp_data, otp_addr, otp_ctrl, macaddr, 0);
+}
+
+
