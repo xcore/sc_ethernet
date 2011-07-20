@@ -88,6 +88,18 @@ code. This file can set the following defines:
     packets longer than this to avoid the need to be circular. This
     constant applies when the high priority receive is in use.
 
+**ENABLE_ETHERNET_SOURCE_ADDRESS_WRITE**
+
+    By defining this preprocessor symbol, the source MAC address
+    will be automatically filled in with the MAC address passed
+    to the port during initialization.
+
+**DISABLE_ETHERNET_PORT_FORWARDING**
+
+    By defining this preprocessor symbol, the forwarding of packets
+    between ports, when there are multiple ports, is disabled.  Traffic
+    is only forwarded to the clients.
+
 
 Custom Filter Function
 ----------------------

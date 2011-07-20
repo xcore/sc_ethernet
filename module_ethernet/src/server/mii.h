@@ -191,10 +191,11 @@ int mii_packet_get_data(int buf, int n);
 
 inline void mii_packet_set_data(int buf, int n, int v) {
   asm("stw %0,%1[%2]"::"r"(v),"r"(buf),"r"(n+BUF_DATA_OFFSET));
-  return;
 }
 
-
+inline void mii_packet_set_data_short(int buf, int n, int v) {
+  asm("st16 %0,%1[%2]"::"r"(v),"r"(buf),"r"(n+(BUF_DATA_OFFSET*2)));
+}
 
 
 #endif

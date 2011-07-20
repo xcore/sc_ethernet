@@ -145,6 +145,14 @@ void ethernet_tx_server(
             	if (p == dst_port || dst_port == ETH_BROADCAST) {
             		mii_packet_set_length(buf[p], length);
 
+#if (NUM_ETHERNET_PORTS > 1) || defined(ENABLE_ETHERNET_SOURCE_ADDRESS_WRITE)
+            		{
+            			mii_packet_set_data_short(buf[p], 3, (mac_addr[p],short[])[0]);
+            			mii_packet_set_data_short(buf[p], 4, (mac_addr[p],short[])[1]);
+            			mii_packet_set_data_short(buf[p], 5, (mac_addr[p],short[])[2]);
+            		}
+#endif
+
             		if (cmd == ETHERNET_TX_REQ_TIMED)
             			mii_packet_set_timestamp_id(buf[p], i+1);
             		else
