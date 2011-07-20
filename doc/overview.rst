@@ -43,3 +43,17 @@ Component Summary
  | Component code is maintained by XMOS.                             |
  +-------------------------------------------------------------------+
 
+module_mii_singlethread
+=======================
+
+The two subdirectories called **module_mii_singlethread** and
+**app_mii_singlethread_demo** are an experimental single thread
+MII controller.  The file **mii.xc** contains the definition of
+the MII port pins.
+
+The main pin control thread is hand written assembler utilising
+the event branching nature of the xcore to maintain two coroutines
+inside the single thread.
+
+
+
