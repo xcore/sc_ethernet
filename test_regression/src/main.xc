@@ -530,9 +530,9 @@ void runtests(chanend tx[], chanend rx[], int links)
 	RUNTEST("init", init(rx, tx, links));
 	RUNTEST("mac_tx_rx_data_test", mac_tx_rx_data_test(tx[0], rx[0]));
 	RUNTEST("mac_tx_rx_data_timed_test", mac_tx_rx_data_timed_test(tx[0], rx[0]));
-	RUNTEST("mac_rx_filter_test", mac_rx_filter_test(tx, rx, links));
 	RUNTEST("mac_rx_buffer_test", mac_rx_buffer_test(tx[0], rx[0], links));
 	RUNTEST("mac_rx_queue_test", mac_rx_queue_test(tx, rx, links));
+	RUNTEST("mac_rx_filter_test", mac_rx_filter_test(tx, rx, links));
 	printstr("Complete");
 	_Exit(0);
 }

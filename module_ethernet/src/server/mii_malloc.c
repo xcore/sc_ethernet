@@ -93,6 +93,7 @@ void mii_commit(mii_buffer_t buf, int n) {
   pkt = (mii_packet_t *) buf;
   pkt->tcount = 0;
   pkt->stage = 0;
+  pkt->forwarding = 0;
 
   return;
 }
@@ -240,4 +241,5 @@ gen_get_field(src_port)
 gen_get_field(timestamp_id)
 gen_get_field(stage)
 gen_get_field(crc)
+gen_get_field(forwarding)
 

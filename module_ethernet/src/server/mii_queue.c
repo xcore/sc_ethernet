@@ -58,6 +58,37 @@ void incr_transmit_count(int buf0, int incr)
 #endif
 }
 
+
+
+
+
+int mii_packet_get_and_clear_forwarding(int buf0, int ifnum)
+{
+  mii_packet_t *buf = (mii_packet_t *) buf0;
+  int mask = (1<<ifnum);
+  int ret = (buf->forwarding & mask);
+
+#ifndef ETHERNET_USE_HARDWARE_LOCKS
+  swlock_acquire(&tc_lock);
+#else
+  __hwlock_acquire(ethernet_memory_lock);
+#endif
+
+  buf->forwarding &= (~mask);
+
+#ifndef ETHERNET_USE_HARDWARE_LOCKS
+  swlock_release(&tc_lock);
+#else
+  __hwlock_release(ethernet_memory_lock);
+#endif
+  return ret;
+}
+
+
+
+
+
+
 void init_queue(mii_queue_t *q)
 {
 #ifndef ETHERNET_USE_HARDWARE_LOCKS
@@ -125,4 +156,6 @@ void add_queue_entry(mii_queue_t *q, int i)
 #endif
   return;
 }
+
+
 

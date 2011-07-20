@@ -112,7 +112,9 @@ typedef struct mii_packet_t {
   int tcount;                       //!< Number of remaining clients who need to be send this RX packet
   #define BUF_OFFSET_crc 7
   int crc;                          //!< The calculated CRC
-  #define BUF_DATA_OFFSET 8
+  #define BUF_OFFSET_forwarding 8
+  int forwarding;					//!< A bitfield for tracking forwarding of the packet to other ports
+  #define BUF_DATA_OFFSET 9
   unsigned int data[(MAX_ETHERNET_PACKET_SIZE+3)/4];
 } mii_packet_t;
 
@@ -153,6 +155,7 @@ create_buf_getset(src_port)
 create_buf_getset(timestamp_id)
 create_buf_getset(stage)
 create_buf_getset(crc)
+create_buf_getset(forwarding)
 
 inline int mii_packet_get_data_ptr(int buf) {
   return (buf+BUF_DATA_OFFSET*4);

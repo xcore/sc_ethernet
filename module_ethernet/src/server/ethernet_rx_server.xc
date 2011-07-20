@@ -235,7 +235,7 @@ static void processReceivedFrame(int buf,
 	   // Forward to other ports
        if (result & MII_FILTER_FORWARD_TO_OTHER_PORTS) {
     	   tcount += (NUM_ETHERNET_PORTS-1);
-    	   mii_packet_set_stage(buf, 3);
+    	   mii_packet_set_forwarding(buf, 0xFFFFFFFF);
        }
 #endif
    }

@@ -476,7 +476,12 @@ void mii_tx_pins(
 			for (unsigned int i=0; i<NUM_ETHERNET_PORTS; ++i) {
 				if (i == ifnum) continue;
 				buf = mii_get_next_buf(hp_forward[i]);
-				if (buf && mii_packet_get_stage(buf) == 3) break;
+				if (buf) {
+					if (mii_packet_get_forwarding(buf) != 0) {
+						if (mii_packet_get_and_clear_forwarding(buf, ifnum)) break;
+					}
+				}
+				buf = 0;
 			}
 		}
 #endif
@@ -521,7 +526,12 @@ void mii_tx_pins(
 			for (unsigned int i=0; i<NUM_ETHERNET_PORTS; ++i) {
 				if (i == ifnum) continue;
 				buf = mii_get_next_buf(lp_forward[i]);
-				if (buf && mii_packet_get_stage(buf) == 3) break;
+				if (buf) {
+					if (mii_packet_get_forwarding(buf) != 0) {
+						if (mii_packet_get_and_clear_forwarding(buf, ifnum)) break;
+					}
+				}
+				buf = 0;
 			}
 		}
 #endif
@@ -537,8 +547,7 @@ void mii_tx_pins(
 			continue;
 		}
 
-		stage = mii_packet_get_stage(buf);
-		if ((stage != 1) && (stage != 3)) {
+		if (mii_packet_get_stage(buf) != 1) {
 #pragma xta endpoint "mii_tx_buffer_not_marked_for_transmission"
 			continue;
 		}
