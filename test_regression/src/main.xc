@@ -307,6 +307,7 @@ void transmitter_buffer(chanend tx, chanend sent)
 		set_ethertype((txbuffer, unsigned char[]), 0x0800 + i);
 		mac_tx(tx, txbuffer, len, ETH_BROADCAST);
 	}
+
 	sent <: 1;
 }
 
@@ -505,15 +506,15 @@ int mac_rx_queue_test(chanend tx[], chanend rx[], int links)
 {
 	chan sent;
 	int res;
-        int queue_size = NUM_MII_RX_BUF / links;
+    int queue_size = NUM_MII_RX_BUF / links;
 
-        mac_set_custom_filter(rx[0], 1 << 0);
-        mac_set_queue_size(rx[0], queue_size);
+    mac_set_custom_filter(rx[0], 1 << 0);
+    mac_set_queue_size(rx[0], queue_size);
 
 	for (int i = 1; i < links; ++i)
 	{
 		mac_set_custom_filter(rx[i], 1 << i);
-                mac_set_queue_size(rx[i], 1);
+        mac_set_queue_size(rx[i], 1);
 	}
 
 	par
@@ -531,8 +532,8 @@ void runtests(chanend tx[], chanend rx[], int links)
 	RUNTEST("mac_tx_rx_data_test", mac_tx_rx_data_test(tx[0], rx[0]));
 	RUNTEST("mac_tx_rx_data_timed_test", mac_tx_rx_data_timed_test(tx[0], rx[0]));
 	RUNTEST("mac_rx_buffer_test", mac_rx_buffer_test(tx[0], rx[0], links));
-	RUNTEST("mac_rx_queue_test", mac_rx_queue_test(tx, rx, links));
 	RUNTEST("mac_rx_filter_test", mac_rx_filter_test(tx, rx, links));
+	RUNTEST("mac_rx_queue_test", mac_rx_queue_test(tx, rx, links));
 	printstr("Complete");
 	_Exit(0);
 }
