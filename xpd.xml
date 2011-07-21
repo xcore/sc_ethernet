@@ -1,14 +1,13 @@
 <?xml version="1.0" ?>
 <xpd>
     <dependency repo = "xcommon">
-        <githash>910991c427162cf2413200b9801505c7ec438d2d</githash>
+        <githash>fd0a7bd1dd56741e00f418b0fe9ff50e4231ed76</githash>
         <uri>https://github.com/xcore/xcommon.git</uri>
     </dependency>
     <description>A complete Ethernet MII and MAC interface for 100MBps Ethernet</description>
-    <icon></icon>
     <location>git@github.com:xcore/sc_ethernet.git</location>
-    <maintainer>DavidNorman</maintainer>
     <name>sc_ethernet</name>
+    <maintainer>DavidNorman</maintainer>
     <vendor>XMOS</vendor>
     <xpd_version>1.0</xpd_version>
 </xpd>
