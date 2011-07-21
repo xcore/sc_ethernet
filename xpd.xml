@@ -8,6 +8,7 @@
     <location>git@github.com:xcore/sc_ethernet.git</location>
     <name>sc_ethernet</name>
     <maintainer>DavidNorman</maintainer>
+    <release parenthash = "3ff20a3b669eb6635d629b925a3238b37c04a2de" version = "2.0.0beta0"></release>
     <vendor>XMOS</vendor>
     <xpd_version>1.0</xpd_version>
 </xpd>
