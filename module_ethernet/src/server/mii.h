@@ -1,26 +1,38 @@
+/**
+ * Module:  module_ethernet
+ * Version: 1v3
+ * Build:   d5b0bfe5e956ae7926b1afc930d8f10a4b48a88e
+ * File:    mii.h
+ *
+ * The copyrights, all other intellectual and industrial
+ * property rights are retained by XMOS and/or its licensors.
+ * Terms and conditions covering the use of this code can
+ * be found in the Xmos End User License Agreement.
+ *
+ * Copyright XMOS Ltd 2009
+ *
+ * In the case where this code is a modification of existing code
+ * under a separate license, the separate license terms are shown
+ * below. The modifications to the code are still covered by the
+ * copyright notice above.
+ *
+ **/
 #ifndef __mii_h__
 #define __mii_h__
-#include <xs1.h>
 #include <xccompat.h>
-
-#ifdef __ethernet_conf_h_exists__
+#include <xs1.h>
 #include "ethernet_conf.h"
-#endif
 
 #ifndef MAX_ETHERNET_PACKET_SIZE
 #define MAX_ETHERNET_PACKET_SIZE (1518)
 #endif
 
-#ifndef NUM_MII_RX_BUF 
+#ifndef NUM_MII_RX_BUF
 #define NUM_MII_RX_BUF 5
 #endif
 
-#ifndef NUM_MII_TX_BUF 
+#ifndef NUM_MII_TX_BUF
 #define NUM_MII_TX_BUF 5
-#endif
-
-#ifndef MAC_REQUIRED_WORDS_TO_FILTER
-#define MAC_REQUIRED_WORDS_TO_FILTER (4)
 #endif
 
 #include "mii_queue.h"
@@ -28,32 +40,22 @@
 
 
 #ifdef __XC__
-/** Structure containing resources required for the MII ethernet interface.
- *
- *  This structure contains resources required to make up an MII interface. 
- *  It consists of 7 ports and 2 clock blocks.
- *
- *  The clock blocks can be any available clock blocks and will be clocked of 
- *  incoming rx/tx clock pins.
- *
- *  \sa ethernet_server()
- **/
 typedef struct mii_interface_t {
-  clock clk_mii_rx;            /**< MII RX Clock Block **/
-  clock clk_mii_tx;            /**< MII TX Clock Block **/
+  clock clk_mii_rx;
+  clock clk_mii_tx;
 
-  in port p_mii_rxclk;         /**< MII RX clock wire */
-  in port p_mii_rxer;          /**< MII RX error wire */
-  in buffered port:32 p_mii_rxd; /**< MII RX data wire */
-  in port p_mii_rxdv;          /**< MII RX data valid wire */
+  in port p_mii_rxclk;
+  in port p_mii_rxer;
+  in buffered port:32 p_mii_rxd;
+  in port p_mii_rxdv;
 
 
-  in port p_mii_txclk;       /**< MII TX clock wire */
-  out port p_mii_txen;       /**< MII TX enable wire */
-  out buffered port:32 p_mii_txd; /**< MII TX data wire */
+  in port p_mii_txclk;
+  out port p_mii_txen;
+  out buffered port:32 p_mii_txd;
 } mii_interface_t;
 
-void mii_init(REFERENCE_PARAM(mii_interface_t, m));
+void mii_init(REFERENCE_PARAM(mii_interface_t, m), clock clk_mii_ref);
 #endif
 
 
@@ -64,7 +66,7 @@ typedef struct mii_packet_t {
   unsigned int data[(MAX_ETHERNET_PACKET_SIZE+3)/4];
   int filter_result;
   int src_port;
-  int timestamp_id; 
+  int timestamp_id;
   int free_pool;
 } mii_packet_t;
 

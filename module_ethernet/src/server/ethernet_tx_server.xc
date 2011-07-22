@@ -1,3 +1,22 @@
+/**
+ * Module:  module_ethernet
+ * Version: 1v3
+ * Build:   d5b0bfe5e956ae7926b1afc930d8f10a4b48a88e
+ * File:    ethernet_tx_server.xc
+ *
+ * The copyrights, all other intellectual and industrial 
+ * property rights are retained by XMOS and/or its licensors. 
+ * Terms and conditions covering the use of this code can
+ * be found in the Xmos End User License Agreement.
+ *
+ * Copyright XMOS Ltd 2009
+ *
+ * In the case where this code is a modification of existing code
+ * under a separate license, the separate license terms are shown
+ * below. The modifications to the code are still covered by the 
+ * copyright notice above.
+ *
+ **/                                   
 #include "smi.h"
 #include "mii.h"
 #include "mii_queue.h"
@@ -5,11 +24,6 @@
 #include "eth_phy.h"
 #include <print.h>
 #include <xs1.h>
-#include <xclib.h>
-
-#ifdef AVB_MAC
-#include "avb_1722_router_table.h"
-#endif
 
 #define MAX_LINKS 10
 
@@ -22,11 +36,8 @@ void checkLink(smi_interface_t &smi,
 {
   int new_status = eth_phy_checklink(smi);
   if (new_status != phy_status) {
-    outuchar(c, linkNum);
-    outuchar(c, new_status);
-    outuchar(c, 0);
-    outct(c, XS1_CT_END);
-    //    inct(c, XS1_CT_END);
+    c <: linkNum;
+    c <: new_status;
     phy_status = new_status;
   }
 }
@@ -66,7 +77,6 @@ void ethernet_tx_server(mii_queue_t &free_queue,
       switch (cmd) 
         {
         case ETHERNET_TX_REQ:
-        case ETHERNET_TX_REQ_OFFSET2:
         case ETHERNET_TX_REQ_TIMED:      
           k = get_queue_entry(free_queue);
           if (k) {            
@@ -76,34 +86,14 @@ void ethernet_tx_server(mii_queue_t &free_queue,
             else
               buf[k].timestamp_id = 0;              
             
-
-            if (cmd == ETHERNET_TX_REQ_OFFSET2) {
-              master {                          
-                tx[i] :> length;
-                tx[i] :> dst_port;
-                tx[i] :> char;
-                tx[i] :> char;
-                buf[k].length = length;
-                for(int j=0;j<(length+3)>>2;j++) {
-                  int datum;
-                  tx[i] :> datum;
-                  buf[k].data[j] = byterev(datum);  
-                }
-                tx[i] :> char;
-                tx[i] :> char;
-              }
-              cmd = ETHERNET_TX_REQ;
+            master {          
+              tx[i] :> length;
+              tx[i] :> dst_port;
+              buf[k].length = length;
+              for(int j=0;j<(length+3)>>2;j++)
+                tx[i] :> buf[k].data[j];  
             }
-            else {
-              master {          
-                tx[i] :> length;
-                tx[i] :> dst_port;
-                buf[k].length = length;
-                for(int j=0;j<(length+3)>>2;j++)
-                  tx[i] :> buf[k].data[j];  
-              }
-            }
-
+            
             buf[k].complete = 1;
             
             
@@ -143,7 +133,6 @@ void ethernet_tx_server(mii_queue_t &free_queue,
           switch (cmd) 
             {
             case ETHERNET_TX_REQ:
-            case ETHERNET_TX_REQ_OFFSET2:
             case ETHERNET_TX_REQ_TIMED:      
               pendingCmd[i] = cmd;
               break;
@@ -154,22 +143,6 @@ void ethernet_tx_server(mii_queue_t &free_queue,
                 }
               }
               break;
-#ifdef AVB_MAC
-        case ETHERNET_TX_UPDATE_AVB_ROUTER:
-          { unsigned key0, key1, link, hash;
-            master {
-              tx[i] :> key0;
-              tx[i] :> key1;
-              tx[i] :> link;
-              tx[i] :> hash;
-            }
-            avb_1722_router_table_add_entry(key0, key1, link, hash);
-          }
-          break;
-        case ETHERNET_TX_INIT_AVB_ROUTER:
-            init_avb_1722_router_table();
-          break;
-#endif
             default:
               // Unrecognized command
               break;

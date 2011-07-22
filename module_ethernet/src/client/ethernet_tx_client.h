@@ -1,3 +1,22 @@
+/**
+ * Module:  module_ethernet
+ * Version: 1v3
+ * Build:   d5b0bfe5e956ae7926b1afc930d8f10a4b48a88e
+ * File:    ethernet_tx_client.h
+ *
+ * The copyrights, all other intellectual and industrial 
+ * property rights are retained by XMOS and/or its licensors. 
+ * Terms and conditions covering the use of this code can
+ * be found in the Xmos End User License Agreement.
+ *
+ * Copyright XMOS Ltd 2009
+ *
+ * In the case where this code is a modification of existing code
+ * under a separate license, the separate license terms are shown
+ * below. The modifications to the code are still covered by the 
+ * copyright notice above.
+ *
+ **/                                   
 /*************************************************************************
  *
  * Ethernet MAC Layer Implementation
@@ -15,16 +34,13 @@
 
 #define ETH_BROADCAST (-1)
 
-/** Sends an ethernet frame. Frame includes dest/src MAC address(s), type
- *  and payload.
- *
- *
- *  \param c_mac     channel end to tx server.
- *  \param buffer[]  byte array containing the ethernet frame. *This must
- *                   be word aligned*
- *  \param nbytes    number of bytes in buffer
- *  \param ifnum     the number of the eth interface to transmit to 
- *                   (use ETH_BROADCAST transmits to all ports)
+/** This send a ethernet frame, frame includes Dest/Src MAC address(s), 
+ *  type and payload.
+ *  c_mac       : channelEnd to tx server.
+ *  buffer[]    : Byte buffer of ethernet frame. MUST BE WORD ALIGNED.
+ *  nbytes      : number of bytes in buffer.
+ * 
+ *  NOTE: This function will be blocked until the packet is sent to PHY.
  *
  */
 void mac_tx(chanend c_mac, unsigned int buffer[], int nbytes, int ifnum);
@@ -32,41 +48,17 @@ void mac_tx(chanend c_mac, unsigned int buffer[], int nbytes, int ifnum);
 #define ethernet_send_frame mac_tx
 #define ethernet_send_frame_getTime mac_tx_timed
 
-
-/** Sends an ethernet frame. Frame includes dest/src MAC address(s), type
+/** This send a ethernet frame, frame includes Dest/Src MAC address(s), type
  *  and payload.
+ *  It's blocking call and return the *actual time* the frame is sent to PHY.
+ *  *actual time* : 32bits XCore internal timer.
+ *  c_mac         : channelEnd to tx server.
+ *  buffer[]      : Byte buffer of ethernet frame. MUST BE WORD ALIGNED.
+ *  nbytes	  : number of bytes in buffer.
+ *  ifnum         : The number of the eth interface to transmit to 
+ *                   (using ETH_BROADCAST transmits to all ports)
  *
- *
- *  \param c_mac     channel end to tx server.
- *  \param buffer[]  byte array containing the ethernet frame. *This must
- *                   be word aligned*
- *  \param nbytes    number of bytes in buffer
- *  \param ifnum     the number of the eth interface to transmit to 
- *                   (use ETH_BROADCAST transmits to all ports)
- *
- */
-void mac_tx_offset2(chanend c_mac, unsigned int buffer[], int nbytes, int ifnum);
-
-#define ethernet_send_frame_offset2 mac_tx_offset2
-
-/** Sends an ethernet frame and gets the timestamp of the send. 
- *  Frame includes dest/src MAC address(s), type
- *  and payload.
- *
- *  This is a blocking call and returns the *actual time* the frame
- *  is sent to PHY according to the XCore 100Mhz 32-bit timer on the core
- *  the ethernet server is running.
- *
- *  \param c_mac     channel end connected to ethernet server.
- *  \param buffer[]  byte array containing the ethernet frame. *This must
- *                   be word aligned*
- *  \param nbytes    number of bytes in buffer
- *  \param ifnum     the number of the eth interface to transmit to 
- *                   (use ETH_BROADCAST transmits to all ports)
- *  \param time      A reference paramater that is set to the time the
- *                   packet is sent to the phy
- *
- *  NOTE: This function will block until the packet is sent to PHY.
+ *  NOTE: This function will be blocked until the packet is sent to PHY.
  */
 #ifdef __XC__ 
 void mac_tx_timed(chanend c_mac, unsigned int buffer[], int nbytes, unsigned int &time, int ifnum);
@@ -74,14 +66,10 @@ void mac_tx_timed(chanend c_mac, unsigned int buffer[], int nbytes, unsigned int
 void mac_tx_timed(chanend c_mac, unsigned int buffer[], int nbytes, unsigned int *time, int ifnum);
 #endif
 
-/** Get the device MAC address.
+/** This get MAC address of *this*, normally its XMOS assigned id, appended with
+ *  24bits per chip, id stores in OTP.
  *
- *  This function gets the MAC address of the device (the address passed
- *  into the ethernet_server() function.
- *
- *  \param   c_mac chanend end connected to ethernet server
- *  \param   macaddr[] an array of type char where the MAC address is placed 
- *                     (in network order).
+ *  \para   macaddr[] array of char, where MAC address is placed, network order.
  *  \return zero on success and non-zero on failure.
  */
 
@@ -93,11 +81,10 @@ int mac_get_macaddr(chanend c_mac, unsigned char macaddr[]);
 /** This function sets the transmit 
  *  bandwidth restriction on a link to the mac server.
  *
- *  \param   c_mac chanend connected to ethernet server
- *  \param   bandwidth The allowed bandwidth of the link in Mbps
+ *  \para   bandwitdth - The allowed bandwidth of the link in Mbps
  *
  */
-int mac_set_bandwidth(chanend c_mac, unsigned int bandwidth);
+int mac_set_bandwidth(chanend ethernet_tx_svr, unsigned int bandwidth);
 
 #define ethernet_set_bandwidth mac_set_bandwidth
 

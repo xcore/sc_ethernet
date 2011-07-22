@@ -1,3 +1,22 @@
+/**
+ * Module:  module_ethernet
+ * Version: 1v3
+ * Build:   d5b0bfe5e956ae7926b1afc930d8f10a4b48a88e
+ * File:    smi.xc
+ *
+ * The copyrights, all other intellectual and industrial 
+ * property rights are retained by XMOS and/or its licensors. 
+ * Terms and conditions covering the use of this code can
+ * be found in the Xmos End User License Agreement.
+ *
+ * Copyright XMOS Ltd 2009
+ *
+ * In the case where this code is a modification of existing code
+ * under a separate license, the separate license terms are shown
+ * below. The modifications to the code are still covered by the 
+ * copyright notice above.
+ *
+ **/                                   
 /*************************************************************************
  *
  * Ethernet MAC Layer Implementation
@@ -27,13 +46,13 @@
 #define SMI_CLOCK_DIVIDER   ((REF_FREQ / SMI_CLOCK_FREQ) / 2)
 
 // Reset duration in
-#define RESET_DURATION_US 500
+#define RESET_DURATION_US 110
 // Timer value used to implement reset delay
 #define RESET_TIMER_DELAY ((REF_FREQ / 1000000)* RESET_DURATION_US)
 
 
 // Initialise the ports and clock blocks
-void smi_init(clock clk_smi, out port ?p_mii_resetn, smi_interface_t &smi)
+void smi_init(clock clk_mii_ref, clock clk_smi, out port ?p_mii_resetn, smi_interface_t &smi)
 {
   // Set the clock rate rate
   set_clock_off(clk_smi);
@@ -72,7 +91,7 @@ void smi_init(clock clk_smi, out port ?p_mii_resetn, smi_interface_t &smi)
 }
 
 /* put SMI ports and clockblocks out of use */
-void smi_deinit(clock clk_smi, out port ?p_mii_resetn, smi_interface_t &smi)
+void smi_deinit(clock clk_mii_ref, clock clk_smi, out port ?p_mii_resetn, smi_interface_t &smi)
 {
   // Set the clock rate rate
   stop_clock (clk_smi);

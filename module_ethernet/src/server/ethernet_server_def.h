@@ -1,3 +1,22 @@
+/**
+ * Module:  module_ethernet
+ * Version: 1v3
+ * Build:   d5b0bfe5e956ae7926b1afc930d8f10a4b48a88e
+ * File:    ethernet_server_def.h
+ *
+ * The copyrights, all other intellectual and industrial 
+ * property rights are retained by XMOS and/or its licensors. 
+ * Terms and conditions covering the use of this code can
+ * be found in the Xmos End User License Agreement.
+ *
+ * Copyright XMOS Ltd 2009
+ *
+ * In the case where this code is a modification of existing code
+ * under a separate license, the separate license terms are shown
+ * below. The modifications to the code are still covered by the 
+ * copyright notice above.
+ *
+ **/                                   
 /*************************************************************************
  *
  * Ethernet MAC Layer Implementation
@@ -11,10 +30,7 @@
  
 #ifndef _ETHERNET_SERVER_DEF_H_
 #define _ETHERNET_SERVER_DEF_H_ 1
-
-#ifdef __ethernet_conf_h_exists__
 #include "ethernet_conf.h"
-#endif
 
 #ifndef MAX_ETHERNET_CLIENTS
 #define MAX_ETHERNET_CLIENTS   (4)      // Number of link layers to support
@@ -35,9 +51,6 @@
 #define ETHERNET_TX_REQ_TIMED     (0x80000001)
 #define ETHERNET_GET_MAC_ADRS     (0x80000002)
 #define ETHERNET_TX_SET_SPACING   (0x80000003)
-#define ETHERNET_TX_REQ_OFFSET2   (0x80000004)
-#define ETHERNET_TX_UPDATE_AVB_ROUTER  (0x80000005)
-#define ETHERNET_TX_INIT_AVB_ROUTER  (0x80000006)
 
 #define ETHERNET_START_DATA	  (0xA5DA1A5A)	// Marker for start of data.
 
@@ -55,8 +68,6 @@
 #define ETHERNET_RX_KILL_LINK          (0x80000016)
 #define ETHERNET_RX_CUSTOM_FILTER_SET  (0x80000017)
 #define ETHERNET_RX_QUEUE_SIZE_SET     (0x80000018)
-
-#define ETHERNET_RX_FRAME_REQ_OFFSET2  (0x80000019)
 
 
 #define ETHERNET_REQ_ACK	       (0x80000020)	// Acknowledged

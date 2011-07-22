@@ -1,0 +1,4 @@
+test2.xe:  Transmit-receive loopback test
+           Transmits test frames with an embedded counter and compares
+           received frames against running internal counter. Requires
+           external loopback (for example one operating like test 1)

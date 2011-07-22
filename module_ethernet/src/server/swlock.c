@@ -2,7 +2,7 @@
  * Module:  module_ethernet
  * Version: 1v3
  * Build:   d5b0bfe5e956ae7926b1afc930d8f10a4b48a88e
- * File:    getmac.h
+ * File:    swlock.c
  *
  * The copyrights, all other intellectual and industrial 
  * property rights are retained by XMOS and/or its licensors. 
@@ -17,22 +17,31 @@
  * copyright notice above.
  *
  **/                                   
-/*************************************************************************
- *
- * Ethernet MAC Layer Implementation
- * IEEE 802.3 Device MAC Address
- *
- *
- *
- * Retreives three bytes of MAC address from OTP.
- *
- *************************************************************************/
+#include "hwlock.h"
 
-#ifndef _getmac_h_
-#define _getmac_h_
+hwlock_t global_hwlock;
 
-// Retrieves least significant 24bits from MAC address stored in OTP
-// Should be run on core 2
-void ethernet_getmac_otp(char macaddr[]);
+typedef unsigned swlock_t;
 
-#endif
+void init_swlocks(void)
+{
+  global_hwlock = __hwlock_init();
+}
+
+void free_swlocks(void)
+{
+  __hwlock_close(global_hwlock);
+}
+
+/* Locks */
+
+void spin_lock_init(volatile swlock_t *lock)
+{
+  *lock = 0;
+}
+
+void spin_lock_close(volatile swlock_t *lock)
+{
+  /* Do nothing */
+}
+

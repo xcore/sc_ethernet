@@ -1,8 +1,8 @@
 /**
- * Module:  module_ethernet
+ * Module:  app_ethernet_demo2
  * Version: 1v3
  * Build:   d5b0bfe5e956ae7926b1afc930d8f10a4b48a88e
- * File:    getmac.h
+ * File:    test_frame.h
  *
  * The copyrights, all other intellectual and industrial 
  * property rights are retained by XMOS and/or its licensors. 
@@ -19,20 +19,29 @@
  **/                                   
 /*************************************************************************
  *
- * Ethernet MAC Layer Implementation
- * IEEE 802.3 Device MAC Address
+ * Ethernet MAC Layer Client Test Code
+ * IEEE 802.3 MAC Client
  *
+ *   File        : test_frame.h
  *
+ *************************************************************************
  *
- * Retreives three bytes of MAC address from OTP.
+ * Copyright (c) 2008 XMOS Ltd.
+ *
+ * Copyright Notice
+ *
+ *************************************************************************
+ *
+ * Test frame routines.
  *
  *************************************************************************/
 
-#ifndef _getmac_h_
-#define _getmac_h_
+#ifndef _test_frame_h_
+#define _test_frame_h_
 
-// Retrieves least significant 24bits from MAC address stored in OTP
-// Should be run on core 2
-void ethernet_getmac_otp(char macaddr[]);
+void stamp_test_frame(unsigned char bytes[], unsigned stamp);
+int generate_test_frame(unsigned char bytes[]);
+int test_frame_size();
+unsigned get_test_frame_stamp(const unsigned char bytes[]);
 
 #endif

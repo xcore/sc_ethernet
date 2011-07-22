@@ -1,2 +1,0 @@
-app_ethernet_loopback.xe:  Loop back any received packets that have a Broadcast destination address
-

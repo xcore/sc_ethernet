@@ -1,10 +1,10 @@
-# This Makefile acts as a composite builder for all the elements 
+# This Makefile acts as a composite builder for all the elements
 # of this repository.
 
-# It has target patterns for all, clean and test for sub-directories of the 
+# It has target patterns for all, clean and test for sub-directories of the
 # form dir.target e.g. calling:
 #
-# xmake app_uart_demo.all 
+# xmake app_uart_demo.all
 #
 # will execute 'xmake all' in the app_uart_demo sub-directory.
 #
@@ -16,43 +16,43 @@
 #    variable.
 #
 # plugins:
-# 
-#    This target will build all the plugins listed in the PLUGIN_SUBDIRS 
+#
+#    This target will build all the plugins listed in the PLUGIN_SUBDIRS
 #    variable
 #
 # clean:
-#    
+#
 #    This target will clean all the applications listed in the BUILD_SUBDIRS
 #    variable.
 #
 # clean_plugins:
 #
-#    This target will clean all the plugins listed in the PLUGIN_SUBDIRS 
+#    This target will clean all the plugins listed in the PLUGIN_SUBDIRS
 #    variable.
 #
 # test:
 #
 #   This target will make the test make target in all the directories
 #   listed in TEST_SUBDIRS.
-#  
+#
 
 
 # This variable should contain a space separated list of all
 # the directories containing buildable applications (usually
 # prefixed with the app_ prefix)
-BUILD_SUBDIRS = app_ethernet_demo app_ethernet_loopback app_ethernet_tests
+BUILD_SUBDIRS = app_ethernet_demo1 app_ethernet_demo2 app_ethernet_demo3
 
 # This variable should contain a space separated list of all
 # the directories containing buildable plugins (usually
 # prefixed with the plugin_ prefix)
-PLUGIN_SUBDIRS = 
+PLUGIN_SUBDIRS =
 
 # This variable should contain a space separated list of all
 # the directories containing applications with a 'test' make target
-TEST_SUBDIRS = app_ethernet_tests
+TEST_SUBDIRS =
 
 # Provided that the above variables are set you shouldn't need to modify
-# the targets below here. 
+# the targets below here.
 
 %.all:
 	cd $* && xmake all
@@ -63,8 +63,8 @@ TEST_SUBDIRS = app_ethernet_tests
 %.test:
 	cd $* && xmake test
 
-all: $(foreach x, $(BUILD_SUBDIRS), $x.all) 
-plugins: $(foreach x, $(PLUGIN_SUBDIRS), $x.all) 
+all: $(foreach x, $(BUILD_SUBDIRS), $x.all)
+plugins: $(foreach x, $(PLUGIN_SUBDIRS), $x.all)
 clean: $(foreach x, $(BUILD_SUBDIRS), $x.clean)
-clean_plugins: $(foreach x, $(PLUGIN_SUBDIRS), $x.clean) 
+clean_plugins: $(foreach x, $(PLUGIN_SUBDIRS), $x.clean)
 test: $(foreach x, $(TEST_SUBDIRS), $x.test)

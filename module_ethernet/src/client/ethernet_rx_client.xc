@@ -1,7 +1,27 @@
+/**
+ * Module:  module_ethernet
+ * Version: 1v3
+ * Build:   d5b0bfe5e956ae7926b1afc930d8f10a4b48a88e
+ * File:    ethernet_rx_client.xc
+ *
+ * The copyrights, all other intellectual and industrial 
+ * property rights are retained by XMOS and/or its licensors. 
+ * Terms and conditions covering the use of this code can
+ * be found in the Xmos End User License Agreement.
+ *
+ * Copyright XMOS Ltd 2009
+ *
+ * In the case where this code is a modification of existing code
+ * under a separate license, the separate license terms are shown
+ * below. The modifications to the code are still covered by the 
+ * copyright notice above.
+ *
+ **/                                   
 /*************************************************************************
  *
  * Ethernet MAC Layer Implementation
  * IEEE 802.3 MAC Client Interface (Receive)
+ *
  *
  *
  * This implement Ethernet frame receiving client interface.
@@ -9,32 +29,27 @@
  *************************************************************************/
  
 #include <xs1.h>
-#include <xclib.h>
 #include "ethernet_server_def.h"
 #include "ethernet_rx_client.h"
 
-/** This function unifies all the variants of mac_rx.
+/** This get *data* from server, in unified manner.
  */
-#pragma unsafe arrays
-static int ethernet_unified_get_data(chanend ethernet_rx_svr, unsigned char Buf[], unsigned int &rxTime, unsigned int &src_port, unsigned int Cmd, int n)
+static int ethernet_unified_get_data(chanend ethernet_rx_svr, unsigned char Buf[], unsigned int &rxTime, unsigned int &src_port, unsigned int Cmd)
 {
   unsigned int i, j,k, rxByteCnt, transferCnt, rxData, temp;
   // sent command to request data.
 
+  (void) inuchar(ethernet_rx_svr);
+  (void) inuchar(ethernet_rx_svr);
   (void) inct(ethernet_rx_svr);
-  outuchar(ethernet_rx_svr, 0);
-  outct(ethernet_rx_svr, XS1_CT_END);
-  (void) inct(ethernet_rx_svr);
-  outuint(ethernet_rx_svr, Cmd);
-  outct(ethernet_rx_svr, XS1_CT_END);
-  chkct(ethernet_rx_svr, XS1_CT_END);  
 
   master {
+    ethernet_rx_svr <: Cmd;
+  }
+  slave {
     // get reply from server.
     ethernet_rx_svr :> src_port;
     ethernet_rx_svr :> rxByteCnt;
-    if (Cmd == ETHERNET_RX_FRAME_REQ_OFFSET2) 
-      rxByteCnt += 4;    
    
     // get required bytes.
     transferCnt = (rxByteCnt + 3) >> 2;
@@ -43,13 +58,11 @@ static int ethernet_unified_get_data(chanend ethernet_rx_svr, unsigned char Buf[
       {      
         // get word data.
         ethernet_rx_svr :> rxData;
-        if (Cmd == ETHERNET_RX_FRAME_REQ_OFFSET2) 
-          rxData = byterev(rxData);
         // process each byte in word
         for (k = 0; k < 4; k++)
           {
             // only for actual bytes t
-            if (j < rxByteCnt && j < n)
+            if (j < rxByteCnt)
               {
                 temp = (rxData >> (k * 8));
                 Buf[j] = temp;
@@ -62,77 +75,92 @@ static int ethernet_unified_get_data(chanend ethernet_rx_svr, unsigned char Buf[
   return (rxByteCnt);
 }
 
-void mac_rx(chanend ethernet_rx_svr, unsigned char Buf[], 
-           unsigned int &len,
-           unsigned int &src_port)
+
+/** This get a *complete* ethernet frame from PHY (i.e. src/dest MAC address, type & payload),
+ *  excluding Pre-amble, SoF & CRC32.
+ *
+ *  NOTE:
+ *  1. It is blocking call, (i.e. will wait until a complete packet is received).
+ *  2. Buf[], must be big enough to store MAX_ETHERNET_FRAME_PAYLOAD_COUNT + 12
+ *  3. rxTime is populated with 32bis internal timestamp @ received.
+ *  4. Only the packets which pass CRC32 is processed.
+ *  5. returns the number of bytes in the frame.
+ *
+ */
+int mac_rx(chanend ethernet_rx_svr, unsigned char Buf[], unsigned int &src_port)
 {
   unsigned rxTime;
-  len = ethernet_unified_get_data(ethernet_rx_svr, Buf, rxTime, src_port, ETHERNET_RX_FRAME_REQ, -1);
-  return;
+  int ret;
+  (void) inuchar(ethernet_rx_svr);
+  ret = ethernet_unified_get_data(ethernet_rx_svr, Buf, rxTime, src_port, ETHERNET_RX_FRAME_REQ);
+  return ret;
 }
 
-void mac_rx_offset2(chanend ethernet_rx_svr, unsigned char Buf[], unsigned int &len, unsigned int &src_port)
+int mac_rx_timed(chanend ethernet_rx_svr, unsigned char Buf[], unsigned int &rxTime, unsigned int &src_port)
+{
+  int ret;
+  (void) inuchar(ethernet_rx_svr);
+  ret = ethernet_unified_get_data(ethernet_rx_svr, Buf, rxTime, src_port, ETHERNET_RX_FRAME_REQ);
+  return ret;
+}
+
+int mac_rx_in_select(chanend ethernet_rx_svr, unsigned char Buf[], unsigned int &src_port)
 {
   unsigned rxTime;
-  len = ethernet_unified_get_data(ethernet_rx_svr, Buf, rxTime, src_port, ETHERNET_RX_FRAME_REQ_OFFSET2, -1);
-  return;
+  int ret;
+  ret = ethernet_unified_get_data(ethernet_rx_svr, Buf, rxTime, src_port, ETHERNET_RX_FRAME_REQ);
+  return ret;
 }
 
-void safe_mac_rx(chanend ethernet_rx_svr, unsigned char Buf[], unsigned int &len, unsigned int &src_port, int n)
+int mac_rx_timed_in_select(chanend ethernet_rx_svr, unsigned char Buf[], unsigned int &rxTime, unsigned int &src_port)
 {
-  unsigned rxTime;
-  len = ethernet_unified_get_data(ethernet_rx_svr, Buf, rxTime, src_port, ETHERNET_RX_FRAME_REQ, n);
-  return;
+  int ret;
+  ret = ethernet_unified_get_data(ethernet_rx_svr, Buf, rxTime, src_port, ETHERNET_RX_FRAME_REQ);
+  return ret;
 }
 
-void mac_rx_timed(chanend ethernet_rx_svr, unsigned char Buf[], unsigned int &len, unsigned int &rxTime, unsigned int &src_port)
+
+
+/** Setup a given filter index for *this* interface. There are MAX_MAC_FILTERS per client.
+ *
+ *  \para  ethernet_rx_svr : channelEnd to receive server.
+ *  \para  filterIndex     : Must be between 0..NUM_FRAM_FILTERS_PER_CLIENT-1, select which filter.
+ *  \para  filter          : refrence to filter data structre.
+ *  \return -1 on failure and filterIndex on success.
+ */
+int mac_set_filter(chanend ethernet_rx_svr, int filterIndex, struct mac_filter_t &filter)
 {
-  len = ethernet_unified_get_data(ethernet_rx_svr, Buf, rxTime, src_port, ETHERNET_RX_FRAME_REQ, -1);
-  return;
+  int i, response;
+   
+
+  // sanity check.
+  if ((filterIndex < 0) || (filterIndex >= MAX_MAC_FILTERS))
+    {
+      return (-1);
+    }
+  master {
+    // sent out request to transfer filter set.
+    ethernet_rx_svr <: ETHERNET_RX_FILTER_SET;
+    // filter index
+    ethernet_rx_svr <: filterIndex;   
+    
+    
+    // sent filter data.
+    for (i = 0; i < sizeof(struct mac_filter_t); i += 1)
+      {
+        ethernet_rx_svr <: (char) (filter, unsigned char[])[i];      
+      }
+    // check response
+    
+    ethernet_rx_svr :> response;
+    if (response != ETHERNET_REQ_ACK) 
+      {   
+        filterIndex = -1; 
+      }      
+  }
+  return (filterIndex);
 }
 
-void safe_mac_rx_timed(chanend ethernet_rx_svr, unsigned char Buf[], unsigned int &len, unsigned int &rxTime, unsigned int &src_port, int n)
-{
-  len = ethernet_unified_get_data(ethernet_rx_svr, Buf, rxTime, src_port, ETHERNET_RX_FRAME_REQ, n);
-  return;
-}
-
-static void send_cmd(chanend c, int cmd)
-{
-  outuchar(c, 1);
-  outct(c, XS1_CT_END);
-  chkct(c, XS1_CT_END);
-  outuint(c, cmd);
-  outct(c, XS1_CT_END);
-  chkct(c, XS1_CT_END);  
-}
-
-
-void mac_set_drop_packets(chanend mac_svr, int x)
-{
-  send_cmd(mac_svr, ETHERNET_RX_DROP_PACKETS_SET);
-  mac_svr <: x;
-  return;
-}
-
-void mac_set_queue_size(chanend mac_svr, int x)
-{
-  send_cmd(mac_svr, ETHERNET_RX_QUEUE_SIZE_SET);
-  mac_svr <: x;
-  return;
-}
-
-void mac_set_custom_filter(chanend mac_svr, int x)
-{
-  send_cmd(mac_svr, ETHERNET_RX_CUSTOM_FILTER_SET);
-  mac_svr <: x;
-  return;
-}
-
-
-#if 0
-
-/* These functions are currently unsupported */
 
 /** Returns the number of *lost* frames between MII and Ethernet layer.
  */
@@ -173,4 +201,32 @@ void mac_reset_overflowcnt(chanend ethernet_rx_svr)
   return;
 }
 
-#endif
+void mac_set_drop_packets(chanend mac_svr, int x)
+{
+  master {
+    mac_svr <: (unsigned int) ETHERNET_RX_DROP_PACKETS_SET;
+    mac_svr <: x;
+    mac_svr :> int _; // acknowledgement
+  }
+  return;
+}
+
+void mac_set_queue_size(chanend mac_svr, int x)
+{
+  master {
+    mac_svr <: (unsigned int) ETHERNET_RX_QUEUE_SIZE_SET;
+    mac_svr <: x;
+    mac_svr :> int _; // acknowledgement
+  }
+  return;
+}
+
+void mac_set_custom_filter(chanend mac_svr, int x)
+{
+  master {
+    mac_svr <: (unsigned int) ETHERNET_RX_CUSTOM_FILTER_SET;
+    mac_svr <: x;
+    mac_svr :> int _; // acknowledgement
+  }
+  return;
+}

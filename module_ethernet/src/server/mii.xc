@@ -1,3 +1,22 @@
+/**
+ * Module:  module_ethernet
+ * Version: 1v3
+ * Build:   d5b0bfe5e956ae7926b1afc930d8f10a4b48a88e
+ * File:    mii.xc
+ *
+ * The copyrights, all other intellectual and industrial
+ * property rights are retained by XMOS and/or its licensors.
+ * Terms and conditions covering the use of this code can
+ * be found in the Xmos End User License Agreement.
+ *
+ * Copyright XMOS Ltd 2009
+ *
+ * In the case where this code is a modification of existing code
+ * under a separate license, the separate license terms are shown
+ * below. The modifications to the code are still covered by the
+ * copyright notice above.
+ *
+ **/
 #include <xs1.h>
 #include "mii_queue.h"
 #include "mii.h"
@@ -36,7 +55,7 @@ void mii_rx_pins(mii_queue_t &free_queue,
     unsigned time;
     unsigned word;
     unsigned i = 0, k=0;;
-    
+
     //    k = get_queue_entry(free_queue);
     c :> k;
 
@@ -44,26 +63,26 @@ void mii_rx_pins(mii_queue_t &free_queue,
     buf[k].src_port = ifnum;
     buf[k].timestamp_id = 0;
 
-#pragma xta endpoint "start_of_frame"                
+#pragma xta endpoint "start_of_frame"
     p_mii_rxdv when pinseq(1) :> int hi;
-    
+
     p_mii_rxd when pinseq(0xD) :> int sof;
-    
+
     tmr :> buf[k].timestamp;
-    
-    p_mii_rxd :> word;  
+
+    p_mii_rxd :> word;
     buf[k].data[i] = word;
     i++;
     length+=4;
     crc32(crc, word, poly);
-    p_mii_rxd :> word;  
+    p_mii_rxd :> word;
     buf[k].data[i] = word;
     i++;
     length+=4;
     crc32(crc, word, poly);
-    
+
     do
-      {    
+      {
         select
           {
           case p_mii_rxd :> word:
@@ -75,7 +94,7 @@ void mii_rx_pins(mii_queue_t &free_queue,
               else {
                 buf[k].data[i] = word;
                 crc32(crc, word, poly);
-                if (i==MAC_REQUIRED_WORDS_TO_FILTER)
+                if (i==4)
                   c <: k;
                 i++;
               }
@@ -87,27 +106,28 @@ void mii_rx_pins(mii_queue_t &free_queue,
               int taillen;
               int endbytes;
               int error = 0;
-              
+
 
               taillen = endin(p_mii_rxd);
-#pragma xta endpoint "end_of_frame"                
+#pragma xta endpoint "end_of_frame"
               p_mii_rxd :> tail;
-              
-              if (taillen & 7) { 
+
+              if (taillen & 7) {
                 // odd number of nibbles in last word - alignment error
                 error = 1;
               }
               else {
                 length = (i-1) << 2;
-                tail = tail >> (32 - taillen);          
+                tail = tail >> (32 - taillen);
                 endbytes =  (taillen >> 3);
                 length += endbytes;
-                
+
                 buf[k].length = length;
                 if (i < (MAX_ETHERNET_PACKET_SIZE+3)/4)
                   buf[k].data[i] = tail;
 
-                switch (endbytes) 
+
+                switch (endbytes)
                   {
                   case 0:
                     break;
@@ -124,30 +144,31 @@ void mii_rx_pins(mii_queue_t &free_queue,
                     tail = crc8shr(crc, tail, poly);
                     break;
                   }
-                
+
                 if (~crc) {
                   error = 1;
-                }                           
+                }
                 else if (length < 60) {
                   error = 1;
                 }
-              }                                   
+
+              }
 
               buf[k].complete = 1;
-              
-              //              if (!error && k)                 
+
+              //              if (!error && k)
               //              c <: k;
 
-              if (i<MAC_REQUIRED_WORDS_TO_FILTER)
+              if (i<4)
                 c <: k;
-                  
+
               endofframe = 1;
 
               break;
             }
           }
       } while (!endofframe);
- 
+
   } while (1);
 
   return;
@@ -159,9 +180,9 @@ void mii_tx_pins(mii_packet_t buf[],
                  mii_queue_t &free_queue,
                  mii_queue_t &ts_queue,
                  out buffered port:32 p_mii_txd,
-                 int ifnum)                
+                 int ifnum)
 {
-  register const unsigned poly = 0xEDB88320;  
+  register const unsigned poly = 0xEDB88320;
   timer tmr;
   unsigned int time;
   tmr :> time;
@@ -175,95 +196,87 @@ void mii_tx_pins(mii_packet_t buf[],
     k = get_queue_entry_no_lock(in_queue);
 
 
-    if (k) {    
-      int j=0;     
+    if (k) {
+      int j=0;
       bytes_left = buf[k].length;
 
       p_mii_txd <: 0x55555555;
       p_mii_txd <: 0x55555555;
-      p_mii_txd <: 0xD5555555;    
-#ifndef TX_TIMESTAMP_END_OF_PACKET
+      p_mii_txd <: 0xD5555555;
       tmr :> buf[k].timestamp;
-#endif
+
 
 
       word = buf[k].data[i];
       p_mii_txd <: word;
       i++;
-      crc32(crc, ~word, poly);      
+      crc32(crc, ~word, poly);
       bytes_left -=4;
       j+=4;
-      
+
       word = buf[k].data[i];
       //      while (bytes_left > 3) {
       while (!buf[k].complete || (j< (buf[k].length-3))) {
         p_mii_txd <: word;
         i++;
-        crc32(crc, word, poly);      
+        crc32(crc, word, poly);
         word = buf[k].data[i];
         //bytes_left -= 4;
         j += 4;
       }
-#ifdef TX_TIMESTAMP_END_OF_PACKET
-      tmr :> buf[k].timestamp;
-#endif
-      bytes_left = buf[k].length-j;      
+      bytes_left = buf[k].length-j;
       prev_length = buf[k].length;
-      
-      switch (bytes_left) 
+
+      switch (bytes_left)
         {
-        case 0:       
+        case 0:
           crc32(crc, 0, poly);
           crc = ~crc;
-          p_mii_txd <: crc;    
+          p_mii_txd <: crc;
           break;
         case 1:
           crc8shr(crc, word, poly);
-          //p_mii_txd:8 <: word;  
           partout(p_mii_txd, 8, word);
           crc32(crc, 0, poly);
           crc = ~crc;
-          p_mii_txd <: crc;    
+          p_mii_txd <: crc;
           break;
         case 2:
-          //p_mii_txd:16 <: word;  
           partout(p_mii_txd, 16, word);
           word = crc8shr(crc, word, poly);
           crc8shr(crc, word, poly);
           crc32(crc, 0, poly);
           crc = ~crc;
-          p_mii_txd <: crc;    
+          p_mii_txd <: crc;
           break;
         case 3:
-          //p_mii_txd:24 <: word;  
           partout(p_mii_txd, 24, word);
           word = crc8shr(crc, word, poly);
           word = crc8shr(crc, word, poly);
           crc8shr(crc, word, poly);
           crc32(crc, 0, poly);
           crc = ~crc;
-          p_mii_txd <: crc;    
+          p_mii_txd <: crc;
           break;
-        }  
+        }
+      tmr :> time;
+      time+=196;
+      tmr when timerafter(time) :> int tmp;
+
       if (get_and_dec_transmit_count(k) == 0) {
+
+
         if (buf[k].timestamp_id) {
           add_queue_entry(ts_queue, k);
         }
         else
           free_queue_entry(k);
       }
-      tmr :> time;
-      time+=196;
-      tmr when timerafter(time) :> int tmp;
     }
   }
 }
 
-#ifdef ETH_REF_CLOCK
-extern clock ETH_REF_CLOCK;
-#endif
-
-void mii_init(mii_interface_t &m)
+void mii_init(mii_interface_t &m, clock clk_mii_ref)
 {
 #ifndef SIMULATION
   timer tmr;
@@ -274,11 +287,9 @@ void mii_init(mii_interface_t &m)
   set_port_use_on(m.p_mii_rxd);
   set_port_use_on(m.p_mii_rxdv);
   set_port_use_on(m.p_mii_rxer);
-#ifdef ETH_REF_CLOCK
-  set_port_clock(m.p_mii_rxclk, ETH_REF_CLOCK);
-  set_port_clock(m.p_mii_rxd, ETH_REF_CLOCK);
-  set_port_clock(m.p_mii_rxdv, ETH_REF_CLOCK);
-#endif
+  set_port_clock(m.p_mii_rxclk, clk_mii_ref);
+  set_port_clock(m.p_mii_rxd, clk_mii_ref);
+  set_port_clock(m.p_mii_rxdv, clk_mii_ref);
 
   set_pad_delay(m.p_mii_rxclk, PAD_DELAY_RECEIVE);
 
@@ -301,11 +312,9 @@ void mii_init(mii_interface_t &m)
   set_port_use_on(m.p_mii_txd);
   set_port_use_on(m.p_mii_txen);
   //  set_port_use_on(m.p_mii_txer);
-#ifdef ETH_REF_CLOCK
-  set_port_clock(m.p_mii_txclk, ETH_REF_CLOCK);
-  set_port_clock(m.p_mii_txd, ETH_REF_CLOCK);
-  set_port_clock(m.p_mii_txen, ETH_REF_CLOCK);
-#endif
+  set_port_clock(m.p_mii_txclk, clk_mii_ref);
+  set_port_clock(m.p_mii_txd, clk_mii_ref);
+  set_port_clock(m.p_mii_txen, clk_mii_ref);
 
   set_pad_delay(m.p_mii_txclk, PAD_DELAY_TRANSMIT);
 

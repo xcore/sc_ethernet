@@ -1,8 +1,8 @@
 /**
- * Module:  module_ethernet
+ * Module:  app_ethernet_demo3
  * Version: 1v3
  * Build:   d5b0bfe5e956ae7926b1afc930d8f10a4b48a88e
- * File:    getmac.h
+ * File:    ethernet_conf.h
  *
  * The copyrights, all other intellectual and industrial 
  * property rights are retained by XMOS and/or its licensors. 
@@ -17,22 +17,14 @@
  * copyright notice above.
  *
  **/                                   
-/*************************************************************************
- *
- * Ethernet MAC Layer Implementation
- * IEEE 802.3 Device MAC Address
- *
- *
- *
- * Retreives three bytes of MAC address from OTP.
- *
- *************************************************************************/
 
-#ifndef _getmac_h_
-#define _getmac_h_
+#define MAX_ETHERNET_PACKET_SIZE (1518)
 
-// Retrieves least significant 24bits from MAC address stored in OTP
-// Should be run on core 2
-void ethernet_getmac_otp(char macaddr[]);
+#define NUM_MII_RX_BUF 20
+#define NUM_MII_TX_BUF 2
 
-#endif
+#define MAX_ETHERNET_CLIENTS   (4)    
+
+
+
+

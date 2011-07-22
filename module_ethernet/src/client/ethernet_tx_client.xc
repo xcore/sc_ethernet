@@ -1,7 +1,27 @@
+/**
+ * Module:  module_ethernet
+ * Version: 1v3
+ * Build:   d5b0bfe5e956ae7926b1afc930d8f10a4b48a88e
+ * File:    ethernet_tx_client.xc
+ *
+ * The copyrights, all other intellectual and industrial 
+ * property rights are retained by XMOS and/or its licensors. 
+ * Terms and conditions covering the use of this code can
+ * be found in the Xmos End User License Agreement.
+ *
+ * Copyright XMOS Ltd 2009
+ *
+ * In the case where this code is a modification of existing code
+ * under a separate license, the separate license terms are shown
+ * below. The modifications to the code are still covered by the 
+ * copyright notice above.
+ *
+ **/                                   
 /*************************************************************************
  *
  * Ethernet MAC Layer Implementation
  * IEEE 802.3 MAC Client Interface (Send)
+ *
  *
  *
  * This implement Ethernet frame sending client interface.
@@ -9,16 +29,17 @@
  *************************************************************************/
 
 #include <xs1.h>
-#include <xclib.h>
-
-#ifdef __ethernet_conf_h_exists__
-#include "ethernet_conf.h"
-#endif
-
 #include "ethernet_server_def.h"
 #include "ethernet_tx_client.h"
 
-#pragma unsafe arrays
+/** This send a ethernet frame, frame includes Dest/Src MAC address(s), 
+ *  type and payload.
+ *  ethernet_tx_svr 	: channelEnd to tx server.
+ *  Buf[]	        : Byte buffer of ethernet frame.
+ *  count		: number of bytes in buffer.
+ * 
+ *  This is the combine *frame send* which is invoke by differnt interfaces.
+ */
 static void ethernet_send_frame_unify(chanend ethernet_tx_svr, unsigned int Buf[], int count, unsigned int &sentTime, unsigned int Cmd, int ifnum)
 {
   int i;
@@ -45,6 +66,13 @@ static void ethernet_send_frame_unify(chanend ethernet_tx_svr, unsigned int Buf[
 }
 
 
+/** This send a ethernet frame, frame includes Dest/Src MAC address(s), 
+ *  type and payload.
+ *  ethernet_tx_svr 	: channelEnd to tx server.
+ *  Buf[]		: Byte buffer of ethernet frame.
+ *  count		: number of bytes in buffer.
+ * 
+ */
 void mac_tx(chanend ethernet_tx_svr, unsigned int Buf[], int count, int ifnum)
 {
   unsigned sentTime;
@@ -52,25 +80,18 @@ void mac_tx(chanend ethernet_tx_svr, unsigned int Buf[], int count, int ifnum)
   return;
 }
 
-#pragma unsafe arrays
-void mac_tx_offset2(chanend ethernet_tx_svr, 
-                    unsigned int Buf[], 
-                    int count, 
-                    int ifnum)
-{
-  ethernet_tx_svr <: ETHERNET_TX_REQ_OFFSET2;
-
-  slave {
-    ethernet_tx_svr <: count;
-    ethernet_tx_svr <: ifnum;
-    for (int i=0;i<(count+7)>>2;i++)
-      ethernet_tx_svr <: byterev(Buf[i]);
-  }
-  return;
-}
 
 
-
+/** This send a ethernet frame, frame includes Dest/Src MAC address(s),
+ *  type and payload.
+ *  It's blocking call and return the *actual time* the frame is sent to PHY.
+ *  *actual time* : 32bits XCore internal timer.
+ *  ethernet_tx_svr 	: channelEnd to tx server.
+ *  Buf[]	        : Byte buffer of ethernet frame.
+ *  count               : number of bytes in buffer.
+ *
+ *  NOTE: This function will be blocked until the packet is sent to PHY.
+ */
 void mac_tx_timed(chanend ethernet_tx_svr, unsigned int Buf[], int count, unsigned int &sentTime, int ifnum)
 {
   ethernet_send_frame_unify(ethernet_tx_svr, Buf, count, sentTime, ETHERNET_TX_REQ_TIMED, ifnum);
@@ -78,6 +99,12 @@ void mac_tx_timed(chanend ethernet_tx_svr, unsigned int Buf[], int count, unsign
 }
 
 
+/** This get MAC address of *this*, normally its XMOS assigned id, appended with
+ *  24bits per chip, id stores in OTP.
+ *
+ *  \para   Buf[] array of char, where MAC address is placed, network order.
+ *  \return zero on success and non-zero on failure.
+ */
 int mac_get_macaddr(chanend ethernet_tx_svr, unsigned char Buf[])
 {
   int i;
@@ -96,20 +123,3 @@ int mac_get_macaddr(chanend ethernet_tx_svr, unsigned char Buf[])
   return 0;   
 }
 
-
-#ifdef AVB_MAC
-void send_avb_1722_router_cmd(chanend c,
-                              unsigned key0,
-                              unsigned key1,
-                              unsigned link,
-                              unsigned hash)
-{
-  c <: ETHERNET_TX_UPDATE_AVB_ROUTER;
-  slave {
-    c <: key0;
-    c <: key1;
-    c <: link;
-    c <: hash;
-  }
-}
-#endif
