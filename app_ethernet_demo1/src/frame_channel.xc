@@ -1,22 +1,8 @@
-/**
- * Module:  app_ethernet_demo1
- * Version: 1v3
- * Build:   d5b0bfe5e956ae7926b1afc930d8f10a4b48a88e
- * File:    frame_channel.xc
- *
- * The copyrights, all other intellectual and industrial 
- * property rights are retained by XMOS and/or its licensors. 
- * Terms and conditions covering the use of this code can
- * be found in the Xmos End User License Agreement.
- *
- * Copyright XMOS Ltd 2009
- *
- * In the case where this code is a modification of existing code
- * under a separate license, the separate license terms are shown
- * below. The modifications to the code are still covered by the 
- * copyright notice above.
- *
- **/                                   
+// Copyright (c) 2011, XMOS Ltd., All rights reserved
+// This software is freely distributable under a derivative of the
+// University of Illinois/NCSA Open Source License posted in
+// LICENSE.txt and at <http://github.xcore.com/>
+
 /*************************************************************************
  *
  * Ethernet MAC Layer Client Test Code
@@ -25,11 +11,6 @@
  *   File        : frame_channel.xc
  *
  *************************************************************************
- *
- * Copyright (c) 2008 XMOS Ltd.
- *
- * Copyright Notice
- *
  *************************************************************************
  *
  * Functions for passing an Ethernet frame over a channel.
