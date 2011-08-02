@@ -143,7 +143,7 @@ void mii_tx_pins_wr(port p,
 				tx_mem_lp[i], &ts_queue[i], p, i);
 }
 
-void ethernet_tx_server_wr(const int mac_addr[][2], chanend tx[], int num_q, int num_tx, smi_interface_t *smi1, smi_interface_t *smi2, chanend connect_status)
+void ethernet_tx_server_wr(const int mac_addr[], chanend tx[], int num_q, int num_tx, smi_interface_t *smi1, smi_interface_t *smi2, chanend connect_status)
 {
   ethernet_tx_server(
 #ifdef ETHERNET_TX_HP_QUEUE

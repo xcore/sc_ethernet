@@ -60,7 +60,7 @@ void ethernet_get_filter_counts(unsigned& address, unsigned& filter, unsigned& l
 
 
 #pragma unsafe arrays
-void ethernet_filter(const int mac[][2], streaming chanend c[NUM_ETHERNET_PORTS])
+void ethernet_filter(const int mac[], streaming chanend c[NUM_ETHERNET_PORTS])
 {
   int buf;
 
@@ -81,7 +81,7 @@ void ethernet_filter(const int mac[][2], streaming chanend c[NUM_ETHERNET_PORTS]
         }
         else {
         	int broadcast = is_broadcast(buf);
-        	int unicast = compare_mac(buf,mac[ifnum]);
+        	int unicast = compare_mac(buf,mac);
         	int res=0;
 #if (NUM_ETHERNET_PORTS > 1) && !defined(DISABLE_ETHERNET_PORT_FORWARDING)
     		if (!unicast) {

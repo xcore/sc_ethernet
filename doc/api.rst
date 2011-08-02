@@ -212,7 +212,7 @@ Configuration Functions
 
 .. doxygenfunction:: mac_get_macaddr
 
-.. doxygenfunction:: mac_get_macaddr_n
+
 
 
 

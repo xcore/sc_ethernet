@@ -90,8 +90,8 @@ int main()
     {
       on stdcore[2]:
       {
-        int mac_address[2][2];
-		ethernet_getmac_otp_count(otp_data, otp_addr, otp_ctrl, mac_address, 2);
+        int mac_address[2];
+		ethernet_getmac_otp(otp_data, otp_addr, otp_ctrl, (mac_address, char[]));
 		phy_init_two_port(clk_smi, p_mii_resetn, smi_0, smi_1, mii_0, mii_1);
         ethernet_server_two_port(mii_0, mii_1, mac_address, rx, 1, tx, 1, null, null, null);
       }

@@ -98,22 +98,6 @@ int mac_get_macaddr(chanend c_mac, unsigned char macaddr[]);
 
 #define ethernet_get_my_mac_adrs mac_get_macaddr
 
-/** Get the specified device MAC address.
- *
- *  This function gets the MAC address of the specified port on the device
- *  (the address passed into the ethernet_server() function.
- *
- *  \param   c_mac chanend end connected to ethernet server
- *  \param   macaddr[] an array of type char where the MAC address is placed
- *                     (in network order).
- *  \param   n the index of the port
- *  \return zero on success and non-zero on failure.
- */
-
-int mac_get_macaddr_n(chanend c_mac, unsigned n, unsigned char macaddr[]);
-
-#define ethernet_get_my_mac_adrs_n mac_get_macaddr_n
-
 /** Adjust the mac level router table
  * \todo - fill this in - maybe change the name to something non-AVB
  *         specific.  can it be useful outside of AVB?

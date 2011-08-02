@@ -44,7 +44,7 @@ void ethernet_tx_server(
                         mii_mempool_t tx_mem_lp[],
                         int num_q, 
                         mii_queue_t ts_queue[],
-                        const int mac_addr[][2],
+                        const int mac_addr[],
                         chanend tx[],
                         int num_tx,
                         smi_interface_t &?smi1, 
@@ -145,11 +145,11 @@ void ethernet_tx_server(
             	if (p == dst_port || dst_port == ETH_BROADCAST) {
             		mii_packet_set_length(buf[p], length);
 
-#if (NUM_ETHERNET_PORTS > 1) || defined(ENABLE_ETHERNET_SOURCE_ADDRESS_WRITE)
+#if defined(ENABLE_ETHERNET_SOURCE_ADDRESS_WRITE)
             		{
-            			mii_packet_set_data_short(buf[p], 3, (mac_addr[p],short[])[0]);
-            			mii_packet_set_data_short(buf[p], 4, (mac_addr[p],short[])[1]);
-            			mii_packet_set_data_short(buf[p], 5, (mac_addr[p],short[])[2]);
+            			mii_packet_set_data_short(buf[p], 3, (mac_addr,short[])[0]);
+            			mii_packet_set_data_short(buf[p], 4, (mac_addr,short[])[1]);
+            			mii_packet_set_data_short(buf[p], 5, (mac_addr,short[])[2]);
             		}
 #endif
 
@@ -202,10 +202,8 @@ void ethernet_tx_server(
               break;
             case ETHERNET_GET_MAC_ADRS:
               slave {
-            	unsigned n;
-            	tx[i] :> n;
                 for (int j=0;j< 6;j++) {
-                  tx[i] <: (char) (mac_addr[n],char[])[j];
+                  tx[i] <: (char) (mac_addr,char[])[j];
                 }
               }
               break;
