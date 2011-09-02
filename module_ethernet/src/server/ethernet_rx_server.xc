@@ -93,13 +93,14 @@ void serviceLinkCmd(chanend link, int linkIndex, unsigned int &cmd)
          link <: link_status[linkIndex].dropped_pkt_cnt;
          break;
       case ETHERNET_RX_OVERFLOW_MII_CNT_REQ: {
-    	  unsigned mii_dropped, bad_length, address, filter;
+    	  unsigned mii_dropped, bad_crc, bad_length, address, filter;
     	  ethernet_get_mii_counts(mii_dropped);
-    	  ethernet_get_filter_counts(address, filter, bad_length);
+    	  ethernet_get_filter_counts(address, filter, bad_length, bad_crc);
           link <: mii_dropped;
           link <: bad_length;
           link <: address;
           link <: filter;
+          link <: bad_crc;
          }
          break;
 #endif

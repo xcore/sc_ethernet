@@ -49,68 +49,110 @@ typedef struct mac_filter_t {
 static unsigned ethernet_filtered_by_address=0;
 static unsigned ethernet_filtered_by_user_filter=0;
 static unsigned ethernet_filtered_by_length=0;
+static unsigned ethernet_filtered_by_bad_crc=0;
 
-void ethernet_get_filter_counts(unsigned& address, unsigned& filter, unsigned& length)
+void ethernet_get_filter_counts(unsigned &address, unsigned &filter, unsigned &length, unsigned &crc)
 {
-	address=ethernet_filtered_by_address;
-	filter=ethernet_filtered_by_user_filter;
-	length=ethernet_filtered_by_length;
+	address = ethernet_filtered_by_address;
+	filter = ethernet_filtered_by_user_filter;
+	length = ethernet_filtered_by_length;
+	crc = ethernet_filtered_by_bad_crc;
 }
 #endif
 
 
 #pragma unsafe arrays
-void ethernet_filter(const int mac[], streaming chanend c[NUM_ETHERNET_PORTS])
-{
-  int buf;
+void ethernet_filter(const int mac[], streaming chanend c[NUM_ETHERNET_PORTS]) {
+	int buf;
 
-  while (1) {
-    select {
+	while (1) {
+		select
+		{
 #pragma xta endpoint "rx_packet"
-      case (int ifnum=0; ifnum<NUM_ETHERNET_PORTS; ifnum++) c[ifnum] :> buf :
+		case (int ifnum=0; ifnum<NUM_ETHERNET_PORTS; ifnum++) c[ifnum] :> buf :
 
-      if (buf) {
-        mii_packet_set_src_port(buf,ifnum);
+			if (buf)
+			{
+				int length = mii_packet_get_length(buf);
+#ifdef ETHERNET_RX_CRC_ERROR_CHECK
+				unsigned poly = 0xEDB88320;
+				unsigned crc = mii_packet_get_crc(buf);
+				int endbytes;
+				int tail;
 
-        if (mii_packet_get_length(buf) < 60) {
-#ifdef ETHERNET_COUNT_PACKETS
-          ethernet_filtered_by_length++;
+				tail = mii_packet_get_data(buf,((length & 0xFFFFFFFC)/4)+1);
+
+				endbytes = (length & 3);
+
+				switch (endbytes)
+				{
+					case 0:
+						break;
+					case 1:
+						tail = crc8shr(crc, tail, poly);
+						break;
+					case 2:
+						tail = crc8shr(crc, tail, poly);
+						tail = crc8shr(crc, tail, poly);
+						break;
+					case 3:
+						tail = crc8shr(crc, tail, poly);
+						tail = crc8shr(crc, tail, poly);
+						tail = crc8shr(crc, tail, poly);
+						break;
+				}
+
+				if (~crc)
+				{
+#ifdef ETHERNET_RX_CRC_ERROR_CHECK
+					ethernet_filtered_by_bad_crc++;
 #endif
-          mii_packet_set_filter_result(buf, 0);
-          mii_packet_set_stage(buf,1);
-        }
-        else {
-        	int broadcast = is_broadcast(buf);
-        	int unicast = compare_mac(buf,mac);
-        	int res=0;
+					mii_packet_set_filter_result(buf, 0);
+					mii_packet_set_stage(buf,1);
+					break;
+				}
+#endif
+				mii_packet_set_src_port(buf,ifnum);
+
+				if (length < 60) {
+#ifdef ETHERNET_COUNT_PACKETS
+					ethernet_filtered_by_length++;
+#endif
+					mii_packet_set_filter_result(buf, 0);
+					mii_packet_set_stage(buf,1);
+				}
+				else {
+					int broadcast = is_broadcast(buf);
+					int unicast = compare_mac(buf,mac);
+					int res=0;
 #if (NUM_ETHERNET_PORTS > 1) && !defined(DISABLE_ETHERNET_PORT_FORWARDING)
-    		if (!unicast) {
-    			res |= MII_FILTER_FORWARD_TO_OTHER_PORTS;
-    		}
+					if (!unicast) {
+						res |= MII_FILTER_FORWARD_TO_OTHER_PORTS;
+					}
 #endif
 #ifdef MAC_PROMISCUOUS
-    		if (1) {
+					if (1) {
 #else
-        	if (broadcast || unicast) {
+						if (broadcast || unicast) {
 #endif
-        		int filter_result = mac_custom_filter_coerce(buf);
+							int filter_result = mac_custom_filter_coerce(buf);
 #ifdef ETHERNET_COUNT_PACKETS
-        		if (filter_result == 0) ethernet_filtered_by_user_filter++;
+							if (filter_result == 0) ethernet_filtered_by_user_filter++;
 #endif
-        		res |= filter_result;
-        	} else {
+							res |= filter_result;
+						} else {
 #ifdef ETHERNET_COUNT_PACKETS
-        		ethernet_filtered_by_address++;
+							ethernet_filtered_by_address++;
 #endif
-        	}
-    		mii_packet_set_filter_result(buf, res);
-    		mii_packet_set_stage(buf, 1);
-        }
-      }
-      break;
-    }
-  }
-}
+						}
+						mii_packet_set_filter_result(buf, res);
+						mii_packet_set_stage(buf, 1);
+					}
+				}
+				break;
+			}
+		}
+	}
 
 
 

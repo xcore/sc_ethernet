@@ -18,7 +18,8 @@ void ethernet_filter(const int mac[], streaming chanend c[NUM_ETHERNET_PORTS]);
 #ifdef ETHERNET_COUNT_PACKETS
 void ethernet_get_filter_counts(REFERENCE_PARAM(unsigned,address),
 								REFERENCE_PARAM(unsigned,filter),
-								REFERENCE_PARAM(unsigned,length));
+								REFERENCE_PARAM(unsigned,length),
+								REFERENCE_PARAM(unsigned,crc));
 #endif
 
 #endif // __mii_filter_h__
