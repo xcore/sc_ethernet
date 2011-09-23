@@ -287,7 +287,7 @@ void ethernet_rx_server(
    for (i = 0; i < num_link; i += 1)
    {
       link_status[i].dropped_pkt_cnt = 0;      
-      link_status[i].max_queue_size = 1;
+      link_status[i].max_queue_size = NUM_MII_RX_BUF;
       link_status[i].rdIndex = 0;
       link_status[i].wrIndex = 0;
       link_status[i].notified = 0;
