@@ -49,7 +49,7 @@ void ethernet_getmac_otp_count(port otp_data, out port otp_addr, port otp_ctrl, 
  *  \param macaddr Array to be filled with the retrieved MAC address
  *
  **/
-void ethernet_getmac_otp(port otp_data, out port otp_addr, port otp_ctrl, char macaddr[]);
+void ethernet_getmac_otp(port otp_data, out port otp_addr, port otp_ctrl, int macaddr[]);
 
 #endif
 
