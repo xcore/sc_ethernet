@@ -115,7 +115,7 @@ int main()
       on stdcore[2]:
       {
         int mac_address[2];
-		ethernet_getmac_otp(otp_data, otp_addr, otp_ctrl, (mac_address, char[]));
+		ethernet_getmac_otp(otp_data, otp_addr, otp_ctrl, mac_address);
         phy_init(clk_smi, 
 #ifdef PORT_ETH_RST_N
                p_mii_resetn,
