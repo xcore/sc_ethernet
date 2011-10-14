@@ -390,7 +390,7 @@ int main()
       //::ethernet
       on stdcore[2]:
       {
-		ethernet_getmac_otp(otp_data, otp_addr, otp_ctrl, mac_address);
+		ethernet_getmac_otp(otp_data, otp_addr, otp_ctrl, (mac_address, char[]));
 		phy_init(clk_smi,
 #ifdef PORT_ETH_RST_N
                p_mii_resetn,
