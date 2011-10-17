@@ -18,12 +18,15 @@ Key Features
    * Packet filtering by extension function
    * Memory based locking protocol
    * FIFO based memory allocation for lower RAM overhead
-   * 802.1Qat traffic shaping support
+   * High priority (VLAN priority tag) queues
+   * 802.1Qat traffic shaping
+   * Dual port
 
 Firmware Overview
 =================
 
-RX and TX are defined as functions which each run in their own thread.
+RX and TX are defined as functions which each run in their own thread. Thread count is 5 for single
+port, and 7 for dual port support.  Both ports must be MII and attached to the same xcore.
 
 Full documentation can be found at http://xcore.github.com/sc_ethernet/
 

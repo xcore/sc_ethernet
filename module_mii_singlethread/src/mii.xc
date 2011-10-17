@@ -23,6 +23,20 @@
 
 #include <platform.h>
 
+
+#define WORDS_PER_BUFFER (1600/4)
+#define NBUFS 10
+
+#include "miiClient.h"
+
+int systemBuffers[SYSTEM_BUFFER_SIZE]; // Communicate between mii HW thread and mii Interrupt routine.
+int userBuffers[USER_BUFFER_SIZE]; // Communicate between mii Interrupt routine and IP stack
+int userBufferLengths[USER_BUFFER_SIZE]; // Communicate between mii Interrupt routine and IP stack
+int globalOffset;
+
+int enableMacFilter = 0;
+unsigned char filterMacAddress[6] = {0,0,0,0,0,0};
+
 // XC-2 Port mappings
 
 #define CLK_MII_RX XS1_CLKBLK_1
@@ -174,21 +188,6 @@ void mii_deinit()
   //  set_port_use_off(p_mii_txer);
 }
 
-#define WORDS_PER_BUFFER (1600/4)
-#define NBUFS 10
-
-#include "print.h"
-#include "miiClient.h"
-
-int systemBuffers[SYSTEM_BUFFER_SIZE]; // Communicate between mii HW thread and mii Interrupt routine.
-int userBuffers[USER_BUFFER_SIZE]; // Communicate between mii Interrupt routine and IP stack
-int userBufferLengths[USER_BUFFER_SIZE]; // Communicate between mii Interrupt routine and IP stack
-int globalOffset;
-
-int enableMacFilter = 0;
-unsigned char filterMacAddress[6] = {0,0,0,0,0,0};
-
-
 void miiBufferInit(chanend c_in, int buffer[], int words) {
     int bufferAddress, cnt = 0;
     asm(" mov %0, %1" : "=r"(bufferAddress) : "r"(buffer));
@@ -199,8 +198,6 @@ void miiBufferInit(chanend c_in, int buffer[], int words) {
             cnt++;
         }
     }
-    printint(cnt);
-    printstr(" input buffers created\n");
     miiInstallHandler(c_in);
 }
 

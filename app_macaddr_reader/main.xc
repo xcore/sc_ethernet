@@ -27,30 +27,36 @@ int main(void)
 	{
 		on stdcore[ETHERNET_OTP_CORE] :
 		{
-			int mac_address[2];
+			int mac_address[2][2];
 
 			// Get the MAC Address
-			ethernet_getmac_otp(otp_data, otp_addr, otp_ctrl, (mac_address, char[]));
+			ethernet_getmac_otp_count(otp_data, otp_addr, otp_ctrl, mac_address, 2);
 
-			// Print it out
-			printstr("MAC Address: ");
-			printhex( ( ( mac_address[0] >> 4 ) & 0xF ) );
-			printhex( ( mac_address[0] & 0xF ) );
-			printchar(':');
-			printhex( ( ( mac_address[0] >> 12 ) & 0xF ) );
-			printhex( ( ( mac_address[0] >> 8 ) & 0xF ) );
-			printchar(':');
-			printhex( ( ( mac_address[0] >> 20 ) & 0xF ) );
-			printhex( ( ( mac_address[0] >> 16 ) & 0xF ) );
-			printchar(':');
-			printhex( ( ( mac_address[0] >> 28 ) & 0xF ) );
-			printhex( ( ( mac_address[0] >> 24 ) & 0xF ) );
-			printchar(':');
-			printhex( ( ( mac_address[1] >> 4 ) & 0xF ) );
-			printhex( ( mac_address[1] & 0xF ) );
-			printchar(':');
-			printhex( ( ( mac_address[1] >> 12 ) & 0xF ) );
-			printhex( ( ( mac_address[1] >> 8 ) & 0xF ) );
+			for (unsigned int n=0; n<2; n++) {
+
+				// Print it out
+				printstr("MAC Address ");
+				printuint(n);
+				printstr(": ");
+				printhex( ( ( (mac_address[n], char[])[0] >> 4 ) & 0xF ) );
+				printhex( ( ( (mac_address[n], char[])[0] >> 0 ) & 0xF ) );
+				printchar(':');
+				printhex( ( ( (mac_address[n], char[])[1] >> 4 ) & 0xF ) );
+				printhex( ( ( (mac_address[n], char[])[1] >> 0 ) & 0xF ) );
+				printchar(':');
+				printhex( ( ( (mac_address[n], char[])[2] >> 4 ) & 0xF ) );
+				printhex( ( ( (mac_address[n], char[])[2] >> 0 ) & 0xF ) );
+				printchar(':');
+				printhex( ( ( (mac_address[n], char[])[3] >> 4 ) & 0xF ) );
+				printhex( ( ( (mac_address[n], char[])[3] >> 0 ) & 0xF ) );
+				printchar(':');
+				printhex( ( ( (mac_address[n], char[])[4] >> 4 ) & 0xF ) );
+				printhex( ( ( (mac_address[n], char[])[4] >> 0 ) & 0xF ) );
+				printchar(':');
+				printhex( ( ( (mac_address[n], char[])[5] >> 4 ) & 0xF ) );
+				printhex( ( ( (mac_address[n], char[])[5] >> 0 ) & 0xF ) );
+				printchar('\n');
+			}
 		}
 	}
 

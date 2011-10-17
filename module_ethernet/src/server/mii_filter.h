@@ -5,27 +5,21 @@
 
 #ifndef __mii_filter_h__
 #define __mii_filter_h__
+#include "mii.h"
 #include "mii_queue.h"
 #include "mii_malloc.h"
 
-void one_port_filter(mii_mempool_t rx_mem,
-                     const int mac[2],
-                     REFERENCE_PARAM(mii_queue_t, internal_q),
-                     streaming chanend c);
+//! This define is the last bit in the filter bitfield, and is set when the
+//! system has to forward the packet to the other ethernet ports
+#define MII_FILTER_FORWARD_TO_OTHER_PORTS (0x80000000)
 
-void two_port_filter(mii_packet_t buf[],
-                     const int mac[2],
-                     REFERENCE_PARAM(mii_queue_t,free_q),
-                     REFERENCE_PARAM(mii_queue_t,internal_q),
-                     REFERENCE_PARAM(mii_queue_t,q1),
-                     REFERENCE_PARAM(mii_queue_t,q2),
-                     streaming chanend c0,
-                     streaming chanend c1);
+void ethernet_filter(const int mac[], streaming chanend c[NUM_ETHERNET_PORTS]);
 
 #ifdef ETHERNET_COUNT_PACKETS
 void ethernet_get_filter_counts(REFERENCE_PARAM(unsigned,address),
 								REFERENCE_PARAM(unsigned,filter),
-								REFERENCE_PARAM(unsigned,length));
+								REFERENCE_PARAM(unsigned,length),
+								REFERENCE_PARAM(unsigned,crc));
 #endif
 
 #endif // __mii_filter_h__

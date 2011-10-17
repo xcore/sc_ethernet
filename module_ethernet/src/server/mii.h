@@ -12,6 +12,10 @@
 #include "ethernet_conf.h"
 #endif
 
+#ifndef NUM_ETHERNET_PORTS
+#define NUM_ETHERNET_PORTS (1)
+#endif
+
 #ifndef MAX_ETHERNET_PACKET_SIZE
 #define MAX_ETHERNET_PACKET_SIZE (1518)
 #endif
@@ -24,8 +28,12 @@
 #define NUM_MII_TX_BUF 5
 #endif
 
-#ifndef MAC_REQUIRED_WORDS_TO_FILTER
-#define MAC_REQUIRED_WORDS_TO_FILTER (4)
+#ifndef ETHERNET_RX_CRC_ERROR_CHECK
+#define ETHERNET_RX_CRC_ERROR_CHECK
+#endif
+
+#ifndef ETHERNET_COUNT_PACKETS
+#define ETHERNET_COUNT_PACKETS
 #endif
 
 #ifdef ETHERNET_RX_HP_QUEUE
@@ -97,23 +105,23 @@ void mii_init(REFERENCE_PARAM(mii_interface_t, m));
 
 typedef struct mii_packet_t {
   #define BUF_OFFSET_length 0
-  int length;
-  #define BUF_OFFSET_complete 1
-  int complete;
-  #define BUF_OFFSET_timestamp 2
-  int timestamp;
-  #define BUF_OFFSET_filter_result 3
-  int filter_result;
-  #define BUF_OFFSET_src_port 4
-  int src_port;
-  #define BUF_OFFSET_timestamp_id 5
-  int timestamp_id; 
-  #define BUF_OFFSET_stage 6
-  int stage;
-  #define BUF_OFFSET_tcount 7
-  int tcount;
-  #define BUF_OFFSET_crc 8
-  int crc;
+  int length;                       //!< The length of the packet in bytes
+  #define BUF_OFFSET_timestamp 1
+  int timestamp;                    //!< The transmit or receive timestamp
+  #define BUF_OFFSET_filter_result 2
+  int filter_result;                //!< The bitfield of filter passes
+  #define BUF_OFFSET_src_port 3
+  int src_port;                     //!< The ethernet port which a packet arrived on
+  #define BUF_OFFSET_timestamp_id 4
+  int timestamp_id;                 //!< Client channel number which is waiting for a Tx timestamp
+  #define BUF_OFFSET_stage 5
+  int stage;                        //!< What stage in the Tx or Rx path the packet has reached
+  #define BUF_OFFSET_tcount 6
+  int tcount;                       //!< Number of remaining clients who need to be send this RX packet
+  #define BUF_OFFSET_crc 7
+  int crc;                          //!< The calculated CRC
+  #define BUF_OFFSET_forwarding 8
+  int forwarding;					//!< A bitfield for tracking forwarding of the packet to other ports
   #define BUF_DATA_OFFSET 9
   unsigned int data[(MAX_ETHERNET_PACKET_SIZE+3)/4];
 } mii_packet_t;
@@ -149,13 +157,13 @@ typedef struct mii_packet_t {
 #endif
 
 create_buf_getset(length)
-create_buf_getset(complete)
 create_buf_getset(timestamp)
 create_buf_getset(filter_result)
 create_buf_getset(src_port)
 create_buf_getset(timestamp_id)
 create_buf_getset(stage)
 create_buf_getset(crc)
+create_buf_getset(forwarding)
 
 inline int mii_packet_get_data_ptr(int buf) {
   return (buf+BUF_DATA_OFFSET*4);
@@ -191,49 +199,68 @@ int mii_packet_get_data(int buf, int n);
 
 inline void mii_packet_set_data(int buf, int n, int v) {
   asm("stw %0,%1[%2]"::"r"(v),"r"(buf),"r"(n+BUF_DATA_OFFSET));
-  return;
+}
+
+inline void mii_packet_set_data_short(int buf, int n, int v) {
+  asm("st16 %0,%1[%2]"::"r"(v),"r"(buf),"r"(n+(BUF_DATA_OFFSET*2)));
 }
 
 
-
-
 #endif
 
 
 #ifdef __XC__
-void mii_rx_pins(unsigned rxmem_hp,
-                 unsigned rxmem_lp,
-                 in port p_mii_rxdv,
-                 in buffered port:32 p_mii_rxd,
-                 int ifnum,
-                 streaming chanend c);
+void mii_rx_pins(
+#ifdef ETHERNET_RX_HP_QUEUE
+		unsigned rxmem_hp,
+#endif
+		 unsigned rxmem_lp,
+		 in port p_mii_rxdv,
+		 in buffered port:32 p_mii_rxd,
+		 int ifnum,
+		 streaming chanend c);
 #else
-void mii_rx_pins(unsigned rxmem_hp,
-                 unsigned rxmem_lp,
-                 port p_mii_rxdv,
-                 port p_mii_rxd,
-                 int ifnum,
-                 chanend c);
+void mii_rx_pins(
+#ifdef ETHERNET_RX_HP_QUEUE
+		unsigned rxmem_hp,
+#endif
+		 unsigned rxmem_lp,
+		 port p_mii_rxdv,
+		 port p_mii_rxd,
+		 int ifnum,
+		 chanend c);
 #endif
 
 #ifdef __XC__
 void mii_tx_pins(
+#if (NUM_ETHERNET_PORTS > 1) && !defined(DISABLE_ETHERNET_PORT_FORWARDING)
 #ifdef ETHERNET_TX_HP_QUEUE
-                 unsigned hp_mempool,
+				unsigned hp_forward[],
 #endif
-                 unsigned lp_mempool,
-                 mii_queue_t &ts_queue,
-                 out buffered port:32 p_mii_txd,
-                 int ifnum);
+				unsigned lp_forward[],
+#endif
+#ifdef ETHERNET_TX_HP_QUEUE
+                unsigned hp_mempool,
+#endif
+                unsigned lp_mempool,
+                mii_queue_t &ts_queue,
+                out buffered port:32 p_mii_txd,
+                int ifnum);
 #else
 void mii_tx_pins(
+#if (NUM_ETHERNET_PORTS > 1) && !defined(DISABLE_ETHERNET_PORT_FORWARDING)
 #ifdef ETHERNET_TX_HP_QUEUE
-                 unsigned hp_mempool,
+				unsigned* hp_forward,
 #endif
-                 unsigned lp_mempool,
-                 mii_queue_t *ts_queue,
-                 port p_mii_txd,
-                 int ifnum);
+				unsigned* lp_forward,
+#endif
+#ifdef ETHERNET_TX_HP_QUEUE
+                unsigned hp_mempool,
+#endif
+                unsigned lp_mempool,
+                mii_queue_t *ts_queue,
+                port p_mii_txd,
+                int ifnum);
 #endif
 
 #ifdef ETHERNET_COUNT_PACKETS

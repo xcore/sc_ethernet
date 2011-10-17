@@ -9,8 +9,12 @@
 #include <xccompat.h>
 #include <print.h>
 #include "mii_malloc.h"
+#include "mii_filter.h"
 #include "mac_custom_filter.h"
 
+// Smallest packet + interframe gap is 84 bytes = 6.72 us
+#pragma xta command "analyze endpoints rx_packet rx_packet"
+#pragma xta command "set required - 6.72 us"
 
 
 int mac_custom_filter_coerce(int);
@@ -45,136 +49,116 @@ typedef struct mac_filter_t {
 static unsigned ethernet_filtered_by_address=0;
 static unsigned ethernet_filtered_by_user_filter=0;
 static unsigned ethernet_filtered_by_length=0;
+static unsigned ethernet_filtered_by_bad_crc=0;
 
-void ethernet_get_filter_counts(unsigned& address, unsigned& filter, unsigned& length)
+void ethernet_get_filter_counts(unsigned &address, unsigned &filter, unsigned &length, unsigned &crc)
 {
-	address=ethernet_filtered_by_address;
-	filter=ethernet_filtered_by_user_filter;
-	length=ethernet_filtered_by_length;
+	address = ethernet_filtered_by_address;
+	filter = ethernet_filtered_by_user_filter;
+	length = ethernet_filtered_by_length;
+	crc = ethernet_filtered_by_bad_crc;
 }
 #endif
 
-#if 0
-#pragma unsafe arrays
-void two_port_filter(mii_packet_t buf[],
-                     const int mac[2],
-                     mii_queue_t &free_queue,
-                     mii_queue_t &internal_q,
-                     mii_queue_t &q1,
-                     mii_queue_t &q2,
-                     streaming chanend c0,
-                     streaming chanend c1)
-{
-  int enable0=1, enable1=1;
-  int j;
-  j = get_queue_entry(free_queue);
-  c0 <: j;
-  j = get_queue_entry(free_queue);
-  c1 <: j;
-  while (1) 
-    {
-      int i=0;
-
-      select 
-        {
-        case enable0 => c0 :> i:
-          enable0 = 0;
-          j = get_queue_entry(free_queue);
-          c0 <: j;
-          break;
-        case enable1 => c1 :> i:
-          enable1 = 0;
-          j = get_queue_entry(free_queue);
-          c1 <: j;
-          break;
-        (!enable0 || !enable1) => default:
-          enable0 = 1;
-          enable1 = 1;
-          break;
-      }     
-      
-      if (i) {
-        if (is_broadcast(buf[i].data[0])) {
-          set_transmit_count(i, 1);    
-          buf[i].filter_result = mac_custom_filter(buf[i].data);
-          add_queue_entry(internal_q,i);
-          if (buf[i].src_port == 0)
-            add_queue_entry(q2, i);
-          else
-            add_queue_entry(q1, i);        
-        }
-        else if (compare_mac(buf[i].data,mac)) {
-          buf[i].filter_result = mac_custom_filter(buf[i].data);
-          add_queue_entry(internal_q,i);       
-        }
-        else {
-#ifdef MAC_PROMISCUOUS
-          set_transmit_count(i, 1);       
-          buf[i].filter_result = mac_custom_filter(buf[i].data);
-          add_queue_entry(internal_q,i);          
-#endif
-          if (buf[i].src_port == 0)
-            add_queue_entry(q2, i);
-          else
-            add_queue_entry(q1, i);
-        }      
-      }
-
-    }
-}
-#endif
-
-// Smallest packet + interframe gap is 84 bytes = 6.72 us
-#pragma xta command "analyze endpoints rx_packet rx_packet"
-#pragma xta command "set required - 6.72 us"
 
 #pragma unsafe arrays
-void one_port_filter(mii_mempool_t rx_mem,
-                     const int mac[2],
-                     mii_queue_t &internal_q,
-                     streaming chanend c)
-{
-  int buf;
+void ethernet_filter(const int mac[], streaming chanend c[NUM_ETHERNET_PORTS]) {
+	int buf;
 
-  while (1) 
-    {
+	while (1)
+	{
+		select
+		{
 #pragma xta endpoint "rx_packet"
-      c :> buf;
+			case (int ifnum=0; ifnum<NUM_ETHERNET_PORTS; ifnum++) c[ifnum] :> buf :
+			{
+				if (buf)
+				{
+					int length = mii_packet_get_length(buf);
 
-      if (buf) {
+#ifdef ETHERNET_RX_CRC_ERROR_CHECK
+					unsigned poly = 0xEDB88320;
+					unsigned crc = mii_packet_get_crc(buf);
+					int endbytes;
+					int tail;
 
-    	  if (mii_packet_get_length(buf) < 60)
-    	  {
-#ifdef ETHERNET_COUNT_PACKETS
-        	ethernet_filtered_by_length++;
+					tail = mii_packet_get_data(buf,((length & 0xFFFFFFFC)/4)+1);
+
+					endbytes = (length & 3);
+
+					switch (endbytes)
+					{
+						case 0:
+							break;
+						case 1:
+							tail = crc8shr(crc, tail, poly);
+							break;
+						case 2:
+							tail = crc8shr(crc, tail, poly);
+							tail = crc8shr(crc, tail, poly);
+							break;
+						case 3:
+							tail = crc8shr(crc, tail, poly);
+							tail = crc8shr(crc, tail, poly);
+							tail = crc8shr(crc, tail, poly);
+							break;
+					}
 #endif
-          	mii_packet_set_filter_result(buf, 0);
-          	mii_packet_set_stage(buf,1);
-    	  }
+					mii_packet_set_src_port(buf,ifnum);
+
+					if (length < 60)
+					{
+#ifdef ETHERNET_COUNT_PACKETS
+						ethernet_filtered_by_length++;
+#endif
+						mii_packet_set_filter_result(buf, 0);
+						mii_packet_set_stage(buf,1);
+					}
+#ifdef ETHERNET_RX_CRC_ERROR_CHECK
+					else if (~crc)
+					{
+#ifdef ETHERNET_COUNT_PACKETS
+						ethernet_filtered_by_bad_crc++;
+#endif
+						mii_packet_set_filter_result(buf, 0);
+						mii_packet_set_stage(buf,1);
+
+					}
+#endif
+					else
+					{
+						int broadcast = is_broadcast(buf);
+						int unicast = compare_mac(buf,mac);
+						int res=0;
+#if (NUM_ETHERNET_PORTS > 1) && !defined(DISABLE_ETHERNET_PORT_FORWARDING)
+						if (!unicast) {
+							res |= MII_FILTER_FORWARD_TO_OTHER_PORTS;
+						}
+#endif
 #ifdef MAC_PROMISCUOUS
-    	  else if (1)
+						if (1) {
 #else
-    	  else if (is_broadcast(buf) || compare_mac(buf,mac))
+							if (broadcast || unicast) {
 #endif
-          {     
-            int res = mac_custom_filter_coerce(buf);
+								int filter_result = mac_custom_filter_coerce(buf);
 #ifdef ETHERNET_COUNT_PACKETS
-            if (res == 0) ethernet_filtered_by_user_filter++;
+								if (filter_result == 0) ethernet_filtered_by_user_filter++;
 #endif
-            mii_packet_set_filter_result(buf, res);
-            mii_packet_set_stage(buf, 1);
-          }
-        else
-          {
+								res |= filter_result;
+							} else {
 #ifdef ETHERNET_COUNT_PACKETS
-        	ethernet_filtered_by_address++;
+								ethernet_filtered_by_address++;
 #endif
-        	mii_packet_set_filter_result(buf, 0);
-        	mii_packet_set_stage(buf,1);
-          }
-      }     
-    }
-}
+							}
+							mii_packet_set_filter_result(buf, res);
+							mii_packet_set_stage(buf, 1);
+						}
+					}
+					break;
+				} // end if (buf)
+			} // end case()
+		} // end select
+	} // end while (1)
 
 
 

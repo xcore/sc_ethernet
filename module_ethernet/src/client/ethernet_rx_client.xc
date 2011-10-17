@@ -148,7 +148,8 @@ void mac_get_global_counters(chanend mac_svr,
 		                     unsigned& mii_overflow,
 		                     unsigned& bad_length,
 		                     unsigned& mismatched_address,
-		                     unsigned& filtered
+		                     unsigned& filtered,
+		                     unsigned& bad_crc
 		                     )
 {
 #ifdef ETHERNET_COUNT_PACKETS
@@ -157,6 +158,7 @@ void mac_get_global_counters(chanend mac_svr,
   mac_svr :> bad_length;
   mac_svr :> mismatched_address;
   mac_svr :> filtered;
+  mac_svr :> bad_crc;
 #endif
 }
 

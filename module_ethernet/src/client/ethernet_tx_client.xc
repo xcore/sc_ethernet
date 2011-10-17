@@ -110,10 +110,8 @@ void mac_tx_timed(chanend ethernet_tx_svr, unsigned int Buf[], int count, unsign
 int mac_get_macaddr(chanend ethernet_tx_svr, unsigned char Buf[])
 {
   int i;
-
-    
   ethernet_tx_svr <: ETHERNET_GET_MAC_ADRS;
-   
+
   master {
     // transfer start of data.
     for (i = 0; i < 6; i++)

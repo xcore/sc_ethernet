@@ -32,26 +32,26 @@ void checkLink(smi_interface_t &smi,
     outuchar(c, new_status);
     outuchar(c, 0);
     outct(c, XS1_CT_END);
-    //    inct(c, XS1_CT_END);
     phy_status = new_status;
   }
 }
+
 #pragma unsafe arrays
 void ethernet_tx_server(
 #ifdef ETHERNET_TX_HP_QUEUE
-                        mii_mempool_t tx_mem_hp,
+                        mii_mempool_t tx_mem_hp[],
 #endif
-                        mii_mempool_t tx_mem_lp,
+                        mii_mempool_t tx_mem_lp[],
                         int num_q, 
-                        mii_queue_t &ts_queue,
-                        const int mac_addr[2],
+                        mii_queue_t ts_queue[],
+                        const int mac_addr[],
                         chanend tx[],
                         int num_tx,
                         smi_interface_t &?smi1, 
                         smi_interface_t &?smi2, 
                         chanend ?connect_status) 
 {
-  unsigned buf;
+  unsigned buf[NUM_ETHERNET_PORTS];
   int enabled[MAX_LINKS];
   int pendingCmd[MAX_LINKS]={0};
   timer tmr;
@@ -68,7 +68,7 @@ void ethernet_tx_server(
   while (1) {
     for (int i=0;i<num_tx;i++) {
       int cmd = pendingCmd[i];
-      int length, dst_port;
+      int length, dst_port, bufs_ok=1;
 #ifdef ETHERNET_TX_HP_QUEUE
       int hp=0;
 #endif
@@ -100,69 +100,71 @@ void ethernet_tx_server(
           }
 #endif
 
+          for (unsigned int p=0; p<NUM_ETHERNET_PORTS; ++p) {
 #ifdef ETHERNET_TX_HP_QUEUE
-          if (hp)
-            buf = mii_reserve(tx_mem_hp);
-          else
-            buf = mii_reserve(tx_mem_lp);
+        	  if (hp)
+        		  buf[p] = mii_reserve(tx_mem_hp[p]);
+        	  else
+        		  buf[p] = mii_reserve(tx_mem_lp[p]);
 #else
-          buf = mii_reserve(tx_mem_lp);
+        	  buf[p] = mii_reserve(tx_mem_lp[p]);
+#endif
+        	  if (buf[p] == 0) bufs_ok=0;
+          }
+
+          if (bufs_ok) {
+              master {
+        		  tx[i] :> length;
+        		  tx[i] :> dst_port;
+            	  if (cmd == ETHERNET_TX_REQ_OFFSET2) {
+            		  tx[i] :> char;
+            		  tx[i] :> char;
+            		  for(int j=0;j<(length+3)>>2;j++) {
+            			  int datum;
+            			  tx[i] :> datum;
+            			  for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
+            				  mii_packet_set_data(buf[p], j, byterev(datum));
+            			  }
+            		  }
+            		  tx[i] :> char;
+            		  tx[i] :> char;
+
+            		  cmd = ETHERNET_TX_REQ;
+            	  } else {
+            		  for(int j=0;j<(length+3)>>2;j++) {
+            			  int datum;
+            			  tx[i] :> datum;
+            			  for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
+            				  mii_packet_set_data(buf[p], j, datum);
+            			  }
+            		  }
+            	  }
+            }
+
+            for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
+            	if (p == dst_port || dst_port == ETH_BROADCAST) {
+            		mii_packet_set_length(buf[p], length);
+
+#if defined(ENABLE_ETHERNET_SOURCE_ADDRESS_WRITE)
+            		{
+            			mii_packet_set_data_short(buf[p], 3, (mac_addr,short[])[0]);
+            			mii_packet_set_data_short(buf[p], 4, (mac_addr,short[])[1]);
+            			mii_packet_set_data_short(buf[p], 5, (mac_addr,short[])[2]);
+            		}
 #endif
 
-          if (buf) {            
-            if (cmd == ETHERNET_TX_REQ_TIMED)
-              mii_packet_set_timestamp_id(buf, i+1);
-            else
-              mii_packet_set_timestamp_id(buf, 0);
-            
+            		if (cmd == ETHERNET_TX_REQ_TIMED)
+            			mii_packet_set_timestamp_id(buf[p], i+1);
+            		else
+            			mii_packet_set_timestamp_id(buf[p], 0);
 
-            if (cmd == ETHERNET_TX_REQ_OFFSET2) {
-              master {                          
-                tx[i] :> length;
-                tx[i] :> dst_port;
-                tx[i] :> char;
-                tx[i] :> char;
-                mii_packet_set_length(buf, length);
-                for(int j=0;j<(length+3)>>2;j++) {
-                  int datum;
-                  tx[i] :> datum;
-                  mii_packet_set_data(buf, j, byterev(datum));
-                }
-                tx[i] :> char;
-                tx[i] :> char;
-              }
-              cmd = ETHERNET_TX_REQ;
-            }
-            else {
-              master {          
-                tx[i] :> length;
-                tx[i] :> dst_port;
-                mii_packet_set_length(buf, length);
-                for(int j=0;j<(length+3)>>2;j++) {
-                  int datum;
-                  tx[i] :> datum;
-                  mii_packet_set_data(buf, j, datum);
-                }
-              }
+
+            		mii_commit(buf[p], (length+(BUF_DATA_OFFSET*4)));
+
+            		mii_packet_set_stage(buf[p], 1);
+            	}
             }
 
-            mii_commit(buf, (length+(BUF_DATA_OFFSET*4)));
-
-            mii_packet_set_complete(buf, 1);
-            mii_packet_set_stage(buf, 1);
-
-#if 0 
-            if (dst_port == 0 || num_q == 1) {              
-              add_queue_entry(out_q[0], buf);
-            }
-            else if (dst_port == ETH_BROADCAST) {
-              set_transmit_count(buf, 1);       
-              add_queue_entry(out_q[0], buf);
-              add_queue_entry(out_q[1], buf);                     
-            }
-            else
-              add_queue_entry(out_q[1], buf);
-#endif            
             enabled[i] = 0;
             pendingCmd[i] = 0;
           }
@@ -189,11 +191,11 @@ void ethernet_tx_server(
             {
             case ETHERNET_TX_REQ:
             case ETHERNET_TX_REQ_OFFSET2:
-            case ETHERNET_TX_REQ_TIMED:      
-#ifdef ETHERNET_TX_HP_QUEUE
+            case ETHERNET_TX_REQ_TIMED:
+#if defined(ETHERNET_TX_HP_QUEUE)
             case ETHERNET_TX_REQ_HP:
             case ETHERNET_TX_REQ_OFFSET2_HP:
-            case ETHERNET_TX_REQ_TIMED_HP:      
+            case ETHERNET_TX_REQ_TIMED_HP:
 #endif
 
               pendingCmd[i] = cmd;
@@ -242,13 +244,17 @@ void ethernet_tx_server(
         enabled[i] = 1; 
       break;
     }
-    buf=get_queue_entry(ts_queue);
-    if (buf != 0) {
-      int i = mii_packet_get_timestamp_id(buf);
-      int ts = mii_packet_get_timestamp(buf);
-      tx[i-1] <: ts;
-      if (get_and_dec_transmit_count(buf) == 0) 
-        mii_free(buf);
+
+    // Reply with timestamps where client is requesting them
+    for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
+    	buf[p]=get_queue_entry(ts_queue[p]);
+    	if (buf[p] != 0) {
+    		int i = mii_packet_get_timestamp_id(buf[p]);
+    		int ts = mii_packet_get_timestamp(buf[p]);
+    		tx[i-1] <: ts;
+    		if (get_and_dec_transmit_count(buf[p]) == 0)
+    			mii_free(buf[p]);
+    	}
     }
   }
 }

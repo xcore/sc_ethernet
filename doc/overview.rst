@@ -9,6 +9,9 @@ distribute packets in arbitrary ways. In addition the MII layer will
 accurately timestamp packets on ingress and egress and pass this
 information through the MAC to the ethernet client.
 
+The code supports one or two PHY devices, both connected to the same
+xcore.  Currently there is no inter-port packet forwarding supported.
+
 Component Summary
 +++++++++++++++++
 
@@ -39,4 +42,18 @@ Component Summary
  | Component code provided without charge from XMOS.                 |
  | Component code is maintained by XMOS.                             |
  +-------------------------------------------------------------------+
+
+module_mii_singlethread
+=======================
+
+The two subdirectories called **module_mii_singlethread** and
+**app_mii_singlethread_demo** are an experimental single thread
+MII controller.  The file **mii.xc** contains the definition of
+the MII port pins.
+
+The main pin control thread is hand written assembler utilising
+the event branching nature of the xcore to maintain two coroutines
+inside the single thread.
+
+
 

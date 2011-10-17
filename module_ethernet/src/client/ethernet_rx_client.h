@@ -182,7 +182,8 @@ void mac_get_global_counters(chanend mac_svr,
 		                     REFERENCE_PARAM(unsigned,mii_overflow),
 		                     REFERENCE_PARAM(unsigned,bad_length),
 		                     REFERENCE_PARAM(unsigned,mismatched_address),
-		                     REFERENCE_PARAM(unsigned,filtered)
+		                     REFERENCE_PARAM(unsigned,filtered),
+		                     REFERENCE_PARAM(unsigned,bad_crc)
 		                     );
 
 /** Receive a packet starting at the second byte of a buffer
