@@ -12,6 +12,7 @@
  *
  *************************************************************************/
 
+#define NOSMIOROTHERTHINGS
 
 #include <xs1.h>
 #include <stdio.h>
@@ -39,10 +40,11 @@ unsigned char filterMacAddress[6] = {0,0,0,0,0,0};
 
 // XC-2 Port mappings
 
+#ifdef anXC2
+
 #define CLK_MII_RX XS1_CLKBLK_1
 #define CLK_MII_TX XS1_CLKBLK_2
 
-// Core 2
 #define PORT_MII_RXCLK   XS1_PORT_1M
 #define PORT_MII_RXD     XS1_PORT_4E
 #define PORT_MII_RXDV    XS1_PORT_1N
@@ -51,6 +53,20 @@ unsigned char filterMacAddress[6] = {0,0,0,0,0,0};
 #define PORT_MII_TXD     XS1_PORT_4F
 #define PORT_MII_RXER    XS1_PORT_1O
 
+#else
+
+#define CLK_MII_RX XS1_CLKBLK_1
+#define CLK_MII_TX XS1_CLKBLK_2
+
+#define PORT_MII_RXCLK   XS1_PORT_1A
+#define PORT_MII_RXD     XS1_PORT_4A
+#define PORT_MII_RXDV    XS1_PORT_1B
+#define PORT_MII_TXCLK   XS1_PORT_1C
+#define PORT_MII_TXEN    XS1_PORT_1D
+#define PORT_MII_TXD     XS1_PORT_4B
+#define PORT_MII_RXER    XS1_PORT_1O
+
+#endif
 
 // Minimum interframe gap
 // smi_is100() is used to time the gap on a 100 MHz timer
@@ -70,20 +86,20 @@ unsigned char filterMacAddress[6] = {0,0,0,0,0,0};
 
 extern void user_trap();
 
-on stdcore[2]: clock clk_mii_ref = XS1_CLKBLK_REF;
-on stdcore[2]: clock clk_mii_rx = CLK_MII_RX;
-on stdcore[2]: clock clk_mii_tx = CLK_MII_TX;
+on stdcore[0]: clock clk_mii_ref = XS1_CLKBLK_REF;
+on stdcore[0]: clock clk_mii_rx = CLK_MII_RX;
+on stdcore[0]: clock clk_mii_tx = CLK_MII_TX;
 
-on stdcore[2]: in port p_mii_rxclk = PORT_MII_RXCLK;
-on stdcore[2]: buffered in port:32 p_mii_rxd = PORT_MII_RXD;
-on stdcore[2]: in port p_mii_rxdv = PORT_MII_RXDV;
-on stdcore[2]: in port p_mii_rxer = PORT_MII_RXER;
-on stdcore[2]: in port p_mii_txclk = PORT_MII_TXCLK;
-on stdcore[2]: buffered out port:32 p_mii_txd = PORT_MII_TXD;
-on stdcore[2]: out port p_mii_txen = PORT_MII_TXEN;
-//on stdcore[2]: out port p_mii_txer = PORT_MII_TXER;
+on stdcore[0]: in port p_mii_rxclk = PORT_MII_RXCLK;
+on stdcore[0]: buffered in port:32 p_mii_rxd = PORT_MII_RXD;
+on stdcore[0]: in port p_mii_rxdv = PORT_MII_RXDV;
+on stdcore[0]: in port p_mii_rxer = PORT_MII_RXER;
+on stdcore[0]: in port p_mii_txclk = PORT_MII_TXCLK;
+on stdcore[0]: buffered out port:32 p_mii_txd = PORT_MII_TXD;
+on stdcore[0]: out port p_mii_txen = PORT_MII_TXEN;
+//on stdcore[0]: out port p_mii_txer = PORT_MII_TXER;
 #ifdef SIMULATION
-on stdcore[2]: out port p_mii_txcsn = XS1_PORT_1C;
+on stdcore[0]: out port p_mii_txcsn = XS1_PORT_1C;
 #endif
 
 void mii_init()
@@ -162,7 +178,7 @@ void mii_init()
   p_mii_txcsn <: 0;
   sync(p_mii_txcsn);
 #endif
-#ifndef HENKSIM
+#ifndef NOSMIOROTHERTHINGS
   tmr :> t;
   tmr when timerafter(t + PHY_INIT_DELAY) :> t;
 #endif
@@ -232,8 +248,8 @@ void miiOutPacket(chanend c_out, int b[], int index, int length) {
 
 extern void mii(chanend c_in, chanend c_out) {
     mii_init();
-    smi_init();
-    smi_config(1);
+//    smi_init();
+//    smi_config(1);
     miiLLD(p_mii_rxd, p_mii_rxdv, p_mii_txd, c_in, c_out);
 }
 
