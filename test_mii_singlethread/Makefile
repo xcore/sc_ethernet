@@ -1,4 +1,4 @@
-all: bin/tester
+all:
 
 clean: 
 
