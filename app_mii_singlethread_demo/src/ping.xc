@@ -200,9 +200,9 @@ int build_icmp_response(unsigned char rxbuf[], unsigned char txbuf[], const unsi
   return pad;
 }
 int led2Status = 0;
-on stdcore[2]: out port led2 = XS1_PORT_1I;
+on stdcore[0]: out port led2 = XS1_PORT_1I;
 int led1Status = 1;
-on stdcore[2]: out port led1 = XS1_PORT_1J;
+on stdcore[0]: out port led1 = XS1_PORT_1J;
 
 int is_valid_icmp_packet(const unsigned char rxbuf[], int nbytes)
 {
@@ -254,7 +254,7 @@ int is_valid_icmp_packet(const unsigned char rxbuf[], int nbytes)
 }
 
 
-void demo(chanend c_in, chanend c_out)
+void pingDemo(chanend c_in, chanend c_out)
 {
     unsigned char own_mac_addr[6] = {0,0,12,13,14,15};
   int b[1600];
@@ -295,11 +295,58 @@ void demo(chanend c_in, chanend c_out)
   } 
 }
 
+unsigned char packet[] = {
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  0x80, 0x00, 0, 0,
+    0, 0, 0, 0,   0, 0, 0, 0,   0, 0, 0, 0,   0, 0, 0, 0,
+    0, 0, 0, 0,   0, 0, 0, 0,   0, 0, 0, 0,   0, 0, 0, 0,
+    0, 0, 0, 0,   0, 0, 0, 0,   0, 0, 0, 0,   0, 0, 0, 0,
+    0, 0, 0, 0,   0, 0, 0, 0
+};
+
+
+
+
+void empty(chanend c_in, chanend c_out) {
+    int b[1600];
+    unsigned char rxbuf[1600];
+    unsigned int txbuf[1600];
+    timer t;
+    int now;
+    int delay = 20;
+    int packetLen = 64;
+
+    for(int i = 0; i < 72; i++) {
+        (txbuf, unsigned char[])[i] = packet[i];
+    }
+    printstr("Test started\n");
+    miiBufferInit(c_in, b, 1600);
+    printstr("IN Inited\n");
+    miiOutInit(c_out);
+    printstr("OUT inited\n");
+    
+    while (1) {
+        int nbytes, a;
+        {a,nbytes} = miiInPacket(c_in, b);
+        miiInPacketDone(c_in, a);
+        t :> now;
+        t when timerafter(now + delay) :> void;
+        delay++;
+        miiOutPacket(c_out, (txbuf,int[]), 0, packetLen);
+        printintln(nbytes);
+        packetLen++;
+        if (packetLen == 69) {
+            packetLen = 64;
+        }
+    } 
+}
+
+
 int main() {
     chan c_in, c_out;
     par {
-        on stdcore[2]: mii(c_in, c_out);
-        on stdcore[2]: demo(c_in, c_out);
+        on stdcore[0]: mii(c_in, c_out);
+//        on stdcore[2]: pingDemo(c_in, c_out);
+        on stdcore[0]: empty(c_in, c_out);
     }
 	return 0;
 }
