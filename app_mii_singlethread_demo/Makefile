@@ -2,13 +2,13 @@
 # compiled for. It either refers to an XN file in the source directories
 # or a valid argument for the --target option when compiling.
 
-TARGET = XC-2
+TARGET = XK-1
 
 # The APP_NAME variable determines the name of the final .xe file. It should
 # not include the .xe postfix. If left blank the name will default to 
 # the project name
 
-APP_NAME = app_mii_singlethread_dmeo
+APP_NAME = 
 
 # The flags passed to xcc when building the application
 # You can also set the following to override flags for a particular language:
@@ -18,7 +18,7 @@ APP_NAME = app_mii_singlethread_dmeo
 # If the variable XCC_MAP_FLAGS is set it overrides the flags passed to 
 # xcc for the final link (mapping) stage.
 
-XCC_FLAGS = -g 
+XCC_FLAGS = -g -O2
 
 # The USED_MODULES variable lists other module used by the application. 
 
