@@ -1,5 +1,7 @@
 all: bin/tester
 
+clean: 
+
 test: bin/tester
 	bin/tester "$(TFLAG) ../app_mii_singlethread_demo/bin/Release/app_mii_singlethread_demo.xe"
 
