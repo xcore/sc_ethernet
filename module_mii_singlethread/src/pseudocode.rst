@@ -35,7 +35,7 @@ Interrupt
 
    Read NEXTBUF
    If NOBUF
-      Tell user layer that MII has been stopped
+      Recycle current buffer and return.
    else
       Pass NEXTBUF to MII layer
    Compute CRC and filter etc on lastbuf, and repair data tail //   IN XC from here
@@ -72,9 +72,4 @@ On release:
            Advance FREEPTR
        If USELESS TAIL
            FREEPTR = 0
-    if MII stopped
-      if WR - FREEPTR > 1500 then
-         NEXTBUF = NOBUF;
-      else 
-         NEXTBUF = WR
         
