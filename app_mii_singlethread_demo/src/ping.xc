@@ -17,6 +17,7 @@
 #include <platform.h>
 #include <stdlib.h>
 #include "mii.h"
+#include "miiClient.h"
 
 
 
@@ -302,12 +303,14 @@ unsigned char packet[] = {
     0, 0, 0, 0,   0, 0, 0, 0
 };
 
+    extern int nextBuffer;
 
 void empty(chanend c_in) {
     int b[1600];
     timer t;
     int now;
     int address = 0x1D000;
+    nextBuffer = 0x10000;
 
     miiBufferInit(c_in, b, 1600);
     asm("stw %0, %1[0]" :: "r" (b), "r" (address));
@@ -327,35 +330,36 @@ void emptyOut(chanend c_out) {
     unsigned int txbuf[1600];
     timer t;
     int now;
-    int delay = 701;
+    int delay = 701 * 100;
     int packetLen = 64;
     int address = 0x1D000;
+    int k;
 
     asm("ldw %0, %1[3]" : "=r" (packetLen): "r" (address));
     for(int i = 0; i < 72; i++) {
-        (txbuf, unsigned char[])[i] = packet[i];
+        (txbuf, unsigned char[])[i] = i;
     }
     miiOutInit(c_out);
-    
     
     t :> now;
     while (1) {
         now += delay;
         asm("stw %0, %1[5]" :: "r" (now), "r" (address));
         t when timerafter(now) :> void;
-        txbuf[0] = packetLen;
-        miiOutPacket(c_out, (txbuf,int[]), 0, packetLen - 4);
+        k = miiOutPacket(c_out, (txbuf,int[]), 0, packetLen);
+        miiOutPacketDone(c_out);
+        printintln(k);
     } 
 }
 
 
 void x() {
-    set_thread_fast_mode_on();
+//    set_thread_fast_mode_on();
 }
 
 void burn() {
     x();
-    while(1);
+//    while(1);
 }
 
 int main() {

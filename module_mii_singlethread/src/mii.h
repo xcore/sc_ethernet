@@ -72,13 +72,6 @@ void miiAsycnInPacketDone(int index);
  */
 void miiOutInit(chanend c_out);
 
-/*
- * Transmit a packet, sends length bytes from word index in b.
- * Calls should be spaced by at least 960 ns (to be stuck in the library).
- */
-extern void miiOutPacket(chanend c_out, int b[], int index, int length);
-
-
 
 
 /***************** Thread interface *********************/

@@ -154,9 +154,9 @@ mii_rxLastBits:
     endin r11, res[r0]       // Get number of bits left
     stw   r11, r4[1]         // Save the number of bits left
     in    r11, res[r0]       // Grab them bits
-    stw   r11, r4[2]         // Save the left over 0, 8, 16, or 24 bits.
+    stw   r11, r4[0]         // Save the left over 0, 8, 16, or 24 bits.
     edu   res[r0]
-    stw   r10, r4[0]         // And save CRC
+    stw   r10, r4[2]         // And save CRC
     kret                 // Post condition: res[r0] DIS,  res[r1] DIS,  res[r3] EN
 
     .align 4                 // Pre condition:  res[r0] EN,  res[r1] EN,  res[r3] EN
@@ -203,14 +203,11 @@ stateIdle:
 outIdle:
 
     // Get a pointer to the next packet
-    ldw   r5, sp[OUTchannel]
-    outct res[r5], 1          // Request the next packet
-
-    ldw   r5, sp[OUTchannel]     
-    in    r7, res[r5]          // Read the poointer to the packet
-    in    r8, res[r5]          // And the negative length
-    chkct res[r5], 1           // Gobble up the end packet
-    ldw   r9, cp[initialCRC]
+    ldw   r9, sp[OUTchannel]
+    outct res[r9], 1          // Request the next packet
+    in    r7, res[r9]          // Read the poointer to the packet
+    in    r8, res[r9]          // And the negative length
+    chkct res[r9], 1           // Gobble up the end packet
     
     // Transmitting the preamble
 
@@ -218,6 +215,9 @@ outIdle:
     out   res[r2], r5
     ldw   r5, cp[DallFives]
     out   res[r2], r5
+    getts r5, res[r2]
+    out   res[r9], r5
+    ldw   r9, cp[initialCRC]
     
     // Transmitting the first word of the packet
 

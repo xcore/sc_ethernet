@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
     int packetLength = 72;
     int clock = 0, cnt = 0, even = 0, oldready = 0, startTime = 0;
     int inPacketTX = 0;
-    int nextTXTime = 30000;
+    int nextTXTime = 30000*1000;
     int nibbles = 0;
     int expected = 64;
     int nbytesin = 0;
@@ -40,6 +40,7 @@ int main(int argc, char **argv) {
     ltoh = atoi(argv[3]);
     xsi_write_mem(xsim, "stdcore[0]", 0x1D00C, 4, &ltoh);
     printf("Test %d to host, %d to device\n", ltoh, ltod);
+    printf("NOT TESTING TX TO DEV - CHNAGE NEXTTXTIME TO 30000\n");
     while (status != XSI_STATUS_DONE && time < 6000000) {
         time++;
         if(time % 20 == 3) {
@@ -134,15 +135,17 @@ int main(int argc, char **argv) {
                     unsigned nibble;
                     xsi_sample_port_pins(xsim, "stdcore[0]", "XS1_PORT_4B", 0xF, &nibble);
                     nibbles++;
-//                    printf("%01x", nibble);
+                    printf("%01x", nibble);
                     oldready++;
                     if (oldready >=25 && oldready <=26) {
                         nbytesin = nbytesin >> 4 | nibble << 4;
                     }
                 } else {
                     if (oldready) {
-                        if (nibbles != ltoh*2 + 16) { // 16 nibbles preamble.
+                        if (nibbles != ltoh*2 + 16 + 8) { // 16 nibbles preamble, 8 nibbles CRC.
                             printf("ERROR: received %d nibbles rather than 2*%d + 24\n", nibbles, expected);
+                        } else {
+                            printf("\n");
                         }
                         fflush(stdout);
                         nbytesin = 0;

@@ -1,3 +1,4 @@
+#if 0
 // Copyright (c) 2011, XMOS Ltd, All rights reserved
 // This software is freely distributable under a derivative of the
 // University of Illinois/NCSA Open Source License posted in
@@ -95,3 +96,5 @@ void mii_zero_queue(int even)
 		even_q.full = 0;
 	}
 }
+
+#endif

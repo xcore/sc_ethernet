@@ -219,7 +219,7 @@ void miiBufferInit(chanend c_in, int buffer[], int words) {
             cnt++;
         }
     }
-    miiInstallHandler(c_in);
+    miiInstallHandler(buffer, c_in);
 }
 
 {int,int} miiInPacket(chanend c_in, int buffer[]) {
@@ -233,21 +233,6 @@ void miiInPacketDone(chanend c_in, int buffer) {
 }
 
 void miiOutInit(chanend c_out) {
-    chkct(c_out, 1);
-}
-
-void miiOutPacket(chanend c_out, int b[], int index, int length) {
-    int a, roundedLength;
-    int oddBytes = length & 3;
-
-    asm(" mov %0, %1" : "=r"(a) : "r"(b));
-    
-    roundedLength = length >> 2;
-    b[roundedLength+1] = tailValues[oddBytes];
-    b[roundedLength] &= (1 << (oddBytes << 3)) - 1;
-    outuint(c_out, a + length - oddBytes);
-    outuint(c_out, -roundedLength);
-    outct(c_out, 1);
     chkct(c_out, 1);
 }
 
