@@ -138,8 +138,8 @@ miiLLD:
 mii_rxd:
     in    r11, res[r0]       // Grab word to be loaded.
     stw   r11, r4[0]         // Write data at end of packet
-    add   r4, r4, 4
     crc32 r10, r11, r6       // Update CRC
+    add   r4, r4, 4
     stw   r10, r4[0]         // And save CRC
     kret                 // Post condition: res[r0] EN,  res[r1] EN,  res[r3] EN
 
@@ -147,18 +147,23 @@ mii_rxd:
     // End of packet: grab last few bytes
 mii_rxdv0:
     in    r11, res[r1]       // clear RXDV port
+    out   res[r3], r4        // Output pointer to CRC to input layer
+    edu   res[r1]
+    kret                     // Post condition: res[r0] EN,  res[r1] EN,  res[r3] EN
+
+mii_rxLastBits:   
     endin r11, res[r0]       // Get number of bits left
     stw   r11, r4[1]         // Save the number of bits left
     in    r11, res[r0]       // Grab them bits
     stw   r11, r4[2]         // Save the left over 0, 8, 16, or 24 bits.
-    out   res[r3], r4        // Output pointer to CRC to input layer
-    edu   res[r1]
     edu   res[r0]
     kret                 // Post condition: res[r0] DIS,  res[r1] DIS,  res[r3] EN
 
     .align 4                 // Pre condition:  res[r0] EN,  res[r1] EN,  res[r3] EN
 mii_rxd_packet: 
-    in    r4, res[r3]        // Get pointer address to store data
+    in    r11, res[r3]        // Get pointer address to store data
+    bf    r11, mii_rxLastBits
+    or    r4, r11, r11
     eeu   res[r0]
     setc  res[r0], XS1_SETC_COND_EQ // Trigger on 0xD
     ldap  r11, mii_rxd_preamble // Setup RXD port to jump to right data.
@@ -184,8 +189,16 @@ mii_rxd_preamble:
     // Idle state, wait for a packet
 stateIdle:
     ldw   r5, dp[miiPacketsTransmitted]
-    add   r5, r5, 1
+    add   r5, r5, 1            // Record that we transmitted a packet
     stw   r5, dp[miiPacketsTransmitted]
+
+    ldw   r5, dp[p_mii_fake]    // Create interframe gap
+    getts r7, res[r5]           // Get current count on fake port
+    ldc   r8, 23                // Add 23 (24 nibbles - but we will have lost 40ns)
+    add   r7, r7, r8            // Then set this to the port counter
+    setpt res[r5], r7           // And wait for the port to be ready.
+    in    r7, res[r5]           // This should ensure the gap
+    
     
 outIdle:
 
@@ -203,7 +216,6 @@ outIdle:
 
     ldw   r5, cp[allFives]
     out   res[r2], r5
-    out   res[r2], r5
     ldw   r5, cp[DallFives]
     out   res[r2], r5
     
@@ -214,12 +226,13 @@ outIdle:
     crc32 r9, r5, r6
     out   res[r2], r5
 
+    nop
 outPacket:
     ldw   r5, r7[r8]
     add   r8, r8, 1
     crc32 r9, r5, r6
     out   res[r2], r5
-    bt    r8, outPacket
+    bt    r8, outPacket       // TODO: UNROLL LAST ITERATION, PUT LAST OUT IN TAIL CODE.
 
     ldw   r5, r7[1]
     ldw   r7, r7[0]
@@ -238,8 +251,11 @@ Tail1:
     crc8  r9, r8, r7, r6
     crc32 r9, r8, r6            // NOTE : r8 is zero at this stage.
     not   r9, r9
-    outpw res[r2], r7, 8       // TODO: do a shift, OR, OUT and OUTPW for smooth output
-    out   res[r2], r9        
+    shl   r5, r9, 8
+    or    r7, r7, r5
+    out   res[r2], r7 
+    shr   r9, r9, 24
+    outpw res[r2], r9, 8        
     bu    stateIdle
 
     .align 4
@@ -247,9 +263,14 @@ Tail2:
     crc8  r9, r8, r7, r6
     crc8  r9, r8, r8, r6
     crc32 r9, r8, r6            // NOTE : r8 is zero at this stage.
-    outpw res[r2], r7, 16       // TODO: do a shift, OR, OUT and OUTPW for smooth output
     not   r9, r9
-    out   res[r2], r9        
+
+    shl   r5, r9, 16
+    or    r7, r7, r5
+    out   res[r2], r7 
+    shr   r9, r9, 16
+    outpw res[r2], r9, 16        
+
     bu    stateIdle
 
     .align 4

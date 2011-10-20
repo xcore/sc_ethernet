@@ -52,6 +52,7 @@ unsigned char filterMacAddress[6] = {0,0,0,0,0,0};
 #define PORT_MII_TXEN    XS1_PORT_1L
 #define PORT_MII_TXD     XS1_PORT_4F
 #define PORT_MII_RXER    XS1_PORT_1O
+#define PORT_MII_FAKE    XS1_PORT_8C
 
 #else
 
@@ -65,6 +66,7 @@ unsigned char filterMacAddress[6] = {0,0,0,0,0,0};
 #define PORT_MII_TXEN    XS1_PORT_1D
 #define PORT_MII_TXD     XS1_PORT_4B
 #define PORT_MII_RXER    XS1_PORT_1O
+#define PORT_MII_FAKE    XS1_PORT_8A
 
 #endif
 
@@ -97,6 +99,7 @@ on stdcore[0]: in port p_mii_rxer = PORT_MII_RXER;
 on stdcore[0]: in port p_mii_txclk = PORT_MII_TXCLK;
 on stdcore[0]: buffered out port:32 p_mii_txd = PORT_MII_TXD;
 on stdcore[0]: out port p_mii_txen = PORT_MII_TXEN;
+on stdcore[0]: in port p_mii_fake = PORT_MII_FAKE;
 //on stdcore[0]: out port p_mii_txer = PORT_MII_TXER;
 #ifdef SIMULATION
 on stdcore[0]: out port p_mii_txcsn = XS1_PORT_1C;
@@ -136,12 +139,14 @@ void mii_init()
 
   set_port_use_on(p_mii_txclk);
   set_port_use_on(p_mii_txd);
+  set_port_use_on(p_mii_fake);
   set_port_use_on(p_mii_txen);
   //  set_port_use_on(p_mii_txer);
   set_port_clock(p_mii_txclk, clk_mii_ref);
 #ifndef HENKSIM
   set_port_clock(p_mii_txd, clk_mii_ref);
 #endif
+  set_port_clock(p_mii_fake, clk_mii_ref);
   set_port_clock(p_mii_txen, clk_mii_ref);
 
   set_pad_delay(p_mii_txclk, PAD_DELAY_TRANSMIT);
