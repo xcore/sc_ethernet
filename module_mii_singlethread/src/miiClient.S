@@ -1,3 +1,5 @@
+#if 0
+    
 #include <xs1.h>
 #define ASSEMBLER
 #include "miiClient.h"
@@ -360,3 +362,6 @@ miiReturnBufferToPool:
     stw   r3, dp[systemWr]            // r2 is the userRd index
     setsr IEBLE
     retsp 0
+
+
+#endif
