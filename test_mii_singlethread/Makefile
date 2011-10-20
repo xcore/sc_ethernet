@@ -1,9 +1,15 @@
+ALL=64 65 66 67
+HOST=$(ALL)
+DEV=$(ALL)
+
 all:
 
 clean: 
 
 test: bin/tester
-	bin/tester "$(TFLAG) ../app_mii_singlethread_demo/bin/Release/app_mii_singlethread_demo.xe"
+	for i in $(DEV); do \
+	for j in $(HOST); do \
+	bin/tester "$(TFLAG) ../app_mii_singlethread_demo/bin/Release/app_mii_singlethread_demo.xe" $$i $$j; done; done
 
 bin/tester: src/stimulus.c
 	if [ ! -d bin ]; then mkdir bin; fi

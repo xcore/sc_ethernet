@@ -23,10 +23,24 @@ int main(int argc, char **argv) {
     int packetLength = 72;
     int clock = 0, cnt = 0, even = 0, oldready = 0, startTime = 0;
     int inPacketTX = 0;
-    int nextTXTime = 20000;
+    int nextTXTime = 30000;
+    int nibbles = 0;
+    int expected = 64;
+    int nbytesin = 0;
     XsiStatus status = xsi_create(&xsim, argv[1]);
+    int ltod;
+    int ltoh;
+    int first = 1;
     assert(status == XSI_STATUS_OK);
-    while (status != XSI_STATUS_DONE && time < 1000000) {
+    if (argc != 4) {
+        printf("Usage %s SimArgs toDeviceLen toHostLen (%d)\n", argv[0], argc);
+        exit(0);
+    }
+    ltod = atoi(argv[2]);
+    ltoh = atoi(argv[3]);
+    xsi_write_mem(xsim, "stdcore[0]", 0x1D00C, 4, &ltoh);
+    printf("Test %d to host, %d to device\n", ltoh, ltod);
+    while (status != XSI_STATUS_DONE && time < 6000000) {
         time++;
         if(time % 20 == 3) {
             clock = !clock;
@@ -36,21 +50,21 @@ int main(int argc, char **argv) {
                     inPacketTX = 1;
                     nextTXTime += 7000;
                     cnt = 0;
-                    switch(packetLength) {
-                    case 72:
+                    switch(ltod) {
+                    case 64:
                         packet[60+8] = 0x94;
                         packet[61+8] = 0x53;
                         packet[62+8] = 0x18;
                         packet[63+8] = 0x39;
                         break;
-                    case 73:
+                    case 65:
                         packet[60+8] = 0x00;
                         packet[61+8] = 0x83;
                         packet[62+8] = 0xa0;
                         packet[63+8] = 0x59;
                         packet[64+8] = 0x25;
                         break;
-                    case 74:
+                    case 66:
                         packet[60+8] = 0x00;
                         packet[61+8] = 0x00;
                         packet[62+8] = 0xB7;
@@ -58,7 +72,7 @@ int main(int argc, char **argv) {
                         packet[64+8] = 0x96;
                         packet[65+8] = 0xA6;
                         break;
-                    case 75:
+                    case 67:
                         packet[60+8] = 0x00;
                         packet[61+8] = 0x00;
                         packet[62+8] = 0x00;
@@ -67,17 +81,8 @@ int main(int argc, char **argv) {
                         packet[65+8] = 0xA1;
                         packet[66+8] = 0x87;
                         break;
-                    case 76:
-                        packet[60+8] = 0x00;
-                        packet[61+8] = 0x00;
-                        packet[62+8] = 0x00;
-                        packet[63+8] = 0x00;
-                        packet[64+8] = 0x57;
-                        packet[65+8] = 0x29;
-                        packet[66+8] = 0x82;
-                        packet[67+8] = 0xA0;
-                        break;
                     }
+                    packetLength = ltod + 8;
                 }
                 if (inPacketTX) {
                     if (cnt < packetLength) {
@@ -89,6 +94,24 @@ int main(int argc, char **argv) {
                                             even ? packet[cnt] >> 4 : packet[cnt]);
                         if (even) {
                             cnt++;
+                            if (cnt == 40) {
+                                unsigned ptr, index, len, rdt, wrt;
+                                xsi_read_mem(xsim, "stdcore[0]", 0x1D000, 4, &ptr);
+                                xsi_read_mem(xsim, "stdcore[0]", 0x1D004, 4, &index);
+                                xsi_read_mem(xsim, "stdcore[0]", 0x1D008, 4, &len);
+                                ptr += index;
+                                if (len != ltod) {
+                                    if (!first) {
+                                        printf("ERROR: %08x %d\n", ptr, len);
+                                    }
+                                }
+                                first = 0;
+                                len = 0;
+                                xsi_write_mem(xsim, "stdcore[0]", 0x1D008, 4, &len);
+                                xsi_read_mem(xsim, "stdcore[0]", 0x1D010, 4, &rdt);
+                                xsi_read_mem(xsim, "stdcore[0]", 0x1D014, 4, &wrt);
+//                                printf("Diff %d  %d\n", wrt-rdt, rdt*10 - time);
+                            }
                         }
                         even = !even;
                     } else {
@@ -109,14 +132,21 @@ int main(int argc, char **argv) {
                 xsi_sample_port_pins(xsim, "stdcore[0]", "XS1_PORT_1D", 1, &ready);
                 if (ready) {
                     unsigned nibble;
-                    if (!oldready) {
-                        oldready = 1;
-                    }
                     xsi_sample_port_pins(xsim, "stdcore[0]", "XS1_PORT_4B", 0xF, &nibble);
-                    printf("%01x", nibble);
+                    nibbles++;
+//                    printf("%01x", nibble);
+                    oldready++;
+                    if (oldready >=25 && oldready <=26) {
+                        nbytesin = nbytesin >> 4 | nibble << 4;
+                    }
                 } else {
                     if (oldready) {
-                        printf("\n", time);
+                        if (nibbles != ltoh*2 + 16) { // 16 nibbles preamble.
+                            printf("ERROR: received %d nibbles rather than 2*%d + 24\n", nibbles, expected);
+                        }
+                        fflush(stdout);
+                        nbytesin = 0;
+                        nibbles = 0;
                         oldready = 0;
                     }
                 }
