@@ -38,7 +38,7 @@ blockingChannel:
 bufferAddress:
     .space 4
 kernelStack:
-    .space KERNEL_STACK_SAVE * 4 + miiClientUser.nstackwords
+    .space KERNEL_STACK_SAVE * 4 + 128 // TODO: miiClientUser.nstackwords
 kernelStackEnd:
     .space 4
     .text
@@ -97,7 +97,7 @@ miiInterruptHandler:
     nop
 
     ldw    r0, dp[packetInLLD]
-    ldw    r3, dp[NEXTBUFFER]
+    ldw    r3, dp[nextBuffer]
 
     add    r11, r3, 1
     bt     r11, buffersAvailable

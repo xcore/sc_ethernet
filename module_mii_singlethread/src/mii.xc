@@ -224,12 +224,12 @@ void miiBufferInit(chanend c_in, int buffer[], int words) {
 
 {int,int} miiInPacket(chanend c_in, int buffer[]) {
     int a, b;
-    {a,b} =miiReceiveBuffer(1);
+//    {a,b} =miiReceiveBuffer(1); TODO
     return {(a-globalOffset)>>2,b};
 }
 
 void miiInPacketDone(chanend c_in, int buffer) {
-    miiReturnBufferToPool(buffer*4+globalOffset);
+//     miiReturnBufferToPool(buffer*4+globalOffset); TODO
 }
 
 void miiOutInit(chanend c_out) {
