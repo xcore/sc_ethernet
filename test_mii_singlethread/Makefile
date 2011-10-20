@@ -2,7 +2,9 @@ ALL=64 65 66 67
 HOST=$(ALL)
 DEV=$(ALL)
 
-all: bin/tester
+all:
+
+clean: 
 
 test: bin/tester
 	for i in $(DEV); do \
