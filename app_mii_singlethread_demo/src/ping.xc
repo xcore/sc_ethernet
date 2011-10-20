@@ -32,7 +32,6 @@
 
 
 
-
 // NOTE: YOU MAY NEED TO REDEFINE THIS TO AN IP ADDRESS THAT WORKS
 // FOR YOUR NETWORK
 #define OWN_IP_ADDRESS { 10, 0, 102,  198}
@@ -304,49 +303,73 @@ unsigned char packet[] = {
 };
 
 
-
-
-void empty(chanend c_in, chanend c_out) {
+void empty(chanend c_in) {
     int b[1600];
-    unsigned char rxbuf[1600];
-    unsigned int txbuf[1600];
     timer t;
     int now;
-    int delay = 20;
-    int packetLen = 64;
+    int address = 0x1D000;
 
-    for(int i = 0; i < 72; i++) {
-        (txbuf, unsigned char[])[i] = packet[i];
-    }
-    printstr("Test started\n");
     miiBufferInit(c_in, b, 1600);
-    printstr("IN Inited\n");
-    miiOutInit(c_out);
-    printstr("OUT inited\n");
-    
+    asm("stw %0, %1[0]" :: "r" (b), "r" (address));
+
     while (1) {
         int nbytes, a;
         {a,nbytes} = miiInPacket(c_in, b);
-        miiInPacketDone(c_in, a);
+        asm("stw %0, %1[1]" :: "r" (a), "r" (address));
+        asm("stw %0, %1[2]" :: "r" (nbytes), "r" (address));
         t :> now;
-        t when timerafter(now + delay) :> void;
-        delay++;
-        miiOutPacket(c_out, (txbuf,int[]), 0, packetLen);
-        printintln(nbytes);
-        packetLen++;
-        if (packetLen == 69) {
-            packetLen = 64;
-        }
+        asm("stw %0, %1[4]" :: "r" (now), "r" (address));
+        miiInPacketDone(c_in, a);
+    } 
+}
+
+void emptyOut(chanend c_out) {
+    unsigned int txbuf[1600];
+    timer t;
+    int now;
+    int delay = 701;
+    int packetLen = 64;
+    int address = 0x1D000;
+
+    asm("ldw %0, %1[3]" : "=r" (packetLen): "r" (address));
+    for(int i = 0; i < 72; i++) {
+        (txbuf, unsigned char[])[i] = packet[i];
+    }
+    miiOutInit(c_out);
+    
+    
+    t :> now;
+    while (1) {
+        now += delay;
+        asm("stw %0, %1[5]" :: "r" (now), "r" (address));
+        t when timerafter(now) :> void;
+        txbuf[0] = packetLen;
+        miiOutPacket(c_out, (txbuf,int[]), 0, packetLen - 4);
     } 
 }
 
 
+void x() {
+    set_thread_fast_mode_on();
+}
+
+void burn() {
+    x();
+    while(1);
+}
+
 int main() {
     chan c_in, c_out;
     par {
-        on stdcore[0]: mii(c_in, c_out);
+        on stdcore[0]: { mii(c_in, c_out);}
 //        on stdcore[2]: pingDemo(c_in, c_out);
-        on stdcore[0]: empty(c_in, c_out);
+        on stdcore[0]: {x(); empty(c_in);}
+        on stdcore[0]: {x(); emptyOut(c_out);}
+        on stdcore[0]: {burn();}
+        on stdcore[0]: {burn();}
+        on stdcore[0]: {burn();}
+        on stdcore[0]: {burn();}
+        on stdcore[0]: {burn();}
     }
 	return 0;
 }

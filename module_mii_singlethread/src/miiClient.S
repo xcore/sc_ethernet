@@ -112,7 +112,20 @@ miiInterruptHandler:
     ldw    r0, dp[interruptChannelEnd]
     in     r1, res[r0]               // Watch out: the number of instructions between in and out should be
                                      // no less than 10, no more than 40.
-    stw    r2, sp[3] 
+    stw    r2, sp[3]
+    
+    nop
+    nop
+    nop
+    
+    ldc    r2, 0   
+    out    res[r0], r2
+
+    nop
+    nop
+    nop
+    nop
+
     stw    r3, sp[4] 
     stw    r4, sp[5] 
     stw    r5, sp[6] 
@@ -166,20 +179,17 @@ buffersAvailable:
     sub    r3, r3, 1
     bf     r3, tail16
 tail24:
-    sub    r1, r1, 4
     shr    r4, r4, 8
     crc8   r0, r4, r4, r5
     crc8   r0, r4, r4, r5
     crc8   r0, r4, r4, r5
     bu     tail0
 tail16:
-    sub    r1, r1, 4
     shr    r4, r4, 16
     crc8   r0, r4, r4, r5
     crc8   r0, r4, r4, r5
     bu     tail0
 tail8:
-    sub    r1, r1, 4
     shr    r4, r4, 24
     crc8   r0, r4, r4, r5
 tail0:  
