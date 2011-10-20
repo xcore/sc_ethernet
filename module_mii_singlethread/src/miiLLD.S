@@ -140,7 +140,6 @@ mii_rxd:
     stw   r11, r4[0]         // Write data at end of packet
     crc32 r10, r11, r6       // Update CRC
     add   r4, r4, 4
-    stw   r10, r4[0]         // And save CRC
     kret                 // Post condition: res[r0] EN,  res[r1] EN,  res[r3] EN
 
     .align 4                 // Pre condition:  res[r0] EN,  res[r1] EN,  res[r3] EN
@@ -157,6 +156,7 @@ mii_rxLastBits:
     in    r11, res[r0]       // Grab them bits
     stw   r11, r4[2]         // Save the left over 0, 8, 16, or 24 bits.
     edu   res[r0]
+    stw   r10, r4[0]         // And save CRC
     kret                 // Post condition: res[r0] DIS,  res[r1] DIS,  res[r3] EN
 
     .align 4                 // Pre condition:  res[r0] EN,  res[r1] EN,  res[r3] EN
