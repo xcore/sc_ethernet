@@ -18,12 +18,14 @@ unsigned char packet[] = {
     0, 0, 0, 0
 };
 
+int verbose = 0;
+
 int main(int argc, char **argv) {
     unsigned int time = 0;
     int packetLength = 72;
     int clock = 0, cnt = 0, even = 0, oldready = 0, startTime = 0;
     int inPacketTX = 0;
-    int nextTXTime = 30000*1000;
+    int nextTXTime = 30000;
     int nibbles = 0;
     int expected = 64;
     int nbytesin = 0;
@@ -40,7 +42,7 @@ int main(int argc, char **argv) {
     ltoh = atoi(argv[3]);
     xsi_write_mem(xsim, "stdcore[0]", 0x1D00C, 4, &ltoh);
     printf("Test %d to host, %d to device\n", ltoh, ltod);
-    printf("NOT TESTING TX TO DEV - CHNAGE NEXTTXTIME TO 30000\n");
+  //  printf("NOT TESTING TX TO DEV - CHNAGE NEXTTXTIME TO 30000\n");
     while (status != XSI_STATUS_DONE && time < 6000000) {
         time++;
         if(time % 20 == 3) {
@@ -105,13 +107,19 @@ int main(int argc, char **argv) {
                                     if (!first) {
                                         printf("ERROR: %08x %d\n", ptr, len);
                                     }
+                                } else {
+                                    if (verbose) {
+                                        printf("IN seen %d at %08x\n", len, ptr);
+                                    }
                                 }
                                 first = 0;
                                 len = 0;
                                 xsi_write_mem(xsim, "stdcore[0]", 0x1D008, 4, &len);
                                 xsi_read_mem(xsim, "stdcore[0]", 0x1D010, 4, &rdt);
                                 xsi_read_mem(xsim, "stdcore[0]", 0x1D014, 4, &wrt);
-//                                printf("Diff %d  %d\n", wrt-rdt, rdt*10 - time);
+                                if (verbose) {
+                                    printf("Diff %d  %d\n", wrt-rdt, rdt*10 - time);
+                                }
                             }
                         }
                         even = !even;
@@ -135,7 +143,7 @@ int main(int argc, char **argv) {
                     unsigned nibble;
                     xsi_sample_port_pins(xsim, "stdcore[0]", "XS1_PORT_4B", 0xF, &nibble);
                     nibbles++;
-                    printf("%01x", nibble);
+                    if (verbose) printf("%01x", nibble);
                     oldready++;
                     if (oldready >=25 && oldready <=26) {
                         nbytesin = nbytesin >> 4 | nibble << 4;
@@ -145,7 +153,7 @@ int main(int argc, char **argv) {
                         if (nibbles != ltoh*2 + 16 + 8) { // 16 nibbles preamble, 8 nibbles CRC.
                             printf("ERROR: received %d nibbles rather than 2*%d + 24\n", nibbles, expected);
                         } else {
-                            printf("\n");
+                            if (verbose) printf("\n");
                         }
                         fflush(stdout);
                         nbytesin = 0;

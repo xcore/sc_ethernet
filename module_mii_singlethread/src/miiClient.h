@@ -1,14 +1,39 @@
-#define USER_BUFFER_SIZE_BITS      4
-#define SYSTEM_BUFFER_SIZE_BITS    4
-
-#define USER_BUFFER_SIZE           (1<<USER_BUFFER_SIZE_BITS)
-#define SYSTEM_BUFFER_SIZE         (1<<SYSTEM_BUFFER_SIZE_BITS)
-
-#ifndef ASSEMBLER
-extern void miiTBufferInit(chanend c_in, int buffer[], int words, int doFilter);
 extern void miiInstallHandler(int buffer[], chanend miiChannel);
-{int,int} miiReceiveBuffer(int block);
-extern void miiReturnBufferToPool(int bufferAddress);
+
+
+
+
+/************ Input interface ***************/
+/*
+ * Inform the library of the buffer space to be used. A single array of the given number
+ * of words shall be used to receive packets into.
+ */
+extern void miiBufferInit(chanend c_in, int buffer[], int words);
+
+/*
+ * Blocks and waits for a packet. If called no more than 6 us after a packet is received,
+ * then no packets will be lost. Packet filtering must be implemented by the caller.
+ * It returns the index in the buffer and the number of bytes.
+ */
+{int,int} miiInPacket(chanend c_in, int buffer[]);
+
+/*
+ * Informs the input layer that the packet has been processed and that the buffer can be reused.
+ * The index should be the number returned by miiInPacket
+ */
+extern void miiInPacketDone(chanend c_in, int index);
+
+
+
+
+
+/** Function that initialises the transmitter of output packets. To be
+ * called with the channel end that is connected to the MII Low-Level
+ * Driver.
+ *
+ * \param cOut   output channel to the Low-Level Driver.
+ */
+void miiOutInit(chanend cOut);
 
 /** Function that will cause a packet to be transmitted. It must get an
  * array with an index into the array, a length of hte packet (in bytes),
@@ -45,5 +70,3 @@ int miiOutPacket(chanend cOut, int buf[], int index, int length);
  * \param cOut   output channel to the Low-Level Driver.
  */
 select miiOutPacketDone(chanend cOut);
-
-#endif

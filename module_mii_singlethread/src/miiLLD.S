@@ -232,16 +232,22 @@ outPacket:
     add   r8, r8, 1
     crc32 r9, r5, r6
     out   res[r2], r5
-    bt    r8, outPacket       // TODO: UNROLL LAST ITERATION, PUT LAST OUT IN TAIL CODE.
+    bt    r8, outPacket
 
-    ldw   r5, r7[1]
-    ldw   r7, r7[0]
+    ldw   r8, r7[r8]
+    crc32 r9, r8, r6
+
+    
+    ldw   r5, r7[2]
+    ldw   r7, r7[1]
+    out   res[r2], r8
     // Transmitting the tail of a packet
     bau   r5          // This will jump to r5
 
     .align 4
-Tail0:  
-    crc32 r9, r8, r6            // NOTE : r8 is zero, becasue the outPacket loop ended
+Tail0:
+    ldc   r8, 0
+    crc32 r9, r8, r6
     not   r9, r9
     out   res[r2], r9        
     bu    stateIdle

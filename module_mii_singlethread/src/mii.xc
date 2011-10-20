@@ -30,9 +30,6 @@
 
 #include "miiClient.h"
 
-int systemBuffers[SYSTEM_BUFFER_SIZE]; // Communicate between mii HW thread and mii Interrupt routine.
-int userBuffers[USER_BUFFER_SIZE]; // Communicate between mii Interrupt routine and IP stack
-int userBufferLengths[USER_BUFFER_SIZE]; // Communicate between mii Interrupt routine and IP stack
 int globalOffset;
 
 int enableMacFilter = 0;
@@ -231,15 +228,3 @@ void miiBufferInit(chanend c_in, int buffer[], int words) {
 void miiInPacketDone(chanend c_in, int buffer) {
 //     miiReturnBufferToPool(buffer*4+globalOffset); TODO
 }
-
-void miiOutInit(chanend c_out) {
-    chkct(c_out, 1);
-}
-
-extern void mii(chanend c_in, chanend c_out) {
-    mii_init();
-//    smi_init();
-//    smi_config(1);
-    miiLLD(p_mii_rxd, p_mii_rxdv, p_mii_txd, c_in, c_out);
-}
-

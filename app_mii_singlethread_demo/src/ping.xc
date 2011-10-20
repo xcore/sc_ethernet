@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include "mii.h"
 #include "miiClient.h"
+#include "miiDriver.h"
 
 
 
@@ -318,11 +319,12 @@ void empty(chanend c_in) {
     while (1) {
         int nbytes, a;
         {a,nbytes} = miiInPacket(c_in, b);
-        asm("stw %0, %1[1]" :: "r" (a), "r" (address));
-        asm("stw %0, %1[2]" :: "r" (nbytes), "r" (address));
+//        asm("stw %0, %1[1]" :: "r" (a), "r" (address));
+//        asm("stw %0, %1[2]" :: "r" (nbytes), "r" (address));
         t :> now;
         asm("stw %0, %1[4]" :: "r" (now), "r" (address));
         miiInPacketDone(c_in, a);
+        nextBuffer ^= 0x80;
     } 
 }
 
@@ -330,7 +332,7 @@ void emptyOut(chanend c_out) {
     unsigned int txbuf[1600];
     timer t;
     int now;
-    int delay = 701 * 100;
+    int delay = 701;
     int packetLen = 64;
     int address = 0x1D000;
     int k;
@@ -348,24 +350,23 @@ void emptyOut(chanend c_out) {
         t when timerafter(now) :> void;
         k = miiOutPacket(c_out, (txbuf,int[]), 0, packetLen);
         miiOutPacketDone(c_out);
-        printintln(k);
     } 
 }
 
 
 void x() {
-//    set_thread_fast_mode_on();
+    set_thread_fast_mode_on();
 }
 
 void burn() {
     x();
-//    while(1);
+    while(1);
 }
 
 int main() {
     chan c_in, c_out;
     par {
-        on stdcore[0]: { mii(c_in, c_out);}
+        on stdcore[0]: { miiDriver(c_in, c_out);}
 //        on stdcore[2]: pingDemo(c_in, c_out);
         on stdcore[0]: {x(); empty(c_in);}
         on stdcore[0]: {x(); emptyOut(c_out);}

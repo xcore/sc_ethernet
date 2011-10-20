@@ -1,6 +1,4 @@
 #include <xs1.h>
-#define ASSEMBLER
-#include "miiClient.h"
 
 #define EEBLE XS1_SR_EEBLE_MASK
 #define IEBLE XS1_SR_IEBLE_MASK
@@ -82,11 +80,15 @@ miiInterruptHandler:
     
     stw    r3, sp[4] 
     stw    r11, sp[5] 
-    nop
+    stw    lr, sp[6]
     
     ldc    r0, 0   
     out    res[r2], r0
 
+    nop
+    nop
+    nop
+    nop
     nop
     nop
     nop
@@ -116,7 +118,7 @@ returnFromInterrupt:
     ldw    r2, sp[3] 
     ldw    r3, sp[4] 
     ldw    r11, sp[5] 
-    ldw    r5, sp[6] 
+    ldw    lr, sp[6]
     krestsp KERNEL_STACK_SAVE
     
     kret

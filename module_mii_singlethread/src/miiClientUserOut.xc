@@ -11,8 +11,8 @@ int miiOutPacket(chanend c_out, int b[], int index, int length) {
     roundedLength = length >> 2;
     b[roundedLength+1] = tailValues[oddBytes];
     b[roundedLength] &= (1 << (oddBytes << 3)) - 1;
-    outuint(c_out, a + length - oddBytes);
-    outuint(c_out, -roundedLength);
+    outuint(c_out, a + length - oddBytes - 4);
+    outuint(c_out, -roundedLength + 1);
     outct(c_out, 1);
     return inuint(c_out);
 }
@@ -20,4 +20,8 @@ int miiOutPacket(chanend c_out, int b[], int index, int length) {
 select miiOutPacketDone(chanend c_out) {
 case chkct(c_out, 1):
     break;
+}
+
+void miiOutInit(chanend c_out) {
+    chkct(c_out, 1);
 }

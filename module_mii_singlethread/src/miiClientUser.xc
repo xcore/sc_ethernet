@@ -44,6 +44,11 @@ static int CRCBad(int base, int end) {
 
 static int packetGood(int base, int end) {
     int length = CRCBad(base, end);
+    int address = 0x1D000;
+
+    asm("stw %0, %1[1]" :: "r" (base), "r" (address));
+    asm("stw %0, %1[2]" :: "r" (length), "r" (address));
+
     if (length == 0) {
         miiPacketsCRCError++;
         return 0;
