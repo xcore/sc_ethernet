@@ -226,7 +226,6 @@ outIdle:
     crc32 r9, r5, r6
     out   res[r2], r5
 
-    nop
 outPacket:
     ldw   r5, r7[r8]
     add   r8, r8, 1
