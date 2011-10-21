@@ -18,7 +18,7 @@ unsigned char packet[] = {
     0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F,
 };
 
-int verbose = 1;
+int verbose = 0;
 
 int ltod;
 int ltoh;
@@ -31,9 +31,9 @@ char triggerBefore[MT], triggerAfter[MT];
 
 int setTriggers() {
     int i;
-    int step = 32;
+    int step = 1;
     if (step != 1) {
-        printf("Warning only doing 1 in every %d steps for schmoo\n", step);
+        printf("Warning only doing 1 in every %d steps for shmoo\n", step);
     }
     for(i = ltoh*8 + 64; i >= ltoh*8 - 64; i-=step) {  // Make tail of Tx collide with head of Rx
         triggerBefore[i] = 1;
