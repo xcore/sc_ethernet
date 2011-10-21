@@ -31,9 +31,9 @@ char triggerBefore[MT], triggerAfter[MT];
 
 int setTriggers() {
     int i;
-    int step = 1;
+    int step = 16;
     if (step != 1) {
-        printf("Warning only doing 1 in every %d steps for shmoo\n", step);
+        fprintf(stderr, "Warning only doing 1 in every %d steps for shmoo\n", step);
     }
     for(i = ltoh*8 + 64; i >= ltoh*8 - 64; i-=step) {  // Make tail of Tx collide with head of Rx
         triggerBefore[i] = 1;
@@ -89,11 +89,10 @@ int main(int argc, char **argv) {
     int nibbles = 0;
     int expected = 64;
     int nbytesin = 0;
-    XsiStatus status = xsi_create(&xsim, argv[1]);
+    XsiStatus status;
     int first = 1;
     int pinLowTime = -1;
     int outputRequired = 0, inputRequired = 0;
-    assert(status == XSI_STATUS_OK);
     if (argc != 4) {
         printf("Usage %s SimArgs toDeviceLen toHostLen (%d)\n", argv[0], argc);
         exit(0);
@@ -101,6 +100,11 @@ int main(int argc, char **argv) {
     ltod = atoi(argv[2]);
     ltoh = atoi(argv[3]);
     setTriggers();
+    fprintf(stdout, "@0LINES %d %d\n", cycleTime/10, triggerCnt);
+    fprintf(stdout, "@0FILE images/blah_%d_%d.ppm\n", ltod, ltoh);
+    fflush(stdout);
+    status = xsi_create(&xsim, argv[1]);
+    assert(status == XSI_STATUS_OK);
     xsi_write_mem(xsim, "stdcore[0]", 0x1D00C, 4, &ltoh);
     printf("Test %d to host, %d to device\n", ltoh, ltod);
     while (status != XSI_STATUS_DONE) {
@@ -113,7 +117,7 @@ int main(int argc, char **argv) {
             cycleStart += cycleTime;
             outputRequired = 1; // TODO
             inputRequired = 1;
-            printf("%3d\r", triggerCnt);
+            fprintf(stderr, "%3d\r", triggerCnt);
         }
         if (outputRequired) {
             if (triggerOutput(time, nextTXTime)) {

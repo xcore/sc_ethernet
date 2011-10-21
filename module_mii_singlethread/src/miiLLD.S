@@ -150,7 +150,8 @@ mii_rxdv0:
     edu   res[r1]
     kret                     // Post condition: res[r0] EN,  res[r1] EN,  res[r3] EN
 
-mii_rxLastBits:   
+    .align 4                 // Pre condition:  res[r0] EN,  res[r1] EN,  res[r3] EN
+mii_rxLastBits:              // Jumped to from mii_rxd_packet - not an entry point.
     endin r11, res[r0]       // Get number of bits left
     stw   r11, r4[1]         // Save the number of bits left
     in    r11, res[r0]       // Grab them bits
@@ -226,6 +227,7 @@ outIdle:
     crc32 r9, r5, r6
     out   res[r2], r5
 
+    nop
 outPacket:
     ldw   r5, r7[r8]
     add   r8, r8, 1
