@@ -328,6 +328,8 @@ void empty(chanend c_in) {
     } 
 }
 
+on stdcore[0]: port p1k = XS1_PORT_1K;
+
 void emptyOut(chanend c_out) {
     unsigned int txbuf[1600];
     timer t;
@@ -345,9 +347,7 @@ void emptyOut(chanend c_out) {
     
     t :> now;
     while (1) {
-        now += delay;
-        asm("stw %0, %1[5]" :: "r" (now), "r" (address));
-        t when timerafter(now) :> void;
+        p1k when pinsneq(0) :> void;
         k = miiOutPacket(c_out, (txbuf,int[]), 0, packetLen);
         miiOutPacketDone(c_out);
     } 

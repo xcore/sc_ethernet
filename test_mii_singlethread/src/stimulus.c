@@ -20,19 +20,77 @@ unsigned char packet[] = {
 
 int verbose = 0;
 
+int ltod;
+int ltoh;
+int triggerCnt = 0;
+int allTriggersDone = 0;
+
+char triggerBefore[800], triggerAfter[800];
+
+int setTriggers() {
+    int i;
+    int step = 1;
+    if (step != 1) {
+        printf("Warning only doing 1 in every %d steps for schmoo\n", step);
+    }
+    for(i = ltoh*8 + 64; i >= ltoh*8 - 64; i-=step) {  // Make tail of Tx collide with head of Rx
+        triggerBefore[i] = 1;
+        triggerCnt++;
+    }
+    for(i = 128; i > 0; i-=step) {                    // Make head of Tx collide with head of Rx
+        triggerBefore[i] = 1;
+        triggerCnt++;
+    }
+    for(i = 0; i <= 128; i+=step) {                   // And tail with tail
+        triggerAfter[i] = 1;
+        triggerCnt++;
+    }
+    for(i = ltod*8 - 96; i <= ltoh*8 + 64 ; i+=step) { // and head with tail.
+        triggerAfter[i] = 1;
+        triggerCnt++;
+    }
+}
+
+int triggerOutput(int time, int nextTXTime) {    
+    int ticksAfter = time - nextTXTime;
+    ticksAfter /= 10;
+    if (ticksAfter < 0) {
+        ticksAfter = -ticksAfter;
+        if (triggerBefore[ticksAfter]) {
+            if (verbose) printf("Before: %d\n", ticksAfter);
+            triggerBefore[ticksAfter] = 0;
+            triggerCnt--;
+            return 1;
+        }
+    } else {
+        if (triggerAfter[ticksAfter]) {
+            if (verbose) printf("After: %d\n", ticksAfter);
+            triggerAfter[ticksAfter] = 0;
+            triggerCnt--;
+            if (triggerCnt == 0) {
+                allTriggersDone = 1;
+            }
+            return 1;
+        }
+    }
+    return 0;
+}
+
 int main(int argc, char **argv) {
     unsigned int time = 0;
     int packetLength = 72;
     int clock = 0, cnt = 0, even = 0, oldready = 0, startTime = 0;
     int inPacketTX = 0;
-    int nextTXTime = 30000;
+    int cycleStart = 60000;
+    int cycleTime = 13000;  // Do an IN and trigger an OUT each time this cycle
+    int nextTXTime;
     int nibbles = 0;
     int expected = 64;
     int nbytesin = 0;
     XsiStatus status = xsi_create(&xsim, argv[1]);
-    int ltod;
-    int ltoh;
     int first = 1;
+    int pinLowTime = -1;
+    int outputRequired = 0, inputRequired = 0;
     assert(status == XSI_STATUS_OK);
     if (argc != 4) {
         printf("Usage %s SimArgs toDeviceLen toHostLen (%d)\n", argv[0], argc);
@@ -40,18 +98,41 @@ int main(int argc, char **argv) {
     }
     ltod = atoi(argv[2]);
     ltoh = atoi(argv[3]);
+    setTriggers();
     xsi_write_mem(xsim, "stdcore[0]", 0x1D00C, 4, &ltoh);
     printf("Test %d to host, %d to device\n", ltoh, ltod);
-  //  printf("NOT TESTING TX TO DEV - CHNAGE NEXTTXTIME TO 30000\n");
-    while (status != XSI_STATUS_DONE && time < 6000000) {
+    while (status != XSI_STATUS_DONE) {
         time++;
+        if (time == cycleStart) {
+            if (allTriggersDone) {
+                break;
+            }
+            nextTXTime = time + cycleTime / 2;
+            cycleStart += cycleTime;
+            outputRequired = 1;
+            inputRequired = 1;
+            printf("%3d\r", triggerCnt);
+        }
+        if (outputRequired) {
+            if (triggerOutput(time, nextTXTime)) {
+                xsi_drive_port_pins(xsim, "stdcore[0]", "XS1_PORT_1K", 1, 1);
+                pinLowTime = time + 1000;
+                outputRequired = 0;
+                if (verbose) printf("Trigger OUT at %d\n", time);
+            }
+        }
+        if (time == pinLowTime) {
+            xsi_drive_port_pins(xsim, "stdcore[0]", "XS1_PORT_1K", 1, 0);            
+            if (verbose) printf("UNTrigger OUT at %d\n", time);
+        }
         if(time % 20 == 3) {
             clock = !clock;
             xsi_drive_port_pins(xsim, "stdcore[0]", "XS1_PORT_1A", 1, clock);
             if (clock == 1)  {
-                if (time > nextTXTime) {
+                if (inputRequired && time >= nextTXTime) {
+                    if (verbose) printf("Trigger IN at %d\n", time);
+                    inputRequired = 0;
                     inPacketTX = 1;
-                    nextTXTime += 7000;
                     cnt = 0;
                     switch(ltod) {
                     case 64:

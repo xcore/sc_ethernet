@@ -194,7 +194,7 @@ stateIdle:
 
     ldw   r5, dp[p_mii_fake]    // Create interframe gap
     getts r7, res[r5]           // Get current count on fake port
-    ldc   r8, 23                // Add 23 (24 nibbles - but we will have lost 40ns)
+    ldc   r8, 90                // Add 90 (960 ns nibbles - but we will have lost 60ns)
     add   r7, r7, r8            // Then set this to the port counter
     setpt res[r5], r7           // And wait for the port to be ready.
     in    r7, res[r5]           // This should ensure the gap
