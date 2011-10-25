@@ -1,5 +1,5 @@
 SPHINX_PROJECT_NAME=Ethernet Component
-VERSION=1v4
+VERSION=2.0.0
 DOXYGEN_DIRS=../../sc_ethernet/module_ethernet
 SOURCE_INCLUDE_DIRS=../../sc_ethernet
 XDOC_DIR ?= ../../xdoc
