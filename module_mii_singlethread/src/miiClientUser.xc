@@ -155,21 +155,22 @@ case inuchar_byref(notificationChannel, notifySeen):
 static int readBank = 0;
 
 {int, int} miiGetInBuffer() {
+    int nBytes;
     for(int i = 0; i < 2; i++) {
-        int nbytes = get(readPtr[readBank]);
-        if (nbytes == 0) {
+        readBank = !readBank;
+        nBytes = get(readPtr[readBank]);
+        if (nBytes == 0) {
             readPtr[readBank] = firstPtr[readBank];
-            nbytes = get(readPtr[readBank]);
+            nBytes = get(readPtr[readBank]);
         }
-        if (nbytes != 1) {
+        if (nBytes != 1) {
             int retVal = readPtr[readBank] + 4;
-            readPtr[readBank] += ((nbytes + 3) & ~3) + 4;
+            readPtr[readBank] += ((nBytes + 3) & ~3) + 4;
             if (get(readPtr[readBank]) == 0) {
                 readPtr[readBank] = firstPtr[readBank];
             }
-            return {retVal, nbytes};
+            return {retVal, nBytes};
         }
-        readBank = !readBank;
     }
     return {0, 0};
 }
