@@ -1,34 +1,62 @@
-extern void miiInstallHandler(int bufferAddr,
-                              chanend miiChannel,
-                              chanend notificationChannel);
+// Copyright (c) 2011, XMOS Ltd, All rights reserved
+// This software is freely distributable under a derivative of the
+// University of Illinois/NCSA Open Source License posted in
+// LICENSE.txt and at <http://github.xcore.com/>
 
-
-
-
-/************ Input interface ***************/
-/*
- * Inform the library of the buffer space to be used. A single array of the given number
- * of words shall be used to receive packets into.
+/** This function gives the MII layer a buffer space to buffer input
+ * packets into. The buffer space must be at least 1520 words, but can be
+ * longer to improve performance.
+ *
+ * \param cIn channel that communicates with the low level input MII.
+ *
+ * \param cNotifications channel end that synchronises the interrupt and user layers.
+ *
+ * \param buffer    array of words that can be used for buffering.
+ *
+ * \param words     number of words in the array.
  */
-extern void miiBufferInit(chanend c_in, chanend c_notifications, int buffer[], int words);
+extern void miiBufferInit(chanend cIn, chanend cNotifications, int buffer[], int words);
 
-/*
- * Blocks and waits for a packet. If called no more than 6 us after a packet is received,
- * then no packets will be lost. Packet filtering must be implemented by the caller.
- * It returns the index in the buffer and the number of bytes.
+/** This function will obtain a buffer from the input queue, or 0 if there
+ * is no packet awaiting processing. When the packet has been processed,
+ * freeInBuffer() should be called to free the packet buffer.
+ * 
+ * \return The address of the buffer and the number of bytes.
  */
-{int,int} miiInPacket(chanend c_in, int buffer[]);
+{int, int} extern miiGetInBuffer();
 
-/*
- * Informs the input layer that the packet has been processed and that the buffer can be reused.
- * The index should be the number returned by miiInPacket
+/** This function is called to informs the input layer that the packet has
+ * been processed and that the buffer can be reused. The address should be
+ * the number returned by miiInPacket. Packets should be released in a
+ * timly manner, and hte buffers are organised as a strict FIFO, so not
+ * processing a packet for a prolonged period of time shall lead to packet
+ * loss.
+ *
+ * \param address The address of the buffer to be freed as returned by miiGetInBuffer().
  */
-extern void miiInPacketDone(chanend c_in, int index);
+extern void miiFreeInBuffer(int address);
 
-extern select notified(chanend notificationChannel);
-void freeBuffer(int base);
-{int, int} miiGetBuffer();
-void miiRestartBuffer();
+/** This function should be called to block the receiving thread. This
+ * function will return when something interesting has happened at the MII
+ * layer, and after its return, miiGetInBuffer can be called to test
+ * whether a new packet is available, and miiRestartBuffer() must be
+ * called.
+ *
+ * Note that this function can be one of the cases in a select statement,
+ * enabling the user layer to deal with different event sources in a
+ * non-deterministic manner.
+ *
+ * \param notificationChannel A channel-end that synchronises the user
+ * layer with the interrupt layer
+ */
+extern select miiNotified(chanend notificationChannel);
+
+/** This function must be called every time that miiNotified() has returned
+ * and a buffer has been freed. It is safe to call this function more
+ * often, for example, prior to every select statement that contains
+ * miiNotified().
+ */
+extern void miiRestartBuffer();
 
 
 

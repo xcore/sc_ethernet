@@ -1,15 +1,8 @@
-/*************************************************************************
- *
- * Ethernet MAC Layer Client Test Code
- * IEEE 802.3 MAC Client
- *
- *
- *************************************************************************
- *
- * ARP/ICMP demo
- * Note: Only supports unfragmented IP packets
- *
- *************************************************************************/
+// Copyright (c) 2011, XMOS Ltd, All rights reserved
+// This software is freely distributable under a derivative of the
+// University of Illinois/NCSA Open Source License posted in
+// LICENSE.txt and at <http://github.xcore.com/>
+
 
 #include <xs1.h>
 #include <xclib.h>
@@ -240,7 +233,7 @@ int is_valid_icmp_packet(const unsigned char rxbuf[], int nbytes)
   return 1;
 }
 
-void handlePacket(chanend c_out, int a, int nBytes) {
+void handlePacket(chanend cOut, int a, int nBytes) {
     unsigned char own_mac_addr[6] = {0,0,12,13,14,15};
     int txbuf[400];
     unsigned char rxbuf[1600];
@@ -252,38 +245,38 @@ void handlePacket(chanend c_out, int a, int nBytes) {
     }
     if (is_valid_arp_packet(rxbuf, nBytes)) {
         nBytes = build_arp_response(rxbuf, txbuf, own_mac_addr);
-        miiOutPacket(c_out, txbuf, 0, nBytes);
-        miiOutPacketDone(c_out);
+        miiOutPacket(cOut, txbuf, 0, nBytes);
+        miiOutPacketDone(cOut);
     } else if (is_valid_icmp_packet(rxbuf, nBytes)) {
         nBytes = build_icmp_response(rxbuf, (txbuf, unsigned char[]), own_mac_addr);
-        miiOutPacket(c_out, txbuf, 0, nBytes);
-        miiOutPacketDone(c_out);
+        miiOutPacket(cOut, txbuf, 0, nBytes);
+        miiOutPacketDone(cOut);
     } else {
         //printf("Received %d bytes %x\n", nBytes, (rxbuf, int[])[0]);
     }
 }
 
-void pingDemo(chanend c_in, chanend c_out, chanend cNotifications) {
+void pingDemo(chanend cIn, chanend cOut, chanend cNotifications) {
     int b[3200];
     
     printstr("Test started\n");
-    miiBufferInit(c_in, cNotifications, b, 3200);
+    miiBufferInit(cIn, cNotifications, b, 3200);
     printstr("IN Inited\n");
-    miiOutInit(c_out);
+    miiOutInit(cOut);
     printstr("OUT inited\n");
     
     while (1) {
         int nBytes, a;
-        notified(cNotifications);
+        miiNotified(cNotifications);
         while(1) {
-            {a,nBytes} = miiGetBuffer();
+            {a,nBytes} = miiGetInBuffer();
 
             if (a == 0) {
                 break;
             }
 //            printhexln(a);
-            handlePacket(c_out, a, nBytes);
-            freeBuffer(a);
+            handlePacket(cOut, a, nBytes);
+            miiFreeInBuffer(a);
         }
         miiRestartBuffer();
     } 
@@ -299,29 +292,29 @@ unsigned char packet[] = {
 
     extern int nextBuffer;
 
-void empty(chanend c_in, chanend c_notifications) {
+void empty(chanend cIn, chanend cNotifications) {
     int b[1600];
     timer t;
     int now;
     int address = 0x1D000;
 
-    miiBufferInit(c_in, c_notifications, b, 1600);
+    miiBufferInit(cIn, cNotifications, b, 1600);
     asm("stw %0, %1[0]" :: "r" (b), "r" (address));
 
     while (1) {
         int nBytes, a;
-        {a,nBytes} = miiGetBuffer();
+        {a,nBytes} = miiGetInBuffer();
         asm("stw %0, %1[1]" :: "r" (a), "r" (address));
         asm("stw %0, %1[2]" :: "r" (nBytes), "r" (address));
         t :> now;
         asm("stw %0, %1[4]" :: "r" (now), "r" (address));
-        freeBuffer(a);
+        miiFreeInBuffer(a);
     } 
 }
 
 on stdcore[1]: port p1k = XS1_PORT_1A;
 
-void emptyOut(chanend c_out) {
+void emptyOut(chanend cOut) {
     unsigned int txbuf[1600];
     timer t;
     int now;
@@ -333,13 +326,13 @@ void emptyOut(chanend c_out) {
     for(int i = 0; i < 72; i++) {
         (txbuf, unsigned char[])[i] = i;
     }
-    miiOutInit(c_out);
+    miiOutInit(cOut);
     
     t :> now;
     while (1) {
         p1k when pinsneq(0) :> void;
-        k = miiOutPacket(c_out, (txbuf,int[]), 0, packetLen);
-        miiOutPacketDone(c_out);
+        k = miiOutPacket(cOut, (txbuf,int[]), 0, packetLen);
+        miiOutPacketDone(cOut);
     } 
 }
 
@@ -354,12 +347,12 @@ void burn() {
 }
 
 void regression(void) {
-    chan c_in, c_out;
+    chan cIn, cOut;
     chan notifications;
     par {
-        { miiDriver(c_in, c_out);}
-        {x(); empty(c_in, notifications);}
-        {x(); emptyOut(c_out);}
+        { miiDriver(cIn, cOut);}
+        {x(); empty(cIn, notifications);}
+        {x(); emptyOut(cOut);}
         {burn();}
         {burn();}
         {burn();}
@@ -369,11 +362,11 @@ void regression(void) {
 }
 
 void packetResponse(void) {
-    chan c_in, c_out;
+    chan cIn, cOut;
     chan notifications;
     par {
-        {miiDriver(c_in, c_out);}
-        {x(); pingDemo(c_in, c_out, notifications);}
+        {miiDriver(cIn, cOut);}
+        {x(); pingDemo(cIn, cOut, notifications);}
         {burn();}
         {burn();}
         {burn();}

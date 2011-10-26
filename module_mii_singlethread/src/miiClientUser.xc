@@ -1,7 +1,14 @@
+// Copyright (c) 2011, XMOS Ltd, All rights reserved
+// This software is freely distributable under a derivative of the
+// University of Illinois/NCSA Open Source License posted in
+// LICENSE.txt and at <http://github.xcore.com/>
+
 #include <xs1.h>
 #include <xclib.h>
 #include <stdio.h>
+#include <print.h>
 #include "miiClient.h"
+#include "miiLLD.h"
 
 #define POLY   0xEDB88320
 
@@ -10,6 +17,11 @@ int miiPacketsReceived;
 int miiPacketsOverran;
 int miiPacketsTransmitted;
 int nextBuffer;
+
+extern void miiInstallHandler(int bufferAddr,
+                              chanend miiChannel,
+                              chanend notificationChannel);
+
 
 static int value(int address, int index) {
     int retVal;
@@ -43,8 +55,6 @@ static int CRCBad(int base, int end) {
     }
     return ~partCRC == 0 ? length : 0;
 }
-
-#include <print.h>
 
 static int packetGood(int base, int end) {
     int length = CRCBad(base, end);
@@ -82,7 +92,6 @@ static int packetGood(int base, int end) {
  */
  
 static int freePtr[2], wrPtr[2], lastSafePtr[2], firstPtr[2], readPtr[2];
-static int address;
 
 /* packetInLLD (maintained by the LLD) remembers which buffer is being
  * filled right now; nextBuffer (maintained byt ClientUser.xc) stores which
@@ -110,8 +119,9 @@ static int get(int addr) {
 
 /* Called once on startup */
 
-int initBuffer(int buf[], int numberWords) {
-    asm("add %0, %1, 0" : "=r" (address) : "r" (buf));
+void miiBufferInit(chanend cIn, chanend cNotifications, int buffer[], int numberWords) {
+    int address;
+    asm("add %0, %1, 0" : "=r" (address) : "r" (buffer));
     readPtr[0] = firstPtr[0] = freePtr[0] = address ;
     readPtr[1] = firstPtr[1] = freePtr[1] = address + ((numberWords << 1) & ~3) ;
     wrPtr[0] = freePtr[0] + 4;
@@ -121,54 +131,54 @@ int initBuffer(int buf[], int numberWords) {
     lastSafePtr[0] = freePtr[1] - MAXPACKET;
     lastSafePtr[1] = address + (numberWords << 2) - MAXPACKET;
     nextBuffer    = wrPtr[1];
-    return wrPtr[0];          // This should be passed to the LLD for initial use.
+    miiInstallHandler(wrPtr[0], cIn, cNotifications);
 }
+
 
 /* Called from interrupt handler */
 
-char notifyLast = 1, notifySeen = 1;
+static char notifyLast = 1;
+char notifySeen = 1;
 
-void notify(chanend notificationChannel) {
+void miiNotify(chanend notificationChannel) {
     if (notifyLast == notifySeen) {
         notifyLast = !notifyLast;
         outuchar(notificationChannel, notifyLast);
     }
 }
 
-select notified(chanend notificationChannel) {
+select miiNotified(chanend notificationChannel) {
 case inuchar_byref(notificationChannel, notifySeen):
     break;
 }
 
-{int, int} miiGetBuffer() {
+static int readBank = 0;
+
+{int, int} miiGetInBuffer() {
     for(int i = 0; i < 2; i++) {
-        int nbytes = get(readPtr[i]);
+        int nbytes = get(readPtr[readBank]);
         if (nbytes == 0) {
-            readPtr[i] = firstPtr[i];
-            nbytes = get(readPtr[i]);
+            readPtr[readBank] = firstPtr[readBank];
+            nbytes = get(readPtr[readBank]);
         }
         if (nbytes != 1) {
-            int retVal = readPtr[i] + 4;
-            readPtr[i] += ((nbytes + 3) & ~3) + 4;
-            if (get(readPtr[i]) == 0) {
-                readPtr[i] = firstPtr[i];
+            int retVal = readPtr[readBank] + 4;
+            readPtr[readBank] += ((nbytes + 3) & ~3) + 4;
+            if (get(readPtr[readBank]) == 0) {
+                readPtr[readBank] = firstPtr[readBank];
             }
             return {retVal, nbytes};
         }
+        readBank = !readBank;
     }
     return {0, 0};
 }
 
-#include "stdio.h"
-
-void printBuffer(int bank);
-
-static void commitBuffer(unsigned int currentBuffer, unsigned int length, chanend notificationChannel) {
+static void miiCommitBuffer(unsigned int currentBuffer, unsigned int length, chanend notificationChannel) {
     int bn = currentBuffer < firstPtr[1] ? 0 : 1;    
     set(wrPtr[bn]-4, length);       // record length of current packet.
     wrPtr[bn] = wrPtr[bn] + ((length+3)&~3) + 4; // new end pointer.
-    notify(notificationChannel);
-//    printintln(wrPtr[bn] - lastSafePtr[bn]);
+    miiNotify(notificationChannel);
     if (wrPtr[bn] > lastSafePtr[bn]) {  // This may be too far.
         if (freePtr[bn] != firstPtr[bn]) {// Test if head of buf is free
             set(wrPtr[bn]-4, 0);          // If so, record unused tail.
@@ -194,7 +204,7 @@ static void commitBuffer(unsigned int currentBuffer, unsigned int length, chanen
     return;
 }
 
-static void rejectBuffer(unsigned int currentBuffer) {
+static void miiRejectBuffer(unsigned int currentBuffer) {
     nextBuffer = currentBuffer;
 }
 
@@ -223,7 +233,7 @@ void miiRestartBuffer() {
 
 }
 
-void freeBuffer(int base) {
+void miiFreeInBuffer(int base) {
     int bankNumber = base < firstPtr[1] ? 0 : 1;
     int modifiedFreePtr = 0;
     set(base-4, -get(base-4));
@@ -242,72 +252,35 @@ void freeBuffer(int base) {
     // Note - wrptr may have been stuck
 }
 
-void printBuffer(int bank) {
-    int i = firstPtr[bank];
-    printf("Firstptr: %d\n", i);
-    printf("Freeptr: %d\n", freePtr[bank]);
-    printf("Writept: %d\n", wrPtr[bank]);
-    do {
-        int l = get(i);
-        if (l == 1) {
-            printf("HEAD buffer at %d\n", i);
-            if (i >= freePtr[bank]) {
-                return; 
-            }
-            i = freePtr[bank];
-        } else if (l > 0) {
-            printf("FULL buffer at %d len %d\n", i, l);
-            i += ((l + 3) & ~3) + 4;
-        } else if (l == 0) {
-            printf("TAIL buffer at %d\n", i);
-            return;
-        } else {
-            printf("EMPT buffer at %d len %d\n", i, -l);
-            i += ((-l + 3) & ~3) + 4;
-        }
-    } while(1);
-}
-
-#if 0
-int main(void) {
-    int x[1000];
-    int a0, a1, a2, a3, a4;
-    int base;
-    asm("add %0, %1, 0" : "=r" (base) : "r" (x));
-    initBuffer(x, 1000);
-    commitBuffer(150);
-    a0 = nextBuffer;
-    printf("Got %d\n", (nextBuffer - base)>>2);
-    commitBuffer(150);
-    freeBuffer(a0);
-    a1 = nextBuffer;
-    printf("Got %d\n", (nextBuffer - base)>>2);
-    commitBuffer(140);
-    a2 = nextBuffer;
-    printf("Got %d\n", (nextBuffer - base)>>2);
-    commitBuffer(130);
-    a3 = nextBuffer;
-    printf("Got %d\n", (nextBuffer - base)>>2);
-    commitBuffer(120);
-    a4 = nextBuffer;
-    printf("Got %d\n", (nextBuffer - base)>>2);
-    commitBuffer(110);
-    freeBuffer(a2);
-    printBuffer(x, 0);
-    printBuffer(x, 1);
-}
-#endif
-
 void miiClientUser(int base, int end, chanend notificationChannel) {
     int length = packetGood(base, end);
     if (length != 0) {
-        commitBuffer(base, length, notificationChannel);
+        miiCommitBuffer(base, length, notificationChannel);
     } else {
-        rejectBuffer(base);
+        miiRejectBuffer(base);
     }
 }
 
-void miiBufferInit(chanend cIn, chanend cNotifications, int buffer[], int words) {
-    int initialBuffer = initBuffer(buffer, words);
-    miiInstallHandler(initialBuffer, cIn, cNotifications);
+int miiOutPacket(chanend c_out, int b[], int index, int length) {
+    int a, roundedLength;
+    int oddBytes = length & 3;
+
+    asm(" mov %0, %1" : "=r"(a) : "r"(b));
+    
+    roundedLength = length >> 2;
+    b[roundedLength+1] = tailValues[oddBytes];
+    b[roundedLength] &= (1 << (oddBytes << 3)) - 1;
+    outuint(c_out, a + length - oddBytes - 4);
+    outuint(c_out, -roundedLength + 1);
+    outct(c_out, 1);
+    return inuint(c_out);
+}
+
+select miiOutPacketDone(chanend c_out) {
+case chkct(c_out, 1):
+    break;
+}
+
+void miiOutInit(chanend c_out) {
+    chkct(c_out, 1);
 }

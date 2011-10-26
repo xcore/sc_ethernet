@@ -1,3 +1,8 @@
+// Copyright (c) 2011, XMOS Ltd, All rights reserved
+// This software is freely distributable under a derivative of the
+// University of Illinois/NCSA Open Source License posted in
+// LICENSE.txt and at <http://github.xcore.com/>
+
 #include <stdio.h>
 #include "miiDriver.h"
 #include "miiLLD.h"
@@ -14,7 +19,7 @@ int smi_config(int);
 extern void miiDriver(chanend cIn, chanend cOut) {
     mii_init();
     smi_init();
-    printf("SMI INIT: %d\n", smi_config(1));
+    smi_config(1);
     miiLLD(p_mii_rxd, p_mii_rxdv, p_mii_txd, cIn, cOut);
 }
 
