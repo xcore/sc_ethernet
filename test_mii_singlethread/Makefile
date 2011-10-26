@@ -24,8 +24,10 @@ visualise: bin/tester
          ./render.sh ; done; done
 	for i in $(SHORT); do \
 	for j in $(LONG); do \
-	bin/tester "$(TFLAG) ../app_mii_singlethread_demo/bin/Release/app_mii_singlethread_demo.xe" $$i $$j; \
-	bin/tester "$(TFLAG) ../app_mii_singlethread_demo/bin/Release/app_mii_singlethread_demo.xe" $$j $$i; \
+	bin/tester "$(TFLAG) ../app_mii_singlethread_demo/bin/Release/app_mii_singlethread_demo.xe" $$i $$j |\
+         ./render.sh; \
+	bin/tester "$(TFLAG) ../app_mii_singlethread_demo/bin/Release/app_mii_singlethread_demo.xe" $$j $$i |\
+         ./render.sh; \
     done; done
 
 bin/tester: src/stimulus.c

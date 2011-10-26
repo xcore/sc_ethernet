@@ -31,11 +31,11 @@ char triggerBefore[MT], triggerAfter[MT];
 
 int setTriggers() {
     int i;
-    int step = 16;
+    int step = 1;
     if (step != 1) {
         fprintf(stderr, "Warning only doing 1 in every %d steps for shmoo\n", step);
     }
-    for(i = ltoh*8 + 64; i >= ltoh*8 - 64; i-=step) {  // Make tail of Tx collide with head of Rx
+    for(i = ltoh*8 + 96; i >= ltoh*8 - 64; i-=step) {  // Make tail of Tx collide with head of Rx
         triggerBefore[i] = 1;
         triggerCnt++;
     }

@@ -41,15 +41,13 @@ kernelStackEnd:
 
     .align 4
 miiInstallHandler:
+    setd   res[r2], r2                //    synchronising interrupt routine and user land
+    stw    r2, dp[blockingChannel]    //    it points to itself
+
     stw    r1, dp[interruptChannelEnd]// Step 2: Channel end to MIILLD layer, store it
     ldap   r11, miiInterruptHandler   //         and set it up for interrupts.
     setc   res[r1], XS1_SETC_IE_MODE_INTERRUPT
     setv   res[r1], r11
-    eeu    res[r1]
-    
-    getr   r1, XS1_RES_TYPE_CHANEND   // Step 3: Create an internal channel end use for
-    setd   res[r1], r1                //         synchronising interrupt routine and user land
-    stw    r1, dp[blockingChannel]    //         it points to itself and can be polled.
     eeu    res[r1]
 
     ldaw   r1, dp[kernelStackEnd]     // Step 5: Set up kernel stack.
@@ -78,16 +76,13 @@ miiInterruptHandler:
                                      // no less than 10, no more than 40.
     stw    r0, sp[1]
     
-    stw    r3, sp[4] 
-    stw    r11, sp[5] 
-    stw    lr, sp[6]
     
     ldc    r0, 0   
     out    res[r2], r0
 
-    nop
-    nop
-    nop
+    stw    r3, sp[4] 
+    stw    r11, sp[5] 
+    stw    lr, sp[6]
     nop
     nop
     nop
@@ -108,7 +103,10 @@ buffersAvailable:
 
     out    res[r2], r3               // Pass fresh buffer.
     stw    r3, dp[packetInLLD]
-
+    ldw    r2, dp[blockingChannel]
+    // r0: base
+    // r1: end
+    // r2: blockingChannel
     bl     miiClientUser
     
 returnFromInterrupt:    

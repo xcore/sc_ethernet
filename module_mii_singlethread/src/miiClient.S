@@ -60,7 +60,7 @@ miiPacketsReceived:
 miiPacketsTransmitted:  
     .space 4
 kernelStack:
-    .space KERNEL_STACK_SAVE * 4
+    .space KERNEL_STACK_SAVE * 4 + 200
 kernelStackEnd:
     .space 4
     .text

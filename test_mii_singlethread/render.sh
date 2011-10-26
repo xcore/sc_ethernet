@@ -14,7 +14,7 @@ BEGIN {
 }
 /FILE/ {
   FILE = $2;
-  print "P3\n" WIDTH " " (3*LINES)"\n255\n" > FILE
+  print "P3\n" WIDTH " " (1*LINES)"\n9\n" > FILE
   next;
 }
 /ERROR/ {
@@ -27,31 +27,22 @@ BEGIN {
   while (t > ot + 1) {
     ot++;
     if(0) print ot " -";
-  if (first && ot >= 6000) {
-    inputList = "";
+    if (first && ot >= 6000) {
     outputList = "";
-      inputInstr = " 0 0 0"
-      outputInstr = " 0 0 0"
+    outputInstr = " 0 0 0"
     betweenList = "";
     count = 0;
     first = 0;
   }
     if (!first) {
-      inputList = inputList inputInstr
       outputList = outputList outputInstr
-      betweenList = betweenList " 99 99 99"
-      inputInstr = " 0 0 0"
       outputInstr = " 0 0 0"
       count++;
       if (count == WIDTH) {
         if (lines < LINES) {
-          print inputList >> FILE
           print outputList >> FILE
-          print betweenList >> FILE
         }
-        inputList = "";
         outputList = "";
-        betweenList = "";
         count = 0;
         lines++;
       }
@@ -81,30 +72,21 @@ BEGIN {
     next;
   }
   if (thread == "e" || thread == "I") {
-    inputInstr = " 255 0 0"
-  } else {
-    inputInstr = " 0 0 0"
-  }
-  inputList = inputList inputInstr
-  if (isOUT) {
-    outputInstr = " 70 70 255"
+    outputInstr = " 9 0 0"
+  } else if (isOUT) {
+    outputInstr = " 2 2 9"
   } else if (thread == "A" || thread == "T") {
-    outputInstr = " 0 255 0"
+    outputInstr = " 0 9 0"
   } else {
     outputInstr = " 0 0 0"
   }
   outputList = outputList outputInstr
-  betweenList = betweenList " 99 99 99"
   count++;
   if (count == WIDTH) {
     if (lines < LINES) {
-      print inputList >> FILE
       print outputList >> FILE
-      print betweenList >> FILE
     }
-    inputList = "";
     outputList = "";
-    betweenList = "";
     count = 0;
     lines++;
   }

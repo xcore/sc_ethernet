@@ -14,6 +14,7 @@
 #include <xs1.h>
 #include <platform.h>
 #include <print.h>
+#include <stdio.h>
 /*#ifdef XC2
 #include "xc2.h"
 #else
@@ -48,7 +49,7 @@
 // phy constants
 //////////////////////
 
-#define PHY_ADDRESS 0x1F
+int PHY_ADDRESS =0x0;
 #define PHY_ID      0x300007
 
 // SMI Registers
@@ -74,12 +75,12 @@
 // Define ports
 // Note: XC2 v1.0 has a pull down (rather than pull up) on RSTn
 // therefore we always drive on p_smi_8d
-on stdcore[0] :     port p_smi_8d     = XS1_PORT_8D;     // Bidirectional
-on stdcore[0] : out port p_smi_mdc    = XS1_PORT_1P;
+on stdcore[1] :     port p_smi_mdio   = XS1_PORT_1M;     // Bidirectional
+on stdcore[1] : out port p_smi_mdc    = XS1_PORT_1J;
+on stdcore[1]: out port p_mii_resetn = XS1_PORT_4C;
+//#define XC2
 
-#define XC2
-
-on stdcore[0]: clock clk_smi = XS1_CLKBLK_3;           // 2x SMI clock rate
+on stdcore[1]: clock clk_smi = XS1_CLKBLK_3;           // 2x SMI clock rate
 
 int smiIs100Mbps = 0;
 
@@ -121,7 +122,7 @@ void smi_init(void)
   p_smi_mdc <: 0;
 
   // Drive RESET inactive
-  p_mii_resetn <: 1;
+  p_mii_resetn <: 0xF;
 #endif
 }
 
@@ -168,7 +169,7 @@ void smi_reset()
 #ifdef XC2
   p_smi_8d <: 0x7F;
 #else
-  p_mii_resetn <: 1;
+  p_mii_resetn <: 0xF;
 #endif
 
   // Wait
@@ -221,12 +222,12 @@ int smi_config(int eth100)
   phyid = smi_rd(PHY_ID1_REG);
   x = smi_rd(PHY_ID2_REG);
   phyid = ((x >> 10) << 16) | phyid;
-
 #ifndef XC2
   if (phyid != PHY_ID)
   {
+      printf("PHY %x %x\n", phyid, PHY_ID);
     // PHY_ID doesn't correspond return error
-    return (1);
+    return (100);
   }
 #endif
 
@@ -249,7 +250,7 @@ int smi_config(int eth100)
       smi_wr(AUTONEG_ADVERT_REG, autoNegAdvertReg);
 #ifndef XC2
 			if (smi_rd(AUTONEG_ADVERT_REG) != autoNegAdvertReg)
-				return (1);
+				return (9);
 #endif
     }
     // Autonegotiate

@@ -1,4 +1,6 @@
-extern void miiInstallHandler(int buffer[], chanend miiChannel);
+extern void miiInstallHandler(int bufferAddr,
+                              chanend miiChannel,
+                              chanend notificationChannel);
 
 
 
@@ -8,7 +10,7 @@ extern void miiInstallHandler(int buffer[], chanend miiChannel);
  * Inform the library of the buffer space to be used. A single array of the given number
  * of words shall be used to receive packets into.
  */
-extern void miiBufferInit(chanend c_in, int buffer[], int words);
+extern void miiBufferInit(chanend c_in, chanend c_notifications, int buffer[], int words);
 
 /*
  * Blocks and waits for a packet. If called no more than 6 us after a packet is received,
@@ -23,6 +25,10 @@ extern void miiBufferInit(chanend c_in, int buffer[], int words);
  */
 extern void miiInPacketDone(chanend c_in, int index);
 
+extern select notified(chanend notificationChannel);
+void freeBuffer(int base);
+{int, int} miiGetBuffer();
+void miiRestartBuffer();
 
 
 
