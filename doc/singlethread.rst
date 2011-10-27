@@ -50,21 +50,21 @@ they should be copied to out of the packet-store into an application buffer.
 API
 '''
 
-  ..doxygenfuction: miiBufferInit
+.. doxygenfunction:: miiBufferInit
 
-  ..doxygenfuction: miiGetInBuffer
+.. doxygenfunction:: miiGetInBuffer
 
-  ..doxygenfuction: miiFreeInBuffer
+.. doxygenfunction:: miiFreeInBuffer
 
-  ..doxygenfuction: miiNotified
+.. doxygenfunction:: miiNotified
 
-  ..doxygenfuction: miiRestartBuffer
+.. doxygenfunction:: miiRestartBuffer
 
-  ..doxygenfuction: miiOutInit
+.. doxygenfunction:: miiOutInit
 
-  ..doxygenfuction: miiOutPacket
+.. doxygenfunction:: miiOutPacket
 
-  ..doxygenfuction: miiOutPacketDone
+.. doxygenfunction:: miiOutPacketDone
 
 Example minimal programs
 ''''''''''''''''''''''''
