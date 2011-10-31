@@ -5,7 +5,6 @@
 
 #include <xs1.h>
 #include <xclib.h>
-#include <stdio.h>
 #include <print.h>
 #include "miiClient.h"
 #include "miiLLD.h"

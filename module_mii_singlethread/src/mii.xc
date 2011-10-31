@@ -15,7 +15,6 @@
 #define NOSMIOROTHERTHINGS
 
 #include <xs1.h>
-#include <stdio.h>
 #include <xclib.h>
 #include "mii.h"
 #include "smi.h"

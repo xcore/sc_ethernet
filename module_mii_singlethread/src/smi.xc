@@ -14,7 +14,6 @@
 #include <xs1.h>
 #include <platform.h>
 #include <print.h>
-#include <stdio.h>
 /*#ifdef XC2
 #include "xc2.h"
 #else
@@ -225,7 +224,7 @@ int smi_config(int eth100)
 #ifndef XC2
   if (phyid != PHY_ID)
   {
-      printf("PHY %x %x\n", phyid, PHY_ID);
+//      printf("PHY %x %x\n", phyid, PHY_ID);
     // PHY_ID doesn't correspond return error
     return (100);
   }

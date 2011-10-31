@@ -3,7 +3,6 @@
 // University of Illinois/NCSA Open Source License posted in
 // LICENSE.txt and at <http://github.xcore.com/>
 
-#include <stdio.h>
 #include "miiDriver.h"
 #include "miiLLD.h"
 
