@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <xpd>
     <dependency repo = "xcommon">
-        <githash>a84cf50fd3719df396345f2f55e1dca20354f3a2</githash>
+        <githash>2d310cc19558a756d2477625338491f66ff0e57d</githash>
         <uri>https://github.com/xcore/xcommon.git</uri>
     </dependency>
     <description>A complete Ethernet MII and MAC interface for 100MBps Ethernet</description>
