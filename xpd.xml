@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <xpd>
     <dependency repo = "xcommon">
-        <githash>a84cf50fd3719df396345f2f55e1dca20354f3a2</githash>
+        <githash>2d310cc19558a756d2477625338491f66ff0e57d</githash>
         <uri>https://github.com/xcore/xcommon.git</uri>
     </dependency>
     <description>A complete Ethernet MII and MAC interface for 100MBps Ethernet</description>
@@ -12,6 +12,8 @@
     <release parenthash = "62bbb6a8b44376b77c1ffbb3bddab394e750c691" version = "1.3.1beta0" githash = "a5c2fbc4b5cdd7257779342303097fa3fd409918"></release>
     <release parenthash = "8ce8fd80ec9465159d62c20b37b0ae1e3d3ed388" version = "2.0.0rc0" githash = "362a749e4664ffcbee145d9e2d17d92e7dc8a17e"></release>
     <release parenthash = "8ce8fd80ec9465159d62c20b37b0ae1e3d3ed388" version = "2.0.0" githash = "362a749e4664ffcbee145d9e2d17d92e7dc8a17e"></release>
+    <release parenthash = "33ff1e45c7e31080dc1d78d3400cab6eb9d75a09" version = "2.0.1rc0" githash = "32edea1f9397242872d517e9f410aaf27f1995d7"></release>
+    <release parenthash = "33ff1e45c7e31080dc1d78d3400cab6eb9d75a09" version = "2.0.1" githash = "32edea1f9397242872d517e9f410aaf27f1995d7"></release>
     <vendor>XMOS</vendor>
     <xpd_version>1.0</xpd_version>
 </xpd>

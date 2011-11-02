@@ -1,14 +1,9 @@
-SOURCE = mac.xc 
-FLAGS = -Wall -g -O3  -I. -report -target=XC-2
+TARGET = XC-2
+XCC_FLAGS = -Wall -g -O3 -report
 
-ifeq "$(OS)" "Windows_NT"
-DELETE = del
-else
-DELETE = rm -f
-endif
+#=============================================================================
+# The following part of the Makefile includes the common build infrastructure
+# for compiling XMOS applications. You should not need to edit below here.
 
-write_mac.xe: ${SOURCE}
-	xcc ${FLAGS} ${SOURCE} -lotp_l1 -o write_mac.xe
-
-clean:
-	$(DELETE) *.o *.a *.xi *.s *.xe *.xb
+XMOS_MAKE_PATH ?= ../..
+include $(XMOS_MAKE_PATH)/xcommon/module_xcommon/build/Makefile.common
