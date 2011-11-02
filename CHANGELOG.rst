@@ -9,6 +9,10 @@ Firmware
 module_ethernet
 ----------------------
 
+2.0.1
+-----
+   * Fix up makefiles to work with new tools
+
 2.0.0
 -----
 
