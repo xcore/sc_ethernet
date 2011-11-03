@@ -1,4 +1,4 @@
-*/.build_*/*
+*/.build*/*
 */bin/*
 *.o
 *.xe
@@ -7,3 +7,8 @@
 *.xi
 *.i
 *.a
+test_mii_singlethread/images/
+doc/.doxygen/
+doc/.sources/
+doc/Doxyfile-e
+
