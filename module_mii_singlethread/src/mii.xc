@@ -84,21 +84,21 @@ unsigned char filterMacAddress[6] = {0,0,0,0,0,0};
 
 extern void user_trap();
 
-on stdcore[1]: clock clk_mii_ref = XS1_CLKBLK_REF;
-on stdcore[1]: clock clk_mii_rx = CLK_MII_RX;
-on stdcore[1]: clock clk_mii_tx = CLK_MII_TX;
+on stdcore[0]: clock clk_mii_ref = XS1_CLKBLK_REF;
+on stdcore[0]: clock clk_mii_rx = CLK_MII_RX;
+on stdcore[0]: clock clk_mii_tx = CLK_MII_TX;
 
-on stdcore[1]: in port p_mii_rxclk = PORT_MII_RXCLK;
-on stdcore[1]: buffered in port:32 p_mii_rxd = PORT_MII_RXD;
-on stdcore[1]: in port p_mii_rxdv = PORT_MII_RXDV;
-on stdcore[1]: in port p_mii_rxer = PORT_MII_RXER;
-on stdcore[1]: in port p_mii_txclk = PORT_MII_TXCLK;
-on stdcore[1]: buffered out port:32 p_mii_txd = PORT_MII_TXD;
-on stdcore[1]: out port p_mii_txen = PORT_MII_TXEN;
-on stdcore[1]: in port p_mii_fake = PORT_MII_FAKE;
-//on stdcore[1]: out port p_mii_txer = PORT_MII_TXER;
+on stdcore[0]: in port p_mii_rxclk = PORT_MII_RXCLK;
+on stdcore[0]: buffered in port:32 p_mii_rxd = PORT_MII_RXD;
+on stdcore[0]: in port p_mii_rxdv = PORT_MII_RXDV;
+on stdcore[0]: in port p_mii_rxer = PORT_MII_RXER;
+on stdcore[0]: in port p_mii_txclk = PORT_MII_TXCLK;
+on stdcore[0]: buffered out port:32 p_mii_txd = PORT_MII_TXD;
+on stdcore[0]: out port p_mii_txen = PORT_MII_TXEN;
+on stdcore[0]: in port p_mii_fake = PORT_MII_FAKE;
+//on stdcore[0]: out port p_mii_txer = PORT_MII_TXER;
 #ifdef SIMULATION
-on stdcore[1]: out port p_mii_txcsn = XS1_PORT_1C;
+on stdcore[0]: out port p_mii_txcsn = XS1_PORT_1C;
 #endif
 
 void mii_init()

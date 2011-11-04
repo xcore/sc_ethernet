@@ -121,19 +121,19 @@ int main(int argc, char **argv) {
         }
         if (outputRequired) {
             if (triggerOutput(time, nextTXTime)) {
-                xsi_drive_port_pins(xsim, "stdcore[0]", "XS1_PORT_1K", 1, 1);
+                xsi_drive_port_pins(xsim, "stdcore[0]", "XS1_PORT_1A", 1, 1);
                 pinLowTime = time + 1000;
                 outputRequired = 0;
                 if (verbose) printf("Trigger OUT at %d\n", time);
             }
         }
         if (time == pinLowTime) {
-            xsi_drive_port_pins(xsim, "stdcore[0]", "XS1_PORT_1K", 1, 0);            
+            xsi_drive_port_pins(xsim, "stdcore[0]", "XS1_PORT_1A", 1, 0);            
             if (verbose) printf("UNTrigger OUT at %d\n", time);
         }
         if(time % 20 == 3) {
             clock = !clock;
-            xsi_drive_port_pins(xsim, "stdcore[0]", "XS1_PORT_1A", 1, clock);
+            xsi_drive_port_pins(xsim, "stdcore[0]", "XS1_PORT_1K", 1, clock);
             if (clock == 1)  {
                 if (inputRequired && time >= nextTXTime) {
                     if (verbose) printf("Trigger IN at %d\n", time);
@@ -178,8 +178,8 @@ int main(int argc, char **argv) {
                             startTime = time;
                         }
                         nibble = even ? packet[cnt] >> 4 : packet[cnt];
-                        xsi_drive_port_pins(xsim, "stdcore[0]", "XS1_PORT_1B", 1, 1);
-                        xsi_drive_port_pins(xsim, "stdcore[0]", "XS1_PORT_4A", 0xF, nibble);
+                        xsi_drive_port_pins(xsim, "stdcore[0]", "XS1_PORT_1G", 1, 1);
+                        xsi_drive_port_pins(xsim, "stdcore[0]", "XS1_PORT_4F", 0xF, nibble);
 //                        if (verbose) printf("%01x", nibble);
                         if (even) {
                             cnt++;
@@ -210,7 +210,7 @@ int main(int argc, char **argv) {
                         }
                         even = !even;
                     } else {
-                        xsi_drive_port_pins(xsim, "stdcore[0]", "XS1_PORT_1B", 1, 0);
+                        xsi_drive_port_pins(xsim, "stdcore[0]", "XS1_PORT_1G", 1, 0);
                         inPacketTX = 0;
                         packetLength++;
                         if (packetLength == 77) {
@@ -221,13 +221,13 @@ int main(int argc, char **argv) {
             }
         }
         if(time % 20 == 4) {
-            xsi_drive_port_pins(xsim, "stdcore[0]", "XS1_PORT_1C", 1, clock);
+            xsi_drive_port_pins(xsim, "stdcore[0]", "XS1_PORT_1H", 1, clock);
             if (clock == 0) {
                 unsigned ready;
-                xsi_sample_port_pins(xsim, "stdcore[0]", "XS1_PORT_1D", 1, &ready);
+                xsi_sample_port_pins(xsim, "stdcore[0]", "XS1_PORT_1F", 1, &ready);
                 if (ready) {
                     unsigned nibble;
-                    xsi_sample_port_pins(xsim, "stdcore[0]", "XS1_PORT_4B", 0xF, &nibble);
+                    xsi_sample_port_pins(xsim, "stdcore[0]", "XS1_PORT_4E", 0xF, &nibble);
                     nibbles++;
                     if (verbose) printf("%01x", nibble);
                     oldready++;

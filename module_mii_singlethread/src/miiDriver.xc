@@ -15,10 +15,12 @@ extern buffered out port:32 p_mii_txd;
 void smi_init();
 int smi_config(int);
 
-extern void miiDriver(chanend cIn, chanend cOut) {
+extern void miiDriver(chanend cIn, chanend cOut, int simulation) {
     mii_init();
-    smi_init();
-    smi_config(1);
+    if (!simulation) {
+        smi_init();
+        smi_config(1);
+    }
     miiLLD(p_mii_rxd, p_mii_rxdv, p_mii_txd, cIn, cOut);
 }
 

@@ -292,51 +292,6 @@ unsigned char packet[] = {
 
     extern int nextBuffer;
 
-void empty(chanend cIn, chanend cNotifications) {
-    int b[1600];
-    timer t;
-    int now;
-    int address = 0x1D000;
-
-    miiBufferInit(cIn, cNotifications, b, 1600);
-    asm("stw %0, %1[0]" :: "r" (b), "r" (address));
-
-    while (1) {
-        int nBytes, a;
-        {a,nBytes} = miiGetInBuffer();
-        asm("stw %0, %1[1]" :: "r" (a), "r" (address));
-        asm("stw %0, %1[2]" :: "r" (nBytes), "r" (address));
-        t :> now;
-        asm("stw %0, %1[4]" :: "r" (now), "r" (address));
-        miiFreeInBuffer(a);
-    } 
-}
-
-on stdcore[1]: port p1k = XS1_PORT_1A;
-
-void emptyOut(chanend cOut) {
-    unsigned int txbuf[1600];
-    timer t;
-    int now;
-    int packetLen = 64;
-    int address = 0x1D000;
-    int k;
-
-    asm("ldw %0, %1[3]" : "=r" (packetLen): "r" (address));
-    for(int i = 0; i < 72; i++) {
-        (txbuf, unsigned char[])[i] = i;
-    }
-    miiOutInit(cOut);
-    
-    t :> now;
-    while (1) {
-        p1k when pinsneq(0) :> void;
-        k = miiOutPacket(cOut, (txbuf,int[]), 0, packetLen);
-        miiOutPacketDone(cOut);
-    } 
-}
-
-
 void x() {
     set_thread_fast_mode_on();
 }
@@ -346,26 +301,12 @@ void burn() {
     while(1);
 }
 
-void regression(void) {
-    chan cIn, cOut;
-    chan notifications;
-    par {
-        { miiDriver(cIn, cOut);}
-        {x(); empty(cIn, notifications);}
-        {x(); emptyOut(cOut);}
-        {burn();}
-        {burn();}
-        {burn();}
-        {burn();}
-        {burn();}
-    }
-}
 
 void packetResponse(void) {
     chan cIn, cOut;
     chan notifications;
     par {
-        {miiDriver(cIn, cOut);}
+        {miiDriver(cIn, cOut, 0);}
         {x(); pingDemo(cIn, cOut, notifications);}
         {burn();}
         {burn();}

@@ -74,12 +74,12 @@ int PHY_ADDRESS =0x0;
 // Define ports
 // Note: XC2 v1.0 has a pull down (rather than pull up) on RSTn
 // therefore we always drive on p_smi_8d
-on stdcore[1] :     port p_smi_mdio   = XS1_PORT_1M;     // Bidirectional
-on stdcore[1] : out port p_smi_mdc    = XS1_PORT_1J;
-on stdcore[1]: out port p_mii_resetn = XS1_PORT_4C;
+on stdcore[0] :     port p_smi_mdio   = XS1_PORT_1M;     // Bidirectional
+on stdcore[0] : out port p_smi_mdc    = XS1_PORT_1J;
+on stdcore[0]: out port p_mii_resetn = XS1_PORT_4C;
 //#define XC2
 
-on stdcore[1]: clock clk_smi = XS1_CLKBLK_3;           // 2x SMI clock rate
+on stdcore[0]: clock clk_smi = XS1_CLKBLK_3;           // 2x SMI clock rate
 
 int smiIs100Mbps = 0;
 

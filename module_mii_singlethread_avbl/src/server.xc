@@ -126,7 +126,7 @@ void miiAVBListenerServer(chanend appIn[3], chanend appOut[2], chanend server) {
     chan cIn, cOut;
     chan notifications;
     par {
-        miiDriver(cIn, cOut);
+        miiDriver(cIn, cOut, 0);
         theServer(cIn, cOut, notifications, appIn, appOut);
     }
 }

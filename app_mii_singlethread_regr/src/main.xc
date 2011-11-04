@@ -94,7 +94,7 @@ void regression(void) {
     chan cIn, cOut;
     chan notifications;
     par {
-        { miiDriver(cIn, cOut);}
+        { miiDriver(cIn, cOut, 1);}
         {x(); emptyIn(cIn, notifications);}
         {x(); emptyOut(cOut);}
         {burn();}

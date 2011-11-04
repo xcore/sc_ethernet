@@ -9,4 +9,4 @@
  *
  * \param cOut   output channel to the client thread.
  */
-extern void miiDriver(chanend cIn, chanend cOut);
+extern void miiDriver(chanend cIn, chanend cOut, int simulation);

@@ -70,7 +70,7 @@ void miiSingleServer(chanend appIn, chanend appOut, chanend server) {
     chan cIn, cOut;
     chan notifications;
     par {
-        miiDriver(cIn, cOut);
+        miiDriver(cIn, cOut, 0);
         theServer(cIn, cOut, notifications, appIn, appOut);
     }
 }
