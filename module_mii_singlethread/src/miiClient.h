@@ -23,7 +23,7 @@ extern void miiBufferInit(chanend cIn, chanend cNotifications, int buffer[], int
  * 
  * \return The address of the buffer and the number of bytes.
  */
-{int, int} extern miiGetInBuffer();
+{unsigned, unsigned, unsigned} extern miiGetInBuffer();
 
 /** This function is called to informs the input layer that the packet has
  * been processed and that the buffer can be reused. The address should be

@@ -29,10 +29,10 @@ static int value(int address, int index) {
 }
 
 static int CRCBad(int base, int end) {
-    unsigned int tailLength = value(end, 1);
-    unsigned int partCRC = value(end, 2);
-    unsigned int tailBits = value(end, 0);
-    unsigned int length = end - base + (tailLength >> 3) - 4;
+    unsigned int tailLength = value(end, 2);
+    unsigned int partCRC = value(end, 3);
+    unsigned int tailBits = value(end, 1);
+    unsigned int length = end - base + (tailLength >> 3) - 4 + 4;
     switch(tailLength >> 3) {
     case 0:
         break;
@@ -153,8 +153,8 @@ case inuchar_byref(notificationChannel, notifySeen):
 
 static int readBank = 0;
 
-{int, int} miiGetInBuffer() {
-    int nBytes;
+{unsigned, unsigned, unsigned} miiGetInBuffer() {
+    unsigned nBytes, timeStamp;
     for(int i = 0; i < 2; i++) {
         readBank = !readBank;
         nBytes = get(readPtr[readBank]);
@@ -163,15 +163,16 @@ static int readBank = 0;
             nBytes = get(readPtr[readBank]);
         }
         if (nBytes != 1) {
-            int retVal = readPtr[readBank] + 4;
+            unsigned retVal = readPtr[readBank] + 4;
             readPtr[readBank] += ((nBytes + 3) & ~3) + 4;
             if (get(readPtr[readBank]) == 0) {
                 readPtr[readBank] = firstPtr[readBank];
             }
-            return {retVal, nBytes};
+            timeStamp = get(retVal);
+            return {retVal+4, nBytes-4, timeStamp};
         }
     }
-    return {0, 0};
+    return {0, 0, 0};
 }
 
 static void miiCommitBuffer(unsigned int currentBuffer, unsigned int length, chanend notificationChannel) {
@@ -230,12 +231,12 @@ void miiRestartBuffer() {
             nextBuffer = wrPtr[bn];           // if so, record packet pointer
         }
     }
-
 }
 
 void miiFreeInBuffer(int base) {
     int bankNumber = base < firstPtr[1] ? 0 : 1;
     int modifiedFreePtr = 0;
+    base -= 4;
     set(base-4, -get(base-4));
     while (1) {
         int l = get(freePtr[bankNumber]);
@@ -254,15 +255,29 @@ void miiFreeInBuffer(int base) {
 
 void miiClientUser(int base, int end, chanend notificationChannel) {
     int length = packetGood(base, end);
+    static int cnt = 0;
     if (length != 0) {
+        int precise;
+        int now;
+        int estDLastDigits, preciseDLastDigits, offset;
+        
+        static int lastEstimate, lastPrecise;
+        static timer globalTimer;
+        
+        precise = get(base);
+        globalTimer :> now;
+        estDLastDigits = (short) (now - lastEstimate);
+        preciseDLastDigits = (short) ((precise - lastPrecise)<<2);
+        offset = (short) (estDLastDigits - preciseDLastDigits);
+        lastEstimate = now;
+        lastPrecise = precise;
+        set(base, now + offset);
+
         miiCommitBuffer(base, length, notificationChannel);
     } else {
         miiRejectBuffer(base);
     }
 }
-
-static int lastEstimate, lastPrecise;
-timer globalTimer;
 
 int miiOutPacket(chanend c_out, int b[], int index, int length) {
     int a, roundedLength;
@@ -270,6 +285,10 @@ int miiOutPacket(chanend c_out, int b[], int index, int length) {
     int precise;
     int now;
     int estDLastDigits, preciseDLastDigits, offset;
+
+    static int lastEstimate, lastPrecise;
+    static timer globalTimer;
+
 
     asm(" mov %0, %1" : "=r"(a) : "r"(b));
     

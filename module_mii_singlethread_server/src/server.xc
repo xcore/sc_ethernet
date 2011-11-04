@@ -16,7 +16,7 @@ extern char notifySeen;
 static void theServer(chanend cIn, chanend cOut, chanend cNotifications, chanend appIn, chanend appOut) {
     int havePacket = 0;
     int outBytes;
-    int nBytes, a;
+    int nBytes, a, timeStamp;
     int b[3200];
     int txbuf[400];
 
@@ -37,7 +37,7 @@ static void theServer(chanend cIn, chanend cOut, chanend cNotifications, chanend
 //            printintln(nBytes);
             miiFreeInBuffer(a);
             miiRestartBuffer();
-            {a,nBytes} = miiGetInBuffer();
+            {a,nBytes,timeStamp} = miiGetInBuffer();
             if (a == 0) {
                 havePacket = 0;
             } else {
@@ -57,7 +57,7 @@ static void theServer(chanend cIn, chanend cOut, chanend cNotifications, chanend
             break;
         }
         if (!havePacket) {
-            {a,nBytes} = miiGetInBuffer();
+            {a,nBytes,timeStamp} = miiGetInBuffer();
             if (a != 0) {
                 havePacket = 1;
                 outuint(appIn, nBytes);

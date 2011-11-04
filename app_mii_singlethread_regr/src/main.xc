@@ -33,23 +33,25 @@ void emptyIn(chanend cIn, chanend cNotifications) {
     int b[1600];
     timer t;
     int now;
-    int address = 0x1D000;
+    int address = 0x1C000;
+    int cnt = 0;
 
     miiBufferInit(cIn, cNotifications, b, 1600);
     asm("stw %0, %1[0]" :: "r" (b), "r" (address));
 
     while (1) {
 
-        int nBytes, a;
+        int nBytes, a, timeStamp;
         miiNotified(cNotifications);
         while(1) {
-            {a,nBytes} = miiGetInBuffer();
+            {a,nBytes,timeStamp} = miiGetInBuffer();
 
             if (a == 0) {
                 break;
             }
             asm("stw %0, %1[1]" :: "r" (a), "r" (address));
             asm("stw %0, %1[2]" :: "r" (nBytes), "r" (address));
+            asm("stw %0, %1[6]" :: "r" (timeStamp), "r" (address));
             miiFreeInBuffer(a);
         }
         miiRestartBuffer();
@@ -63,7 +65,7 @@ void emptyOut(chanend cOut) {
     timer t;
     int now;
     int packetLen = 64;
-    int address = 0x1D000;
+    int address = 0x1C000;
     int k;
 
     asm("ldw %0, %1[3]" : "=r" (packetLen): "r" (address));
@@ -75,6 +77,7 @@ void emptyOut(chanend cOut) {
     t :> now;
     while (1) {
         p1k when pinsneq(0) :> void;
+        txbuf[0] = k;
         k = miiOutPacket(cOut, (txbuf,int[]), 0, packetLen);
         miiOutPacketDone(cOut);
     } 

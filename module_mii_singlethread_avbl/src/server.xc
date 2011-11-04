@@ -61,6 +61,7 @@ static void theServer(chanend cIn, chanend cOut, chanend cNotifications, chanend
         int full;
         int addr;
         int nBytes;
+        int time;
     } packetStore[3];
 
     miiBufferInit(cIn, cNotifications, b, 3200);
@@ -77,7 +78,7 @@ static void theServer(chanend cIn, chanend cOut, chanend cNotifications, chanend
                 asm("ldw %0, %1[%2]" : "=r" (val) : "r" (packetStore[i].addr) , "r" (i));
                 appIn[i] <: val;
             }
-            appIn[i] <: 0; // TODO: time.
+            appIn[i] <: packetStore[dest].time;
             miiFreeInBuffer(packetStore[i].addr);
             miiRestartBuffer();
             packetStore[i].full = 0;
@@ -100,8 +101,8 @@ static void theServer(chanend cIn, chanend cOut, chanend cNotifications, chanend
             break;
         }
         while (1) {
-            int a, n, dest;
-            {a,n} = miiGetInBuffer();
+            int a, n, dest, t;
+            {a,n,t} = miiGetInBuffer();
             if (a == 0) {
                 break; // no packets available.
             }
@@ -118,6 +119,7 @@ static void theServer(chanend cIn, chanend cOut, chanend cNotifications, chanend
             packetStore[dest].full = 1;
             packetStore[dest].addr = a;
             packetStore[dest].nBytes = n;
+            packetStore[dest].time = t;
         }
     } 
 }

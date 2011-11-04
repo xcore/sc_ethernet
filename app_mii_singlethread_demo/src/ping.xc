@@ -266,10 +266,10 @@ void pingDemo(chanend cIn, chanend cOut, chanend cNotifications) {
     printstr("OUT inited\n");
     
     while (1) {
-        int nBytes, a;
+        int nBytes, a, timeStamp;
         miiNotified(cNotifications);
         while(1) {
-            {a,nBytes} = miiGetInBuffer();
+            {a,nBytes,timeStamp} = miiGetInBuffer();
 
             if (a == 0) {
                 break;

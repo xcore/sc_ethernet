@@ -137,7 +137,7 @@ miiLLD:
     // Receive body of a packet 
 mii_rxd:
     in    r11, res[r0]       // Grab word to be loaded.
-    stw   r11, r4[0]         // Write data at end of packet
+    stw   r11, r4[1]         // Write data at end of packet
     crc32 r10, r11, r6       // Update CRC
     add   r4, r4, 4
     kret                 // Post condition: res[r0] EN,  res[r1] EN,  res[r3] EN
@@ -153,11 +153,11 @@ mii_rxdv0:
     .align 4                 // Pre condition:  res[r0] EN,  res[r1] EN,  res[r3] EN
 mii_rxLastBits:              // Jumped to from mii_rxd_packet - not an entry point.
     endin r11, res[r0]       // Get number of bits left
-    stw   r11, r4[1]         // Save the number of bits left
+    stw   r11, r4[2]         // Save the number of bits left
     in    r11, res[r0]       // Grab them bits
-    stw   r11, r4[0]         // Save the left over 0, 8, 16, or 24 bits.
+    stw   r11, r4[1]         // Save the left over 0, 8, 16, or 24 bits.
     edu   res[r0]
-    stw   r10, r4[2]         // And save CRC
+    stw   r10, r4[3]         // And save CRC
     kret                 // Post condition: res[r0] DIS,  res[r1] DIS,  res[r3] EN
 
     .align 4                 // Pre condition:  res[r0] EN,  res[r1] EN,  res[r3] EN
@@ -174,6 +174,8 @@ mii_rxd_packet:
     .align 4                 // Pre condition:  res[r0] EN,  res[r1] DIS, res[r3] EN
     // Received the end of the preamble.
 mii_rxd_preamble:
+    getts r11, res[r0]
+    stw   r11, r4[0]
     in    r11, res[r0]       // Throw preamble away
     ldw   r10, cp[initialCRC]         // Initialise CRC to something. What?
     ldap  r11, mii_rxd       // And setup the RXD port for future events.
