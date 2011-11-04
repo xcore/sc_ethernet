@@ -263,15 +263,20 @@ void miiClientUser(int base, int end, chanend notificationChannel) {
         
         static int lastEstimate, lastPrecise;
         static timer globalTimer;
-        
+
         precise = get(base);
+#if MAKETIME32BITS
         globalTimer :> now;
-        estDLastDigits = (short) (now - lastEstimate);
+        estDLastDigits = (short) (now - lastEstimate)&~3;
         preciseDLastDigits = (short) ((precise - lastPrecise)<<2);
         offset = (short) (estDLastDigits - preciseDLastDigits);
         lastEstimate = now;
         lastPrecise = precise;
-        set(base, now + offset);
+        precise = now + offset;
+#else
+        precise = precise << 2;
+#endif
+        set(base, now + precise);
 
         miiCommitBuffer(base, length, notificationChannel);
     } else {
@@ -299,13 +304,18 @@ int miiOutPacket(chanend c_out, int b[], int index, int length) {
     outuint(c_out, -roundedLength + 1);
     outct(c_out, 1);
     precise = inuint(c_out);
+#if MAKETIME32BITS
     globalTimer :> now;
-    estDLastDigits = (short) (now - lastEstimate);
+    estDLastDigits = (short) (now - lastEstimate) & ~3;
     preciseDLastDigits = (short) ((precise - lastPrecise)<<2);
     offset = (short) (estDLastDigits - preciseDLastDigits);
     lastEstimate = now;
     lastPrecise = precise;
-    return now + offset;
+    precise = now + offset;
+#else
+    precise = precise << 2;
+#endif
+    return precise;
 }
 
 select miiOutPacketDone(chanend c_out) {

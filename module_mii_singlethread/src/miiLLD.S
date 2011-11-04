@@ -59,7 +59,7 @@ DallFives:
 #define SPtransmitCRC 17
 #define SPfinalCRC 18
     
-    // call: miiLLD(rxd, rxdv, txd, INchannel, OUTchannel)
+    // call: miiLLD(rxd, rxdv, txd, INchannel, OUTchannel, timingport)
 .globl miiLLD.nstackwords
 .globl miiLLD.maxthreads
 .globl miiLLD.maxtimers
@@ -73,6 +73,7 @@ DallFives:
     .globl miiLLD
 
 #define OUTchannel (STACKSIZE+1)     // parameter
+#define timingPort (STACKSIZE+2)     // parameter
 
 #define EEBLE XS1_SR_EEBLE_MASK    
 miiLLD:
@@ -195,8 +196,8 @@ stateIdle:
     add   r5, r5, 1            // Record that we transmitted a packet
     stw   r5, dp[miiPacketsTransmitted]
 
-    ldw   r5, dp[p_mii_fake]    // Create interframe gap
-    getts r7, res[r5]           // Get current count on fake port
+    ldw   r5, sp[timingPort]    // Create interframe gap
+    getts r7, res[r5]           // Get current count on timing port
     ldc   r8, 90                // Add 90 (960 ns nibbles - but we will have lost 60ns)
     add   r7, r7, r8            // Then set this to the port counter
     setpt res[r5], r7           // And wait for the port to be ready.

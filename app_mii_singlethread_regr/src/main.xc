@@ -10,11 +10,48 @@
 #include <platform.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "mii.h"
-#include "miiClient.h"
 #include "miiDriver.h"
+#include "miiClient.h"
 
 
+
+#define PORT_ETH_RXCLK   XS1_PORT_1K
+#define PORT_ETH_RXD     XS1_PORT_4F
+#define PORT_ETH_RXDV    XS1_PORT_1G
+#define PORT_ETH_TXCLK   XS1_PORT_1H
+#define PORT_ETH_TXEN    XS1_PORT_1F
+#define PORT_ETH_TXD     XS1_PORT_4E
+#define PORT_ETH_RXER    XS1_PORT_1L
+#define PORT_ETH_FAKE    XS1_PORT_8C
+
+#define PORT_ETH_RST_N_MDIO  XS1_PORT_1P
+#define PORT_ETH_MDC         XS1_PORT_1O
+
+on stdcore[0]: mii_interface_t mii =
+  {
+    XS1_CLKBLK_1,
+    XS1_CLKBLK_2,
+
+    PORT_ETH_RXCLK,
+    PORT_ETH_RXER,
+    PORT_ETH_RXD,
+    PORT_ETH_RXDV,
+
+    PORT_ETH_TXCLK,
+    PORT_ETH_TXEN,
+    PORT_ETH_TXD,
+
+    PORT_ETH_FAKE,
+  };
+
+#ifdef PORT_ETH_RST_N
+on stdcore[0]: out port p_mii_resetn = PORT_ETH_RST_N;
+on stdcore[0]: smi_interface_t smi = { PORT_ETH_MDIO, PORT_ETH_MDC, 0 };
+#else
+on stdcore[0]: smi_interface_t smi = { PORT_ETH_RST_N_MDIO, PORT_ETH_MDC, 1 };
+#endif
+
+on stdcore[0]: clock clk_smi = XS1_CLKBLK_5;
 
 
 
@@ -31,10 +68,7 @@ extern int nextBuffer;
 
 void emptyIn(chanend cIn, chanend cNotifications) {
     int b[1600];
-    timer t;
-    int now;
     int address = 0x1C000;
-    int cnt = 0;
 
     miiBufferInit(cIn, cNotifications, b, 1600);
     asm("stw %0, %1[0]" :: "r" (b), "r" (address));
@@ -97,7 +131,8 @@ void regression(void) {
     chan cIn, cOut;
     chan notifications;
     par {
-        { miiDriver(cIn, cOut, 1);}
+        { miiDriver(clk_smi, null, smi, mii,
+                    cIn, cOut, 1);}
         {x(); emptyIn(cIn, notifications);}
         {x(); emptyOut(cOut);}
         {burn();}

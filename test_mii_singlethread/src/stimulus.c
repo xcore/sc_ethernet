@@ -222,8 +222,11 @@ int main(int argc, char **argv) {
                                 if (verbose) {
                                     printf("Diff %d  %d\n", wrt-rdt, rdt*10 - time);
                                 }
-                                if (1 || verbose) {
-                                    printf("Time diff %d   %d %d  %08x\n", startTime/10 - ts, startTime/10, ts, ptr);
+                                if (verbose) {
+                                    int d = startTime - 10 *ts;
+                                    static int od;
+                                    printf("Time in diff %d   %d\n", d, od - d);
+                                    od = d;
                                 }
                             }
                         }
@@ -265,7 +268,12 @@ int main(int argc, char **argv) {
                         } else {
                             if (verbose) printf("\n");
                         }
-//                        printf("%d  %d\n", nbytesin, nbytesin - opackettime);
+                        if (verbose) {
+                            int d = nbytesin - opackettime;
+                            static int od;
+                            printf("                                 Time out diff %d  %d\n", d, od - d);
+                            od = d;
+                        }
                         fflush(stdout);
                         onbytesin = nbytesin;
                         nbytesin = 0;
