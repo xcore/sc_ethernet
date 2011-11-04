@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Network xmlns="http://www.xmos.com"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.xmos.com http://www.xmos.com">
+  <Type>Device</Type>
+  <Name>XP-DSC-BLDC</Name>
+  <!-- Board Version 1V0 -->
+  <!-- File Version 1V0 -->
+
+  <Declarations>
+    <Declaration>core stdcore[3]</Declaration>
+  </Declarations>
+
+  <Nodes>
+    <Node Id="0" Type="XS1-L1A" Oscillator="25Mhz" SystemFrequency="500MHz">
+      <Boot>
+        <Source Location="SPI:bootFlash"/>
+        <Bootee NodeId="1"/>
+        <Bootee NodeId="2"/>
+      </Boot>
+      <Core Number="0" Reference="stdcore[0]">
+        <!-- SPI FLASH -->
+  	<Port Location="XS1_PORT_1A" Name="PORT_SPI_MISO"/>
+	<Port Location="XS1_PORT_1B" Name="PORT_SPI_SS"/>
+	<Port Location="XS1_PORT_1C" Name="PORT_SPI_CLK"/>
+	<Port Location="XS1_PORT_1D" Name="PORT_SPI_MOSI"/>
+	
+	<!-- SDRAM -->
+	<Port Location="XS1_PORT_1E" Name="PORT_SDRAM_CKE"/>
+	<Port Location="XS1_PORT_1F" Name="PORT_SDRAM_DQM_H"/>
+	<Port Location="XS1_PORT_1G" Name="PORT_SDRAM_CLK"/>
+	<Port Location="XS1_PORT_1H" Name="PORT_SDRAM_WE_N"/>
+	<Port Location="XS1_PORT_1I" Name="PORT_SDRAM_RAS_N"/>
+	<Port Location="XS1_PORT_1J" Name="PORT_SDRAM_CAS_N"/>
+	<Port Location="XS1_PORT_1K" Name="PORT_SDRAM_DQM_L"/>
+	<Port Location="XS1_PORT_1L" Name="PORT_SDRAM_CS_N"/>
+	<Port Location="XS1_PORT_16A" Name="PORT_SDRAM_D"/>
+	<Port Location="XS1_PORT_16b" Name="PORT_SDRAM_A"/>
+      </Core>
+    </Node>
+    <Node Id="1" Type="XS1-L1A" Oscillator="25Mhz" SystemFrequency="500MHz">
+      <Boot>
+        <Source Location="XMOSLINK"/>
+      </Boot>
+      <Core Number="0" Reference="stdcore[1]">
+	<!-- BUTTONS & LEDS -->
+  	<Port Location="XS1_PORT_1A" Name="PORT_BUTTON_D"/>
+	<Port Location="XS1_PORT_1B" Name="PORT_BUTTON_C"/>
+	<Port Location="XS1_PORT_1C" Name="PORT_BUTTON_B"/>
+	<Port Location="XS1_PORT_1D" Name="PORT_BUTTON_A"/>
+	<Port Location="XS1_PORT_4A" Name="PORT_LEDS"/>
+ 
+ 	<!-- CAN -->
+   	<Port Location="XS1_PORT_1E" Name="PORT_CAN_TX"/>
+ 	<Port Location="XS1_PORT_1I" Name="PORT_CAN_RX"/>
+	<Port Location="XS1_PORT_4C" Name="PORT_CORE1_SHARED"/>
+      
+      	<!-- ETHERNET -->
+	<Port Location="XS1_PORT_1F" Name="PORT_ETH_TXEN"/>
+	<Port Location="XS1_PORT_1G" Name="PORT_ETH_RXDV"/>
+	<Port Location="XS1_PORT_1H" Name="PORT_ETH_TXCLK"/>
+	<Port Location="XS1_PORT_1J" Name="PORT_ETH_MDC"/>
+	<Port Location="XS1_PORT_1K" Name="PORT_ETH_RXCLK"/>
+	<Port Location="XS1_PORT_1L" Name="PORT_ETH_RXER"/>
+	<Port Location="XS1_PORT_1M" Name="PORT_ETH_MDIO"/>
+	<Port Location="XS1_PORT_4E" Name="PORT_ETH_TXD"/>
+	<Port Location="XS1_PORT_4F" Name="PORT_ETH_RXD"/>      
+	            
+ 	<!-- DISPLAY -->
+   	<Port Location="XS1_PORT_1N" Name="PORT_DS_CS_N"/>
+ 	<Port Location="XS1_PORT_1O" Name="PORT_DS_SCLK"/>
+	<Port Location="XS1_PORT_1P" Name="PORT_DS_MOSI"/>      
+      </Core>
+    </Node>
+    <Node Id="2" Type="XS1-L1A" Oscillator="25Mhz" SystemFrequency="400Mhz" ReferenceFrequency="200Mhz">
+      <Boot>
+        <Source Location="XMOSLINK"/>
+      </Boot>
+      <Core Number="0" Reference="stdcore[2]">
+ 	<!-- I2C -->
+  	<Port Location="XS1_PORT_1A" Name="PORT_I2C_SDA"/>
+	<Port Location="XS1_PORT_4A" Name="PORT_I2C_WD_SHARED"/>
+ 
+ 	<!-- ADC -->
+  	<Port Location="XS1_PORT_1B" Name="PORT_ADC_CLK"/>
+	<Port Location="XS1_PORT_1C" Name="PORT_ADC_CONV"/>
+	<Port Location="XS1_PORT_1D" Name="PORT_ADC_MISO"/>
+	<Port Location="XS1_PORT_4B" Name="PORT_ADC_SPARE"/>
+      
+      	<!-- MOTOR 1 -->
+	<Port Location="XS1_PORT_1K" Name="PORT_M1_HI_A"/>
+	<Port Location="XS1_PORT_1L" Name="PORT_M1_LO_A"/>
+	<Port Location="XS1_PORT_1O" Name="PORT_M1_HI_B"/>
+	<Port Location="XS1_PORT_1P" Name="PORT_M1_LO_B"/>
+	<Port Location="XS1_PORT_1M" Name="PORT_M1_HI_C"/>
+	<Port Location="XS1_PORT_1N" Name="PORT_M1_LO_C"/>
+	<Port Location="XS1_PORT_4E" Name="PORT_M1_ENCODER"/>
+
+      	<!-- MOTOR 2 -->
+	<Port Location="XS1_PORT_1I" Name="PORT_M2_HI_A"/>
+	<Port Location="XS1_PORT_1J" Name="PORT_M2_LO_A"/>
+	<Port Location="XS1_PORT_1G" Name="PORT_M2_HI_B"/>
+	<Port Location="XS1_PORT_1H" Name="PORT_M2_LO_B"/>
+	<Port Location="XS1_PORT_1E" Name="PORT_M2_HI_C"/>
+	<Port Location="XS1_PORT_1F" Name="PORT_M2_LO_C"/>
+	<Port Location="XS1_PORT_4C" Name="PORT_M2_ENCODER"/>
+      </Core>     
+    </Node>    
+  </Nodes>
+
+  <Links>
+    <!-- L2 Internal -->
+    <Link Encoding="5wire" Delays="0,1">
+      <LinkEndpoint NodeId="0" Link="4"/>
+      <LinkEndpoint NodeId="1" Link="7"/>
+    </Link>
+    <Link Encoding="5wire" Delays="0,1">
+      <LinkEndpoint NodeId="0" Link="5"/>
+      <LinkEndpoint NodeId="1" Link="6"/>
+    </Link>
+    <Link Encoding="5wire" Delays="0,1">
+      <LinkEndpoint NodeId="0" Link="6"/>
+      <LinkEndpoint NodeId="1" Link="5"/>
+    </Link>
+    <Link Encoding="5wire" Delays="0,1">
+      <LinkEndpoint NodeId="0" Link="7"/>
+      <LinkEndpoint NodeId="1" Link="4"/>
+    </Link>
+    
+    <!-- L2 to L1 -->
+    <Link Encoding="2wire" Delays="0,1">
+      <LinkEndpoint NodeId="1" Link="X0LB"/>
+      <LinkEndpoint NodeId="2" Link="X0LB"/>
+    </Link>
+    
+    <!-- XSCOPE 
+    <Link Encoding="2wire" Delays="4,5" Flags="SOD">
+      <LinkEndpoint NodeId="1" Link="X0LA"/>
+      <LinkEndpoint RoutingId="0x8000" Chanend="1"/>
+    </Link>
+    --> 
+        
+  </Links>
+
+  <Packages>	
+    <Package id="L2" Type="XS1-L2A-QF124">
+      <Component NodeId="0" InPackage="0"/>
+      <Component NodeId="1" InPackage="1"/>
+    </Package>
+    <Package id="L1" Type="XS1-L1A-LQ64">
+      <Component NodeId="2" InPackage="0"/>
+    </Package>    
+  </Packages>
+
+  <ExternalDevices>
+    <Device NodeId="0" Core="0" Class="SPIFlash" Name="bootFlash" Type="W25X40BV">
+      <Attribute Name="PORT_SPI_MISO" Value="PORT_SPI_MISO"/>
+      <Attribute Name="PORT_SPI_SS"   Value="PORT_SPI_SS"/>
+      <Attribute Name="PORT_SPI_CLK"  Value="PORT_SPI_CLK"/>
+      <Attribute Name="PORT_SPI_MOSI" Value="PORT_SPI_MOSI"/>
+    </Device>
+  </ExternalDevices>
+
+  <JTAGChain>
+     <JTAGDevice NodeId="0"/>
+     <JTAGDevice NodeId="1"/>
+     <JTAGDevice NodeId="2"/>
+  </JTAGChain>
+ 
+</Network>
+

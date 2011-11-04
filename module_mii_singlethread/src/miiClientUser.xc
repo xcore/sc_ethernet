@@ -261,9 +261,15 @@ void miiClientUser(int base, int end, chanend notificationChannel) {
     }
 }
 
+static int lastEstimate, lastPrecise;
+timer globalTimer;
+
 int miiOutPacket(chanend c_out, int b[], int index, int length) {
     int a, roundedLength;
     int oddBytes = length & 3;
+    int precise;
+    int now;
+    int estDLastDigits, preciseDLastDigits, offset;
 
     asm(" mov %0, %1" : "=r"(a) : "r"(b));
     
@@ -273,7 +279,14 @@ int miiOutPacket(chanend c_out, int b[], int index, int length) {
     outuint(c_out, a + length - oddBytes - 4);
     outuint(c_out, -roundedLength + 1);
     outct(c_out, 1);
-    return inuint(c_out);
+    precise = inuint(c_out);
+    globalTimer :> now;
+    estDLastDigits = (short) (now - lastEstimate);
+    preciseDLastDigits = (short) ((precise - lastPrecise)<<2);
+    offset = (short) (estDLastDigits - preciseDLastDigits);
+    lastEstimate = now;
+    lastPrecise = precise;
+    return now + offset;
 }
 
 select miiOutPacketDone(chanend c_out) {
