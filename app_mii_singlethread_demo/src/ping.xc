@@ -6,24 +6,43 @@
 
 #include <xs1.h>
 #include <xclib.h>
+#include <stdio.h>
 #include <print.h>
 #include <platform.h>
 #include <stdlib.h>
-#include "mii.h"
 #include "miiClient.h"
 #include "miiDriver.h"
 
 
+on stdcore[1]: mii_interface_t mii =
+  {
+    XS1_CLKBLK_1,
+    XS1_CLKBLK_2,
 
+    PORT_ETH_RXCLK,
+    PORT_ETH_RXER,
+    PORT_ETH_RXD,
+    PORT_ETH_RXDV,
 
-#include <stdio.h>
+    PORT_ETH_TXCLK,
+    PORT_ETH_TXEN,
+    PORT_ETH_TXD,
+
+    XS1_PORT_8A,
+  };
+
+#ifdef PORT_ETH_RST_N
+on stdcore[1]: out port p_mii_resetn = PORT_ETH_RST_N;
+on stdcore[1]: smi_interface_t smi = { PORT_ETH_MDIO, PORT_ETH_MDC, 0 };
+#else
+on stdcore[1]: smi_interface_t smi = { PORT_ETH_MDIO, PORT_ETH_MDC, 1 };
+#endif
+
+on stdcore[1]: clock clk_smi = XS1_CLKBLK_5;
 
 //***** Ethernet Configuration ****
 
 //on stdcore[2]: clock clk_mii_ref = XS1_CLKBLK_REF;
-
-
-
 
 
 
@@ -306,7 +325,8 @@ void packetResponse(void) {
     chan cIn, cOut;
     chan notifications;
     par {
-        {miiDriver(cIn, cOut, 0);}
+        { miiDriver(clk_smi, null, smi, mii,
+                    cIn, cOut, 1);}
         {x(); pingDemo(cIn, cOut, notifications);}
         {burn();}
         {burn();}
@@ -317,9 +337,21 @@ void packetResponse(void) {
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 int main() {
     par {
-//        on stdcore[0]: {regression();}
         on stdcore[1]: {packetResponse();}
     }
 	return 0;
