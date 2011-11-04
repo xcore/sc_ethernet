@@ -29,7 +29,7 @@
     // SP[OUTchannel] OUTchannel to other layer.
 
     
-     .section .cp.const4,     "acM", @progbits, 4
+     .section .cp.const4a,     "ac", @progbits, 4 // TODO: should be "acM"
     .align 4
 
     .globl polynomial
