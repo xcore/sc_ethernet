@@ -28,7 +28,7 @@ Key Files
 
 The following header files contain prototypes of all functions
 required to use use the ethernet component. The API is described in 
-Section :ref:`sec_api`.
+:ref:`sec_api`.
 
 .. list-table:: Key Files
   :header-rows: 1
