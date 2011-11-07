@@ -124,11 +124,12 @@ static void theServer(chanend cIn, chanend cOut, chanend cNotifications, chanend
     } 
 }
 
-void miiAVBListenerServer(chanend appIn[3], chanend appOut[2], chanend server) {
+void miiAVBListenerServer(clock clk_smi, out port ?p_mii_resetn, smi_interface_t &smi,
+                            mii_interface_t &m, chanend appIn[3], chanend appOut[2], chanend server) {
     chan cIn, cOut;
     chan notifications;
     par {
-        miiDriver(cIn, cOut, 0);
+        miiDriver(clk_smi, p_mii_resetn, smi, m, cIn, cOut, 0);
         theServer(cIn, cOut, notifications, appIn, appOut);
     }
 }
