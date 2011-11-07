@@ -252,7 +252,7 @@ int main(int argc, char **argv) {
                                 if (verbose) {
                                     printf("Diff %d  %d\n", wrt-rdt, rdt*10 - time);
                                 }
-                                if (1 || verbose) {
+                                if (verbose) {
                                     int d = startTime - 10 *ts;
                                     static int od;
                                     printf("Time in diff %d   %d\n", d, od - d);
@@ -298,7 +298,7 @@ int main(int argc, char **argv) {
                         } else {
                             if (verbose) printf("\n");
                         }
-                        if (1 || verbose) {
+                        if (verbose) {
                             int d = nbytesin - opackettime;
                             static int od;
                             printf("                                 Time out diff %d  %d\n", d, od - d);
