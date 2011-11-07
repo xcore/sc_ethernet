@@ -7,14 +7,10 @@ can connect to several clients and each channel connection to the
 server is for either RX (receiving packets from the MAC) or TX
 (transmitting packets to the MAC) operation.
 
-.. only:: latex
+.. figure:: images/mac.*
+   :width: 100%
 
-  .. figure:: images/mac.pdf
-
-.. only:: html
-
-  .. figure:: images/mac.png
-
+   Mac component
 
 Buffers and Queues
 ++++++++++++++++++
@@ -46,7 +42,7 @@ Outgoing buffers move around the different queues as follows:
      empty queue.
 
 The number of buffers available can be set in the ``ethernet_conf.h``
-configuration file (see Section :ref:`sec_conf_defines`).
+configuration file (see :ref:`sec_conf_defines`).
 
 Filtering
 +++++++++
@@ -124,4 +120,19 @@ The component has the following memory requirements:
    - ~15k
  * - Buffers
    - (number of buffers) x ``MAX_ETHERNET_PACKET_SIZE``
+
+
+Single threaded "lite" implementation (experimental)
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+The two subdirectories called ``module_mii_singlethread`` and
+``app_mii_singlethread_demo`` are an experimental single thread
+MII controller.  The file``mii.xc`` contains the definition of
+the MII port pins.
+
+The main pin control thread is hand written assembler utilising
+the event branching nature of the xcore to maintain two coroutines
+inside the single thread.
+
+
 

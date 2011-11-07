@@ -1,7 +1,7 @@
 .. _sec_api:
 
-API
-===
+Ethernet API
+============
 
 .. _sec_conf_defines:
 
@@ -198,14 +198,19 @@ Packet Transmit Functions
 
 .. doxygenfunction:: mac_tx_offset2
 
-+-------------------------------------------------------------+
-| Synonym                      | Function                     |
-+-------------------------------------------------------------+
-| ethernet_send_frame          | ethernet_send_frame          |
-| ethernet_send_frame_getTime  | ethernet_send_frame_getTime  |
-| ethernet_send_frame_offset2  | mac_tx_offset2               |
-| ethernet_get_my_mac_adrs     | mac_get_macaddr              |
-+-------------------------------------------------------------+
+.. table:: Ethernet function synonyms
+
+  +------------------------------+------------------------------+
+  | Synonym                      | Function                     |
+  +==============================+==============================+
+  | ethernet_send_frame          | ethernet_send_frame          |
+  +------------------------------+------------------------------+
+  | ethernet_send_frame_getTime  | ethernet_send_frame_getTime  |
+  +------------------------------+------------------------------+
+  | ethernet_send_frame_offset2  | mac_tx_offset2               |
+  +------------------------------+------------------------------+
+  | ethernet_get_my_mac_adrs     | mac_get_macaddr              |
+  +------------------------------+------------------------------+
 
 Configuration Functions
 +++++++++++++++++++++++
