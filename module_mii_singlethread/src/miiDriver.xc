@@ -14,7 +14,9 @@ void miiDriver(clock clk_smi,
                smi_interface_t &smi,
                mii_interface_t &m,
                chanend cIn, chanend cOut, int simulation) {
-    mii_init(m, simulation);
+    int startTime;
+    startTime = mii_init(m, simulation);
+    miiTimeStampInit(startTime);
     if (!simulation) {
         smi_init(clk_smi, p_mii_resetn, smi);
         eth_phy_config(1, smi);

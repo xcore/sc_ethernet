@@ -21,7 +21,9 @@
 
 
 
-void mii_init(mii_interface_t &m, int simulation) {
+unsigned mii_init(mii_interface_t &m, int simulation) {
+    timer tmr;
+    unsigned timeStamp;
 	set_port_use_on(m.p_mii_rxclk);
     m.p_mii_rxclk :> int x;
 	set_port_use_on(m.p_mii_timing);
@@ -46,8 +48,6 @@ void mii_init(mii_interface_t &m, int simulation) {
 	set_port_clock(m.p_mii_rxdv, m.clk_mii_rx);
 
 	set_clock_rise_delay(m.clk_mii_rx, CLK_DELAY_RECEIVE);
-
-	start_clock(m.clk_mii_rx);
 
 	clearbuf(m.p_mii_rxd);
 
@@ -84,18 +84,21 @@ void mii_init(mii_interface_t &m, int simulation) {
 
 	set_clock_fall_delay(m.clk_mii_tx, CLK_DELAY_TRANSMIT);
 
-	start_clock(m.clk_mii_tx);
-
-	clearbuf(m.p_mii_txd);
 
     if (!simulation) {
 #ifndef SIMULATION
-        timer tmr;
         unsigned t;
         tmr :> t;
         tmr when timerafter(t + PHY_INIT_DELAY) :> t;
 #endif
     }
 
+	start_clock(m.clk_mii_rx);
+	start_clock(m.clk_mii_tx);
+    tmr :> timeStamp;
+
+	clearbuf(m.p_mii_txd);              // required??
+
+    return timeStamp;
 }
 

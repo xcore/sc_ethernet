@@ -253,30 +253,30 @@ void miiFreeInBuffer(int base) {
     // Note - wrptr may have been stuck
 }
 
+static int globalOffset;
+
+void miiTimeStampInit(unsigned offset) {
+    int testOffset = 10000; // set to +/- 10000 for testing.
+    globalOffset = (offset + testOffset) & 0x3FFFF;
+}
+
 void miiClientUser(int base, int end, chanend notificationChannel) {
     int length = packetGood(base, end);
-    static int cnt = 0;
     if (length != 0) {
         int precise;
         int now;
-        int estDLastDigits, preciseDLastDigits, offset;
-        
-        static int lastEstimate, lastPrecise;
+        int difference;
         static timer globalTimer;
 
         precise = get(base);
-#if MAKETIME32BITS
-        globalTimer :> now;
-        estDLastDigits = (short) (now - lastEstimate)&~3;
-        preciseDLastDigits = (short) ((precise - lastPrecise)<<2);
-        offset = (short) (estDLastDigits - preciseDLastDigits);
-        lastEstimate = now;
-        lastPrecise = precise;
-        precise = now + offset;
-#else
         precise = precise << 2;
-#endif
-        set(base, now + precise);
+        globalTimer :> now;
+        now -= globalOffset;
+        now &= 0xFFFF0000;
+        difference = sext((precise - now) >> 16, 2) << 16;
+        precise = (now + difference) | precise;
+        precise = precise + globalOffset;
+        set(base, precise);
 
         miiCommitBuffer(base, length, notificationChannel);
     } else {
@@ -289,11 +289,9 @@ int miiOutPacket(chanend c_out, int b[], int index, int length) {
     int oddBytes = length & 3;
     int precise;
     int now;
-    int estDLastDigits, preciseDLastDigits, offset;
+    int difference, localGlobalOffset;
 
-    static int lastEstimate, lastPrecise;
     static timer globalTimer;
-
 
     asm(" mov %0, %1" : "=r"(a) : "r"(b));
     
@@ -304,17 +302,16 @@ int miiOutPacket(chanend c_out, int b[], int index, int length) {
     outuint(c_out, -roundedLength + 1);
     outct(c_out, 1);
     precise = inuint(c_out);
-#if MAKETIME32BITS
-    globalTimer :> now;
-    estDLastDigits = (short) (now - lastEstimate) & ~3;
-    preciseDLastDigits = (short) ((precise - lastPrecise)<<2);
-    offset = (short) (estDLastDigits - preciseDLastDigits);
-    lastEstimate = now;
-    lastPrecise = precise;
-    precise = now + offset;
-#else
+
+    asm("ldw %0, dp[globalOffset]" : "=r" (localGlobalOffset));
     precise = precise << 2;
-#endif
+    globalTimer :> now;
+    now -= localGlobalOffset;
+    now &= 0xFFFF0000;
+    difference = sext((precise - now) >> 16, 2) << 16;
+    precise = (now + difference) | precise;
+    precise = precise + localGlobalOffset;
+
     return precise;
 }
 
