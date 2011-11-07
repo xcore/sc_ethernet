@@ -4,6 +4,7 @@
 // LICENSE.txt and at <http://github.xcore.com/>
 
 #include <xs1.h>
+#include <print.h>
 #include "miiDriver.h"
 #include "miiLLD.h"
 #include "mii.h"
@@ -15,11 +16,13 @@ void miiDriver(clock clk_smi,
                mii_interface_t &m,
                chanend cIn, chanend cOut, int simulation) {
     int startTime;
+    int x;
     startTime = mii_init(m, simulation);
     miiTimeStampInit(startTime);
     if (!simulation) {
         smi_init(clk_smi, p_mii_resetn, smi);
-        eth_phy_config(1, smi);
+        x = eth_phy_config(1, smi);
+        printintln(x);
     }
     miiLLD(m.p_mii_rxd, m.p_mii_rxdv, m.p_mii_txd, cIn, cOut, m.p_mii_timing);
 }

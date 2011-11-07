@@ -21,6 +21,7 @@
 .linkset miiInstallHandler.nstackwords, 0
 .linkset miiInstallHandler.maxchanends, 0
 .linkset miiInstallHandler.maxtimers, 0
+.linkset miiInstallHandler.maxthreads, 0
 .linkset miiInstallHandler.maxsync, 0
 
 .globl miiInstallHandler

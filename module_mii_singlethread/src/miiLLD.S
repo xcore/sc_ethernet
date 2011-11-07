@@ -66,6 +66,9 @@ DallFives:
 .globl miiLLD.maxchanends
 .globl miiLLD.maxsync
 .type  miiLLD, @function
+.linkset miiLLD.maxchanends, 0
+.linkset miiLLD.maxtimers, 0
+.linkset miiLLD.maxthreads, 0 
 .linkset miiLLD.locnoside, 0
 .linkset miiLLD.locnochandec, 1
 .linkset miiLLD.nstackwords, STACKSIZE

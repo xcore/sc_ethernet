@@ -79,3 +79,19 @@ void mac_rx_offset2(chanend c_mac,
                     REFERENCE_PARAM(unsigned int, len),
                    REFERENCE_PARAM(unsigned int, src_port));
 
+/** Setup the size of the buffer queue within the mac attached to this link.
+ *  \param c_mac_svr  chanend connected to the mac
+ *  \param x        the required size of the queue
+ **/
+void mac_set_queue_size(chanend c_mac_svr, int x);
+
+/** Setup the custom filter up on a link.
+ *
+ *  \param c_mac_svr   chanend of receive server.
+ *  \param x         filter value
+ * 
+ *  For each packet, the filter value is &-ed against the result of 
+ *  the mac_custom_filter function. If the result is non-zero
+ *  then the packet is transmitted down the link.
+ **/
+void mac_set_custom_filter(chanend c_mac_svr, int x);

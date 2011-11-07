@@ -1,4 +1,5 @@
 #include <xs1.h>
+#include <xclib.h>
 #include "ethernet_rx_client.h"
 #include "ethernet_tx_client.h"
 
@@ -11,6 +12,7 @@ void safe_mac_rx(chanend cIn,
                         int n) {
     inuint_byref(cIn, len);
     cIn <: 0;                             // Confirm that we take packet.
+    cIn :> len;
     for(int i = 0; i< ((len+3)>>2); i++) {
         cIn :> (buffer, unsigned int[]) [i];
     }
@@ -27,6 +29,7 @@ void safe_mac_rx_timed(chanend cIn,
                         int n) {
     inuint_byref(cIn, len);
     cIn <: 0;                             // Confirm that we take packet.
+    cIn :> len;
     for(int i = 0; i< ((len+3)>>2); i++) {
         cIn :> (buffer, unsigned int[]) [i];
     }
@@ -42,21 +45,20 @@ void mac_rx_offset2(chanend cIn,
     unsigned highest16, new, i;
     inuint_byref(cIn, len);
     cIn <: 0;                             // Confirm that we take packet.
+    cIn :> len;
     cIn :> new;
-    (buffer, unsigned int[]) [i] = new >> 16;
+    new = byterev(new);
+    (buffer, unsigned int[]) [0] = byterev(new >> 16);
     highest16 = new << 16;
     for(i = 1; i< ((len+3)>>2); i++) {
         cIn :> new;
+        new = byterev(new);
         {new,highest16} = mac(new, 0x10000, highest16, 0);
-        (buffer, unsigned int[]) [i] = new;
+        (buffer, unsigned int[]) [i] = byterev(new);
     }
     (buffer, unsigned int[]) [i] = highest16;
     cIn :> unsigned int _;
     src_port = 0;
-}
-
-int mac_get_macaddr(chanend c_mac, unsigned char macaddr[]) {
-    return 1;
 }
 
 void mac_tx(chanend cOut, unsigned int buffer[], int nBytes, int ifnum) {
@@ -74,4 +76,31 @@ void mac_tx_timed(chanend cOut, unsigned int buffer[], int nBytes, unsigned &tim
         cOut <: buffer[i];
     }
     cOut :> time;
+}
+
+void mac_set_queue_size(chanend mac_svr, int x)
+{
+    return;
+}
+
+void mac_set_custom_filter(chanend mac_svr, int x)
+{
+    return;
+}
+
+int mac_get_macaddr(chanend ethernet_tx_svr, unsigned char Buf[])
+{
+    int i;
+    // transfer start of data.
+    for (i = 0; i < 6; i++)
+    {
+        Buf[i] = 1;
+    }
+
+    return 0;   
+}
+
+void send_avb_1722_router_cmd(chanend c, unsigned key0, unsigned key1, unsigned link, unsigned hash)
+{
+    return;
 }

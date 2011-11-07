@@ -7,17 +7,17 @@
 #include <xs1.h>
 #include <xclib.h>
 #include <print.h>
+#include "miiDriver.h"
 #include "mii.h"
 #include "miiClient.h"
-#include "miiDriver.h"
 
 extern char notifySeen;
 
 enum {
     THREAD_NONE = -1,
-    THREAD_REST = 0,
-    THREAD_PTP = 1,
-    THREAD_AUDIO = 2,
+    THREAD_REST = 2,
+    THREAD_PTP = 0,
+    THREAD_AUDIO = 1,
 };
 
 static int calcDestinationThread(int addr) {
@@ -26,6 +26,7 @@ static int calcDestinationThread(int addr) {
     if ((b3 & 0xffff) == 0x0081) {
         asm("ldw %0, %1[4]" : "=r" (b3) : "r" (addr));
     }
+   
 
     switch (b3 & 0xFFFF) {
     case 0xF788:
@@ -51,18 +52,28 @@ static int calcDestinationThread(int addr) {
     return result;
 }
 
-static void theServer(chanend cIn, chanend cOut, chanend cNotifications, chanend appIn[3], chanend appOut[2]) {
+static void theServer(chanend cIn, chanend cOut, chanend cNotifications, chanend appIn[3], chanend appOut[3]) {
     int outBytes;
     int b[3200];
     int txbuf[400];
     int timeRequired, t;
+    int dest;
 
     struct {
-        int full;
-        int addr;
-        int nBytes;
-        int time;
+        struct {
+            int addr;
+            int nBytes;
+            int time;
+        } elements[4];
+        int len, rd, wr;
     } packetStore[3];
+    
+    for (int i=0; i < 3; i++)
+    {
+        packetStore[i].rd = 0;
+        packetStore[i].wr = 0;
+        packetStore[i].len = 0;
+    }
 
     miiBufferInit(cIn, cNotifications, b, 3200);
     miiOutInit(cOut);
@@ -72,22 +83,25 @@ static void theServer(chanend cIn, chanend cOut, chanend cNotifications, chanend
         case inuchar_byref(cNotifications, notifySeen):
             break;
         case (int i = 0; i < 3; i++) 
-            packetStore[i].full => appIn[i] :> int _:
-            for(int i = 0; i < ((packetStore[i].nBytes + 3) >>2); i++) {
+            packetStore[i].len != 0 => appIn[i] :> int _:
+            appIn[i] <: packetStore[i].elements[packetStore[i].rd].nBytes;
+            for(int j = 0; j < ((packetStore[i].elements[packetStore[i].rd].nBytes + 3) >>2); j++) {
                 int val;
-                asm("ldw %0, %1[%2]" : "=r" (val) : "r" (packetStore[i].addr) , "r" (i));
+                asm("ldw %0, %1[%2]" : "=r" (val) : "r" (packetStore[i].elements[packetStore[i].rd].addr) , "r" (j));
                 appIn[i] <: val;
             }
-            appIn[i] <: packetStore[dest].time;
-            miiFreeInBuffer(packetStore[i].addr);
+            appIn[i] <: packetStore[i].elements[packetStore[i].rd].time;
+            miiFreeInBuffer(packetStore[i].elements[packetStore[i].rd].addr);
             miiRestartBuffer();
-            packetStore[i].full = 0;
+                packetStore[i].len--;
+                packetStore[i].rd = (packetStore[i].rd + 1)& 3;
             break;
-        case (int i = 0; i < 2; i++) 
+        case (int i = 0; i < 3; i++) 
             appOut[i] :> outBytes:
             appOut[i] :> timeRequired;
-            for(int i = 0; i < ((outBytes + 3) >>2); i++) {
-                appOut[i] :> txbuf[i];
+
+            for(int j = 0; j < ((outBytes + 3) >>2); j++) {
+                appOut[i] :> txbuf[j];
             }
             if(outBytes < 64) {
                 printstr("ERR ");
@@ -112,20 +126,29 @@ static void theServer(chanend cIn, chanend cOut, chanend cNotifications, chanend
                 miiRestartBuffer();
                 continue;
             }
-            if (packetStore[dest].full) {
-                miiFreeInBuffer(packetStore[dest].addr);
+            if (packetStore[dest].len == 4) {
+                printintln(dest);
+                miiFreeInBuffer(packetStore[dest].elements[packetStore[dest].rd].addr);
+                packetStore[dest].len--;
+                packetStore[dest].rd = (packetStore[dest].rd + 1)& 3;
                 miiRestartBuffer();
             }
-            packetStore[dest].full = 1;
-            packetStore[dest].addr = a;
-            packetStore[dest].nBytes = n;
-            packetStore[dest].time = t;
+            else if (packetStore[dest].len == 0) {
+                outuint(appIn[dest], 0);
+            }
+            packetStore[dest].elements[packetStore[dest].wr].addr = a;
+            packetStore[dest].elements[packetStore[dest].wr].nBytes = n;
+            packetStore[dest].elements[packetStore[dest].wr].time = t;
+                packetStore[dest].len++;
+                packetStore[dest].wr = (packetStore[dest].wr + 1)& 3;
+                miiRestartBuffer();
+
         }
     } 
 }
 
 void miiAVBListenerServer(clock clk_smi, out port ?p_mii_resetn, smi_interface_t &smi,
-                            mii_interface_t &m, chanend appIn[3], chanend appOut[2], chanend server) {
+                            mii_interface_t &m, chanend appIn[3], chanend appOut[3], chanend ?server) {
     chan cIn, cOut;
     chan notifications;
     par {

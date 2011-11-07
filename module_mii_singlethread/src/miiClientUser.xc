@@ -254,6 +254,7 @@ void miiFreeInBuffer(int base) {
 }
 
 static int globalOffset;
+int globalNow;
 
 void miiTimeStampInit(unsigned offset) {
     int testOffset = 10000; // set to +/- 10000 for testing.
@@ -271,6 +272,7 @@ void miiClientUser(int base, int end, chanend notificationChannel) {
         precise = get(base);
         precise = precise << 2;
         globalTimer :> now;
+        globalNow = now;
         now -= globalOffset;
         now &= 0xFFFF0000;
         difference = sext((precise - now) >> 16, 2) << 16;
@@ -291,7 +293,7 @@ int miiOutPacket(chanend c_out, int b[], int index, int length) {
     int now;
     int difference, localGlobalOffset;
 
-    static timer globalTimer;
+    // static timer globalTimer;
 
     asm(" mov %0, %1" : "=r"(a) : "r"(b));
     
@@ -305,7 +307,8 @@ int miiOutPacket(chanend c_out, int b[], int index, int length) {
 
     asm("ldw %0, dp[globalOffset]" : "=r" (localGlobalOffset));
     precise = precise << 2;
-    globalTimer :> now;
+    asm("ldw %0, dp[globalNow]" : "=r" (now));
+    // globalTimer :> now;
     now -= localGlobalOffset;
     now &= 0xFFFF0000;
     difference = sext((precise - now) >> 16, 2) << 16;
