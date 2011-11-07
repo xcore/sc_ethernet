@@ -28,8 +28,7 @@
     
     // SP[OUTchannel] OUTchannel to other layer.
 
-    
-     .section .cp.const4,     "acM", @progbits, 4
+     .section .cp.rodata,     "ac", @progbits
     .align 4
 
     .globl polynomial
