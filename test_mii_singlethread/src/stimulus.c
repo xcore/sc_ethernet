@@ -29,22 +29,32 @@ int allTriggersDone = 0;
 
 char triggerBefore[MT], triggerAfter[MT];
 
-int setTriggers(int step) {
+int setTriggers(int step, int cycleTime) {
     int i;
     if (step != 1) {
         fprintf(stderr, "Warning only doing 1 in every %d steps for shmoo\n", step);
     }
-    for(i = ltoh*8 + 96; i >= ltoh*8 - 64; i-=step) {  // Make tail of Tx collide with head of Rx
-        triggerBefore[i] = 1;
-    }
-    for(i = 128; i > 0; i-=step) {                    // Make head of Tx collide with head of Rx
-        triggerBefore[i] = 1;
-    }
-    for(i = 0; i <= 128; i+=step) {                   // And tail with tail
-        triggerAfter[i] = 1;
-    }
-    for(i = ltod*8 - 96; i <= ltoh*8 + 64 ; i+=step) { // and head with tail.
-        triggerAfter[i] = 1;
+    if (cycleTime) {
+        int half = cycleTime/20;
+        for(i = half; i > 0; i-=step) {
+            triggerBefore[i] = 1;
+        }
+        for(i = 0; i <= half; i+=step) {
+            triggerAfter[i] = 1;
+        }
+    } else {
+        for(i = ltoh*8 + 96; i >= ltoh*8 - 64; i-=step) {  // Make tail of Tx collide with head of Rx
+            triggerBefore[i] = 1;
+        }
+        for(i = 128; i > 0; i-=step) {                    // Make head of Tx collide with head of Rx
+            triggerBefore[i] = 1;
+        }
+        for(i = 0; i <= 128; i+=step) {                   // And tail with tail
+            triggerAfter[i] = 1;
+        }
+        for(i = ltod*8 - 96; i <= ltoh*8 + 64 ; i+=step) { // and head with tail.
+            triggerAfter[i] = 1;
+        }
     }
     for(i = 0; i < MT; i++) {
         if (triggerBefore[i]) triggerCnt++;
@@ -88,26 +98,38 @@ int main(int argc, char **argv) {
     int nibbles = 0;
     int expected = 64;
     int step;
+    int ccnt = 0;
     unsigned int nbytesin = 0;
     unsigned int onbytesin = 0;
     XsiStatus status;
     int first = 1;
     int pinLowTime = -1;
     int outputRequired = 0, inputRequired = 0;
-    int visualise;
+    int visualise, continuous;
     int packettime, opackettime, oopackettime;
-    if (argc != 6) {
-        printf("Usage %s SimArgs toDeviceLen toHostLen step\n", argv[0]);
+    if (argc != 7) {
+        printf("Usage %s SimArgs toDeviceLen toHostLen step visualise nuke\n", argv[0]);
+        printf("                 toDeviceLen Number of byte to send to device\n");
+        printf("                 toHostLen   Number of byte to send to host\n");
+        printf("                 step        time increment (1 for complete)\n");
+        printf("                 visualise   1 to produce grpahics, 0 to not\n");
+        printf("                 continuous  1 to have minimal interframe gap\n");
         exit(0);
     }
     ltod = atoi(argv[2]);
     ltoh = atoi(argv[3]);
     step = atoi(argv[4]);
     visualise = atoi(argv[5]);
-    setTriggers(step);
+    continuous  = atoi(argv[6]);
+    if (continuous) {
+        cycleTime = 10 * ((ltod + 8 + 4) * 8 + 96);
+        setTriggers(step, cycleTime);
+    } else {
+        setTriggers(step, 0);
+    }
     if (visualise) {
-        fprintf(stdout, "@0LINES %d %d\n", cycleTime/10, triggerCnt);
-        fprintf(stdout, "@0FILE images/blah_%d_%d.ppm\n", ltod, ltoh);
+        fprintf(stdout, "@0LINES %d %d\n", cycleTime/10, continuous ? triggerCnt * 2: triggerCnt);
+        fprintf(stdout, "@0FILE images/blah_%d_%d_%d.ppm\n", ltod, ltoh, continuous);
         fflush(stdout);
     }
     status = xsi_create(&xsim, argv[1]);
@@ -122,7 +144,15 @@ int main(int argc, char **argv) {
             }
             nextTXTime = time + cycleTime / 2;
             cycleStart += cycleTime;
-            outputRequired = 1; // TODO
+            if (continuous) {
+                ccnt++;
+                if (ccnt == 2) {
+                    ccnt = 0;
+                    outputRequired = 1;
+                }
+            } else {
+                outputRequired = 1;
+            }
             inputRequired = 1;
             fprintf(stderr, "%3d\r", triggerCnt);
 /*            if (triggerCnt == 1) {

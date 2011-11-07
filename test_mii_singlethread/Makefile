@@ -8,7 +8,7 @@ DEV=$(SHORT)
 //HOST=
 //DEV=
 STEP=1
-BIGSTEP=5
+BIGSTEP=20
 
 APP=app_mii_singlethread_regr
 BIN=../$(APP)/bin/$(APP).xe
@@ -21,22 +21,24 @@ test: bin/tester
 	(cd ../$(APP); make all)
 	for i in $(DEV); do \
 	 for j in $(HOST); do \
-	  bin/tester "$(TFLAG) $(BIN)" $$i $$j $(STEP) 0; done; done
+	  bin/tester "$(TFLAG) $(BIN)" $$i $$j $(STEP) 0 0; done; done
 	for i in $(SHORT); do \
 	 for j in $(LONG); do \
-	  bin/tester "$(TFLAG) $(BIN)" $$i $$j $(STEP) 0; \
-	  bin/tester "$(TFLAG) $(BIN)" $$j $$i $(STEP) 0; \
+	  bin/tester "$(TFLAG) $(BIN)" $$i $$j $(STEP) 0 0; \
+	  bin/tester "$(TFLAG) $(BIN)" $$j $$i $(STEP) 0 0; \
     done; done
 
 visualise: bin/tester
 	(cd ../$(APP); make all)
 	for i in $(DEV); do \
 	 for j in $(HOST); do \
-	  bin/tester "-t $(BIN)" $$i $$j $(BIGSTEP) 1 | ./render.sh ; done; done
+	  bin/tester "-t $(BIN)" $$i $$j $(BIGSTEP) 1 1 | ./render.sh; \
+	  bin/tester "-t $(BIN)" $$i $$j $(BIGSTEP) 1 0 | ./render.sh; \
+	done; done
 	for i in $(SHORT); do \
 	 for j in $(LONG); do \
-	  bin/tester "-t $(BIN)" $$i $$j $(BIGSTEP) 1 | ./render.sh; \
-	  bin/tester "-t $(BIN)" $$j $$i $(BIGSTEP) 1 | ./render.sh; \
+	  bin/tester "-t $(BIN)" $$i $$j $(BIGSTEP) 1 0 | ./render.sh; \
+	  bin/tester "-t $(BIN)" $$j $$i $(BIGSTEP) 1 0 | ./render.sh; \
     done; done
 
 bin/tester: src/stimulus.c
