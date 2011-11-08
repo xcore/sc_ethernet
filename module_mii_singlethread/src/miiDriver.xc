@@ -15,15 +15,16 @@ void miiDriver(clock clk_smi,
                smi_interface_t &smi,
                mii_interface_t &m,
                chanend cIn, chanend cOut, int simulation) {
-    int startTime;
+    timer tmr;
     int x;
-    startTime = mii_init(m, simulation);
-    miiTimeStampInit(startTime);
     if (!simulation) {
         smi_init(clk_smi, p_mii_resetn, smi);
-        x = eth_phy_config(1, smi);
-        printintln(x);
+        smi_reset(p_mii_resetn, smi, tmr);
     }
-    miiLLD(m.p_mii_rxd, m.p_mii_rxdv, m.p_mii_txd, cIn, cOut, m.p_mii_timing);
+    mii_init(m, simulation, tmr);
+    if (!simulation) {
+        x = eth_phy_config(1, smi);
+    }
+    miiLLD(m.p_mii_rxd, m.p_mii_rxdv, m.p_mii_txd, cIn, cOut, m.p_mii_timing, tmr);
 }
 

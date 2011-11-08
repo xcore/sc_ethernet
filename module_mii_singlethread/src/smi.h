@@ -18,6 +18,8 @@ void smi_init(clock clk_smi, out port ?p_mii_resetn, smi_interface_t &smi);
 	 Returns 2 if no error but link times out (3 sec) */
 int eth_phy_config(int eth100, smi_interface_t &smi);
 
+void smi_reset(out port ?p_mii_resetn, smi_interface_t &smi, timer tmr);
+
 /* Cleanup of SMI ports */
 void smi_deinit(clock clk_smi, out port ?p_mii_resetn, smi_interface_t &smi);
 

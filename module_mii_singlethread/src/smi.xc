@@ -75,10 +75,8 @@ void smi_deinit(clock clk_smi, out port ?p_mii_resetn, smi_interface_t &smi)
 }
 
 // Reset the MII PHY
-void smi_reset( out port ?p_mii_resetn, smi_interface_t &smi)
+void smi_reset( out port ?p_mii_resetn, smi_interface_t &smi, timer tmr)
 {
-  
-  timer tmr;
   unsigned int  resetTime;
   
   // Assert reset;

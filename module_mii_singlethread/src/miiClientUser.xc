@@ -264,7 +264,7 @@ void miiTimeStampInit(unsigned offset) {
 void miiClientUser(int base, int end, chanend notificationChannel) {
     int length = packetGood(base, end);
     if (length != 0) {
-        int precise;
+/*        int precise;
         int now;
         int difference;
         static timer globalTimer;
@@ -278,7 +278,7 @@ void miiClientUser(int base, int end, chanend notificationChannel) {
         difference = sext((precise - now) >> 16, 2) << 16;
         precise = (now + difference) | precise;
         precise = precise + globalOffset;
-        set(base, precise);
+        set(base, precise);*/
 
         miiCommitBuffer(base, length, notificationChannel);
     } else {
@@ -300,12 +300,13 @@ int miiOutPacket(chanend c_out, int b[], int index, int length) {
     roundedLength = length >> 2;
     b[roundedLength+1] = tailValues[oddBytes];
     b[roundedLength] &= (1 << (oddBytes << 3)) - 1;
+    b[roundedLength+2] = -roundedLength + 1;
     outuint(c_out, a + length - oddBytes - 4);
-    outuint(c_out, -roundedLength + 1);
-    outct(c_out, 1);
+//    outuint(c_out, -roundedLength + 1);
+//    outct(c_out, 1);
     precise = inuint(c_out);
 
-    asm("ldw %0, dp[globalOffset]" : "=r" (localGlobalOffset));
+/*    asm("ldw %0, dp[globalOffset]" : "=r" (localGlobalOffset));
     precise = precise << 2;
     asm("ldw %0, dp[globalNow]" : "=r" (now));
     // globalTimer :> now;
@@ -314,7 +315,7 @@ int miiOutPacket(chanend c_out, int b[], int index, int length) {
     difference = sext((precise - now) >> 16, 2) << 16;
     precise = (now + difference) | precise;
     precise = precise + localGlobalOffset;
-
+*/
     return precise;
 }
 

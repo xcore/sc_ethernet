@@ -21,9 +21,7 @@
 
 
 
-unsigned mii_init(mii_interface_t &m, int simulation) {
-    timer tmr;
-    unsigned timeStamp;
+void mii_init(mii_interface_t &m, int simulation, timer tmr) {
 	set_port_use_on(m.p_mii_rxclk);
     m.p_mii_rxclk :> int x;
 	set_port_use_on(m.p_mii_timing);
@@ -95,10 +93,7 @@ unsigned mii_init(mii_interface_t &m, int simulation) {
 
 	start_clock(m.clk_mii_rx);
 	start_clock(m.clk_mii_tx);
-    tmr :> timeStamp;
 
 	clearbuf(m.p_mii_txd);              // required??
-
-    return timeStamp;
 }
 

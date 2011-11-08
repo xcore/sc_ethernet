@@ -77,6 +77,7 @@ DallFives:
 
 #define OUTchannel (STACKSIZE+1)     // parameter
 #define timingPort (STACKSIZE+2)     // parameter
+#define theTimer   (STACKSIZE+3)     // parameter
 
 #define EEBLE XS1_SR_EEBLE_MASK    
 miiLLD:
@@ -129,6 +130,7 @@ miiLLD:
 
     eeu   res[r0]            // And get going on the input side
 
+    ldw   r11, sp[theTimer]
     setsr  XS1_SR_IEBLE_MASK
     bu     stateIdle
 
@@ -172,13 +174,14 @@ mii_rxd_packet:
     eeu   res[r0]
     setc  res[r0], XS1_SETC_COND_EQ // Trigger on 0xD
     ldap  r11, mii_rxd_preamble // Setup RXD port to jump to right data.
-    setv  res[r0], r11      
+    setv  res[r0], r11
+    ldw   r11, sp[theTimer]
     kret                 // Post condition: res[r0] EN,  res[r1] DIS, res[r3] EN
 
     .align 4                 // Pre condition:  res[r0] EN,  res[r1] DIS, res[r3] EN
     // Received the end of the preamble.
 mii_rxd_preamble:
-    getts r11, res[r0]
+    in    r11, res[r11]
     stw   r11, r4[0]
     in    r11, res[r0]       // Throw preamble away
     ldw   r10, cp[initialCRC]         // Initialise CRC to something. What?
@@ -213,21 +216,25 @@ outIdle:
     ldw   r9, sp[OUTchannel]
     outct res[r9], 1          // Request the next packet
     in    r7, res[r9]          // Read the poointer to the packet
-    in    r8, res[r9]          // And the negative length
-    chkct res[r9], 1           // Gobble up the end packet
-    
-    // Transmitting the preamble
 
     ldw   r5, cp[allFives]
+
+    // Obtain the timestamp
+
+    ldw   r8, sp[theTimer]
+    in    r8, res[r8]
+
+    // Transmitting the preamble
+
     out   res[r2], r5
     ldw   r5, cp[DallFives]
     out   res[r2], r5
-    getts r5, res[r2]
-    out   res[r9], r5
+    out   res[r9], r8
     ldw   r9, cp[initialCRC]
     
     // Transmitting the first word of the packet
 
+    ldw   r8, r7[3]
     ldw   r5, r7[r8]
     add   r8, r8, 1
     crc32 r9, r5, r6
