@@ -21,12 +21,21 @@ test: bin/tester
 	(cd ../$(APP); make all)
 	for i in $(DEV); do \
 	 for j in $(HOST); do \
-	  bin/tester "$(TFLAG) $(BIN)" $$i $$j $(STEP) 0 0; done; done
+	  bin/tester "$(TFLAG) $(BIN)" $$i $$j $(STEP) 0 1; \
+	  errs=$$?; \
+	  bin/tester "$(TFLAG) $(BIN)" $$i $$j $(STEP) 0 0; \
+	  errs2=$$?; \
+	  total=$$(($$total + $$errs + $$errs2)); \
+	done; done
 	for i in $(SHORT); do \
 	 for j in $(LONG); do \
 	  bin/tester "$(TFLAG) $(BIN)" $$i $$j $(STEP) 0 0; \
+	  errs=$$?; \
 	  bin/tester "$(TFLAG) $(BIN)" $$j $$i $(STEP) 0 0; \
-    done; done
+	  errs2=$$?; \
+	  total=$$(($$total + $$errs + $$errs2)); \
+    done; done; \
+	echo "Accumulated errors: " $$total;
 
 visualise: bin/tester
 	(cd ../$(APP); make all)

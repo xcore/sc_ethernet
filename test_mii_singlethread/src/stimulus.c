@@ -39,7 +39,7 @@ int setTriggers(int step, int cycleTime) {
         for(i = half; i > 0; i-=step) {
             triggerBefore[i] = 1;
         }
-        for(i = 0; i <= half; i+=step) {
+        for(i = 0; i < half; i+=step) {
             triggerAfter[i] = 1;
         }
     } else {
@@ -107,6 +107,8 @@ int main(int argc, char **argv) {
     int outputRequired = 0, inputRequired = 0;
     int visualise, continuous;
     int packettime, opackettime, oopackettime;
+    int errors = 0;
+    int showtiming = 1;
     if (argc != 7) {
         printf("Usage %s SimArgs toDeviceLen toHostLen step visualise nuke\n", argv[0]);
         printf("                 toDeviceLen Number of byte to send to device\n");
@@ -135,7 +137,7 @@ int main(int argc, char **argv) {
     status = xsi_create(&xsim, argv[1]);
     assert(status == XSI_STATUS_OK);
     xsi_write_mem(xsim, "stdcore[0]", 0x1C00C, 4, &ltoh);
-    printf("Test %d to host, %d to device\n", ltoh, ltod);
+    printf("Test %d to host, %d to device%s\n", ltoh, ltod, continuous? " shortest interframe gap":"");
     while (status != XSI_STATUS_DONE) {
         time++;
         if (time == cycleStart) {
@@ -226,7 +228,7 @@ int main(int argc, char **argv) {
 //                        if (verbose) printf("%01x", nibble);
                         if (even) {
                             cnt++;
-                            if (cnt == 40) {
+                            if (cnt == 60) {
                                 unsigned ptr, index, len, rdt, wrt, ts;
                                 xsi_read_mem(xsim, "stdcore[0]", 0x1C000, 4, &ptr);
                                 xsi_read_mem(xsim, "stdcore[0]", 0x1C004, 4, &index);
@@ -235,7 +237,8 @@ int main(int argc, char **argv) {
                                 ptr += index;
                                 if (len != ltod) {
                                     if (!first) {
-                                        printf("ERROR: %08x %d\n", ptr-index, len);
+                                        printf("ERROR: %08x %d (cnt %d %d)\n", ptr-index, len, triggerCnt, errors);
+                                        errors++;
                                     }
                                 } else {
                                     if (verbose) {
@@ -252,7 +255,7 @@ int main(int argc, char **argv) {
                                 if (verbose) {
                                     printf("Diff %d  %d\n", wrt-rdt, rdt*10 - time);
                                 }
-                                if (verbose) {
+                                if (showtiming||verbose) {
                                     int d = startTime - 10 *ts;
                                     static int od;
                                     printf("Time in diff %d   %d\n", d, od - d);
@@ -298,7 +301,7 @@ int main(int argc, char **argv) {
                         } else {
                             if (verbose) printf("\n");
                         }
-                        if (verbose) {
+                        if (showtiming||verbose) {
                             int d = nbytesin - opackettime;
                             static int od;
                             printf("                                 Time out diff %d  %d\n", d, od - d);
@@ -319,5 +322,5 @@ int main(int argc, char **argv) {
         }
     }
     status = xsi_terminate(xsim);
-    return 0;
+    return errors;
 }
