@@ -51,9 +51,9 @@ static int calcDestinationThread(int addr) {
 
     return result;
 }
-#define mask 7
+#define mask 3
 
-// #pragma unsafe arrays
+#pragma unsafe arrays
 static void theServer(chanend cIn, chanend cOut, chanend cNotifications, chanend appIn[3], chanend appOut[3]) {
     int outBytes;
     int b[3200];
@@ -137,7 +137,7 @@ static void theServer(chanend cIn, chanend cOut, chanend cNotifications, chanend
                 continue;
             }
             if (packetStore[dest].len == mask+1) {
-                // printstr("drop:"); printintln(dest);
+                printstr("drop:"); printintln(dest);
                 /*
                 if (dest == 1)
                 {
