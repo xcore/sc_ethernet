@@ -1,1 +1,7 @@
-void miiSingleServer(chanend rx, chanend tx, chanend status);
+#include "miiDriver.h"
+
+void miiSingleServer(clock clk_smi,
+                     out port ?p_mii_resetn,
+                     smi_interface_t &smi,
+                     mii_interface_t &m,
+                     chanend appIn, chanend appOut, chanend server);

@@ -7,9 +7,9 @@
 #include <xs1.h>
 #include <xclib.h>
 #include <print.h>
+#include "miiDriver.h"
 #include "mii.h"
 #include "miiClient.h"
-#include "miiDriver.h"
 
 extern char notifySeen;
 
@@ -66,11 +66,15 @@ static void theServer(chanend cIn, chanend cOut, chanend cNotifications, chanend
     } 
 }
 
-void miiSingleServer(chanend appIn, chanend appOut, chanend server) {
+void miiSingleServer(clock clk_smi,
+                     out port ?p_mii_resetn,
+                     smi_interface_t &smi,
+                     mii_interface_t &m,
+                     chanend appIn, chanend appOut, chanend server) {
     chan cIn, cOut;
     chan notifications;
     par {
-        miiDriver(cIn, cOut, 0);
+        miiDriver(clk_smi, p_mii_resetn, smi, m, cIn, cOut, 0);
         theServer(cIn, cOut, notifications, appIn, appOut);
     }
 }
