@@ -316,7 +316,7 @@ int miiOutPacket(chanend c_out, int b[], int index, int length) {
     precise = (now + difference) | precise;
     precise = precise + localGlobalOffset;
 */
-    return precise;
+    return precise + 64;
 }
 
 select miiOutPacketDone(chanend c_out) {

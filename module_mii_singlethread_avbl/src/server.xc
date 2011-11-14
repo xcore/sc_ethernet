@@ -51,22 +51,27 @@ static int calcDestinationThread(int addr) {
 
     return result;
 }
+#define mask 3
 
+#pragma unsafe arrays
 static void theServer(chanend cIn, chanend cOut, chanend cNotifications, chanend appIn[3], chanend appOut[3]) {
     int outBytes;
     int b[3200];
     int txbuf[400];
     int timeRequired, t;
     int dest;
+    int count, count2;
 
     struct {
         struct {
             int addr;
             int nBytes;
             int time;
-        } elements[4];
+        } elements[mask+1];
         int len, rd, wr;
     } packetStore[3];
+    
+        count = 0; count2 = 0;
     
     for (int i=0; i < 3; i++)
     {
@@ -91,10 +96,14 @@ static void theServer(chanend cIn, chanend cOut, chanend cNotifications, chanend
                 appIn[i] <: val;
             }
             appIn[i] <: packetStore[i].elements[packetStore[i].rd].time;
+            // printintln(packetStore[i].elements[packetStore[i].rd].time);
             miiFreeInBuffer(packetStore[i].elements[packetStore[i].rd].addr);
             miiRestartBuffer();
                 packetStore[i].len--;
-                packetStore[i].rd = (packetStore[i].rd + 1)& 3;
+                packetStore[i].rd = (packetStore[i].rd + 1)& mask;
+                if (packetStore[i].len != 0) {
+                    outuint(appIn[i], 0);
+                }
             break;
         case (int i = 0; i < 3; i++) 
             appOut[i] :> outBytes:
@@ -110,6 +119,7 @@ static void theServer(chanend cIn, chanend cOut, chanend cNotifications, chanend
             t = miiOutPacket(cOut, txbuf, 0, outBytes);
             if (timeRequired) {
                 appOut[i] <: t;
+                // printintln(t);
             }
             miiOutPacketDone(cOut);
             break;
@@ -126,21 +136,39 @@ static void theServer(chanend cIn, chanend cOut, chanend cNotifications, chanend
                 miiRestartBuffer();
                 continue;
             }
-            if (packetStore[dest].len == 4) {
-                printintln(dest);
+            if (packetStore[dest].len == mask+1) {
+                printstr("drop:"); printintln(dest);
+                /*
+                if (dest == 1)
+                {
+                    count++;
+                    if ((count & 8191) == 0) { printstr("drop:"); printintln(count); } 
+                }
+                */
                 miiFreeInBuffer(packetStore[dest].elements[packetStore[dest].rd].addr);
                 packetStore[dest].len--;
-                packetStore[dest].rd = (packetStore[dest].rd + 1)& 3;
+                packetStore[dest].rd = (packetStore[dest].rd + 1)& mask;
                 miiRestartBuffer();
             }
-            else if (packetStore[dest].len == 0) {
-                outuint(appIn[dest], 0);
+            else 
+            {
+                /*
+                if (dest == 1) 
+                {
+                    count2++;
+                    if ((count2 & 8191) == 0) { printstr("processed"); printintln(count2); }
+                }
+                */
+                if (packetStore[dest].len == 0) {
+                    outuint(appIn[dest], 0);
+                }
             }
+            
             packetStore[dest].elements[packetStore[dest].wr].addr = a;
             packetStore[dest].elements[packetStore[dest].wr].nBytes = n;
             packetStore[dest].elements[packetStore[dest].wr].time = t;
                 packetStore[dest].len++;
-                packetStore[dest].wr = (packetStore[dest].wr + 1)& 3;
+                packetStore[dest].wr = (packetStore[dest].wr + 1)& mask;
                 miiRestartBuffer();
 
         }
