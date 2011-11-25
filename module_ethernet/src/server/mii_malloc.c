@@ -40,10 +40,10 @@ typedef struct malloc_hdr_t {
 void mii_init_mempool(mii_mempool_t mempool0, int size, int maxsize_bytes) {
   mempool_info_t *info = (mempool_info_t *) mempool0;
   info->max_packet_size = sizeof(mii_packet_t) + sizeof(malloc_hdr_t) - (1518-maxsize_bytes);
-  info->max_packet_size = (info->max_packet_size + 3) >> 2;
+  info->max_packet_size = (info->max_packet_size + 3) & ~3;
   info->start = (int *) (mempool0 + sizeof(mempool_info_t));
   info->end = (int *) (mempool0 + size);
-  info->end -= info->max_packet_size;
+  info->end -= (info->max_packet_size >> 2);
   info->rdptr = info->start;
   info->wrptr = info->start;
 #ifndef ETHERNET_USE_HARDWARE_LOCKS
@@ -118,7 +118,7 @@ void mii_free(mii_buffer_t buf) {
                        (char *) info->rdptr > (char *) info->end)) {
 
       int size = hdr->size;
-      if (size < 0) size = ~size;
+      if (size < 0) size = -size;
       hdr = (malloc_hdr_t *) ((int *) hdr + size);
       info->rdptr = (int *) hdr;
 
@@ -135,7 +135,7 @@ void mii_free(mii_buffer_t buf) {
     } else {
       // If this isn't the oldest packet in the queue then just mark it
       // as free by making the size = -size
-      hdr->size = ~(hdr->size);
+      hdr->size = -(hdr->size);
       free_buf = 0;
     }
   } while (free_buf);

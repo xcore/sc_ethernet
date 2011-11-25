@@ -1,4 +1,4 @@
-TARGET = XC-2
+TARGET = XC-3
 
 XCC_FLAGS =
 

@@ -308,7 +308,7 @@ void mii_rx_pins(
 
 			taillen = endin(p_mii_rxd);
 
-			// Calculate final length
+			// Calculate final length - (i-1) to not count the CRC
 			length = ((i-1) << 2) + (taillen >> 3);
 			mii_packet_set_length(buf, length);
 
@@ -322,7 +322,7 @@ void mii_rx_pins(
 			mii_packet_set_data_word(dptr, i, tail);
 
 			c <: buf;
-			mii_commit(buf, (length+(BUF_DATA_OFFSET*4)));
+			mii_commit(buf, (length+4+(BUF_DATA_OFFSET*4)));
 		}
 	}
 

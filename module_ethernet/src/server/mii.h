@@ -70,6 +70,7 @@
 #define ETHERNET_MAX_TX_HP_PACKET_SIZE (1518)
 #endif
 
+//#define ETHERNET_USE_HARDWARE_LOCKS
 
 #include "mii_queue.h"
 
@@ -117,7 +118,7 @@ typedef struct mii_packet_t {
   #define BUF_OFFSET_stage 5
   int stage;                        //!< What stage in the Tx or Rx path the packet has reached
   #define BUF_OFFSET_tcount 6
-  int tcount;                       //!< Number of remaining clients who need to be send this RX packet
+  int tcount;                       //!< Number of remaining clients who need to be send this RX packet minus one
   #define BUF_OFFSET_crc 7
   int crc;                          //!< The calculated CRC
   #define BUF_OFFSET_forwarding 8
