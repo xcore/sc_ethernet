@@ -72,6 +72,12 @@
 
 //#define ETHERNET_USE_HARDWARE_LOCKS
 
+#ifdef XCC_VERSION_MAJOR
+#if XCC_VERSION_MAJOR >= 1102
+#define ETHERNET_INLINE_PACKET_GET
+#endif
+#endif
+
 #include "mii_queue.h"
 
 #ifdef __XC__

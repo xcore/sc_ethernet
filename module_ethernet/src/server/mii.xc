@@ -188,7 +188,7 @@ void mii_rx_pins(
 			dptr_lp = mii_packet_get_data_ptr(buf_lp);
 #ifdef ETHERNET_RX_HP_QUEUE
 		} else if (buf_hp) {
-			dptr_lp = buf_hp;
+			dptr_lp = dptr_hp;
 #endif
 		} else {
 #pragma xta label "mii_no_availible_buffers"
@@ -196,6 +196,7 @@ void mii_rx_pins(
 			ethernet_mii_no_queue_entries++;
 #endif
 			p_mii_rxdv when pinseq(0) :> int hi;
+			clearbuf(p_mii_rxd);
 			continue;
 		}
 
@@ -266,6 +267,7 @@ void mii_rx_pins(
 #ifdef ETHERNET_COUNT_PACKETS
 			ethernet_mii_no_queue_entries++;
 #endif
+			clearbuf(p_mii_rxd);
 			continue;
 		}
 
