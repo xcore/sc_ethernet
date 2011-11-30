@@ -12,6 +12,7 @@ module_ethernet
 2.0.2
 -----
    * Fix for buffer overflow errors
+   * Fix for jabber-type error when terminating frame reception early
 
 2.0.1
 -----
