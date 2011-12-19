@@ -43,7 +43,7 @@ void ethernet_tx_server(
 #endif
                         mii_mempool_t tx_mem_lp[],
                         int num_q, 
-                        mii_queue_t ts_queue[],
+                        mii_ts_queue_t ts_queue[],
                         const int mac_addr[],
                         chanend tx[],
                         int num_tx,
@@ -247,7 +247,7 @@ void ethernet_tx_server(
 
     // Reply with timestamps where client is requesting them
     for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
-    	buf[p]=get_queue_entry(ts_queue[p]);
+    	buf[p]=get_ts_queue_entry(ts_queue[p]);
     	if (buf[p] != 0) {
     		int i = mii_packet_get_timestamp_id(buf[p]);
     		int ts = mii_packet_get_timestamp(buf[p]);

@@ -34,8 +34,10 @@ typedef struct malloc_hdr_t {
   mempool_info_t *info;  
 } malloc_hdr_t;
 
-#define ALLOC_SIZE_BYTES (sizeof(mii_packet_t) + 8)
-#define ALLOC_SIZE_WORDS ((ALLOC_SIZE_BYTES+3)>>2)
+
+/* --------------------------------------------------------------------------------------
+ *    Functions below are for the maintanance of the main packet FIFOs
+ */
 
 void mii_init_mempool(mii_mempool_t mempool0, int size, int maxsize_bytes) {
   mempool_info_t *info = (mempool_info_t *) mempool0;
@@ -147,9 +149,10 @@ void mii_free(mii_buffer_t buf) {
 #endif
 }
 
-/*
- *
+/* --------------------------------------------------------------------------------------
+ *    Functions below are for the maintanance of the client FIFOs
  */
+
 mii_buffer_t mii_get_next_buf(mii_mempool_t mempool)
 {
   mempool_info_t *info = (mempool_info_t *) mempool;

@@ -70,7 +70,7 @@
 #define ETHERNET_MAX_TX_HP_PACKET_SIZE (1518)
 #endif
 
-//#define ETHERNET_USE_HARDWARE_LOCKS
+#define ETHERNET_USE_HARDWARE_LOCKS
 
 #ifdef XCC_VERSION_MAJOR
 #if XCC_VERSION_MAJOR >= 1102
@@ -250,7 +250,7 @@ void mii_tx_pins(
                 unsigned hp_mempool,
 #endif
                 unsigned lp_mempool,
-                mii_queue_t &ts_queue,
+                mii_ts_queue_t &ts_queue,
                 out buffered port:32 p_mii_txd,
                 int ifnum);
 #else
@@ -265,7 +265,7 @@ void mii_tx_pins(
                 unsigned hp_mempool,
 #endif
                 unsigned lp_mempool,
-                mii_queue_t *ts_queue,
+                mii_ts_queue_t *ts_queue,
                 port p_mii_txd,
                 int ifnum);
 #endif

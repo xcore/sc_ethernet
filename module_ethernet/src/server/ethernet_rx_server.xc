@@ -187,6 +187,7 @@ void mac_rx_send_frame0(mii_packet_t &p,
 /** This apply ethernet frame filters on the recieved frame for each link.
  *  A received frame may be required to sent to more than one link layer.
  */
+#pragma unsafe arrays
 static void processReceivedFrame(int buf,
                                  chanend link[], 
                                  int n)
@@ -242,7 +243,7 @@ static void processReceivedFrame(int buf,
    }
    
    if (tcount == 0) {
-     if (get_and_dec_transmit_count(buf)==0)
+     //if (get_and_dec_transmit_count(buf)==0)
        mii_free(buf);
    }
    else {
@@ -261,6 +262,7 @@ static void processReceivedFrame(int buf,
  *  It interface with ethernet_rx_buf_ctl to handle frames 
  * 
  */
+#pragma unsafe arrays
 void ethernet_rx_server(
 #ifdef ETHERNET_RX_HP_QUEUE
 		mii_mempool_t rxmem_hp[],

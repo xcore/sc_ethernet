@@ -89,7 +89,7 @@ int mii_packet_get_and_clear_forwarding(int buf0, int ifnum)
 
 
 
-void init_queue(mii_queue_t *q)
+void init_ts_queue(mii_ts_queue_t *q)
 {
 #ifndef ETHERNET_USE_HARDWARE_LOCKS
   static int next_qlock = 1;
@@ -103,7 +103,7 @@ void init_queue(mii_queue_t *q)
   return;
 }
 
-int get_queue_entry(mii_queue_t *q) 
+int get_ts_queue_entry(mii_ts_queue_t *q)
 {
   int i=0;
   int rdIndex, wrIndex;
@@ -133,7 +133,7 @@ int get_queue_entry(mii_queue_t *q)
   return i;
 }
 
-void add_queue_entry(mii_queue_t *q, int i) 
+void add_ts_queue_entry(mii_ts_queue_t *q, int i)
 {
   int wrIndex;
 

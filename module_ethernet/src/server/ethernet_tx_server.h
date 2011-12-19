@@ -20,7 +20,7 @@ void ethernet_tx_server(
 #endif
                         mii_mempool_t tx_mem_lp[],
                         int num_q,
-                        mii_queue_t ts_q[],
+                        mii_ts_queue_t ts_q[],
                         const int mac_addr[],
                         chanend tx[], int num_tx,
                         smi_interface_t &?smi1,
@@ -33,7 +33,7 @@ void ethernet_tx_server(
 #endif
                         mii_mempool_t tx_mem_lp[],
                         int num_q,
-                        mii_queue_t ts_q[],
+                        mii_ts_queue_t ts_q[],
                         const int mac_addr[],
                         chanend tx[], int num_tx,
                         smi_interface_t *smi1,

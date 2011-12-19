@@ -442,7 +442,7 @@ void mii_tx_pins(
 		mii_mempool_t hp_queue,
 #endif
 		mii_mempool_t lp_queue,
-		mii_queue_t &ts_queue,
+		mii_ts_queue_t &ts_queue,
 		out buffered port:32 p_mii_txd,
 		int ifnum)
 {
@@ -564,7 +564,7 @@ void mii_tx_pins(
 		if (get_and_dec_transmit_count(buf) == 0) {
 			if (mii_packet_get_timestamp_id(buf)) {
 				mii_packet_set_stage(buf, 2);
-				add_queue_entry(ts_queue, buf);
+				add_ts_queue_entry(ts_queue, buf);
 			}
 			else {
 				mii_free(buf);

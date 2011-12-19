@@ -25,26 +25,29 @@
 
 #define MAC_MAX_ENTRIES ((NUM_MII_RX_BUF<NUM_MII_TX_BUF?NUM_MII_TX_BUF:NUM_MII_RX_BUF)+1)
 
-typedef struct mii_queue_t {
+typedef struct mii_ts_queue_t {
   int lock;
   int rdIndex;
   int wrIndex;
   unsigned fifo[MAC_MAX_ENTRIES];
-} mii_queue_t;
+} mii_ts_queue_t;
 
 //!@{
-//! \name Client receive FIFO functions
+//! \name Functions used by the queue of packets waiting to have their timestamps reported
 
-//! Initialised a client receive FIFO
-void init_queue(REFERENCE_PARAM(mii_queue_t, q));
+//! Initialise a queue
+void init_ts_queue(REFERENCE_PARAM(mii_ts_queue_t, q));
 
-//! Get the first entry in the client receive FIFO
-int get_queue_entry(REFERENCE_PARAM(mii_queue_t, q));
+//! Get the first entry in the timestamp buffer queue
+int get_ts_queue_entry(REFERENCE_PARAM(mii_ts_queue_t, q));
 
-//! Add an entry to the client receive FIFO
-void add_queue_entry(REFERENCE_PARAM(mii_queue_t, q), int i);
+//! Add an entry to the timestamp buffer queue
+void add_ts_queue_entry(REFERENCE_PARAM(mii_ts_queue_t, q), int i);
 
 //!@}
+
+//!@{
+//! \name Functions used for atomic modification of packet buffer properties
 
 //! This is an atomic get and decrement of a buffers transmit counter
 int get_and_dec_transmit_count(int buf_num);
@@ -54,5 +57,7 @@ void incr_transmit_count(int buf_num, int incr);
 
 //! This is an atomic test and clear of the forward to other port bit for a buffer
 int mii_packet_get_and_clear_forwarding(int buf_num, int ifnum);
+
+//!@}
 
 #endif //__mii_queue_h__
