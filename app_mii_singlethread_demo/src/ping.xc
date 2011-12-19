@@ -1,27 +1,44 @@
-/*************************************************************************
- *
- * Ethernet MAC Layer Client Test Code
- * IEEE 802.3 MAC Client
- *
- *
- *************************************************************************
- *
- * ARP/ICMP demo
- * Note: Only supports unfragmented IP packets
- *
- *************************************************************************/
+// Copyright (c) 2011, XMOS Ltd, All rights reserved
+// This software is freely distributable under a derivative of the
+// University of Illinois/NCSA Open Source License posted in
+// LICENSE.txt and at <http://github.xcore.com/>
+
 
 #include <xs1.h>
 #include <xclib.h>
+#include <stdio.h>
 #include <print.h>
 #include <platform.h>
 #include <stdlib.h>
-#include "mii.h"
+#include "miiClient.h"
+#include "miiDriver.h"
 
 
+on stdcore[1]: mii_interface_t mii =
+  {
+    XS1_CLKBLK_1,
+    XS1_CLKBLK_2,
 
+    PORT_ETH_RXCLK,
+    PORT_ETH_RXER,
+    PORT_ETH_RXD,
+    PORT_ETH_RXDV,
 
-#include <stdio.h>
+    PORT_ETH_TXCLK,
+    PORT_ETH_TXEN,
+    PORT_ETH_TXD,
+
+    XS1_PORT_8A,
+  };
+
+#ifdef PORT_ETH_RST_N
+on stdcore[1]: out port p_mii_resetn = PORT_ETH_RST_N;
+on stdcore[1]: smi_interface_t smi = { PORT_ETH_MDIO, PORT_ETH_MDC, 0 };
+#else
+on stdcore[1]: smi_interface_t smi = { PORT_ETH_MDIO, PORT_ETH_MDC, 1 };
+#endif
+
+on stdcore[1]: clock clk_smi = XS1_CLKBLK_5;
 
 //***** Ethernet Configuration ****
 
@@ -29,12 +46,9 @@
 
 
 
-
-
-
 // NOTE: YOU MAY NEED TO REDEFINE THIS TO AN IP ADDRESS THAT WORKS
 // FOR YOUR NETWORK
-#define OWN_IP_ADDRESS { 10, 0, 102,  198}
+#define OWN_IP_ADDRESS { 169, 254, 93,  198}
 
 #define ARP_RESPONSE 1
 #define ICMP_RESPONSE 2
@@ -42,7 +56,7 @@
 
 void demo(chanend tx, chanend rx);
 
-int build_arp_response(unsigned char rxbuf[], unsigned int txbuf[], const unsigned char own_mac_addr[6])
+int build_arp_response(unsigned char rxbuf[], int txbuf[], const unsigned char own_mac_addr[6])
 {
   unsigned word;
   unsigned char byte;
@@ -88,120 +102,106 @@ int build_arp_response(unsigned char rxbuf[], unsigned int txbuf[], const unsign
 }
 
 
-int is_valid_arp_packet(const unsigned char rxbuf[], int nbytes)
-{
-  static const unsigned char own_ip_addr[4] = OWN_IP_ADDRESS;
-
-  if (rxbuf[12] != 0x08 || rxbuf[13] != 0x06) 
-    return 0;
-
-//  printstr("ARP packet received\n");
-
-  if ((rxbuf, const unsigned[])[3] != 0x01000608)
-  {
-    printstr("Invalid et_htype\n");
-    return 0;
-  }
-  if ((rxbuf, const unsigned[])[4] != 0x04060008)
-  {
-    printstr("Invalid ptype_hlen\n");
-    return 0;
-  }
-  if (((rxbuf, const unsigned[])[5] & 0xFFFF) != 0x0100)
-  {
-    printstr("Not a request\n");
-    return 0;
-  }
-  for (int i = 0; i < 4; i++)
-  {
-    if (rxbuf[38 + i] != own_ip_addr[i])
-    {
- //     printstr("Not for us\n");
-      return 0;
+int is_valid_arp_packet(const unsigned char rxbuf[], int nbytes) {
+    static const unsigned char own_ip_addr[4] = OWN_IP_ADDRESS;
+    
+    if (rxbuf[12] != 0x08 || rxbuf[13] != 0x06) {
+//      printf("%02x %02x\n", rxbuf[12], rxbuf[13]);
+        return 0;
     }
-  }
-//  printstr("ARP packet received\n");
-
-  return 1;
+    
+    if ((rxbuf, const unsigned[])[3] != 0x01000608) {
+        printstr("Invalid et_htype\n");
+        return 0;
+    }
+    if ((rxbuf, const unsigned[])[4] != 0x04060008) {
+        printstr("Invalid ptype_hlen\n");
+        return 0;
+    }
+    if (((rxbuf, const unsigned[])[5] & 0xFFFF) != 0x0100) {
+        printstr("Not a request\n");
+        return 0;
+    }
+    for (int i = 0; i < 4; i++) {
+        if (rxbuf[38 + i] != own_ip_addr[i]) {
+//        printf("Not for us: %d.%d.%d.%d\n", rxbuf[38], rxbuf[39], rxbuf[40], rxbuf[41]);
+            return 0;
+        }
+    }
+ //   printstr("ARP packet received\n");
+    
+    return 1;
 }
 
-int build_icmp_response(unsigned char rxbuf[], unsigned char txbuf[], const unsigned char own_mac_addr[6])
-{
-  static const unsigned char own_ip_addr[4] = OWN_IP_ADDRESS;
-  unsigned icmp_checksum;
-  int datalen;
-  int totallen;
-  const int ttl = 0x40;
-  int pad;
-
-  // Precomputed empty IP header checksum (inverted, bytereversed and shifted right)
-  unsigned ip_checksum = 0x0185;
-
-  for (int i = 0; i < 6; i++)
-    {
-      txbuf[i] = rxbuf[6 + i];
+#pragma unsafe arrays
+int build_icmp_response(unsigned char rxbuf[], unsigned char txbuf[], const unsigned char own_mac_addr[6]) {
+    static const unsigned char own_ip_addr[4] = OWN_IP_ADDRESS;
+    unsigned icmp_checksum;
+    int datalen;
+    int totallen;
+    const int ttl = 0x40;
+    int pad;
+    
+    // Precomputed empty IP header checksum (inverted, bytereversed and shifted right)
+    unsigned ip_checksum = 0x0185;
+    
+    for (int i = 0; i < 6; i++) {
+        txbuf[i] = rxbuf[6 + i];
     }
-  for (int i = 0; i < 4; i++)
-    {
-      txbuf[30 + i] = rxbuf[26 + i];
+    for (int i = 0; i < 4; i++) {
+        txbuf[30 + i] = rxbuf[26 + i];
     }
-  icmp_checksum = byterev((rxbuf, const unsigned[])[9]) >> 16;
-  for (int i = 0; i < 4; i++)
-    {
-      txbuf[38 + i] = rxbuf[38 + i];
+    icmp_checksum = byterev((rxbuf, const unsigned[])[9]) >> 16;
+    for (int i = 0; i < 4; i++) {
+        txbuf[38 + i] = rxbuf[38 + i];
     }
-  totallen = byterev((rxbuf, const unsigned[])[4]) >> 16;
-  datalen = totallen - 28;
-  for (int i = 0; i < datalen; i++)
-    {
-      txbuf[42 + i] = rxbuf[42+i];
+    totallen = byterev((rxbuf, const unsigned[])[4]) >> 16;
+    datalen = totallen - 28;
+    for (int i = 0; i < datalen; i++) {
+        txbuf[42 + i] = rxbuf[42+i];
     }  
-
-  for (int i = 0; i < 6; i++)
-  {
-    txbuf[6 + i] = own_mac_addr[i];
-  }
-  (txbuf, unsigned[])[3] = 0x00450008;
-  totallen = byterev(28 + datalen) >> 16;
-  (txbuf, unsigned[])[4] = totallen;
-  ip_checksum += totallen;
-  (txbuf, unsigned[])[5] = 0x01000000 | (ttl << 16);
-  (txbuf, unsigned[])[6] = 0;
-  for (int i = 0; i < 4; i++)
-  {
-    txbuf[26 + i] = own_ip_addr[i];
-  }
-  ip_checksum += (own_ip_addr[0] | own_ip_addr[1] << 8);
-  ip_checksum += (own_ip_addr[2] | own_ip_addr[3] << 8);
-  ip_checksum += txbuf[30] | (txbuf[31] << 8);
-  ip_checksum += txbuf[32] | (txbuf[33] << 8);
-
-  txbuf[34] = 0x00;
-  txbuf[35] = 0x00;
-
-  icmp_checksum = (icmp_checksum + 0x0800);
-  icmp_checksum += icmp_checksum >> 16;
-  txbuf[36] = icmp_checksum >> 8;
-  txbuf[37] = icmp_checksum & 0xFF;
-
-  while (ip_checksum >> 16)
-  {
-    ip_checksum = (ip_checksum & 0xFFFF) + (ip_checksum >> 16);
-  }
-  ip_checksum = byterev(~ip_checksum) >> 16;
-  txbuf[24] = ip_checksum >> 8;
-  txbuf[25] = ip_checksum & 0xFF;
-
-  for (pad = 42 + datalen; pad < 64; pad++)
-  {
-    txbuf[pad] = 0x00;
-  }
-  return pad;
+    
+    for (int i = 0; i < 6; i++) {
+        txbuf[6 + i] = own_mac_addr[i];
+    }
+    (txbuf, unsigned[])[3] = 0x00450008;
+    totallen = byterev(28 + datalen) >> 16;
+    (txbuf, unsigned[])[4] = totallen;
+    ip_checksum += totallen;
+    (txbuf, unsigned[])[5] = 0x01000000 | (ttl << 16);
+    (txbuf, unsigned[])[6] = 0;
+    for (int i = 0; i < 4; i++)
+    {
+        txbuf[26 + i] = own_ip_addr[i];
+    }
+    ip_checksum += (own_ip_addr[0] | own_ip_addr[1] << 8);
+    ip_checksum += (own_ip_addr[2] | own_ip_addr[3] << 8);
+    ip_checksum += txbuf[30] | (txbuf[31] << 8);
+    ip_checksum += txbuf[32] | (txbuf[33] << 8);
+    
+    txbuf[34] = 0x00;
+    txbuf[35] = 0x00;
+    
+    icmp_checksum = (icmp_checksum + 0x0800);
+    icmp_checksum += icmp_checksum >> 16;
+    txbuf[36] = icmp_checksum >> 8;
+    txbuf[37] = icmp_checksum & 0xFF;
+    
+    while (ip_checksum >> 16) {
+        ip_checksum = (ip_checksum & 0xFFFF) + (ip_checksum >> 16);
+    }
+    ip_checksum = byterev(~ip_checksum) >> 16;
+    txbuf[24] = ip_checksum >> 8;
+    txbuf[25] = ip_checksum & 0xFF;
+    
+    for (pad = 42 + datalen; pad < 64; pad++) {
+        txbuf[pad] = 0x00;
+    }
+    return pad;
 }
-int led2Status = 0;
-on stdcore[0]: out port led2 = XS1_PORT_1I;
-int led1Status = 1;
-on stdcore[0]: out port led1 = XS1_PORT_1J;
+
+int ledStatus = 8;
+on stdcore[1]: out port led = XS1_PORT_4A;
 
 int is_valid_icmp_packet(const unsigned char rxbuf[], int nbytes)
 {
@@ -247,51 +247,58 @@ int is_valid_icmp_packet(const unsigned char rxbuf[], int nbytes)
     return 0;
   }*/
 
-  led2 <: led2Status; led2Status = !led2Status;
+  led <: ledStatus; ledStatus ^= 2;
 
   return 1;
 }
 
-
-void pingDemo(chanend c_in, chanend c_out)
-{
+void handlePacket(chanend cOut, int a, int nBytes) {
     unsigned char own_mac_addr[6] = {0,0,12,13,14,15};
-  int b[1600];
-  unsigned char rxbuf[1600];
-  unsigned int txbuf[1600];
-
-  printstr("Test started\n");
-  miiBufferInit(c_in, b, 1600);
-  printstr("IN Inited\n");
-  miiOutInit(c_out);
-  printstr("OUT inited\n");
-
-  while (1)
-  {
-    int nbytes, a;
-    {a,nbytes} = miiInPacket(c_in, b);
-    led1 <: led1Status; led1Status = !led1Status;
-    for(int i = 0; i <= nbytes>>2; i++) {
-        (rxbuf, int[])[i] = b[a+i];
+    int txbuf[400];
+    unsigned char rxbuf[1600];
+    led <: ledStatus; ledStatus ^= 1;
+    for(int i = 0; i <= nBytes>>2; i++) {
+        int v;
+        asm("ldw %0, %1[%2]" : "=r" (v) : "r" (a), "r" (i));
+        (rxbuf, int[])[i] = v;
     }
-    miiInPacketDone(c_in, a);
-    if (is_valid_arp_packet(rxbuf, nbytes)) 
-      {
-        build_arp_response(rxbuf, txbuf, own_mac_addr);
-        miiOutPacket(c_out, (txbuf,int[]), 0, nbytes);
-        printstr("ARP response sent\n");
-      }
-    else if (is_valid_icmp_packet(rxbuf, nbytes))
-      {
-        build_icmp_response(rxbuf, (txbuf, unsigned char[]), own_mac_addr);
-        miiOutPacket(c_out, (txbuf,int[]), 0, nbytes);
-        printstr("ICMP response sent\n");  
-      }
-    else {
-  //      printf("Received %d bytes %x\n", nbytes, (rxbuf, int[])[0]);
+    if (is_valid_arp_packet(rxbuf, nBytes)) {
+        nBytes = build_arp_response(rxbuf, txbuf, own_mac_addr);
+        miiOutPacket(cOut, txbuf, 0, nBytes);
+        miiOutPacketDone(cOut);
+    } else if (is_valid_icmp_packet(rxbuf, nBytes)) {
+        nBytes = build_icmp_response(rxbuf, (txbuf, unsigned char[]), own_mac_addr);
+        miiOutPacket(cOut, txbuf, 0, nBytes);
+        miiOutPacketDone(cOut);
+    } else {
+        //printf("Received %d bytes %x\n", nBytes, (rxbuf, int[])[0]);
     }
+}
+
+void pingDemo(chanend cIn, chanend cOut, chanend cNotifications) {
+    int b[3200];
     
-  } 
+    printstr("Test started\n");
+    miiBufferInit(cIn, cNotifications, b, 3200);
+    printstr("IN Inited\n");
+    miiOutInit(cOut);
+    printstr("OUT inited\n");
+    
+    while (1) {
+        int nBytes, a, timeStamp;
+        miiNotified(cNotifications);
+        while(1) {
+            {a,nBytes,timeStamp} = miiGetInBuffer();
+
+            if (a == 0) {
+                break;
+            }
+//            printhexln(a);
+            handlePacket(cOut, a, nBytes);
+            miiFreeInBuffer(a);
+        }
+        miiRestartBuffer();
+    } 
 }
 
 unsigned char packet[] = {
@@ -302,52 +309,7 @@ unsigned char packet[] = {
     0, 0, 0, 0,   0, 0, 0, 0
 };
 
-
-void empty(chanend c_in) {
-    int b[1600];
-    timer t;
-    int now;
-    int address = 0x1D000;
-
-    miiBufferInit(c_in, b, 1600);
-    asm("stw %0, %1[0]" :: "r" (b), "r" (address));
-
-    while (1) {
-        int nbytes, a;
-        {a,nbytes} = miiInPacket(c_in, b);
-        asm("stw %0, %1[1]" :: "r" (a), "r" (address));
-        asm("stw %0, %1[2]" :: "r" (nbytes), "r" (address));
-        t :> now;
-        asm("stw %0, %1[4]" :: "r" (now), "r" (address));
-        miiInPacketDone(c_in, a);
-    } 
-}
-
-void emptyOut(chanend c_out) {
-    unsigned int txbuf[1600];
-    timer t;
-    int now;
-    int delay = 701;
-    int packetLen = 64;
-    int address = 0x1D000;
-
-    asm("ldw %0, %1[3]" : "=r" (packetLen): "r" (address));
-    for(int i = 0; i < 72; i++) {
-        (txbuf, unsigned char[])[i] = packet[i];
-    }
-    miiOutInit(c_out);
-    
-    
-    t :> now;
-    while (1) {
-        now += delay;
-        asm("stw %0, %1[5]" :: "r" (now), "r" (address));
-        t when timerafter(now) :> void;
-        txbuf[0] = packetLen;
-        miiOutPacket(c_out, (txbuf,int[]), 0, packetLen - 4);
-    } 
-}
-
+    extern int nextBuffer;
 
 void x() {
     set_thread_fast_mode_on();
@@ -358,18 +320,39 @@ void burn() {
     while(1);
 }
 
-int main() {
-    chan c_in, c_out;
+
+void packetResponse(void) {
+    chan cIn, cOut;
+    chan notifications;
     par {
-        on stdcore[0]: { mii(c_in, c_out);}
-//        on stdcore[2]: pingDemo(c_in, c_out);
-        on stdcore[0]: {x(); empty(c_in);}
-        on stdcore[0]: {x(); emptyOut(c_out);}
-        on stdcore[0]: {burn();}
-        on stdcore[0]: {burn();}
-        on stdcore[0]: {burn();}
-        on stdcore[0]: {burn();}
-        on stdcore[0]: {burn();}
+        { miiDriver(clk_smi, null, smi, mii,
+                    cIn, cOut, 1);}
+        {x(); pingDemo(cIn, cOut, notifications);}
+        {burn();}
+        {burn();}
+        {burn();}
+        {burn();}
+        {burn();}
+        {burn();}
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int main() {
+    par {
+        on stdcore[1]: {packetResponse();}
     }
 	return 0;
 }

@@ -29,6 +29,7 @@
     // SP[OUTchannel] OUTchannel to other layer.
 
      .section .cp.rodata,     "ac", @progbits
+
     .align 4
 
     .globl polynomial
@@ -58,13 +59,16 @@ DallFives:
 #define SPtransmitCRC 17
 #define SPfinalCRC 18
     
-    // call: miiLLD(rxd, rxdv, txd, INchannel, OUTchannel)
+    // call: miiLLD(rxd, rxdv, txd, INchannel, OUTchannel, timingport)
 .globl miiLLD.nstackwords
 .globl miiLLD.maxthreads
 .globl miiLLD.maxtimers
 .globl miiLLD.maxchanends
 .globl miiLLD.maxsync
 .type  miiLLD, @function
+.linkset miiLLD.maxchanends, 0
+.linkset miiLLD.maxtimers, 0
+.linkset miiLLD.maxthreads, 0 
 .linkset miiLLD.locnoside, 0
 .linkset miiLLD.locnochandec, 1
 .linkset miiLLD.nstackwords, STACKSIZE
@@ -72,6 +76,8 @@ DallFives:
     .globl miiLLD
 
 #define OUTchannel (STACKSIZE+1)     // parameter
+#define timingPort (STACKSIZE+2)     // parameter
+#define theTimer   (STACKSIZE+3)     // parameter
 
 #define EEBLE XS1_SR_EEBLE_MASK    
 miiLLD:
@@ -124,6 +130,7 @@ miiLLD:
 
     eeu   res[r0]            // And get going on the input side
 
+    ldw   r11, sp[theTimer]
     setsr  XS1_SR_IEBLE_MASK
     bu     stateIdle
 
@@ -136,7 +143,7 @@ miiLLD:
     // Receive body of a packet 
 mii_rxd:
     in    r11, res[r0]       // Grab word to be loaded.
-    stw   r11, r4[0]         // Write data at end of packet
+    stw   r11, r4[1]         // Write data at end of packet
     crc32 r10, r11, r6       // Update CRC
     add   r4, r4, 4
     kret                 // Post condition: res[r0] EN,  res[r1] EN,  res[r3] EN
@@ -149,13 +156,14 @@ mii_rxdv0:
     edu   res[r1]
     kret                     // Post condition: res[r0] EN,  res[r1] EN,  res[r3] EN
 
-mii_rxLastBits:   
+    .align 4                 // Pre condition:  res[r0] EN,  res[r1] EN,  res[r3] EN
+mii_rxLastBits:              // Jumped to from mii_rxd_packet - not an entry point.
     endin r11, res[r0]       // Get number of bits left
-    stw   r11, r4[1]         // Save the number of bits left
+    stw   r11, r4[2]         // Save the number of bits left
     in    r11, res[r0]       // Grab them bits
-    stw   r11, r4[2]         // Save the left over 0, 8, 16, or 24 bits.
+    stw   r11, r4[1]         // Save the left over 0, 8, 16, or 24 bits.
     edu   res[r0]
-    stw   r10, r4[0]         // And save CRC
+    stw   r10, r4[3]         // And save CRC
     kret                 // Post condition: res[r0] DIS,  res[r1] DIS,  res[r3] EN
 
     .align 4                 // Pre condition:  res[r0] EN,  res[r1] EN,  res[r3] EN
@@ -166,12 +174,15 @@ mii_rxd_packet:
     eeu   res[r0]
     setc  res[r0], XS1_SETC_COND_EQ // Trigger on 0xD
     ldap  r11, mii_rxd_preamble // Setup RXD port to jump to right data.
-    setv  res[r0], r11      
+    setv  res[r0], r11
+    ldw   r11, sp[theTimer]
     kret                 // Post condition: res[r0] EN,  res[r1] DIS, res[r3] EN
 
     .align 4                 // Pre condition:  res[r0] EN,  res[r1] DIS, res[r3] EN
     // Received the end of the preamble.
 mii_rxd_preamble:
+    in    r11, res[r11]
+    stw   r11, r4[0]
     in    r11, res[r0]       // Throw preamble away
     ldw   r10, cp[initialCRC]         // Initialise CRC to something. What?
     ldap  r11, mii_rxd       // And setup the RXD port for future events.
@@ -191,9 +202,9 @@ stateIdle:
     add   r5, r5, 1            // Record that we transmitted a packet
     stw   r5, dp[miiPacketsTransmitted]
 
-    ldw   r5, dp[p_mii_fake]    // Create interframe gap
-    getts r7, res[r5]           // Get current count on fake port
-    ldc   r8, 23                // Add 23 (24 nibbles - but we will have lost 40ns)
+    ldw   r5, sp[timingPort]    // Create interframe gap
+    getts r7, res[r5]           // Get current count on timing port
+    ldc   r8, 90                // Add 90 (960 ns nibbles - but we will have lost 60ns)
     add   r7, r7, r8            // Then set this to the port counter
     setpt res[r5], r7           // And wait for the port to be ready.
     in    r7, res[r5]           // This should ensure the gap
@@ -202,24 +213,28 @@ stateIdle:
 outIdle:
 
     // Get a pointer to the next packet
-    ldw   r5, sp[OUTchannel]
-    outct res[r5], 1          // Request the next packet
-
-    ldw   r5, sp[OUTchannel]     
-    in    r7, res[r5]          // Read the poointer to the packet
-    in    r8, res[r5]          // And the negative length
-    chkct res[r5], 1           // Gobble up the end packet
-    ldw   r9, cp[initialCRC]
-    
-    // Transmitting the preamble
+    ldw   r9, sp[OUTchannel]
+    outct res[r9], 1          // Request the next packet
+    in    r7, res[r9]          // Read the poointer to the packet
 
     ldw   r5, cp[allFives]
+
+    // Obtain the timestamp
+
+    ldw   r8, sp[theTimer]
+    in    r8, res[r8]
+
+    // Transmitting the preamble
+
     out   res[r2], r5
     ldw   r5, cp[DallFives]
     out   res[r2], r5
+    out   res[r9], r8
+    ldw   r9, cp[initialCRC]
     
     // Transmitting the first word of the packet
 
+    ldw   r8, r7[3]
     ldw   r5, r7[r8]
     add   r8, r8, 1
     crc32 r9, r5, r6
@@ -231,16 +246,22 @@ outPacket:
     add   r8, r8, 1
     crc32 r9, r5, r6
     out   res[r2], r5
-    bt    r8, outPacket       // TODO: UNROLL LAST ITERATION, PUT LAST OUT IN TAIL CODE.
+    bt    r8, outPacket
 
-    ldw   r5, r7[1]
-    ldw   r7, r7[0]
+    ldw   r8, r7[r8]
+    crc32 r9, r8, r6
+
+    
+    ldw   r5, r7[2]
+    ldw   r7, r7[1]
+    out   res[r2], r8
     // Transmitting the tail of a packet
     bau   r5          // This will jump to r5
 
     .align 4
-Tail0:  
-    crc32 r9, r8, r6            // NOTE : r8 is zero, becasue the outPacket loop ended
+Tail0:
+    ldc   r8, 0
+    crc32 r9, r8, r6
     not   r9, r9
     out   res[r2], r9        
     bu    stateIdle

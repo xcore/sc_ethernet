@@ -10,9 +10,9 @@ INTS     CONTENTS
 1 (HEADER FOR FREEPTR)
 1 TIMESTAMP
 L DATA
-1 PART CRC
-1 TAILBITS
 1 LASTDATAWORD
+1 TAILBITS
+1 PART CRC
 ======== ============
 
 XC interrupt function translates this into
