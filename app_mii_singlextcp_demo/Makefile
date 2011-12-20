@@ -2,7 +2,7 @@
 # compiled for. It either refers to an XN file in the source directories
 # or a valid argument for the --target option when compiling.
 
-TARGET = XP-DSC-BLDC
+TARGET = XS1-L2A-QF124.xn
 
 APP_NAME =
 
