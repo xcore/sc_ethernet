@@ -1,0 +1,2 @@
+A single threaded implementation of an MII interface.  It contains a port driver for the
+MII input and ouput, and a two XMOS channel interface for receiving and sending packets. 

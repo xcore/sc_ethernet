@@ -1,0 +1,6 @@
+Module containing the an ethernet server which mimics the standard 5-thread top
+level interface, but uses the single-threaded MII implementation.
+
+Thus, it is a two thread version of the standard 5-thread interface.
+
+
