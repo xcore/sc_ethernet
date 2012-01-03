@@ -60,7 +60,6 @@ static int packetGood(int base, int end) {
 
     if (length == 0) {
         miiPacketsCRCError++;
-        printstr("Error in packet\n");
         return 0;
     }
     // insert MAC filter here.
@@ -264,22 +263,6 @@ void miiTimeStampInit(unsigned offset) {
 void miiClientUser(int base, int end, chanend notificationChannel) {
     int length = packetGood(base, end);
     if (length != 0) {
-/*        int precise;
-        int now;
-        int difference;
-        static timer globalTimer;
-
-        precise = get(base);
-        precise = precise << 2;
-        globalTimer :> now;
-        globalNow = now;
-        now -= globalOffset;
-        now &= 0xFFFF0000;
-        difference = sext((precise - now) >> 16, 2) << 16;
-        precise = (now + difference) | precise;
-        precise = precise + globalOffset;
-        set(base, precise);*/
-
         miiCommitBuffer(base, length, notificationChannel);
     } else {
         miiRejectBuffer(base);
@@ -291,8 +274,6 @@ int miiOutPacket(chanend c_out, int b[], int index, int length) {
     int oddBytes = length & 3;
     int precise;
 
-    // static timer globalTimer;
-
     asm(" mov %0, %1" : "=r"(a) : "r"(b));
     
     roundedLength = length >> 2;
@@ -300,20 +281,9 @@ int miiOutPacket(chanend c_out, int b[], int index, int length) {
     b[roundedLength] &= (1 << (oddBytes << 3)) - 1;
     b[roundedLength+2] = -roundedLength + 1;
     outuint(c_out, a + length - oddBytes - 4);
-//    outuint(c_out, -roundedLength + 1);
-//    outct(c_out, 1);
+
     precise = inuint(c_out);
 
-/*    asm("ldw %0, dp[globalOffset]" : "=r" (localGlobalOffset));
-    precise = precise << 2;
-    asm("ldw %0, dp[globalNow]" : "=r" (now));
-    // globalTimer :> now;
-    now -= localGlobalOffset;
-    now &= 0xFFFF0000;
-    difference = sext((precise - now) >> 16, 2) << 16;
-    precise = (now + difference) | precise;
-    precise = precise + localGlobalOffset;
-*/
     return precise + 64;
 }
 

@@ -34,15 +34,12 @@ hwlock_t ethernet_memory_lock = 0;
 #define MII_RX_BUFSIZE_LOW_PRIORITY 512
 #endif
 
-#define MII_RX_HP_MEMSIZE \
-  ((MII_RX_BUFSIZE_HIGH_PRIORITY +  2*sizeof(mii_packet_t) + 20)/4)
+#define MII_RX_HP_MEMSIZE  ((MII_RX_BUFSIZE_HIGH_PRIORITY +  2*sizeof(mii_packet_t) + 20)/4)
 #endif
 
-#define MII_RX_LP_MEMSIZE \
-      ((MII_RX_BUFSIZE_LOW_PRIORITY + 2*sizeof(mii_packet_t) + 20)/4)
+#define MII_RX_LP_MEMSIZE  ((MII_RX_BUFSIZE_LOW_PRIORITY + 2*sizeof(mii_packet_t) + 20)/4)
 
-#define MII_TX_LP_MEMSIZE \
-    ((MII_TX_BUFSIZE + sizeof(mii_packet_t) + 20)/4)
+#define MII_TX_LP_MEMSIZE  ((MII_TX_BUFSIZE + sizeof(mii_packet_t) + 20)/4)
 
 
 
@@ -52,8 +49,7 @@ hwlock_t ethernet_memory_lock = 0;
 #define MII_TX_BUFSIZE_HIGH_PRIORITY 256
 #endif
 
-#define MII_TX_HP_MEMSIZE \
-      ((MII_TX_BUFSIZE_HIGH_PRIORITY +(ETHERNET_MAX_TX_HP_PACKET_SIZE + MII_PACKET_HEADER_SIZE) + 20)/4)
+#define MII_TX_HP_MEMSIZE  ((MII_TX_BUFSIZE_HIGH_PRIORITY +(ETHERNET_MAX_TX_HP_PACKET_SIZE + MII_PACKET_HEADER_SIZE) + 20)/4)
 #endif
 
 
@@ -84,6 +80,9 @@ mii_mempool_t rx_mem_lp[NUM_ETHERNET_PORTS];
 
 mii_mempool_t tx_mem_lp[NUM_ETHERNET_PORTS];
 
+#if ETHERNET_MAX_TX_PACKET_SIZE > MII_TX_BUFSIZE
+#warning Ethernet TX may lock up (ETHERNET_MAX_TX_PACKET_SIZE > MII_TX_BUFSIZE)
+#endif
 
 void init_mii_mem() {
 
