@@ -13,12 +13,14 @@
 
 extern char notifySeen;
 
-static void theServer(chanend cIn, chanend cOut, chanend cNotifications, chanend appIn, chanend appOut) {
+static void theServer(chanend cIn, chanend cOut, chanend cNotifications, chanend appIn, chanend appOut, char mac_address[6]) {
     int havePacket = 0;
     int outBytes;
     int nBytes, a, timeStamp;
     int b[3200];
     int txbuf[400];
+
+    mac_set_macaddr(mac_address);
 
     miiBufferInit(cIn, cNotifications, b, 3200);
     miiOutInit(cOut);

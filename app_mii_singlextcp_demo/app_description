@@ -1,4 +1,0 @@
-App to demonstrate the single threaded ethernet running with the standard ethernet
-client interface, with the xtcp server riding on top.  This particular application
-depends on the sc_xtcp respository.
-
