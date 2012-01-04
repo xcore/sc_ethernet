@@ -99,75 +99,88 @@ void ethernet_tx_server(
             break;
           }
 #endif
-
-          for (unsigned int p=0; p<NUM_ETHERNET_PORTS; ++p) {
+          do {
+            for (unsigned int p=0; p<NUM_ETHERNET_PORTS; ++p) {
 #ifdef ETHERNET_TX_HP_QUEUE
         	  if (hp)
+        	  {
         		  buf[p] = mii_reserve(tx_mem_hp[p]);
+        	  }
         	  else
+        	  {
         		  buf[p] = mii_reserve(tx_mem_lp[p]);
+        	  }
 #else
         	  buf[p] = mii_reserve(tx_mem_lp[p]);
 #endif
         	  if (buf[p] == 0) bufs_ok=0;
-          }
-
-          if (bufs_ok) {
-              master {
-        		  tx[i] :> length;
-        		  tx[i] :> dst_port;
-            	  if (cmd == ETHERNET_TX_REQ_OFFSET2) {
-            		  tx[i] :> char;
-            		  tx[i] :> char;
-            		  for(int j=0;j<(length+3)>>2;j++) {
-            			  int datum;
-            			  tx[i] :> datum;
-            			  for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
-            				  mii_packet_set_data(buf[p], j, byterev(datum));
-            			  }
-            		  }
-            		  tx[i] :> char;
-            		  tx[i] :> char;
-
-            		  cmd = ETHERNET_TX_REQ;
-            	  } else {
-            		  for(int j=0;j<(length+3)>>2;j++) {
-            			  int datum;
-            			  tx[i] :> datum;
-            			  for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
-            				  mii_packet_set_data(buf[p], j, datum);
-            			  }
-            		  }
-            	  }
             }
-
-            for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
-            	if (p == dst_port || dst_port == ETH_BROADCAST) {
-            		mii_packet_set_length(buf[p], length);
-
-#if defined(ENABLE_ETHERNET_SOURCE_ADDRESS_WRITE)
-            		{
-            			mii_packet_set_data_short(buf[p], 3, (mac_addr,short[])[0]);
-            			mii_packet_set_data_short(buf[p], 4, (mac_addr,short[])[1]);
-            			mii_packet_set_data_short(buf[p], 5, (mac_addr,short[])[2]);
-            		}
-#endif
-
-            		if (cmd == ETHERNET_TX_REQ_TIMED)
-            			mii_packet_set_timestamp_id(buf[p], i+1);
-            		else
-            			mii_packet_set_timestamp_id(buf[p], 0);
-
-
-            		mii_commit(buf[p], (length+(BUF_DATA_OFFSET*4)));
-
-            		mii_packet_set_stage(buf[p], 1);
-            	}
-            }
-
-            enabled[i] = 0;
-            pendingCmd[i] = 0;
           }
+          while (hp && bufs_ok == 0);
+
+		  master {
+			  tx[i] :> length;
+			  tx[i] :> dst_port;
+			  if (cmd == ETHERNET_TX_REQ_OFFSET2) {
+				  tx[i] :> char;
+				  tx[i] :> char;
+				  for(int j=0;j<(length+3)>>2;j++) {
+					  int datum;
+					  tx[i] :> datum;
+					  for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
+						  if (bufs_ok)
+						  {
+						    mii_packet_set_data(buf[p], j, byterev(datum));
+						  }
+					  }
+				  }
+				  tx[i] :> char;
+				  tx[i] :> char;
+
+				  cmd = ETHERNET_TX_REQ;
+			  } else {
+				  for(int j=0;j<(length+3)>>2;j++) {
+					  int datum;
+					  tx[i] :> datum;
+					  for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
+						  if (bufs_ok)
+						  {
+						    mii_packet_set_data(buf[p], j, datum);
+						  }
+					  }
+				  }
+			  }
+		}
+
+	    if (bufs_ok)
+	    {
+			for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
+				if (p == dst_port || dst_port == ETH_BROADCAST) {
+					mii_packet_set_length(buf[p], length);
+
+	#if defined(ENABLE_ETHERNET_SOURCE_ADDRESS_WRITE)
+					{
+						mii_packet_set_data_short(buf[p], 3, (mac_addr,short[])[0]);
+						mii_packet_set_data_short(buf[p], 4, (mac_addr,short[])[1]);
+						mii_packet_set_data_short(buf[p], 5, (mac_addr,short[])[2]);
+					}
+	#endif
+
+					if (cmd == ETHERNET_TX_REQ_TIMED)
+						mii_packet_set_timestamp_id(buf[p], i+1);
+					else
+						mii_packet_set_timestamp_id(buf[p], 0);
+
+
+					mii_commit(buf[p], (length+(BUF_DATA_OFFSET*4)));
+
+					mii_packet_set_stage(buf[p], 1);
+				}
+			}
+	    }
+
+		enabled[i] = 0;
+		pendingCmd[i] = 0;
           break;
         default:
           break;

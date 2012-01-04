@@ -87,7 +87,18 @@ void mac_tx_offset2(chanend ethernet_tx_svr,
                     int count, 
                     int ifnum)
 {
-  ethernet_tx_svr <: ETHERNET_TX_REQ_OFFSET2;
+#ifdef ETHERNET_TX_HP_QUEUE
+  int etype = Buf[3] >> 16;
+
+  if (etype == 0x0081)
+  {
+	  ethernet_tx_svr <: ETHERNET_TX_REQ_OFFSET2_HP;
+  }
+  else
+#endif
+  {
+	  ethernet_tx_svr <: ETHERNET_TX_REQ_OFFSET2;
+  }
 
   slave {
     ethernet_tx_svr <: count;

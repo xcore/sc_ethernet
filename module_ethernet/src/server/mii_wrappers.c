@@ -103,7 +103,7 @@ void init_mii_mem() {
 		mii_init_mempool(rx_mem_hp[i], MII_RX_HP_MEMSIZE*4, 1518);
 #endif
 #ifdef ETHERNET_TX_HP_QUEUE
-		mii_init_mempool(tx_mem_hp[i], MII_TX_HP_MEMSIZE*4, 1518);
+		mii_init_mempool(tx_mem_hp[i], MII_TX_HP_MEMSIZE*4, ETHERNET_MAX_TX_HP_PACKET_SIZE);
 #endif
 		mii_init_mempool(rx_mem_lp[i], MII_RX_LP_MEMSIZE*4, 1518);
 		mii_init_mempool(tx_mem_lp[i], MII_TX_LP_MEMSIZE*4, ETHERNET_MAX_TX_PACKET_SIZE);
