@@ -12,6 +12,7 @@
 #include "miiClient.h"
 
 extern char notifySeen;
+extern void mac_set_macaddr(unsigned char macaddr[]);
 
 static void theServer(chanend cIn, chanend cOut, chanend cNotifications, chanend appIn, chanend appOut, char mac_address[6]) {
     int havePacket = 0;
@@ -73,11 +74,12 @@ void miiSingleServer(clock clk_smi,
                      out port ?p_mii_resetn,
                      smi_interface_t &smi,
                      mii_interface_t &m,
-                     chanend appIn, chanend appOut, chanend server) {
+                     chanend appIn, chanend appOut,
+                     chanend server, unsigned char mac_address[6]) {
     chan cIn, cOut;
     chan notifications;
     par {
         miiDriver(clk_smi, p_mii_resetn, smi, m, cIn, cOut, 0);
-        theServer(cIn, cOut, notifications, appIn, appOut);
+        theServer(cIn, cOut, notifications, appIn, appOut, mac_address);
     }
 }

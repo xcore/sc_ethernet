@@ -1,14 +1,16 @@
 #include <xs1.h>
+#include <xccompat.h>
+
 #include "ethernet_rx_client.h"
 #include "ethernet_tx_client.h"
 
-static unsigned char macaddr[6];
+static unsigned char mac_s_macaddr[6];
 
 void mac_set_macaddr(unsigned char macaddr[]) {
-	for (i=0; i<6; ++i) s_macaddr[i] = macaddr[i];
+	for (int i=0; i<6; ++i) mac_s_macaddr[i] = macaddr[i];
 }
 
 int mac_get_macaddr(chanend c_mac, unsigned char macaddr[]) {
-	for (i=0; i<6; ++i) macaddr[i] = s_macaddr[i];
+	for (int i=0; i<6; ++i) macaddr[i] = mac_s_macaddr[i];
     return 1;
 }

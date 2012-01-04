@@ -20,10 +20,6 @@ void safe_mac_rx(chanend cIn,
 void mac_set_custom_filter(chanend c_mac_svr, int x) {
 }
 
-int mac_get_macaddr(chanend c_mac, unsigned char macaddr[]) {
-    return 1;
-}
-
 void mac_tx(chanend cOut, unsigned int buffer[], int nBytes, int ifnum) {
     cOut <: nBytes;
     for(int i = 0; i< ((nBytes+3)>>2); i++) {

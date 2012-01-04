@@ -6,9 +6,8 @@
 # are built.
 BUILD_SUBDIRS = app_ethernet_demo app_ethernet_loopback app_bridge \
 	app_mii_singlethread_regr
-#		app_mii_singlethread_demo \
-#     test_mii_singlethread \
-#	app_mii_singlextcp_demo \
+#	app_mii_singlethread_demo \
+#	test_mii_singlethread \
 #	app_mii_singleavb_demo
 
 XMOS_MAKE_PATH ?= ..
