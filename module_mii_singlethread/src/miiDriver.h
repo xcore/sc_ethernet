@@ -1,3 +1,5 @@
+#ifndef __miiDriver_h__
+#define __miiDriver_h__
 
 #ifdef __XC__
 /** Structure containing resources required for the MII ethernet interface.
@@ -61,4 +63,8 @@ extern void miiDriver(clock clk_smi,
                       smi_interface_t &smi,
                       mii_interface_t &m,
                       chanend cIn, chanend cOut, int simulation);
+
+
+#endif
+
 

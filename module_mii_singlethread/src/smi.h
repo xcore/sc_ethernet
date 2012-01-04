@@ -6,6 +6,11 @@
 #ifndef _smi_h_
 #define _smi_h_
 
+#include <xs1.h>
+#include <xccompat.h>
+
+#include "miiDriver.h"
+
 /* Initilisation of SMI ports
    Must be called first */
 void smi_init(clock clk_smi, out port ?p_mii_resetn, smi_interface_t &smi);
