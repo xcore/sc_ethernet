@@ -11,6 +11,8 @@ void mac_set_macaddr(unsigned char macaddr[]) {
 }
 
 int mac_get_macaddr(chanend c_mac, unsigned char macaddr[]) {
+	volatile unsigned* m = (unsigned*)mac_s_macaddr;
+	while (*m==0);
 	for (int i=0; i<6; ++i) macaddr[i] = mac_s_macaddr[i];
     return 1;
 }
