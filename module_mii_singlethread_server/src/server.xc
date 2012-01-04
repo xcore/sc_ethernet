@@ -13,28 +13,31 @@
 
 extern char notifySeen;
 
-static void theServer(chanend cIn, chanend cOut, chanend cNotifications, chanend appIn, chanend appOut) {
+static void theServer(chanend cIn, chanend cOut, chanend cNotifications, chanend appIn, chanend appOut, char mac_address[6]) {
     int havePacket = 0;
     int outBytes;
     int nBytes, a, timeStamp;
     int b[3200];
     int txbuf[400];
 
+    mac_set_macaddr(mac_address);
+
     miiBufferInit(cIn, cNotifications, b, 3200);
     miiOutInit(cOut);
     
     while (1) {
         select {
+        // Notification that there is a packet to receive (causes select to continue)
         case inuchar_byref(cNotifications, notifySeen):
             break;
-//        case miiNotified(cNotifications);
-        case havePacket => appIn :> int _:   // Receive confirmation.
+
+        // Receive a packet from buffer
+        case havePacket => appIn :> int _:
             for(int i = 0; i < ((nBytes + 3) >>2); i++) {
                 int val;
                 asm("ldw %0, %1[%2]" : "=r" (val) : "r" (a) , "r" (i));
                 appIn <: val;
             }
-//            printintln(nBytes);
             miiFreeInBuffer(a);
             miiRestartBuffer();
             {a,nBytes,timeStamp} = miiGetInBuffer();
@@ -44,18 +47,18 @@ static void theServer(chanend cIn, chanend cOut, chanend cNotifications, chanend
                 outuint(appIn, nBytes);
             }
             break;
+
+        // Transmit a packet
         case appOut :> outBytes:
             for(int i = 0; i < ((outBytes + 3) >>2); i++) {
                 appOut :> txbuf[i];
-            }
-            if(outBytes < 64) {
-                printstr("ERR ");
-                printhexln(outBytes);
             }
             miiOutPacket(cOut, txbuf, 0, outBytes);
             miiOutPacketDone(cOut);
             break;
         }
+
+        // Check that there is a packet
         if (!havePacket) {
             {a,nBytes,timeStamp} = miiGetInBuffer();
             if (a != 0) {
