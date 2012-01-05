@@ -180,7 +180,10 @@ void miiAVBListenerServer(clock clk_smi, out port ?p_mii_resetn, smi_interface_t
     chan cIn, cOut;
     chan notifications;
     par {
-        miiDriver(clk_smi, p_mii_resetn, smi, m, cIn, cOut, 0);
+    	{
+    	miiInitialise(clk_smi, p_mii_resetn, smi, m);
+    	miiDriver(m, cIn, cOut);
+    	}
         theServer(cIn, cOut, notifications, appIn, appOut);
     }
 }

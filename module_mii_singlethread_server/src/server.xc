@@ -14,20 +14,41 @@
 extern char notifySeen;
 extern void mac_set_macaddr(unsigned char macaddr[]);
 
-static void theServer(chanend cIn, chanend cOut, chanend cNotifications, chanend appIn, chanend appOut, char mac_address[6]) {
+static void theServer(chanend cIn, chanend cOut, chanend cNotifications,
+		smi_interface_t &smi, chanend connect_status,
+		chanend appIn, chanend appOut, char mac_address[6]) {
     int havePacket = 0;
     int outBytes;
     int nBytes, a, timeStamp;
     int b[3200];
     int txbuf[400];
+    timer linkcheck_timer;
+    unsigned linkcheck_time;
 
     mac_set_macaddr(mac_address);
 
     miiBufferInit(cIn, cNotifications, b, 3200);
     miiOutInit(cOut);
     
+    linkcheck_timer :> linkcheck_time;
+
     while (1) {
         select {
+		case linkcheck_timer when timerafter(linkcheck_time) :> void :
+			{
+				static int phy_status = 0;
+				int new_status = miiCheckLinkState(smi);
+				if (new_status != phy_status) {
+					outuchar(connect_status, 0);
+					outuchar(connect_status, new_status);
+					outuchar(connect_status, 0);
+					outct(connect_status, XS1_CT_END);
+					phy_status = new_status;
+				}
+			}
+			linkcheck_time += 10000000;
+			break;
+
         // Notification that there is a packet to receive (causes select to continue)
         case inuchar_byref(cNotifications, notifySeen):
             break;
@@ -75,11 +96,12 @@ void miiSingleServer(clock clk_smi,
                      smi_interface_t &smi,
                      mii_interface_t &m,
                      chanend appIn, chanend appOut,
-                     chanend server, unsigned char mac_address[6]) {
+                     chanend connect_status, unsigned char mac_address[6]) {
     chan cIn, cOut;
     chan notifications;
+	miiInitialise(clk_smi, p_mii_resetn, smi, m);
     par {
-        miiDriver(clk_smi, p_mii_resetn, smi, m, cIn, cOut, 0);
-        theServer(cIn, cOut, notifications, appIn, appOut, mac_address);
+    	miiDriver(m, cIn, cOut);
+        theServer(cIn, cOut, notifications, smi, connect_status, appIn, appOut, mac_address);
     }
 }

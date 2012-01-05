@@ -10,21 +10,29 @@
 #include "mii.h"
 #include "smi.h"
 
-void miiDriver(clock clk_smi,
-               out port ?p_mii_resetn,
-               smi_interface_t &smi,
-               mii_interface_t &m,
-               chanend cIn, chanend cOut, int simulation) {
+void miiInitialise(clock clk_smi,
+        out port ?p_mii_resetn,
+		smi_interface_t &smi,
+		mii_interface_t &m)
+{
+	timer tmr;
+#ifndef MII_DRIVER_SIMULTION
+	smi_init(clk_smi, p_mii_resetn, smi);
+	smi_reset(p_mii_resetn, smi, tmr);
+    mii_init(m, 0, tmr);
+	eth_phy_config(1, smi);
+#else
+    mii_init(m, 1, tmr);
+#endif
+}
+
+void miiDriver(mii_interface_t &m, chanend cIn, chanend cOut)
+{
     timer tmr;
-    int x;
-    if (!simulation) {
-        smi_init(clk_smi, p_mii_resetn, smi);
-        smi_reset(p_mii_resetn, smi, tmr);
-    }
-    mii_init(m, simulation, tmr);
-    if (!simulation) {
-        x = eth_phy_config(1, smi);
-    }
     miiLLD(m.p_mii_rxd, m.p_mii_rxdv, m.p_mii_txd, cIn, cOut, m.p_mii_timing, tmr);
 }
 
+int miiCheckLinkState(smi_interface_t &smi)
+{
+	return eth_phy_checklink(smi);
+}

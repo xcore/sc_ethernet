@@ -31,6 +31,9 @@ void smi_deinit(clock clk_smi, out port ?p_mii_resetn, smi_interface_t &smi);
 /* Enable/disable phy loopback */
 void smi_loopback(int enable);
 
+/* Perform a check for the SMI link enabled bit */
+int eth_phy_checklink(smi_interface_t &smi);
+
 /* Returns Ethernet mode:
    0  10BaseT
    1  100BaseT */

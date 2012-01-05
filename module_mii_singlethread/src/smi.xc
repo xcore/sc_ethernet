@@ -5,8 +5,54 @@
 
 #include <xs1.h>
 #include <print.h>
+
+#if __ethernet_conf_h_exists__
+#include "ethernet_conf.h"
+#endif
+
 #include "miiDriver.h"
 #include "smi.h"
+
+// wait this time to establish a link (ms) before giving a connection error
+// Experience suggests that 2s may not be long enough, but 3 is.
+#define LINK_TIMEOUT_MS        3000
+#define ESTABLISH_LINK_TIMEOUT (REF_FREQ / 1000) * LINK_TIMEOUT_MS
+
+// After link is established, a short delay is required (ms)
+// This delay is applied after phy is reset and initialised
+// PCs seems to take quite long to wake up and get ready to receive
+#define POST_CONFIG_DELAY_MS   5000
+#define POST_CONFIG_DELAY      (REF_FREQ / 1000) * POST_CONFIG_DELAY_MS
+
+//////////////////////
+// phy constants
+//////////////////////
+
+#ifndef PHY_ADDRESS
+#define PHY_ADDRESS 0x1F
+#endif
+#define PHY_ID      0x300007
+
+// SMI Registers
+#define BASIC_CONTROL_REG                  0
+#define BASIC_STATUS_REG                   1
+#define PHY_ID1_REG                        2
+#define PHY_ID2_REG                        3
+#define AUTONEG_ADVERT_REG                 4
+#define AUTONEG_LINK_REG                   5
+#define AUTONEG_EXP_REG                    6
+
+#define BASIC_CONTROL_LOOPBACK_BIT        14
+#define BASIC_CONTROL_100_MBPS_BIT        13
+#define BASIC_CONTROL_AUTONEG_EN_BIT      12
+#define BASIC_CONTROL_RESTART_AUTONEG_BIT  9
+#define BASIC_CONTROL_FULL_DUPLEX_BIT      8
+
+#define BASIC_STATUS_LINK_BIT              2
+
+#define AUTONEG_ADVERT_100_BIT             8
+#define AUTONEG_ADVERT_10_BIT              6
+
 
 // Set SMI clock rate
 //#define SMI_CLOCK_FREQ         250000      // Desired SMI clock frequency.
@@ -282,65 +328,6 @@ void smi_wr(int address, int reg, int val, smi_interface_t &smi)
 }
 
 
-
-
-
-
-
-
-
-
-
-
-#include "smi.h"
-#include <print.h>
-#if __ethernet_conf_h_exists__
-#include "ethernet_conf.h"
-#endif
-
-// wait this time to establish a link (ms) before giving a connection error
-// Experience suggests that 2s may not be long enough, but 3 is.
-#define LINK_TIMEOUT_MS        3000
-#define ESTABLISH_LINK_TIMEOUT (REF_FREQ / 1000) * LINK_TIMEOUT_MS
-
-// After link is established, a short delay is required (ms)
-// This delay is applied after phy is reset and initialised
-// PCs seems to take quite long to wake up and get ready to receive
-#define POST_CONFIG_DELAY_MS   5000
-#define POST_CONFIG_DELAY      (REF_FREQ / 1000) * POST_CONFIG_DELAY_MS
-
-//////////////////////
-// phy constants
-//////////////////////
-
-#ifndef PHY_ADDRESS
-#define PHY_ADDRESS 0x0
-#endif
-#define PHY_ID      0x300007
-
-// SMI Registers
-#define BASIC_CONTROL_REG                  0
-#define BASIC_STATUS_REG                   1
-#define PHY_ID1_REG                        2
-#define PHY_ID2_REG                        3
-#define AUTONEG_ADVERT_REG                 4
-#define AUTONEG_LINK_REG                   5
-#define AUTONEG_EXP_REG                    6
-
-#define BASIC_CONTROL_LOOPBACK_BIT        14
-#define BASIC_CONTROL_100_MBPS_BIT        13
-#define BASIC_CONTROL_AUTONEG_EN_BIT      12
-#define BASIC_CONTROL_RESTART_AUTONEG_BIT  9
-#define BASIC_CONTROL_FULL_DUPLEX_BIT      8
-
-#define BASIC_STATUS_LINK_BIT              2
-
-#define AUTONEG_ADVERT_100_BIT             8
-#define AUTONEG_ADVERT_10_BIT              6
-
-
-
-
 ////////////////////////////////////////////
 
 /* Phy configuration
@@ -380,7 +367,6 @@ int eth_phy_config(int eth100, smi_interface_t &smi)
   if (phyid != PHY_ID)
     {
       // PHY_ID doesn't correspond return error
-      printhexln(phyid);
       return (1);
     }
   

@@ -131,8 +131,10 @@ void regression(void) {
     chan cIn, cOut;
     chan notifications;
     par {
-        { miiDriver(clk_smi, null, smi, mii,
-                    cIn, cOut, 1);}
+        {
+        	miiInitialise(clk_smi, null, smi, mii);
+        	miiDriver(mii, cIn, cOut);
+        }
         {x(); emptyIn(cIn, notifications);}
         {x(); emptyOut(cOut);}
         {burn();}
