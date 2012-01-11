@@ -11,13 +11,8 @@
 
 #define POLY   0xEDB88320
 
-int miiPacketsCRCError;
-int miiPacketsReceived;
-int miiPacketsOverran;
-int miiPacketsTransmitted;
-int nextBuffer;
-
-extern void miiInstallHandler(int bufferAddr,
+extern void miiInstallHandler(struct miiData &this,
+                              int bufferAddr,
                               chanend miiChannel,
                               chanend notificationChannel);
 
@@ -55,15 +50,15 @@ static int CRCBad(int base, int end) {
     return ~partCRC == 0 ? length : 0;
 }
 
-static int packetGood(int base, int end) {
+static int packetGood(struct miiData &this, int base, int end) {
     int length = CRCBad(base, end);
 
     if (length == 0) {
-        miiPacketsCRCError++;
+        this.miiPacketsCRCError++;
         return 0;
     }
     // insert MAC filter here.
-    miiPacketsReceived++;
+    this.miiPacketsReceived++;
     return length;
 }
 
@@ -88,8 +83,6 @@ static int packetGood(int base, int end) {
  * pointer either points to enough free space to allocate a buffer, or it
  * sits too close to the free pointer for there to be room for a packet.
  */
- 
-static int freePtr[2], wrPtr[2], lastSafePtr[2], firstPtr[2], readPtr[2];
 
 /* packetInLLD (maintained by the LLD) remembers which buffer is being
  * filled right now; nextBuffer (maintained byt ClientUser.xc) stores which
@@ -101,8 +94,6 @@ static int freePtr[2], wrPtr[2], lastSafePtr[2], firstPtr[2], readPtr[2];
  * leave nextBuffer to point to a fresh buffer.
  */
 
-int nextBuffer;
-static int refillBankNumber;
 #define MAXPACKET 1530
 
 static void set(int addr, int value) {
@@ -117,55 +108,58 @@ static int get(int addr) {
 
 /* Called once on startup */
 
-void miiBufferInit(chanend cIn, chanend cNotifications, int buffer[], int numberWords) {
+void miiBufferInit(struct miiData &this, chanend cIn, chanend cNotifications, int buffer[], int numberWords) {
     int address;
+    this.notifySeen = 1;
+    this.notifyLast = 1;
     asm("add %0, %1, 0" : "=r" (address) : "r" (buffer));
-    readPtr[0] = firstPtr[0] = freePtr[0] = address ;
-    readPtr[1] = firstPtr[1] = freePtr[1] = address + ((numberWords << 1) & ~3) ;
-    wrPtr[0] = freePtr[0] + 4;
-    wrPtr[1] = freePtr[1] + 4;
-    set(freePtr[0], 1);
-    set(freePtr[1], 1);
-    lastSafePtr[0] = freePtr[1] - MAXPACKET;
-    lastSafePtr[1] = address + (numberWords << 2) - MAXPACKET;
-    nextBuffer    = wrPtr[1];
-    miiInstallHandler(wrPtr[0], cIn, cNotifications);
+    this.readPtr[0] = this.firstPtr[0] = this.freePtr[0] = address ;
+    this.readPtr[1] = this.firstPtr[1] = this.freePtr[1] = address + ((numberWords << 1) & ~3) ;
+    this.wrPtr[0] = this.freePtr[0] + 4;
+    this.wrPtr[1] = this.freePtr[1] + 4;
+    set(this.freePtr[0], 1);
+    set(this.freePtr[1], 1);
+    this.lastSafePtr[0] = this.freePtr[1] - MAXPACKET;
+    this.lastSafePtr[1] = address + (numberWords << 2) - MAXPACKET;
+    this.nextBuffer    = this.wrPtr[1];
+    this.miiPacketsOverran = 0;
+    this.refillBankNumber = 0;
+    this.miiPacketsTransmitted = 0;
+    this.miiPacketsReceived = 0;
+    this.miiPacketsCRCError = 0;
+    this.readBank = 0;
+    miiInstallHandler(this, this.wrPtr[0], cIn, cNotifications);
 }
 
 
 /* Called from interrupt handler */
 
-static char notifyLast = 1;
-char notifySeen = 1;
-
-void miiNotify(chanend notificationChannel) {
-    if (notifyLast == notifySeen) {
-        notifyLast = !notifyLast;
-        outuchar(notificationChannel, notifyLast);
+void miiNotify(struct miiData &this, chanend notificationChannel) {
+    if (this.notifyLast == this.notifySeen) {
+        this.notifyLast = !this.notifyLast;
+        outuchar(notificationChannel, this.notifyLast);
     }
 }
 
-select miiNotified(chanend notificationChannel) {
-case inuchar_byref(notificationChannel, notifySeen):
+select miiNotified(struct miiData &this, chanend notificationChannel) {
+case inuchar_byref(notificationChannel, this.notifySeen):
     break;
 }
 
-static int readBank = 0;
-
-{unsigned, unsigned, unsigned} miiGetInBuffer() {
+{unsigned, unsigned, unsigned} miiGetInBuffer(struct miiData &this) {
     unsigned nBytes, timeStamp;
     for(int i = 0; i < 2; i++) {
-        readBank = !readBank;
-        nBytes = get(readPtr[readBank]);
+        this.readBank = !this.readBank;
+        nBytes = get(this.readPtr[this.readBank]);
         if (nBytes == 0) {
-            readPtr[readBank] = firstPtr[readBank];
-            nBytes = get(readPtr[readBank]);
+            this.readPtr[this.readBank] = this.firstPtr[this.readBank];
+            nBytes = get(this.readPtr[this.readBank]);
         }
         if (nBytes != 1) {
-            unsigned retVal = readPtr[readBank] + 4;
-            readPtr[readBank] += ((nBytes + 3) & ~3) + 4;
-            if (get(readPtr[readBank]) == 0) {
-                readPtr[readBank] = firstPtr[readBank];
+            unsigned retVal = this.readPtr[this.readBank] + 4;
+            this.readPtr[this.readBank] += ((nBytes + 3) & ~3) + 4;
+            if (get(this.readPtr[this.readBank]) == 0) {
+                this.readPtr[this.readBank] = this.firstPtr[this.readBank];
             }
             timeStamp = get(retVal);
             return {retVal+4, nBytes-4, timeStamp};
@@ -174,79 +168,79 @@ static int readBank = 0;
     return {0, 0, 0};
 }
 
-static void miiCommitBuffer(unsigned int currentBuffer, unsigned int length, chanend notificationChannel) {
-    int bn = currentBuffer < firstPtr[1] ? 0 : 1;    
-    set(wrPtr[bn]-4, length);       // record length of current packet.
-    wrPtr[bn] = wrPtr[bn] + ((length+3)&~3) + 4; // new end pointer.
-    miiNotify(notificationChannel);
-    if (wrPtr[bn] > lastSafePtr[bn]) {  // This may be too far.
-        if (freePtr[bn] != firstPtr[bn]) {// Test if head of buf is free
-            set(wrPtr[bn]-4, 0);          // If so, record unused tail.
-            wrPtr[bn] = firstPtr[bn] + 4; // and wrap to head, and record that
-            set(wrPtr[bn]-4, 1);          // this is now the head of the queue.
-            if (freePtr[bn] - wrPtr[bn] >= MAXPACKET) {// Test if there is room for packet
-                nextBuffer = wrPtr[bn];     // if so, record packet pointer
+static void miiCommitBuffer(struct miiData &this, unsigned int currentBuffer, unsigned int length, chanend notificationChannel) {
+    int bn = currentBuffer < this.firstPtr[1] ? 0 : 1;    
+    set(this.wrPtr[bn]-4, length);       // record length of current packet.
+    this.wrPtr[bn] = this.wrPtr[bn] + ((length+3)&~3) + 4; // new end pointer.
+    miiNotify(this, notificationChannel);
+    if (this.wrPtr[bn] > this.lastSafePtr[bn]) {  // This may be too far.
+        if (this.freePtr[bn] != this.firstPtr[bn]) {// Test if head of buf is free
+            set(this.wrPtr[bn]-4, 0);          // If so, record unused tail.
+            this.wrPtr[bn] = this.firstPtr[bn] + 4; // and wrap to head, and record that
+            set(this.wrPtr[bn]-4, 1);          // this is now the head of the queue.
+            if (this.freePtr[bn] - this.wrPtr[bn] >= MAXPACKET) {// Test if there is room for packet
+                this.nextBuffer = this.wrPtr[bn];     // if so, record packet pointer
                 return;                            // fall out - default is no room
             }
         } else {
-            set(wrPtr[bn]-4, 1);          // this is still the head of the queue.
+            set(this.wrPtr[bn]-4, 1);          // this is still the head of the queue.
         }
     } else {                                       // room in tail.
-        set(wrPtr[bn]-4, 1);            // record that this is now the head of the queue.
-        if (wrPtr[bn] > freePtr[bn] || // Test if there is room for a packet
-            freePtr[bn] - wrPtr[bn] >= MAXPACKET) {
-            nextBuffer = wrPtr[bn];           // if so, record packet pointer
+        set(this.wrPtr[bn]-4, 1);            // record that this is now the head of the queue.
+        if (this.wrPtr[bn] > this.freePtr[bn] || // Test if there is room for a packet
+            this.freePtr[bn] - this.wrPtr[bn] >= MAXPACKET) {
+            this.nextBuffer = this.wrPtr[bn];           // if so, record packet pointer
             return;
         }
     }
-    nextBuffer = -1;                             // buffer full - no more room for data.
-    refillBankNumber = bn;
+    this.nextBuffer = -1;                             // buffer full - no more room for data.
+    this.refillBankNumber = bn;
     return;
 }
 
-static void miiRejectBuffer(unsigned int currentBuffer) {
-    nextBuffer = currentBuffer;
+static void miiRejectBuffer(struct miiData &this, unsigned int currentBuffer) {
+    this.nextBuffer = currentBuffer;
 }
 
-void miiRestartBuffer() {
+void miiRestartBuffer(struct miiData &this) {
     int bn;
-    if (nextBuffer != -1) {
+    if (this.nextBuffer != -1) {
         return;
     }
-    bn = refillBankNumber;
+    bn = this.refillBankNumber;
 
-    if (wrPtr[bn] > lastSafePtr[bn]) {  // This may be too far.
-        if (freePtr[bn] != firstPtr[bn]) {// Test if head of buf is free
-            set(wrPtr[bn]-4, 0);          // If so, record unused tail.
-            wrPtr[bn] = firstPtr[bn] + 4; // and wrap to head, and record that
-            set(wrPtr[bn]-4, 1);          // this is now the head of the queue.
-            if (freePtr[bn] - wrPtr[bn] >= MAXPACKET) {// Test if there is room for packet
-                nextBuffer = wrPtr[bn];     // if so, record packet pointer
+    if (this.wrPtr[bn] > this.lastSafePtr[bn]) {  // This may be too far.
+        if (this.freePtr[bn] != this.firstPtr[bn]) {// Test if head of buf is free
+            set(this.wrPtr[bn]-4, 0);          // If so, record unused tail.
+            this.wrPtr[bn] = this.firstPtr[bn] + 4; // and wrap to head, and record that
+            set(this.wrPtr[bn]-4, 1);          // this is now the head of the queue.
+            if (this.freePtr[bn] - this.wrPtr[bn] >= MAXPACKET) {// Test if there is room for packet
+                this.nextBuffer = this.wrPtr[bn];     // if so, record packet pointer
             }
         }
     } else {                                       // room in tail.
-        if (wrPtr[bn] > freePtr[bn] || // Test if there is room for a packet
-            freePtr[bn] - wrPtr[bn] >= MAXPACKET) {
-            nextBuffer = wrPtr[bn];           // if so, record packet pointer
+        if (this.wrPtr[bn] > this.freePtr[bn] || // Test if there is room for a packet
+            this.freePtr[bn] - this.wrPtr[bn] >= MAXPACKET) {
+            this.nextBuffer = this.wrPtr[bn];           // if so, record packet pointer
         }
     }
 }
 
-void miiFreeInBuffer(int base) {
-    int bankNumber = base < firstPtr[1] ? 0 : 1;
+void miiFreeInBuffer(struct miiData &this, int base) {
+    int bankNumber = base < this.firstPtr[1] ? 0 : 1;
     int modifiedFreePtr = 0;
     base -= 4;
     set(base-4, -get(base-4));
     while (1) {
-        int l = get(freePtr[bankNumber]);
+        int l = get(this.freePtr[bankNumber]);
         if (l > 0) {
             break;
         }
         modifiedFreePtr = 1;
         if (l == 0) {
-            freePtr[bankNumber] = firstPtr[bankNumber];
+            this.freePtr[bankNumber] = this.firstPtr[bankNumber];
         } else {
-            freePtr[bankNumber] += (((-l) + 3) & ~3) + 4;
+            this.freePtr[bankNumber] += (((-l) + 3) & ~3) + 4;
         }
     }
     // Note - wrptr may have been stuck
@@ -260,12 +254,12 @@ void miiTimeStampInit(unsigned offset) {
     globalOffset = (offset + testOffset) & 0x3FFFF;
 }
 
-void miiClientUser(int base, int end, chanend notificationChannel) {
-    int length = packetGood(base, end);
+void miiClientUser(struct miiData &this, int base, int end, chanend notificationChannel) {
+    int length = packetGood(this, base, end);
     if (length != 0) {
-        miiCommitBuffer(base, length, notificationChannel);
+        miiCommitBuffer(this, base, length, notificationChannel);
     } else {
-        miiRejectBuffer(base);
+        miiRejectBuffer(this, base);
     }
 }
 
