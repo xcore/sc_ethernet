@@ -3,9 +3,32 @@
 // University of Illinois/NCSA Open Source License posted in
 // LICENSE.txt and at <http://github.xcore.com/>
 
+
+#define KERNELSTACKWORDS 128
+
+struct miiData {                    // DO NOT CHANGE LOCATIONS OR ADD ANY FIELDS.
+    int nextBuffer;
+    int packetInLLD;
+    unsigned notificationChannelEnd;
+    unsigned miiChannelEnd;
+    int miiPacketsOverran;
+    int refillBankNumber;
+    int freePtr[2], wrPtr[2], lastSafePtr[2], firstPtr[2], readPtr[2];
+    char notifyLast;
+    char notifySeen;
+    char pad0, pad1;
+    int miiPacketsTransmitted;
+    int miiPacketsReceived;
+    int miiPacketsCRCError;
+    int readBank;
+    int kernelStack[KERNELSTACKWORDS];
+};
+
 /** This function gives the MII layer a buffer space to buffer input
  * packets into. The buffer space must be at least 1520 words, but can be
  * longer to improve performance.
+ *
+ * \param this  structure that contains persistent data for this MII connection.
  *
  * \param cIn channel that communicates with the low level input MII.
  *
@@ -15,15 +38,17 @@
  *
  * \param words     number of words in the array.
  */
-extern void miiBufferInit(chanend cIn, chanend cNotifications, int buffer[], int words);
+extern void miiBufferInit(struct miiData &this, chanend cIn, chanend cNotifications, int buffer[], int words);
 
 /** This function will obtain a buffer from the input queue, or 0 if there
  * is no packet awaiting processing. When the packet has been processed,
  * freeInBuffer() should be called to free the packet buffer.
  * 
+ * \param this  structure that contains persistent data for this MII connection.
+ *
  * \return The address of the buffer and the number of bytes.
  */
-{unsigned, unsigned, unsigned} extern miiGetInBuffer();
+{unsigned, unsigned, unsigned} extern miiGetInBuffer(struct miiData &this);
 
 /** This function is called to informs the input layer that the packet has
  * been processed and that the buffer can be reused. The address should be
@@ -32,9 +57,11 @@ extern void miiBufferInit(chanend cIn, chanend cNotifications, int buffer[], int
  * processing a packet for a prolonged period of time shall lead to packet
  * loss.
  *
+ * \param this  structure that contains persistent data for this MII connection.
+ *
  * \param address The address of the buffer to be freed as returned by miiGetInBuffer().
  */
-extern void miiFreeInBuffer(int address);
+extern void miiFreeInBuffer(struct miiData &this, int address);
 
 /** This function should be called to block the receiving thread. This
  * function will return when something interesting has happened at the MII
@@ -46,17 +73,19 @@ extern void miiFreeInBuffer(int address);
  * enabling the user layer to deal with different event sources in a
  * non-deterministic manner.
  *
+ * \param this  structure that contains persistent data for this MII connection.
+ *
  * \param notificationChannel A channel-end that synchronises the user
  * layer with the interrupt layer
  */
-extern select miiNotified(chanend notificationChannel);
+extern select miiNotified(struct miiData &this, chanend notificationChannel);
 
 /** This function must be called every time that miiNotified() has returned
  * and a buffer has been freed. It is safe to call this function more
  * often, for example, prior to every select statement that contains
  * miiNotified().
  */
-extern void miiRestartBuffer();
+extern void miiRestartBuffer(struct miiData &this);
 
 
 
