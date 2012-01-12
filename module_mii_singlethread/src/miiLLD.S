@@ -198,10 +198,6 @@ mii_rxd_preamble:
     
     // Idle state, wait for a packet
 stateIdle:
-    ldw   r5, dp[miiPacketsTransmitted]
-    add   r5, r5, 1            // Record that we transmitted a packet
-    stw   r5, dp[miiPacketsTransmitted]
-
     ldw   r5, sp[timingPort]    // Create interframe gap
     getts r7, res[r5]           // Get current count on timing port
     ldc   r8, 90                // Add 90 (960 ns nibbles - but we will have lost 60ns)
