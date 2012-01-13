@@ -15,8 +15,10 @@
  *************************************************************************/
 
 #include <xs1.h>
+#include <xclib.h>
 #include <platform.h>
-#include <print.h>
+
+#include "getmac.h"
 
 #define OTPADDRESS 	0x7FF
 #define OTPMASK    	0xFFFFFF
@@ -25,201 +27,151 @@
 #define MR_ADDRESS 	0x8001
 #define WRITE		(1 << 1)
 #define MODE_SEL	(1 << 8)
-#define MRA			(1 << 9)
-#define MRB			(1 << 10)
+#define MRA		(1 << 9)
+#define MRB		(1 << 10)
 #define AUX_UPDATE	(1 << 11)
 
 
 // READ access time
-#define tRP_TICKS (80 / (1000 / XS1_TIMER_MHZ) ) // G-Series - Use the longer one
-// #define tRP_TICKS (70 / (1000 / XS1_TIMER_MHZ) ) // L-Series
+#define tRP_TICKS (80 / (1000 / XS1_TIMER_MHZ) )
 
 
 // Read an address in OTP
-static int otpRead(port otp_data, out port otp_addr, port otp_ctrl, unsigned address)
+static int otpRead(struct otp_ports& p, unsigned address)
 {
 	unsigned value, time;
 
-	otp_addr <: address;
-	sync(otp_addr);
-	otp_ctrl <: 0 @ time;
-	otp_ctrl @ (time + 10) <: 1;
-	otp_ctrl @ (time + 10 + tRP_TICKS) <: 0;
-	sync(otp_ctrl);
-	otp_data :> void;
-	otp_data :> value;
+	p.otp_addr <: address;
+	sync(p.otp_addr);
+	p.otp_ctrl <: 0 @ time;
+	p.otp_ctrl @ (time + 10) <: 1;
+	p.otp_ctrl @ (time + 10 + tRP_TICKS) <: 0;
+	sync(p.otp_ctrl);
+	p.otp_data :> void;
+	p.otp_data :> value;
 
 	return value;
 }
 
+static void otpSetupReadF1(struct otp_ports& p)
+{
+	p.otp_data <: 0;
+	sync(p.otp_data);
+	sync(p.otp_ctrl);
+	p.otp_addr <: MR_ADDRESS;
+	sync(p.otp_addr);
+}
+
+static void otpSetupReadTerm(struct otp_ports& p)
+{
+	p.otp_ctrl <: 0;
+	p.otp_addr <: 0;
+}
+
+static void otpSetupReadModeRegister(struct otp_ports& p, unsigned reg)
+{
+	p.otp_ctrl <: reg ;
+	p.otp_ctrl <: reg | MODE_SEL;
+	otpSetupReadF1(p);
+	p.otp_ctrl <: reg | MODE_SEL | WRITE | AUX_UPDATE;
+	p.otp_ctrl <: reg | MODE_SEL;
+	p.otp_ctrl <: reg;
+	otpSetupReadTerm(p);
+}
 
 // Setup the OTP for reading
-void otpSetupRead(port otp_data, out port otp_addr, port otp_ctrl)
+void otpSetupRead(struct otp_ports& p)
 {
 	// WriteAuxModeRegisterA
-	otp_ctrl <: MRA ;
-	otp_ctrl <: MRA | MODE_SEL;
-	otp_data <: 0;
-	sync(otp_data);
-	sync(otp_ctrl);
-	otp_addr <: MR_ADDRESS;
-	sync(otp_addr);
-	otp_ctrl <: MRA | MODE_SEL | WRITE | AUX_UPDATE;
-	otp_ctrl <: MRA | MODE_SEL;
-	otp_ctrl <: MRA;
-	otp_ctrl <: 0;
-	otp_addr <: 0;
+	otpSetupReadModeRegister(p, MRA);
 
 	// WriteAuxModeRegisterB
-	otp_ctrl <: MRB;
-	otp_ctrl <: MRB | MODE_SEL;
-	otp_data <: 0;
-	sync(otp_data);
-	sync(otp_ctrl);
-	otp_addr <: MR_ADDRESS;
-	sync(otp_addr);
-	otp_ctrl <: MRB | MODE_SEL | WRITE | AUX_UPDATE;
-	otp_ctrl <: MRB | MODE_SEL;
-	otp_ctrl <: MRB;
-	otp_ctrl <: 0;
-	otp_addr <: 0;
+	otpSetupReadModeRegister(p, MRB);
 
 	// WriteModeRegister
-	otp_ctrl <: MODE_SEL;
-	otp_data <: 0;
-	sync(otp_data);
-	sync(otp_ctrl);
-	otp_addr <: MR_ADDRESS;
-	sync(otp_addr);
-	otp_ctrl <: MODE_SEL | WRITE;
-	otp_ctrl <: MODE_SEL;
-	otp_ctrl <: 0;
-	otp_addr <: 0;
+	p.otp_ctrl <: MODE_SEL;
+	otpSetupReadF1(p);
+	p.otp_ctrl <: MODE_SEL | WRITE;
+	p.otp_ctrl <: MODE_SEL;
+	otpSetupReadTerm(p);
 }
 
 
 // Get the MAC address from the OTP
-static int getMacAddrAux(port otp_data, out port otp_addr, port otp_ctrl, unsigned MACAddrNum, unsigned macAddr[2])
+#pragma unsafe arrays
+{ unsigned, unsigned } static getMacAddrAux(struct otp_ports &p, unsigned MACAddrNum)
 {
 	int address = OTPADDRESS;
 	unsigned bitmap;
+	int validbitmapfound = 0;
+	unsigned a=0,b=0;
 
 	// Setup the read parameters for the OTP
-	otpSetupRead(otp_data, otp_addr, otp_ctrl);
+	otpSetupRead(p);
 
-	if (MACAddrNum < 7)
+
+	while (!validbitmapfound && address >= 0)
 	{
-		int validbitmapfound = 0;
+		bitmap = otpRead(p, address);
 
-		while (!validbitmapfound && address >= 0)
+		if (bitmap >> 31)
 		{
-			bitmap = otpRead(otp_data, otp_addr, otp_ctrl, address);
-
-			if (bitmap >> 31)
-			{
-				// Bitmap has not been written
-				return 1;
-			}
-			else if (bitmap >> 30)
-			{
-				validbitmapfound = 1;
-			}
-			else
-			{
-				int length = (bitmap >> 25) & 0x1F;
-				if (length==0)
-				length=8;
-				// Invalid bitmap
-				address -= length;
-			}
+			// Bitmap has not been written
+			break;
 		}
-
-		if (address < 0)
+		else if (bitmap >> 30)
 		{
-			return 1;
-		}
-		else if (((bitmap >> 22) & 0x7) > MACAddrNum)
-		{
-			address -= ((MACAddrNum << 1) + 1);
-			macAddr[0] = otpRead(otp_data, otp_addr, otp_ctrl, address);
-			address--;
-			macAddr[1] = otpRead(otp_data, otp_addr, otp_ctrl, address);
-			return 0;
+			validbitmapfound = 1;
 		}
 		else
 		{
-			// MAC Address cannot be found
-			return 1;
+			int length = (bitmap >> 25) & 0x1F;
+			if (length==0) length=8;
+			// Invalid bitmap
+			address -= length;
 		}
 	}
-	else
+
+	if (validbitmapfound && ((bitmap >> 22) & 0x7) > MACAddrNum)
 	{
-		// Incorrect number of MAC addresses given
-		return 1;
+		address -= ((MACAddrNum << 1) + 1);
+		b = otpRead(p, address);
+		address--;
+		a = otpRead(p, address);
 	}
+	return { a, b };
 }
 
-void ethernet_getmac_otp_indexed(port otp_data, out port otp_addr, port otp_ctrl, char macaddr[], unsigned index)
+#pragma unsafe arrays
+void ethernet_getmac_otp_indexed(struct otp_ports& p, char macaddr[], unsigned index)
 {
-	unsigned int OTPId;
-	unsigned int wrd_macaddr[2];
-	timer tmr;
+	unsigned int a, b;
 
-	if (getMacAddrAux(otp_data, otp_addr, otp_ctrl, index, wrd_macaddr) == 0)
+	{ a, b } = getMacAddrAux(p, index);
+	if (a == 0)
 	{
-		// Valid MAC address found
-		macaddr[0] = (wrd_macaddr[0] >> 8) & 0xFF;
-		macaddr[1] = (wrd_macaddr[0]) & 0xFF;
-		macaddr[2] = (wrd_macaddr[1] >> 24) & 0xFF;
-		macaddr[3] = (wrd_macaddr[1] >> 16) & 0xFF;
-		macaddr[4] = (wrd_macaddr[1] >> 8) & 0xFF;
-		macaddr[5] = (wrd_macaddr[1]) & 0xFF;
-	}
-	else
-	{
-		// No valid MAC address found
-
 		// get unique 24bits id from otp, thanks Sam!
-		OTPId = ( otpRead(otp_data, otp_addr, otp_ctrl, OTPADDRESS) & OTPMASK );
+		unsigned int OTPId = ( otpRead(p, OTPADDRESS) & OTPMASK );
+		if ( OTPId == 0xffffff ) OTPId = 0;
 
-		// reformat that into XMOS mac address and send it out
-		if ( (OTPId & 0xffffff) == 0xffffff )
-		{
-			unsigned int time;
-			unsigned int a=1664525;
-			unsigned int c=1013904223;
-			unsigned int j;
-
-
-			tmr :> time;
-			j = time & 0xf;
-
-			for (int i=0; i<j; i++)
-			{
-				time = a * time + c;
-			}
-
-			OTPId = time;
-		}
-
-		macaddr[0] = 0x0;
-		macaddr[1] = 0x22;
-		macaddr[2] = 0x97;
-		macaddr[3] = (OTPId >> 16) & 0xFF;
-		macaddr[4] = (OTPId >> 8) & 0xFF;
-		macaddr[5] = (OTPId & 0xFF) + index;
+		b = 0x00000002;
+		a = 0x97000000 + OTPId + index;
 	}
+
+	// Valid MAC address found
+	(macaddr, unsigned[])[0] = (byterev(b) >> 16) + (byterev(a) << 16);
+	(macaddr, short[])[2] = (byterev(a) >> 16);
 }
 
-void ethernet_getmac_otp_count(port otp_data, out port otp_addr, port otp_ctrl, int macaddr[][2], unsigned count)
+void ethernet_getmac_otp_count(struct otp_ports& p, int macaddr[][2], unsigned count)
 {
 	for (unsigned int n=0; n<count; n++) {
-		ethernet_getmac_otp_indexed(otp_data, otp_addr, otp_ctrl, (macaddr[n], char[]), n);
+		ethernet_getmac_otp_indexed(p, (macaddr[n], char[]), n);
 	}
 }
 
-void ethernet_getmac_otp(port otp_data, out port otp_addr, port otp_ctrl, char macaddr[])
+void ethernet_getmac_otp(struct otp_ports& p, char macaddr[])
 {
-	ethernet_getmac_otp_indexed(otp_data, otp_addr, otp_ctrl, macaddr, 0);
+	ethernet_getmac_otp_indexed(p, macaddr, 0);
 }
 
