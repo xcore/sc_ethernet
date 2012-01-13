@@ -69,16 +69,17 @@ extern int nextBuffer;
 void emptyIn(chanend cIn, chanend cNotifications) {
     int b[1600];
     int address = 0x1C000;
+    struct miiData miiData;
 
-    miiBufferInit(cIn, cNotifications, b, 1600);
+    miiBufferInit(miiData, cIn, cNotifications, b, 1600);
     asm("stw %0, %1[0]" :: "r" (b), "r" (address));
 
     while (1) {
 
         int nBytes, a, timeStamp;
-        miiNotified(cNotifications);
+        miiNotified(miiData, cNotifications);
         while(1) {
-            {a,nBytes,timeStamp} = miiGetInBuffer();
+            {a,nBytes,timeStamp} = miiGetInBuffer(miiData);
 
             if (a == 0) {
                 break;
@@ -86,9 +87,9 @@ void emptyIn(chanend cIn, chanend cNotifications) {
             asm("stw %0, %1[1]" :: "r" (a), "r" (address));
             asm("stw %0, %1[2]" :: "r" (nBytes), "r" (address));
             asm("stw %0, %1[6]" :: "r" (timeStamp), "r" (address));
-            miiFreeInBuffer(a);
+            miiFreeInBuffer(miiData, a);
         }
-        miiRestartBuffer();
+        miiRestartBuffer(miiData);
     } 
 }
 
