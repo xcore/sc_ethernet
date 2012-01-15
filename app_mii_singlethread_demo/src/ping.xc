@@ -277,27 +277,28 @@ void handlePacket(chanend cOut, int a, int nBytes) {
 
 void pingDemo(chanend cIn, chanend cOut, chanend cNotifications) {
     int b[3200];
+    struct miiData miiData;
     
     printstr("Test started\n");
-    miiBufferInit(cIn, cNotifications, b, 3200);
+    miiBufferInit(miiData, cIn, cNotifications, b, 3200);
     printstr("IN Inited\n");
     miiOutInit(cOut);
     printstr("OUT inited\n");
     
     while (1) {
         int nBytes, a, timeStamp;
-        miiNotified(cNotifications);
+        miiNotified(miiData, cNotifications);
         while(1) {
-            {a,nBytes,timeStamp} = miiGetInBuffer();
+            {a,nBytes,timeStamp} = miiGetInBuffer(miiData);
 
             if (a == 0) {
                 break;
             }
 //            printhexln(a);
             handlePacket(cOut, a, nBytes);
-            miiFreeInBuffer(a);
+            miiFreeInBuffer(miiData, a);
         }
-        miiRestartBuffer();
+        miiRestartBuffer(miiData);
     } 
 }
 
