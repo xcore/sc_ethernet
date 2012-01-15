@@ -294,7 +294,6 @@ void pingDemo(chanend cIn, chanend cOut, chanend cNotifications) {
             if (a == 0) {
                 break;
             }
-//            printhexln(a);
             handlePacket(cOut, a, nBytes);
             miiFreeInBuffer(miiData, a);
         }

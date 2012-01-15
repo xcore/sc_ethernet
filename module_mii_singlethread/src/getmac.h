@@ -28,7 +28,7 @@
  *  \param index The index of the mac address to retreive
  *
  **/
-void ethernet_getmac_otp_indexed(port otp_data, out port otp_addr, port otp_ctrl, int macaddr[], unsigned index);
+void ethernet_getmac_otp_indexed(port otp_data, out port otp_addr, port otp_ctrl, char macaddr[], unsigned index);
 
 /** Retrieves a set of MAC addresses stored in the OTP
  *

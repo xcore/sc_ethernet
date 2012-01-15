@@ -11,7 +11,6 @@
 #include "mii.h"
 #include "miiClient.h"
 
-extern char notifySeen;
 extern void mac_set_macaddr(unsigned char macaddr[]);
 
 static void theServer(chanend cIn, chanend cOut, chanend cNotifications,
@@ -24,10 +23,10 @@ static void theServer(chanend cIn, chanend cOut, chanend cNotifications,
     int txbuf[400];
     timer linkcheck_timer;
     unsigned linkcheck_time;
-
+	struct miiData miiData;
     mac_set_macaddr(mac_address);
 
-    miiBufferInit(cIn, cNotifications, b, 3200);
+    miiBufferInit(miiData, cIn, cNotifications, b, 3200);
     miiOutInit(cOut);
     
     linkcheck_timer :> linkcheck_time;
@@ -50,7 +49,7 @@ static void theServer(chanend cIn, chanend cOut, chanend cNotifications,
 			break;
 
         // Notification that there is a packet to receive (causes select to continue)
-        case inuchar_byref(cNotifications, notifySeen):
+        case inuchar_byref(cNotifications, miiData.notifySeen):
             break;
 
         // Receive a packet from buffer
@@ -60,9 +59,9 @@ static void theServer(chanend cIn, chanend cOut, chanend cNotifications,
                 asm("ldw %0, %1[%2]" : "=r" (val) : "r" (a) , "r" (i));
                 appIn <: val;
             }
-            miiFreeInBuffer(a);
-            miiRestartBuffer();
-            {a,nBytes,timeStamp} = miiGetInBuffer();
+            miiFreeInBuffer(miiData, a);
+            miiRestartBuffer(miiData);
+            {a,nBytes,timeStamp} = miiGetInBuffer(miiData);
             if (a == 0) {
                 havePacket = 0;
             } else {
@@ -82,7 +81,7 @@ static void theServer(chanend cIn, chanend cOut, chanend cNotifications,
 
         // Check that there is a packet
         if (!havePacket) {
-            {a,nBytes,timeStamp} = miiGetInBuffer();
+            {a,nBytes,timeStamp} = miiGetInBuffer(miiData);
             if (a != 0) {
                 havePacket = 1;
                 outuint(appIn, nBytes);

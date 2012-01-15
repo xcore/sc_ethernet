@@ -11,8 +11,6 @@
 #include "mii.h"
 #include "miiClient.h"
 
-extern char notifySeen;
-
 enum {
     THREAD_NONE = -1,
     THREAD_REST = 2,
@@ -61,6 +59,7 @@ static void theServer(chanend cIn, chanend cOut, chanend cNotifications, chanend
     int timeRequired, t;
     int dest;
     int count, count2;
+    struct miiData miiData;
 
     struct {
         struct {
@@ -80,12 +79,12 @@ static void theServer(chanend cIn, chanend cOut, chanend cNotifications, chanend
         packetStore[i].len = 0;
     }
 
-    miiBufferInit(cIn, cNotifications, b, 3200);
+    miiBufferInit(miiData, cIn, cNotifications, b, 3200);
     miiOutInit(cOut);
     
     while (1) {
         select {
-        case inuchar_byref(cNotifications, notifySeen):
+        case inuchar_byref(cNotifications, miiData.notifySeen):
             break;
         case (int i = 0; i < 3; i++) 
             packetStore[i].len != 0 => appIn[i] :> int _:
@@ -112,53 +111,33 @@ static void theServer(chanend cIn, chanend cOut, chanend cNotifications, chanend
             for(int j = 0; j < ((outBytes + 3) >>2); j++) {
                 appOut[i] :> txbuf[j];
             }
-            if(outBytes < 64) {
-                printstr("ERR ");
-                printhexln(outBytes);
-            }
             t = miiOutPacket(cOut, txbuf, 0, outBytes);
             if (timeRequired) {
                 appOut[i] <: t;
-                // printintln(t);
             }
             miiOutPacketDone(cOut);
             break;
         }
         while (1) {
             int a, n, dest, t;
-            {a,n,t} = miiGetInBuffer();
+            {a,n,t} = miiGetInBuffer(miiData);
             if (a == 0) {
                 break; // no packets available.
             }
             dest = calcDestinationThread(a);
             if (dest == THREAD_NONE) {
-                miiFreeInBuffer(a);
-                miiRestartBuffer();
+                miiFreeInBuffer(miiData, a);
+                miiRestartBuffer(miiData);
                 continue;
             }
             if (packetStore[dest].len == mask+1) {
-                printstr("drop:"); printintln(dest);
-                /*
-                if (dest == 1)
-                {
-                    count++;
-                    if ((count & 8191) == 0) { printstr("drop:"); printintln(count); } 
-                }
-                */
                 miiFreeInBuffer(packetStore[dest].elements[packetStore[dest].rd].addr);
                 packetStore[dest].len--;
                 packetStore[dest].rd = (packetStore[dest].rd + 1)& mask;
-                miiRestartBuffer();
+                miiRestartBuffer(miiData);
             }
             else 
             {
-                /*
-                if (dest == 1) 
-                {
-                    count2++;
-                    if ((count2 & 8191) == 0) { printstr("processed"); printintln(count2); }
-                }
-                */
                 if (packetStore[dest].len == 0) {
                     outuint(appIn[dest], 0);
                 }

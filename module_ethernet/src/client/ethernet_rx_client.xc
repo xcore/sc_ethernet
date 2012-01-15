@@ -15,6 +15,7 @@
  
 #include <xs1.h>
 #include <xclib.h>
+#include "mii.h"
 #include "ethernet_server_def.h"
 #include "ethernet_rx_client.h"
 
