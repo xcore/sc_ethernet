@@ -121,7 +121,8 @@ miiLLD:
     ldw    r6, cp[polynomial]
     
     // R7 does not need initialising.
-    // R8 does not need initialising.
+    ldc   r8, 99             // Initial interframe gap reg
+
     // R9 does not need initialising.
     // R10 does not need initialising.
     // R11 does not need initialising.
@@ -132,6 +133,7 @@ miiLLD:
 
     ldw   r11, sp[theTimer]
     setsr  XS1_SR_IEBLE_MASK
+
     bu     stateIdle
 
 
@@ -200,7 +202,6 @@ mii_rxd_preamble:
 stateIdle:
     ldw   r5, sp[timingPort]    // Create interframe gap
     getts r7, res[r5]           // Get current count on timing port
-    ldc   r8, 90                // Add 90 (960 ns nibbles - but we will have lost 60ns)
     add   r7, r7, r8            // Then set this to the port counter
     setpt res[r5], r7           // And wait for the port to be ready.
     in    r7, res[r5]           // This should ensure the gap
@@ -259,7 +260,8 @@ Tail0:
     ldc   r8, 0
     crc32 r9, r8, r6
     not   r9, r9
-    out   res[r2], r9        
+    out   res[r2], r9
+    ldc   r8, 98                // Interframe gap
     bu    stateIdle
     
     .align 4
@@ -272,6 +274,7 @@ Tail1:
     out   res[r2], r7 
     shr   r9, r9, 24
     outpw res[r2], r9, 8        
+    ldc   r8, 73                // Interframe gap
     bu    stateIdle
 
     .align 4
@@ -287,6 +290,7 @@ Tail2:
     shr   r9, r9, 16
     outpw res[r2], r9, 16        
 
+    ldc   r8, 80                // Interframe gap
     bu    stateIdle
 
     .align 4
@@ -298,6 +302,8 @@ Tail3:
     crc32 r9, r8, r6            // NOTE : r8 must be zero
     not   r9, r9
     out   res[r2], r9        
+
+    ldc   r8, 90                // Interframe gap
     bu    stateIdle
 
     

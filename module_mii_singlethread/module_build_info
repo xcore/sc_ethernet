@@ -1,2 +1,3 @@
 MODULE_XCC_XC_FLAGS = $(XCC_FLAGS) -g -O3
+XCC_FLAGS_getmac.xc = $(XCC_FLAGS) -g -Os
 

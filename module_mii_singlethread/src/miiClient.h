@@ -117,8 +117,7 @@ void miiOutInit(chanend cOut);
  *               upon transmission.
  *
  * \returns      The time at which the message went onto the wire, measured in
- *               40-ns clock ticks of the MII clock. This time wraps around every
- *               2 ms.
+ *               reference clock periods
  * 
  */
 int miiOutPacket(chanend cOut, int buf[], int index, int length);
@@ -132,4 +131,5 @@ int miiOutPacket(chanend cOut, int buf[], int index, int length);
  *
  * \param cOut   output channel to the Low-Level Driver.
  */
-select miiOutPacketDone(chanend cOut);
+#pragma select handler
+void miiOutPacketDone(chanend cOut);

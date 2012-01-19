@@ -1,0 +1,3 @@
+Demonstrates the single threaded ethernet MII implementation running with a simple
+packet oriented client API.
+
