@@ -278,12 +278,12 @@ int miiOutPacket(chanend c_out, int b[], int index, int length) {
 
     precise = inuint(c_out);
 
+    // 64 takes you from the start of the preamble to the start of the destination address
     return precise + 64;
 }
 
-select miiOutPacketDone(chanend c_out) {
-case chkct(c_out, 1):
-    break;
+void miiOutPacketDone(chanend c_out) {
+	chkct(c_out, 1);
 }
 
 void miiOutInit(chanend c_out) {
