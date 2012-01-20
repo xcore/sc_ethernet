@@ -1,6 +1,6 @@
 TARGET = XK-1500
 APP_NAME = 
-XCC_FLAGS = -g -O2 -report
+XCC_FLAGS = -g -O2 -report -DMII_DRIVER_SIMULATION
 USED_MODULES = module_mii_singlethread
 
 #=============================================================================

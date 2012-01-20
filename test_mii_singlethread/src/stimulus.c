@@ -108,7 +108,7 @@ int main(int argc, char **argv) {
     int visualise, continuous;
     int packettime, opackettime, oopackettime;
     int errors = 0;
-    int showtiming = 1;
+    int showtiming = 0;
     if (argc != 7) {
         printf("Usage %s SimArgs toDeviceLen toHostLen step visualise nuke\n", argv[0]);
         printf("                 toDeviceLen Number of byte to send to device\n");

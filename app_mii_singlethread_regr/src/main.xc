@@ -64,8 +64,6 @@ unsigned char packet[] = {
     0, 0, 0, 0,   0, 0, 0, 0
 };
 
-extern int nextBuffer;
-
 void emptyIn(chanend cIn, chanend cNotifications) {
     int b[1600];
     int address = 0x1C000;

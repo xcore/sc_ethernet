@@ -16,7 +16,7 @@ void miiInitialise(clock clk_smi,
 		mii_interface_t &m)
 {
 	timer tmr;
-#ifndef MII_DRIVER_SIMULTION
+#ifndef MII_DRIVER_SIMULATION
 	smi_init(clk_smi, p_mii_resetn, smi);
 	smi_reset(p_mii_resetn, smi, tmr);
     mii_init(m, 0, tmr);
