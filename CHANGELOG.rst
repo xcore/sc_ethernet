@@ -9,6 +9,12 @@ Firmware
 module_ethernet
 ----------------------
 
+2.0.3
+-----
+   * Single thread MII driver interface added
+   * Interface thread to make single thread MII driver similar to 5 thread interface
+   * Reduced memory footprint
+
 2.0.2
 -----
    * Fix for buffer overflow errors
