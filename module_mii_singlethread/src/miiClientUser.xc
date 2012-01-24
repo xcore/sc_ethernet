@@ -146,6 +146,7 @@ case inuchar_byref(notificationChannel, this.notifySeen):
     break;
 }
 
+#pragma unsafe arrays
 {unsigned, unsigned, unsigned} miiGetInBuffer(struct miiData &this) {
     unsigned nBytes, timeStamp;
     for(int i = 0; i < 2; i++) {
@@ -168,6 +169,7 @@ case inuchar_byref(notificationChannel, this.notifySeen):
     return {0, 0, 0};
 }
 
+#pragma unsafe arrays
 static void miiCommitBuffer(struct miiData &this, unsigned int currentBuffer, unsigned int length, chanend notificationChannel) {
     int bn = currentBuffer < this.firstPtr[1] ? 0 : 1;    
     set(this.wrPtr[bn]-4, length);       // record length of current packet.
@@ -202,6 +204,7 @@ static void miiRejectBuffer(struct miiData &this, unsigned int currentBuffer) {
     this.nextBuffer = currentBuffer;
 }
 
+#pragma unsafe arrays
 void miiRestartBuffer(struct miiData &this) {
     int bn;
     if (this.nextBuffer != -1) {
@@ -226,6 +229,7 @@ void miiRestartBuffer(struct miiData &this) {
     }
 }
 
+#pragma unsafe arrays
 void miiFreeInBuffer(struct miiData &this, int base) {
     int bankNumber = base < this.firstPtr[1] ? 0 : 1;
     int modifiedFreePtr = 0;
@@ -254,6 +258,7 @@ void miiTimeStampInit(unsigned offset) {
     globalOffset = (offset + testOffset) & 0x3FFFF;
 }
 
+#pragma unsafe arrays
 void miiClientUser(struct miiData &this, int base, int end, chanend notificationChannel) {
     int length = packetGood(this, base, end);
     if (length != 0) {
@@ -263,6 +268,7 @@ void miiClientUser(struct miiData &this, int base, int end, chanend notification
     }
 }
 
+#pragma unsafe arrays
 int miiOutPacket(chanend c_out, int b[], int index, int length) {
     int a, roundedLength;
     int oddBytes = length & 3;

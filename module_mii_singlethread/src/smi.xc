@@ -382,8 +382,11 @@ int eth_phy_config(int eth100, smi_interface_t &smi)
         autoNegAdvertReg = autoNegAdvertReg & 0xfc1f;
 
         // Set 100 or 10 Mpbs bits
-        autoNegAdvertReg |= (eth100 << AUTONEG_ADVERT_100_BIT);
-        autoNegAdvertReg |= (!eth100 << AUTONEG_ADVERT_10_BIT);
+        if (eth100) {
+        	autoNegAdvertReg |= (1 << AUTONEG_ADVERT_100_BIT);
+        } else {
+        	autoNegAdvertReg |= (1 << AUTONEG_ADVERT_10_BIT);
+        }
         
         // Write back and validate
         smi_wr(PHY_ADDRESS, AUTONEG_ADVERT_REG, autoNegAdvertReg, smi);

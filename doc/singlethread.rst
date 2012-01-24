@@ -1,11 +1,15 @@
 Single threaded MII
 ===================
 
-This module provides an experimental component that folds the MII layer
-into a single thread (62.5 MIPS), and allows all other software to be
-written in one additional thread if required. It is meant for simple
+The module ''module_mii_singlethread'' provides a component that
+folds the MII layer into a single thread (62.5 MIPS), and allows all other
+software to be written in one additional thread if required. It is meant for simple
 ethernet systems that do not require very high throughput and have relatively
 straightforward MAC filtering.
+
+The module ''module_mii_singlethread_server'' provides an interace to
+the single threaded MII driver that presents an interface similar to
+the 5-thread ethernet MII implementation.
 
 Using single threaded MII
 -------------------------
@@ -65,6 +69,15 @@ API
 .. doxygenfunction:: miiOutPacket
 
 .. doxygenfunction:: miiOutPacketDone
+
+Management API
+''''''''''''''
+
+In addition to the operational functions listed above, the SMI and OTP functions
+from the 5-thread ethernet are available for initialization and MAC address retreival.
+
+The OTP functions have a modified signature, taking a structure containing the OTP
+ports, rather than having each port as an individual parameter.
 
 Example minimal programs
 ''''''''''''''''''''''''
@@ -173,4 +186,25 @@ inspect the input buffers, deal with data, free any buffers that can be
 freed, and finally check that any buffer overflow has been resolved by
 calling ``miiRestartBuffer()``
 
+Server for single threaded MII
+------------------------------
+
+In order to simply using the single threaded MII implementation, a module
+called *module_mii_singlethread_server'' provides a top level interface
+similar to the 5 thread ethernet MII design.
+
+The top level thread function is called ''miiSingleServer''. The signature is
+
+::
+  void miiSingleServer(clock clk_smi,
+                     out port ?p_mii_resetn,
+                     smi_interface_t &smi,
+                     mii_interface_t &m,
+                     chanend appIn, chanend appOut,
+                     chanend connect_status, unsigned char mac_address[6])
+
+The parameters are similar to those used by the 5-thread server.  Unlike the
+5-thread server, however, only one application is supported, using the *appIn*
+and *appOut* channels.  Likewise, only the *safe_mac_rx* and *mac_tx* functions
+are supported by the client library.
 
