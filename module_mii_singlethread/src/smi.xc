@@ -8,17 +8,6 @@
 #include "miiDriver.h"
 #include "smi.h"
 
-// wait this time to establish a link (ms) before giving a connection error
-// Experience suggests that 2s may not be long enough, but 3 is.
-#define LINK_TIMEOUT_MS        3000
-#define ESTABLISH_LINK_TIMEOUT (REF_FREQ / 1000) * LINK_TIMEOUT_MS
-
-// After link is established, a short delay is required (ms)
-// This delay is applied after phy is reset and initialised
-// PCs seems to take quite long to wake up and get ready to receive
-#define POST_CONFIG_DELAY_MS   5000
-#define POST_CONFIG_DELAY      (REF_FREQ / 1000) * POST_CONFIG_DELAY_MS
-
 //////////////////////
 // phy constants
 //////////////////////
@@ -46,12 +35,8 @@
 #define AUTONEG_ADVERT_10_BIT              6
 
 
-// Set SMI clock rate
-//#define SMI_CLOCK_FREQ         250000      // Desired SMI clock frequency.
-#define SMI_CLOCK_FREQ        1000000      // Desired SMI clock frequency.
-#define REF_FREQ            100000000
 // SMI code drives SMI clock directly so work at 2x rate
-#define SMI_CLOCK_DIVIDER   ((REF_FREQ / SMI_CLOCK_FREQ) / 2)
+#define SMI_CLOCK_DIVIDER   (100 / 2)
 
 
 // Initialise the ports and clock blocks
@@ -250,7 +235,6 @@ int eth_phy_config(int eth100, smi_interface_t &smi)
         smi_wr(BASIC_CONTROL_REG, basicControl, smi);
         
   } else {        // 2b. Don't autoneg, set speed manually
-      // Not auto negotiating, setting the speed manually
       basicControl = smi_rd(BASIC_CONTROL_REG, smi);
     // set duplex mode
       basicControl = basicControl | (1 << BASIC_CONTROL_FULL_DUPLEX_BIT);
