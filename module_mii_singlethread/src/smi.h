@@ -13,7 +13,7 @@
 
 /* Initilisation of SMI ports
    Must be called first */
-void smi_init(clock clk_smi, out port ?p_mii_resetn, smi_interface_t &smi);
+void smi_port_init(clock clk_smi, smi_interface_t &smi);
 
 /* Phy configuration
    If eth100 is non-zero, 100BaseT is advertised to the link peer
@@ -23,24 +23,14 @@ void smi_init(clock clk_smi, out port ?p_mii_resetn, smi_interface_t &smi);
 	 Returns 2 if no error but link times out (3 sec) */
 int eth_phy_config(int eth100, smi_interface_t &smi);
 
-void smi_reset(out port ?p_mii_resetn, smi_interface_t &smi, timer tmr);
-
 /* Cleanup of SMI ports */
-void smi_deinit(clock clk_smi, out port ?p_mii_resetn, smi_interface_t &smi);
+#define smi_deinit(a,b,c)              // not needed.
 
 /* Enable/disable phy loopback */
 void smi_loopback(int enable);
 
 /* Perform a check for the SMI link enabled bit */
 int eth_phy_checklink(smi_interface_t &smi);
-
-/* Returns Ethernet mode:
-   0  10BaseT
-   1  100BaseT */
-int smi_is100();
-
-
-int ethernet_is_connected();
 
 
 #endif
