@@ -1,16 +1,28 @@
 Etehrnet Overview
 =================
 
-The XMOS ethernet component provides both MII communication to the phy
-and MAC transport layer for ethernet packets. It enables several
-clients to connet to it and send and receive packets. The custom
-filter mechanism lets user place code into the MAC to filter out and
-distribute packets in arbitrary ways. In addition the MII layer will
-accurately timestamp packets on ingress and egress and pass this
-information through the MAC to the ethernet client.
+Two independent ethernet components are available in this repository.
+
+The first implementation runs in 5 threads that provides both MII
+communication to the PHY and MAC transport layer for ethernet packets.
+It enables several clients to connet to it and send and receive
+packets. The custom filter mechanism lets user place code into the
+MAC to filter out and distribute packets in arbitrary ways. In addition
+the MII layer will accurately timestamp packets on ingress and egress
+and pass this information through the MAC to the ethernet client.
 
 The code supports one or two PHY devices, both connected to the same
-xcore.  Currently there is no inter-port packet forwarding supported.
+xcore.
+
+The second implementation run in one thread, plus an interrupt handler
+which runs in the context of a second thread.  It is lightweight, and
+leaves the transmit buffering up to the client.  It also supports
+timestamping of both received and transmitted packets.  This implementation
+will only run when the MII thread has 62.5 MIPS of available processing
+capacity.
+
+A server is available which adds a second thread to the one thread
+implementation, making the interface similar to the 5 thread implementation.
 
 Component Summary
 +++++++++++++++++

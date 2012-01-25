@@ -282,9 +282,9 @@ int eth_phy_config(int eth100, smi_interface_t &smi)
 
         // Set 100 or 10 Mpbs bits
         if (eth100) {
-            autoNegAdvertReg |= (1 << AUTONEG_ADVERT_100_BIT);
+        	autoNegAdvertReg |= (1 << AUTONEG_ADVERT_100_BIT);
         } else {
-            autoNegAdvertReg |= (1 << AUTONEG_ADVERT_10_BIT);
+        	autoNegAdvertReg |= (1 << AUTONEG_ADVERT_10_BIT);
         }
         
         // Write back and validate
