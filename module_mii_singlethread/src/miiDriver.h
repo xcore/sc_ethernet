@@ -39,10 +39,9 @@ typedef struct mii_interface_t {
  *   
  **/
 typedef struct smi_interface_t {
-  port p_smi_mdio;           /**< MDIO port. */
-  out port p_smi_mdc;        /**< MDC port.  */
-  int mdio_mux;              /**< This flag needs to be set if the MDIO port 
-                                  is shared with the phy reset line. */  
+    int phy_address;           /**< Address of PHY, typically 0 or 0x1F.  */
+    port p_smi_mdio;           /**< MDIO port. */
+    out port p_smi_mdc;        /**< MDC port.  */
 } smi_interface_t;
 
 #endif

@@ -6,10 +6,6 @@
 #include <xs1.h>
 #include <print.h>
 
-#if __ethernet_conf_h_exists__
-#include "ethernet_conf.h"
-#endif
-
 #include "miiDriver.h"
 #include "smi.h"
 
@@ -28,9 +24,6 @@
 // phy constants
 //////////////////////
 
-#ifndef PHY_ADDRESS
-#define PHY_ADDRESS 0x1F
-#endif
 #define PHY_ID      0x300007
 
 // SMI Registers
@@ -70,54 +63,26 @@
 // Initialise the ports and clock blocks
 void smi_init(clock clk_smi, out port ?p_mii_resetn, smi_interface_t &smi)
 {
-  // Set the clock rate rate
-  set_clock_off(clk_smi);
-  set_clock_on(clk_smi);
   configure_clock_ref (clk_smi, SMI_CLOCK_DIVIDER);
-  start_clock (clk_smi);
-  
-  // Setup ports
-  set_port_use_off(smi.p_smi_mdc);
-  set_port_use_off(smi.p_smi_mdio);
-  if (!isnull(p_mii_resetn))
-      set_port_use_off(p_mii_resetn);
-  set_port_use_on(smi.p_smi_mdc);
-  set_port_use_on(smi.p_smi_mdio);
-  if (!isnull(p_mii_resetn))
-    set_port_use_on(p_mii_resetn);
   configure_in_port_no_ready (smi.p_smi_mdc,   clk_smi);
   configure_in_port_no_ready (smi.p_smi_mdio,  clk_smi);
+
+  start_clock (clk_smi);
   
   // When MDIO is used to input data, it needs to sample at the same time that MDC is asserted,
   // i.e. implement the sample delay on the port
   set_port_sample_delay   (smi.p_smi_mdio);
-  // p_mii_resetn will be using the default reference clock
-  
-  // Drive MDC inactive
+
   smi.p_smi_mdc <: 0;
   
-  // Drive RESET inactive
-  if (!isnull(p_mii_resetn))
+  if (!isnull(p_mii_resetn)) {
     p_mii_resetn <: 0xf;
-
-  if (smi.mdio_mux) {
-    smi.p_smi_mdio <: 0x7F;
   }
-
 }
 
 /* put SMI ports and clockblocks out of use */
 void smi_deinit(clock clk_smi, out port ?p_mii_resetn, smi_interface_t &smi)
 {
-  // Set the clock rate rate
-  stop_clock (clk_smi);
-  set_clock_off(clk_smi);
-  
-  // Setup ports
-  set_port_use_off(smi.p_smi_mdc);
-  set_port_use_off(smi.p_smi_mdio);
-  if (!isnull(p_mii_resetn))
-    set_port_use_off(p_mii_resetn);
 }
 
 // Reset the MII PHY
@@ -129,9 +94,6 @@ void smi_reset( out port ?p_mii_resetn, smi_interface_t &smi, timer tmr)
   if (!isnull(p_mii_resetn))
     p_mii_resetn <: 0;
 
-  if (smi.mdio_mux)
-    smi.p_smi_mdio <: 0x0;
-
   
   // Wait
  tmr :> resetTime;
@@ -140,14 +102,11 @@ void smi_reset( out port ?p_mii_resetn, smi_interface_t &smi, timer tmr)
 #else
   resetTime += RESET_TIMER_DELAY;
 #endif
-  tmr when timerafter(resetTime) :> int discard;
+  tmr when timerafter(resetTime) :> void;
   
   // Negate reset;
   if (!isnull(p_mii_resetn))
-    p_mii_resetn <: 0xf;
-
-  if (smi.mdio_mux)
-    smi.p_smi_mdio <: 0x7F;
+    p_mii_resetn <: ~0;
 
   
   // Wait
@@ -157,7 +116,7 @@ void smi_reset( out port ?p_mii_resetn, smi_interface_t &smi, timer tmr)
 #else
   resetTime += RESET_TIMER_DELAY;
 #endif
-  tmr when timerafter(resetTime) :> int discard;
+  tmr when timerafter(resetTime) :> void;
 
 }
 
@@ -167,20 +126,14 @@ void smi_reset( out port ?p_mii_resetn, smi_interface_t &smi, timer tmr)
 ////////////////////////////////////////////
 
 // Shift out a number of data bits to the SMI port
-void smi_bit_shift_out (unsigned int data, int count, smi_interface_t &smi)
+static void smi_bit_shift_out (unsigned int data, int count, smi_interface_t &smi)
 {
-  int i;
-  for ( i = count; i > 0; i--)
+  for (int i = count; i != 0; i--)
   {
     // is this bit a 1 or a 0
     unsigned dataBit;
 
-    if (smi.mdio_mux) {
-      dataBit = (((data & (1<<(i -1))) != 0) << 7) | 0x7F;
-    }
-    else {
       dataBit = ((data & (1<<(i -1))) != 0);
-    }
     
     // Output data and give setup time
 
@@ -190,17 +143,16 @@ void smi_bit_shift_out (unsigned int data, int count, smi_interface_t &smi)
     // Rising clock edge
     smi.p_smi_mdio <: dataBit;
 
-    smi.p_smi_mdc  <: 1;
+    smi.p_smi_mdc  <: ~0;
   }
 
 }
 
 // Shift in a number of data bits from the SMI port
-int smi_bit_shift_in (int count,  smi_interface_t &smi)
+static int smi_bit_shift_in (int count,  smi_interface_t &smi)
 {
   int data = 0;
-  int i;
-  for ( i = count; i > 0; i--)
+  for (int i = count; i != 0; i--)
   {
     // is this bit a 1 or a 0
     int dataBit;
@@ -209,17 +161,11 @@ int smi_bit_shift_in (int count,  smi_interface_t &smi)
     // Schedule MDC to drive low, and sample MDIO at the same time
     smi.p_smi_mdc  <: 0;
 
-    smi.p_smi_mdio :> int discard;
+    smi.p_smi_mdio :> void;
     // Schedule MDC rising clock edge, and sample MDIO here too
-    smi.p_smi_mdc  <: 1;
+    smi.p_smi_mdc  <: ~0;
 
-    if (smi.mdio_mux) {
       smi.p_smi_mdio :> dataBit;
-      dataBit = dataBit >> 7;
-    }
-    else {
-      smi.p_smi_mdio :> dataBit;
-    }  
 
     // Shift in bit
     data = (data <<1) | dataBit;
@@ -229,102 +175,60 @@ int smi_bit_shift_in (int count,  smi_interface_t &smi)
 
 }
 
+
+static void smi_start(int reg,  smi_interface_t &smi, int code) {
+    smi.p_smi_mdc  <: 0;
+    smi.p_smi_mdc  <: 0;
+    smi.p_smi_mdio <: 0;
+
+    smi_bit_shift_out(0xffffffff, 32, smi);         // Preamble
+    smi_bit_shift_out(code, 4, smi);                // Start sequence & read code
+    smi_bit_shift_out(smi.phy_address, 5, smi);     // phy address
+    smi_bit_shift_out(reg, 5, smi);                 // register address
+}
+
+
 /* Register read, values are 16-bit */
-int smi_rd(int address, int reg,  smi_interface_t &smi)
-{
-  // MDIO is sampled on the rising edge of MDC, so MDIO changes on the falling edge of MDC
-  // Packet: 31 1's,0, 1,(write: 0,1)(read: 1,0), PHY Addr [4:0], Reg Addr [4:0], turnaround [2], data [15:0]
-  // MSBs are transferred first.
+static int smi_rd(int reg,  smi_interface_t &smi) {
+    unsigned int    readData;
 
-  unsigned int    readData;
+    smi_start(reg, smi, 0x6);
 
-  // output to the ports to ensure synchronisation with clock blocks
-  smi.p_smi_mdc  <: 0;
-  smi.p_smi_mdc  <: 0;
+    // turn around for 2 clocks
+    smi.p_smi_mdc  <: 0;            // clock tick 1: negate MDC
 
-  if (smi.mdio_mux) 
-    smi.p_smi_mdio <: 0x7F;
-  else    
+    //  if (!smi.mdio_mux)
+    smi.p_smi_mdio :> void;         // clock tick 1: turn MDIO port around to become an input
+                                    // clock tick 2: sample MDIO
+
+    // MDC  outs and MDIO ins should now be paired:
+    // MDC  out executed first schedules out data for next clock tick
+    // MDIO in  exectued second pauses and returns the sample data on the next clock tick
+    
+    // second turn around clock
+    smi_bit_shift_in(2, smi);
+    // Read the register's data
+    readData = smi_bit_shift_in(16, smi);
+
+    // End MDC clock pulse
+    smi.p_smi_mdc  <: 0;
     smi.p_smi_mdio <: 0;
 
-
-  // Preamble
-  smi_bit_shift_out(0xffffffff, 32, smi);
-  // Start sequence & read code
-  smi_bit_shift_out(0x6, 4, smi);
-  // phy address
-  smi_bit_shift_out(address, 5, smi);
-  // register address
-  smi_bit_shift_out(reg, 5, smi);
-  // turn around for 2 clocks
-
-  smi.p_smi_mdc  <: 0;            // clock tick 1: negate MDC
-
-  //  if (!smi.mdio_mux)
- smi.p_smi_mdio :> int discard;  // clock tick 1: turn MDIO port around to become an input
-                                  // clock tick 2: sample MDIO
-
-  // MDC  outs and MDIO ins should now be paired:
-  // MDC  out executed first schedules out data for next clock tick
-  // MDIO in  exectued second pauses and returns the sample data on the next clock tick
-
-  // second turn around clock
-  smi_bit_shift_in(2, smi);
-  // Read the register's data
-  readData = smi_bit_shift_in(16, smi);
-
-  // End MDC clock pulse
-  smi.p_smi_mdc  <: 0;
-  // Turn around Mdio
-
-  if (!smi.mdio_mux)
-    smi.p_smi_mdio <: 0;
-
-  return (readData);
-
-
+    return (readData);
 }
 
 /* Register write, data values are 16-bit */
-void smi_wr(int address, int reg, int val, smi_interface_t &smi)
-{
-  // MDIO is sampled on the rising edge of MDC, so MDIO changes on the falling edge of MDC
-  // Packet: 31 1's,0, 1,(write: 0,1)(read: 1,0), PHY Addr [4:0], Reg Addr [4:0], turnaround [2], data [15:0]
-  // MSBs are transferred first.
+static void smi_wr(int reg, int val, smi_interface_t &smi) {
+    smi_start(reg, smi, 0x5);
 
-  // output to the ports to ensure synchronisation with clock blocks
-  smi.p_smi_mdc  <: 0;
-  smi.p_smi_mdc  <: 0;
-
-  if (smi.mdio_mux)
-    smi.p_smi_mdio <: 0x7F;
-  else
+    // turn around for 2 clocks
+    smi_bit_shift_out(2, 2, smi);
+    // turn around for 16 clocks
+    smi_bit_shift_out(val, 16, smi);
+    
+    // End MDC clock pulse
+    smi.p_smi_mdc  <: 0;
     smi.p_smi_mdio <: 0;
-
-
-
-  // Preamble
-  smi_bit_shift_out(0xffffffff, 32, smi);
-  // Start sequence & write code
-  smi_bit_shift_out(0x5, 4, smi);
-  // phy address
-  smi_bit_shift_out(address, 5, smi);
-  // register address
-  smi_bit_shift_out(reg, 5, smi);
-  // turn around for 2 clocks
-  smi_bit_shift_out(2, 2, smi);
-  // turn around for 16 clocks
-  smi_bit_shift_out(val, 16, smi);
-
-  // End MDC clock pulse
-  smi.p_smi_mdc  <: 0;
-
-  if (smi.mdio_mux)
-    smi.p_smi_mdio <: 0x7F;
-  else
-    smi.p_smi_mdio <: 0;
-
-
 }
 
 
@@ -345,10 +249,8 @@ int eth_phy_config(int eth100, smi_interface_t &smi)
 
   // This used to be an argument, but has been removed now
   int autonegotiate = 1;
-  
-  // Make sure eth100 is either 0 or 1
-  eth100 = (eth100 != 0);
-      
+  int autoNegAdvertReg, basicControl;
+
 #ifdef SIMULATION
   return 0;
 #endif
@@ -360,76 +262,72 @@ int eth_phy_config(int eth100, smi_interface_t &smi)
   // 4. short settling down delay
   
   // 1. Read phy ID from two regs & check it is OK
-  phyid = smi_rd(PHY_ADDRESS, PHY_ID1_REG, smi);
-  x = smi_rd(PHY_ADDRESS, PHY_ID2_REG, smi);
+  phyid = smi_rd(PHY_ID1_REG, smi);
+  x = smi_rd(PHY_ID2_REG, smi);
   phyid = ((x >> 10) << 16) | phyid;
 
-  if (phyid != PHY_ID)
-    {
-      // PHY_ID doesn't correspond return error
+  printhexln(phyid);
+
+  if (phyid != PHY_ID) {
       return (1);
     }
   
-  if (autonegotiate)
-    {
-      
+  if (autonegotiate) {
       // 2a. config for either 100 or 10 Mbps
-      {
         // Read autoNegAdvertReg
-        int autoNegAdvertReg = smi_rd(PHY_ADDRESS, AUTONEG_ADVERT_REG, smi);
+          autoNegAdvertReg = smi_rd(AUTONEG_ADVERT_REG, smi);
         
         // Clear bits [9:5]
         autoNegAdvertReg = autoNegAdvertReg & 0xfc1f;
 
         // Set 100 or 10 Mpbs bits
-        autoNegAdvertReg |= (eth100 << AUTONEG_ADVERT_100_BIT);
-        autoNegAdvertReg |= (!eth100 << AUTONEG_ADVERT_10_BIT);
+        if (eth100) {
+            autoNegAdvertReg |= (1 << AUTONEG_ADVERT_100_BIT);
+        } else {
+            autoNegAdvertReg |= (1 << AUTONEG_ADVERT_10_BIT);
+        }
         
         // Write back and validate
-        smi_wr(PHY_ADDRESS, AUTONEG_ADVERT_REG, autoNegAdvertReg, smi);
-        if (smi_rd(PHY_ADDRESS, AUTONEG_ADVERT_REG, smi) != autoNegAdvertReg)
-          return (2);
-      }
-    // Autonegotiate
-      {
-        int basicControl = smi_rd(PHY_ADDRESS, BASIC_CONTROL_REG, smi);
+        smi_wr(AUTONEG_ADVERT_REG, autoNegAdvertReg, smi);
+        if (smi_rd(AUTONEG_ADVERT_REG, smi) != autoNegAdvertReg) {
+            return (2);
+        }
+
+        basicControl = smi_rd(BASIC_CONTROL_REG, smi);
         // clear autoneg bit
         basicControl = basicControl & ( ~(1 << BASIC_CONTROL_AUTONEG_EN_BIT));
-        smi_wr(PHY_ADDRESS, BASIC_CONTROL_REG, basicControl, smi);
+        smi_wr(BASIC_CONTROL_REG, basicControl, smi);
         // set autoneg bit
         basicControl = basicControl | (1 << BASIC_CONTROL_AUTONEG_EN_BIT);
-        smi_wr(PHY_ADDRESS, BASIC_CONTROL_REG, basicControl, smi);
-      // restart autoneg
+        smi_wr(BASIC_CONTROL_REG, basicControl, smi);
+        // restart autoneg
         basicControl = basicControl | (1 << BASIC_CONTROL_RESTART_AUTONEG_BIT);
-        smi_wr(PHY_ADDRESS, BASIC_CONTROL_REG, basicControl, smi);
+        smi_wr(BASIC_CONTROL_REG, basicControl, smi);
         
-      }
-    } else
-    // 2b. Don't autoneg, set speed manually
-    {
+  } else {        // 2b. Don't autoneg, set speed manually
       // Not auto negotiating, setting the speed manually
-      int basicControl = smi_rd(PHY_ADDRESS, BASIC_CONTROL_REG, smi);
+      basicControl = smi_rd(BASIC_CONTROL_REG, smi);
     // set duplex mode
       basicControl = basicControl | (1 << BASIC_CONTROL_FULL_DUPLEX_BIT);
       // clear autoneg bit
       basicControl = basicControl & ( ~(1 << BASIC_CONTROL_AUTONEG_EN_BIT));
       // now set 100 or 10 Mpbs bits
       if (eth100)
-        basicControl = basicControl |    (1 << BASIC_CONTROL_100_MBPS_BIT);
+          basicControl = basicControl |    (1 << BASIC_CONTROL_100_MBPS_BIT);
       else
-        basicControl = basicControl & ( ~(1 << BASIC_CONTROL_100_MBPS_BIT));
+          basicControl = basicControl & ( ~(1 << BASIC_CONTROL_100_MBPS_BIT));
       
-    smi_wr(PHY_ADDRESS, BASIC_CONTROL_REG, basicControl, smi);
-    
+      smi_wr(BASIC_CONTROL_REG, basicControl, smi);
+      
     }
   return 0;  
-
+  
 }
 
 
 int eth_phy_checklink(smi_interface_t &smi)
 {
-  return ((smi_rd(PHY_ADDRESS, BASIC_STATUS_REG, smi )>>BASIC_STATUS_LINK_BIT)&1);    
+  return ((smi_rd(BASIC_STATUS_REG, smi )>>BASIC_STATUS_LINK_BIT)&1);    
 
 }
 
@@ -440,7 +338,7 @@ int eth_phy_checklink(smi_interface_t &smi)
 /* Enable/disable internal phy loopback */
 void eth_phy_loopback(int enable, smi_interface_t &smi)
 {
-  int controlReg = smi_rd(PHY_ADDRESS, BASIC_CONTROL_REG, smi);
+  int controlReg = smi_rd(BASIC_CONTROL_REG, smi);
   // enable (set) or disable (clear) loopback
   if (enable)
   {
@@ -457,8 +355,8 @@ void eth_phy_loopback(int enable, smi_interface_t &smi)
   return;
 #endif
   
-  smi_wr(PHY_ADDRESS, BASIC_CONTROL_REG, controlReg, smi);
-  controlReg = smi_rd(PHY_ADDRESS, BASIC_CONTROL_REG, smi);
+  smi_wr(BASIC_CONTROL_REG, controlReg, smi);
+  controlReg = smi_rd(BASIC_CONTROL_REG, smi);
 }
 
 
