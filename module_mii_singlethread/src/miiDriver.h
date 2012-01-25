@@ -78,6 +78,8 @@ extern void miiDriver(mii_interface_t &m, chanend cIn, chanend cOut);
  */
 extern int miiCheckLinkState(smi_interface_t &smi);
 
+extern void phy_reset(out port p_mii_resetn, timer tmr);
+
 #endif
 
 

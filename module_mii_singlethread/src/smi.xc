@@ -53,15 +53,9 @@
 // SMI code drives SMI clock directly so work at 2x rate
 #define SMI_CLOCK_DIVIDER   ((REF_FREQ / SMI_CLOCK_FREQ) / 2)
 
-// Reset duration in
-#define RESET_DURATION_US 500
-// Timer value used to implement reset delay
-#define RESET_TIMER_DELAY ((REF_FREQ / 1000000)* RESET_DURATION_US)
-
 
 // Initialise the ports and clock blocks
-void smi_init(clock clk_smi, out port ?p_mii_resetn, smi_interface_t &smi)
-{
+void smi_port_init(clock clk_smi, smi_interface_t &smi) {
   configure_clock_ref (clk_smi, SMI_CLOCK_DIVIDER);
   configure_in_port_no_ready (smi.p_smi_mdc,   clk_smi);
   configure_in_port_no_ready (smi.p_smi_mdio,  clk_smi);
@@ -73,50 +67,6 @@ void smi_init(clock clk_smi, out port ?p_mii_resetn, smi_interface_t &smi)
   set_port_sample_delay   (smi.p_smi_mdio);
 
   smi.p_smi_mdc <: 0;
-  
-  if (!isnull(p_mii_resetn)) {
-    p_mii_resetn <: 0xf;
-  }
-}
-
-/* put SMI ports and clockblocks out of use */
-void smi_deinit(clock clk_smi, out port ?p_mii_resetn, smi_interface_t &smi)
-{
-}
-
-// Reset the MII PHY
-void smi_reset( out port ?p_mii_resetn, smi_interface_t &smi, timer tmr)
-{
-  unsigned int  resetTime;
-  
-  // Assert reset;
-  if (!isnull(p_mii_resetn))
-    p_mii_resetn <: 0;
-
-  
-  // Wait
- tmr :> resetTime;
-#ifdef SIMULATION
-  resetTime += 100;
-#else
-  resetTime += RESET_TIMER_DELAY;
-#endif
-  tmr when timerafter(resetTime) :> void;
-  
-  // Negate reset;
-  if (!isnull(p_mii_resetn))
-    p_mii_resetn <: ~0;
-
-  
-  // Wait
- tmr :> resetTime;
-#ifdef SIMULATION
-  resetTime += 100;
-#else
-  resetTime += RESET_TIMER_DELAY;
-#endif
-  tmr when timerafter(resetTime) :> void;
-
 }
 
 
@@ -230,6 +180,7 @@ static void smi_wr(int reg, int val, smi_interface_t &smi) {
     smi.p_smi_mdio <: 0;
 }
 
+#include <print.h>
 
 ////////////////////////////////////////////
 
@@ -250,10 +201,6 @@ int eth_phy_config(int eth100, smi_interface_t &smi)
   int autonegotiate = 1;
   int autoNegAdvertReg, basicControl;
 
-#ifdef SIMULATION
-  return 0;
-#endif
-  
   // 1. Check that the Phy ID can be read.  Return error 1 if not
   // 2a. autoneg advertise 100/10 then autonegotiate
   // 2b. set speed manually
@@ -265,6 +212,7 @@ int eth_phy_config(int eth100, smi_interface_t &smi)
   x = smi_rd(PHY_ID2_REG, smi);
   phyid = ((x >> 10) << 16) | phyid;
 
+//  printhexln(phyid);
   if (phyid != PHY_ID) {
       return (1);
     }
@@ -317,6 +265,7 @@ int eth_phy_config(int eth100, smi_interface_t &smi)
       smi_wr(BASIC_CONTROL_REG, basicControl, smi);
       
     }
+//  printstr("OK\n");
   return 0;  
   
 }
@@ -347,10 +296,6 @@ void eth_phy_loopback(int enable, smi_interface_t &smi)
 	controlReg = controlReg & ((-1) - (1 << BASIC_CONTROL_LOOPBACK_BIT));
 	controlReg = controlReg | (1 << BASIC_CONTROL_AUTONEG_EN_BIT);
   }
-  
-#ifdef SIMULATION
-  return;
-#endif
   
   smi_wr(BASIC_CONTROL_REG, controlReg, smi);
   controlReg = smi_rd(BASIC_CONTROL_REG, smi);
