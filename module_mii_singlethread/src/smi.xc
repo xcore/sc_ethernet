@@ -4,7 +4,6 @@
 // LICENSE.txt and at <http://github.xcore.com/>
 
 #include <xs1.h>
-#include <print.h>
 
 #include "miiDriver.h"
 #include "smi.h"
@@ -265,8 +264,6 @@ int eth_phy_config(int eth100, smi_interface_t &smi)
   phyid = smi_rd(PHY_ID1_REG, smi);
   x = smi_rd(PHY_ID2_REG, smi);
   phyid = ((x >> 10) << 16) | phyid;
-
-  printhexln(phyid);
 
   if (phyid != PHY_ID) {
       return (1);
