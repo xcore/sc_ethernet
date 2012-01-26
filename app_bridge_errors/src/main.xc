@@ -31,8 +31,8 @@ on stdcore[2]: mii_interface_t mii1 =
   };
 
 on stdcore[2]: out port p_mii_resetn = PORT_ETH_RST_N;
-on stdcore[2]: smi_interface_t smi0 = { PORT_ETH_MDIO_0, PORT_ETH_MDC_0, 0 };
-on stdcore[2]: smi_interface_t smi1 = { PORT_ETH_MDIO_1, PORT_ETH_MDC_1, 0 };
+on stdcore[2]: smi_interface_t smi0 = { 0, PORT_ETH_MDIO_0, PORT_ETH_MDC_0 };
+on stdcore[2]: smi_interface_t smi1 = { 0, PORT_ETH_MDIO_1, PORT_ETH_MDC_1 };
 
 on stdcore[2]: clock clk_smi = XS1_CLKBLK_5;
 

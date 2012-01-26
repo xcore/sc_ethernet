@@ -46,9 +46,9 @@ on stdcore[0]: mii_interface_t mii =
 
 #ifdef PORT_ETH_RST_N
 on stdcore[0]: out port p_mii_resetn = PORT_ETH_RST_N;
-on stdcore[0]: smi_interface_t smi = { PORT_ETH_MDIO, PORT_ETH_MDC, 0 };
+on stdcore[0]: smi_interface_t smi = { 0, PORT_ETH_MDIO, PORT_ETH_MDC };
 #else
-on stdcore[0]: smi_interface_t smi = { PORT_ETH_RST_N_MDIO, PORT_ETH_MDC, 1 };
+on stdcore[0]: smi_interface_t smi = { 0, PORT_ETH_RST_N_MDIO, PORT_ETH_MDC };
 #endif
 
 on stdcore[0]: clock clk_smi = XS1_CLKBLK_5;

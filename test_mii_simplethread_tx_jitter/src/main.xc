@@ -34,7 +34,7 @@ on stdcore[0]: mii_interface_t mii =
   };
 
 on stdcore[0]: port p_reset = PORT_SHARED_RS;
-on stdcore[0]: smi_interface_t smi = { PORT_ETH_MDIO, PORT_ETH_MDC, 0 };
+on stdcore[0]: smi_interface_t smi = { 0, PORT_ETH_MDIO, PORT_ETH_MDC };
 on stdcore[0]: clock clk_smi = XS1_CLKBLK_5;
 
 int alignment_dummy=0;
