@@ -6,7 +6,7 @@ package. The demo can be found in the directory app_ethernet_demo and
 provides a simple ethernet application that responds to ICMP ping
 requests. It assumes a basic knowledge of XC programming. For
 information on XMOS programming, you can find reference material about
-XC programming online at http://www.xmos.com/support/documentation.
+XC programming at the `XMOS website <http://www.xmos.com/support/documentation>`_.
 
 To write an ethernet enabled application for an XMOS device requires
 several things:
@@ -57,7 +57,7 @@ ethernet_conf.h
 The ethernet_conf.h file is found in the src/ directory of the
 application. This file contains a series of #defines that configure
 the ethernet stack. The possible #defines that can be set are
-described in the :ref:`conf-defines` section.
+described in :ref:`sec_conf_defines`.
 
 Within this application we set the maximum packet size we can receive
 to be the maximum possible allowed in the ethernet standard and set

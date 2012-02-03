@@ -21,9 +21,11 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://mathjax.connectmv.com/MathJax.js"></script>
+    <script type="text/javascript" src="_static/xcomment.js"></script>
     <link rel="top" title="Ethernet Component v1v4 documentation" href="index.html" />
-    <link rel="up" title="Programming Guide" href="programming.html" />
-    <link rel="next" title="API" href="api.html" />
+    <link rel="up" title="Ethernet Programming Guide" href="programming.html" />
+    <link rel="next" title="Ethernet API" href="api.html" />
     <link rel="prev" title="Source code structure" href="structure.html" /> 
 
 <script>
@@ -65,7 +67,7 @@ package. The demo can be found in the directory app_ethernet_demo and
 provides a simple ethernet application that responds to ICMP ping
 requests. It assumes a basic knowledge of XC programming. For
 information on XMOS programming, you can find reference material about
-XC programming online at <a class="reference external" href="http://www.xmos.com/support/documentation">http://www.xmos.com/support/documentation</a>.</p>
+XC programming at the <a class="reference external" href="http://www.xmos.com/support/documentation"><span>XMOS website</span></a>.</p>
 <p>To write an ethernet enabled application for an XMOS device requires
 several things:</p>
 <blockquote>
@@ -109,7 +111,7 @@ the command line (using xmake) or from Eclipse.</p>
 <p>The ethernet_conf.h file is found in the src/ directory of the
 application. This file contains a series of #defines that configure
 the ethernet stack. The possible #defines that can be set are
-described in the <em class="xref std std-ref">conf-defines</em> section.</p>
+described in <a class="reference internal" href="api.html#sec-conf-defines"><span>Configuration Defines</span></a>.</p>
 <p>Within this application we set the maximum packet size we can receive
 to be the maximum possible allowed in the ethernet standard and set
 the number of buffers to be 5 packets for incoming packets and 5 for
@@ -117,7 +119,13 @@ outgoing.</p>
 <p>The maximum number of ethernet clients (chanends we can connect to the
 ethernet server) is set to 4 (even though we only have one client in
 this example).</p>
-<div class="highlight-none"><div class="highlight"><pre>#define MAX_ETHERNET_PACKET_SIZE (1518)
+<div class="highlight-none"><div class="highlight"><pre>// Copyright (c) 2011, XMOS Ltd, All rights reserved
+// This software is freely distributable under a derivative of the
+// University of Illinois/NCSA Open Source License posted in
+// LICENSE.txt and at &lt;http://github.xcore.com/&gt;
+
+
+#define MAX_ETHERNET_PACKET_SIZE (1518)
 
 #define NUM_MII_RX_BUF 5
 #define NUM_MII_TX_BUF 5
@@ -134,7 +142,12 @@ mac_custom_filter.h header file and a definition of the
 mac_custom_filter function itself.</p>
 <p>The header file in this example just prototypes the mac_custom_filter
 function itself.</p>
-<div class="highlight-none"><div class="highlight"><pre>extern int mac_custom_filter(unsigned int data[]);
+<div class="highlight-none"><div class="highlight"><pre>// Copyright (c) 2011, XMOS Ltd, All rights reserved
+// This software is freely distributable under a derivative of the
+// University of Illinois/NCSA Open Source License posted in
+// LICENSE.txt and at &lt;http://github.xcore.com/&gt;
+
+extern int mac_custom_filter(unsigned int data[]);
 </pre></div>
 </div>
 <p>The module requires the application to provide the header to cater for
@@ -177,13 +190,14 @@ application. This application is contained in demo.xc. Within this
 file is the main() function which declares some variables (primarily
 XC channels). It also contains a top level par construct which sets
 the various functional units running that make up the program.</p>
-<p>On core 2 we run the ethernet server. First, the function <a class="reference internal" href="api.html#ethernet_getmac_otp" title="ethernet_getmac_otp"><tt class="xref c c-func docutils literal"><span class="pre">ethernet_getmac_otp()</span></tt></a> reads the device mac address from ROM. The
-function <a class="reference internal" href="api.html#phy_init" title="phy_init"><tt class="xref c c-func docutils literal"><span class="pre">phy_init()</span></tt></a> initializes the phy and them the main function
-<a class="reference internal" href="api.html#ethernet_server" title="ethernet_server"><tt class="xref c c-func docutils literal"><span class="pre">ethernet_server()</span></tt></a> runs the ethernet component. The server
+<p>On core 2 we run the ethernet server. First, the function <a class="reference internal" href="api.html#ethernet_getmac_otp" title="ethernet_getmac_otp"><span>ethernet_getmac_otp()</span></a> reads the device mac address from ROM. The
+function <a class="reference internal" href="api.html#phy_init" title="phy_init"><span>phy_init()</span></a> initializes the phy and them the main function
+<a class="reference internal" href="api.html#ethernet_server" title="ethernet_server"><span>ethernet_server()</span></a> runs the ethernet component. The server
 communicates with other threads via the rx and tx channel arrays.</p>
 <div class="highlight-none"><div class="highlight"><pre>      on stdcore[2]:
       {
-		ethernet_getmac_otp(otp_data, otp_addr, otp_ctrl, (mac_address, char[]));
+		ethernet_getmac_otp(otp_data, otp_addr, otp_ctrl,
+                                    (mac_address, char[]));
 		phy_init(clk_smi,
 #ifdef PORT_ETH_RST_N
                p_mii_resetn,
@@ -215,7 +229,7 @@ on core 2.</p>
 </pre></div>
 </div>
 <p>Then the packet filter is set up. The mask value passed to
-<a class="reference internal" href="api.html#mac_set_custom_filter" title="mac_set_custom_filter"><tt class="xref c c-func docutils literal"><span class="pre">mac_set_custom_filter()</span></tt></a> is used within the mac. After the
+<a class="reference internal" href="api.html#mac_set_custom_filter" title="mac_set_custom_filter"><span>mac_set_custom_filter()</span></a> is used within the mac. After the
 custom_mac_filter function is run, if the result is non-zero then the
 result is and-ed against the mask. If this is non-zero then the packet
 is forwarded to the client.</p>
@@ -227,7 +241,7 @@ custom_mac_filter function will get passed to this client.</p>
 <p>After we are set up to receive the correct packets we can go into the
 main loop that responds to ARP and ICMP packets.</p>
 <p>The first task in the loop is to receive a packet into the rxbuf
-buffer using the <a class="reference internal" href="api.html#mac_rx" title="mac_rx"><tt class="xref c c-func docutils literal"><span class="pre">mac_rx()</span></tt></a> function.</p>
+buffer using the <a class="reference internal" href="api.html#mac_rx" title="mac_rx"><span>mac_rx()</span></a> function.</p>
 <div class="highlight-none"><div class="highlight"><pre>  while (1)
   {
     unsigned int src_port;
@@ -239,7 +253,7 @@ buffer using the <a class="reference internal" href="api.html#mac_rx" title="mac
 <p>When the packet is received it may be an ARP or IP packet since both
 get past our filter. First we check if it is an ARP packet, if so then
 we build the response (in the txbuf array) and send it out over
-ethernet using the <a class="reference internal" href="api.html#mac_tx" title="mac_tx"><tt class="xref c c-func docutils literal"><span class="pre">mac_tx()</span></tt></a> function. The functions
+ethernet using the <a class="reference internal" href="api.html#mac_tx" title="mac_tx"><span>mac_tx()</span></a> function. The functions
 is_valid_arp_packet and build_arp_response are defined demo.xc.</p>
 <div class="highlight-none"><div class="highlight"><pre>    if (is_valid_arp_packet(rxbuf, nbytes))
       {
@@ -290,12 +304,12 @@ a PC. Pinging the IP address defined should now get a response e.g.:</p>
       </div>
       <div class="sphinxsidebar" id='d2'>
         <div class="sphinxsidebarwrapper">
-<h3><a href="index.html">Table Of Contents</a></h3>
+<h3><a href="index.html">Ethernet Component (1v4)</a></h3>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hw.html">H/W Development Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Etehrnet Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hw.html">Ethernet H/W Development Platforms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="system.html">Ethernet Mac Description</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="programming.html">Programming Guide</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="programming.html">Ethernet Programming Guide</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="getting_started.html">Getting started</a></li>
 <li class="toctree-l2"><a class="reference internal" href="structure.html">Source code structure</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="">A Sample Ethernet Application (tutorial)</a><ul>
@@ -309,10 +323,11 @@ a PC. Pinging the IP address defined should now get a response e.g.:</p>
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Ethernet API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="singlethread.html">Single threaded MII</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none;margin-bottom: 10px;">
   <h3>Search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" size="18" />

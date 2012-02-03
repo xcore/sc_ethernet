@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Overview &mdash; Ethernet Component v1v4 documentation</title>
+    <title>Etehrnet Overview &mdash; Ethernet Component v1v4 documentation</title>
     <link rel="stylesheet" href="_static/xdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -21,8 +21,10 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://mathjax.connectmv.com/MathJax.js"></script>
+    <script type="text/javascript" src="_static/xcomment.js"></script>
     <link rel="top" title="Ethernet Component v1v4 documentation" href="index.html" />
-    <link rel="next" title="H/W Development Platforms" href="hw.html" />
+    <link rel="next" title="Ethernet H/W Development Platforms" href="hw.html" />
     <link rel="prev" title="XMOS Ethernet Component" href="index.html" /> 
 
 <script>
@@ -57,8 +59,8 @@ document.getElementById('d1').style.height=h2 + "px";
 </div>
 
             
-  <div class="section" id="overview">
-<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="etehrnet-overview">
+<h1>Etehrnet Overview<a class="headerlink" href="#etehrnet-overview" title="Permalink to this headline">¶</a></h1>
 <p>The XMOS ethernet component provides both MII communication to the phy
 and MAC transport layer for ethernet packets. It enables several
 clients to connet to it and send and receive packets. The custom
@@ -66,10 +68,11 @@ filter mechanism lets user place code into the MAC to filter out and
 distribute packets in arbitrary ways. In addition the MII layer will
 accurately timestamp packets on ingress and egress and pass this
 information through the MAC to the ethernet client.</p>
+<p>The code supports one or two PHY devices, both connected to the same
+xcore.  Currently there is no inter-port packet forwarding supported.</p>
 <div class="section" id="component-summary">
 <h2>Component Summary<a class="headerlink" href="#component-summary" title="Permalink to this headline">¶</a></h2>
-<blockquote>
-<div><table border="1" class="docutils">
+<table border="1" class="vertical-borders docutils">
 <colgroup>
 <col width="47%" />
 <col width="53%" />
@@ -77,25 +80,40 @@ information through the MAC to the ethernet client.</p>
 <tbody valign="top">
 <tr><td colspan="2"><strong>Functionality</strong></td>
 </tr>
+<tr><td colspan="2">&nbsp;</td>
+</tr>
 <tr><td colspan="2">Provides MII ethernet interface and MAC with customizable
 filtering and accurate packet timestamping.</td>
 </tr>
+<tr><td colspan="2">&nbsp;</td>
+</tr>
 <tr><td colspan="2"><strong>Supported Standards</strong></td>
+</tr>
+<tr><td colspan="2">&nbsp;</td>
 </tr>
 <tr><td>Ethernet</td>
 <td>IEEE 802.3u (MII)</td>
 </tr>
+<tr><td colspan="2">&nbsp;</td>
+</tr>
 <tr><td colspan="2"><strong>Supported Devices</strong></td>
 </tr>
+<tr><td colspan="2">&nbsp;</td>
+</tr>
 <tr><td>XMOS Devices</td>
-<td><div class="first last line-block">
-<div class="line">XS1-G4</div>
-<div class="line">XS1-L2</div>
-<div class="line">XS1-L1</div>
-</div>
-</td>
+<td>XS1-G4</td>
+</tr>
+<tr><td>&nbsp;</td>
+<td>XS1-L2</td>
+</tr>
+<tr><td>&nbsp;</td>
+<td>XS1-L1</td>
+</tr>
+<tr><td colspan="2">&nbsp;</td>
 </tr>
 <tr><td colspan="2"><strong>Requirements</strong></td>
+</tr>
+<tr><td colspan="2">&nbsp;</td>
 </tr>
 <tr><td>XMOS Desktop Tools</td>
 <td>v10.4 or later</td>
@@ -103,14 +121,17 @@ filtering and accurate packet timestamping.</td>
 <tr><td>Ethernet</td>
 <td>MII compatible 100Mbit PHY</td>
 </tr>
+<tr><td colspan="2">&nbsp;</td>
+</tr>
 <tr><td colspan="2"><strong>Licensing and Support</strong></td>
+</tr>
+<tr><td colspan="2">&nbsp;</td>
 </tr>
 <tr><td colspan="2">Component code provided without charge from XMOS.
 Component code is maintained by XMOS.</td>
 </tr>
 </tbody>
 </table>
-</div></blockquote>
 </div>
 </div>
 
@@ -121,19 +142,20 @@ Component code is maintained by XMOS.</td>
       </div>
       <div class="sphinxsidebar" id='d2'>
         <div class="sphinxsidebarwrapper">
-<h3><a href="index.html">Table Of Contents</a></h3>
+<h3><a href="index.html">Ethernet Component (1v4)</a></h3>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="">Overview</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Etehrnet Overview</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#component-summary">Component Summary</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="hw.html">H/W Development Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hw.html">Ethernet H/W Development Platforms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="system.html">Ethernet Mac Description</a></li>
-<li class="toctree-l1"><a class="reference internal" href="programming.html">Programming Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="programming.html">Ethernet Programming Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Ethernet API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="singlethread.html">Single threaded MII</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none;margin-bottom: 10px;">
   <h3>Search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" size="18" />

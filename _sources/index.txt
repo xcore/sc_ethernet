@@ -8,5 +8,5 @@ XMOS Ethernet Component
    system
    programming
    api
-
+   singlethread
 

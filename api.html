@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>API &mdash; Ethernet Component v1v4 documentation</title>
+    <title>Ethernet API &mdash; Ethernet Component v1v4 documentation</title>
     <link rel="stylesheet" href="_static/xdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -21,7 +21,10 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://mathjax.connectmv.com/MathJax.js"></script>
+    <script type="text/javascript" src="_static/xcomment.js"></script>
     <link rel="top" title="Ethernet Component v1v4 documentation" href="index.html" />
+    <link rel="next" title="Single threaded MII" href="singlethread.html" />
     <link rel="prev" title="A Sample Ethernet Application (tutorial)" href="app_tutorial.html" /> 
 
 <script>
@@ -51,11 +54,13 @@ document.getElementById('d1').style.height=h2 + "px";
 <div style="float: right">
 <a href="app_tutorial.html"
                         title="previous chapter"> &lt&lt </a>
+<a href="singlethread.html"
+                        title="next chapter"> &gt&gt </a></p>
 </div>
 
             
-  <div class="section" id="api">
-<span id="sec-api"></span><h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="ethernet-api">
+<span id="sec-api"></span><h1>Ethernet API<a class="headerlink" href="#ethernet-api" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="configuration-defines">
 <span id="sec-conf-defines"></span><h2>Configuration Defines<a class="headerlink" href="#configuration-defines" title="Permalink to this headline">¶</a></h2>
 <p>The file ethernet_conf.h must be provided in the application source
@@ -75,7 +80,65 @@ memory but restrict the type of packets you can receieve.</div></blockquote>
 <p><strong>MAX_ETHERNET_CLIENTS</strong></p>
 <blockquote>
 <div>The maximum number of clients that can be connected to the
-<a class="reference internal" href="#ethernet_server" title="ethernet_server"><tt class="xref c c-func docutils literal"><span class="pre">ethernet_server()</span></tt></a> function via the rx and tx channel arrays.</div></blockquote>
+<a class="reference internal" href="#ethernet_server" title="ethernet_server"><span>ethernet_server()</span></a> function via the rx and tx channel arrays.</div></blockquote>
+<p><strong>NUM_ETHERNET_PORTS</strong></p>
+<blockquote>
+<div>The number of ethernet ports to support.  Maximum value is 2 in
+the current implementation.</div></blockquote>
+<p><strong>ETHERNET_TX_HP_QUEUE</strong></p>
+<blockquote>
+<div>Define this constant to include the high priority transmit queueing
+mechanism.  This enables frames which have an ethernet VLAN priority
+tag to be queued in a high priority queue, which in turn can be
+managed with the 802.1qav transmit traffic shaper.</div></blockquote>
+<p><strong>ETHERNET_RX_HP_QUEUE</strong></p>
+<blockquote>
+<div>Define this constant to include high priority reception of ethernet
+VLAN priority tagged traffic.  This traffic will be queued into a
+fast queue and delivered to the clients ahead of non-tagged traffic.</div></blockquote>
+<p><strong>ETHERNET_TRAFFIC_SHAPER</strong></p>
+<blockquote>
+<div>If high priority transmit queueing is in use (see <em>ETHERNET_TX_HP_QUEUE</em>)
+then this enables the 802.1qav traffic shaping algorithm.</div></blockquote>
+<p><strong>MII_RX_BUFSIZE_HIGH_PRIORITY</strong></p>
+<blockquote>
+<div>The number of quadlets (4 byte integers) of space in the high
+priority receive buffer.  The buffer will actually be two full
+packets longer than this to avoid the need to be circular. This
+constant applies when the high priority receive queue is in use.</div></blockquote>
+<p><strong>MII_RX_BUFSIZE_LOW_PRIORITY</strong></p>
+<blockquote>
+<div>The number of quadlets (4 byte integers) of space in the low
+priority receive buffer.  The buffer will actually be two full
+packets longer than this to avoid the need to be circular. This
+constant applies when the high priority receive is in use.</div></blockquote>
+<p><strong>MII_RX_BUFSIZE</strong></p>
+<blockquote>
+<div>The number of quadlets (4 byte integers) of space in the low
+priority receive buffer.  The buffer will actually be two full
+packets longer than this to avoid the need to be circular. This
+constant applies when the high priority receive is not in use.</div></blockquote>
+<p><strong>MII_TX_BUFSIZE</strong></p>
+<blockquote>
+<div>The number of quadlets (4 byte integers) of space in the low
+priority transmit buffer.  The buffer will actually be two full
+packets longer than this to avoid the need to be circular.</div></blockquote>
+<p><strong>MII_TX_BUFSIZE_HIGH_PRIORITY</strong></p>
+<blockquote>
+<div>The number of quadlets (4 byte integers) of space in the high
+priority transmit buffer.  The buffer will actually be two full
+packets longer than this to avoid the need to be circular. This
+constant applies when the high priority receive is in use.</div></blockquote>
+<p><strong>ENABLE_ETHERNET_SOURCE_ADDRESS_WRITE</strong></p>
+<blockquote>
+<div>By defining this preprocessor symbol, the source MAC address
+will be automatically filled in with the MAC address passed
+to the port during initialization.</div></blockquote>
+<p><strong>DISABLE_ETHERNET_PORT_FORWARDING</strong></p>
+<blockquote>
+<div>By defining this preprocessor symbol, the forwarding of packets
+between ports, when there are multiple ports, is disabled.  Traffic
+is only forwarded to the clients.</div></blockquote>
 </div>
 <div class="section" id="custom-filter-function">
 <h2>Custom Filter Function<a class="headerlink" href="#custom-filter-function" title="Permalink to this headline">¶</a></h2>
@@ -102,7 +165,7 @@ header or the packet.</li>
 </tr>
 <tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">0 if the packet is not wanted by the application or
 a number that can be registed by
-<a class="reference internal" href="#mac_set_custom_filter" title="mac_set_custom_filter"><tt class="xref c c-func docutils literal"><span class="pre">mac_set_custom_filter()</span></tt></a> by a client. Clients
+<a class="reference internal" href="#mac_set_custom_filter" title="mac_set_custom_filter"><span>mac_set_custom_filter()</span></a> by a client. Clients
 register a mask so the number is usually made up of a
 bit per unique client destination for the packet.</p>
 </td>
@@ -114,15 +177,13 @@ bit per unique client destination for the packet.</p>
 </div>
 <div class="section" id="data-structures">
 <h2>Data Structures<a class="headerlink" href="#data-structures" title="Permalink to this headline">¶</a></h2>
-<dt><dl class="type">
+<dl class="type">
 <dt id="mii_interface_t">
 <tt class="descname">mii_interface_t</tt><a class="headerlink" href="#mii_interface_t" title="Permalink to this definition">¶</a></dt>
 <dd><p>Structure containing resources required for the MII ethernet interface.</p>
 <p>This structure contains resources required to make up an MII interface. It consists of 7 ports and 2 clock blocks.</p>
 <p>The clock blocks can be any available clock blocks and will be clocked of incoming rx/tx clock pins.</p>
-<p><strong>See also:</strong></p>
-<p><a class="reference internal" href="#ethernet_server" title="ethernet_server"><tt class="xref c c-func docutils literal"><span class="pre">ethernet_server()</span></tt></a></p>
-<p><strong>Structure Members</strong>:</p>
+<p><strong>Structure Members:</strong></p>
 <dl class="member">
 <dt id="mii_interface_t.clk_mii_rx">
 clock <tt class="descname">clk_mii_rx</tt><a class="headerlink" href="#mii_interface_t.clk_mii_rx" title="Permalink to this definition">¶</a></dt>
@@ -177,14 +238,21 @@ out buffered port:32 <tt class="descname">p_mii_txd</tt><a class="headerlink" hr
 <dd><p>MII TX data wire.</p>
 </dd></dl>
 
+<dl class="member">
+<dt id="mii_interface_t.p_mii_timing">
+in port <tt class="descname">p_mii_timing</tt><a class="headerlink" href="#mii_interface_t.p_mii_timing" title="Permalink to this definition">¶</a></dt>
+<dd><p>A port that is not used for anything, used by the LLD for timing purposes.</p>
+<p>Must be clocked of the reference clock</p>
 </dd></dl>
 
-<dt><dl class="type">
+</dd></dl>
+
+<dl class="type">
 <dt id="smi_interface_t">
 <tt class="descname">smi_interface_t</tt><a class="headerlink" href="#smi_interface_t" title="Permalink to this definition">¶</a></dt>
 <dd><p>Structure containing resources required for the SMI ethernet phy interface.</p>
 <p>This structure contains the resources required to communicate with an ethernet phy over smi.</p>
-<p><strong>Structure Members</strong>:</p>
+<p><strong>Structure Members:</strong></p>
 <dl class="member">
 <dt id="smi_interface_t.p_smi_mdio">
 port <tt class="descname">p_smi_mdio</tt><a class="headerlink" href="#smi_interface_t.p_smi_mdio" title="Permalink to this definition">¶</a></dt>
@@ -208,10 +276,10 @@ int <tt class="descname">mdio_mux</tt><a class="headerlink" href="#smi_interface
 </div>
 <div class="section" id="otp-mac-address-reading">
 <h2>OTP MAC Address Reading<a class="headerlink" href="#otp-mac-address-reading" title="Permalink to this headline">¶</a></h2>
-<dt><dl class="function">
+<dl class="function">
 <dt id="ethernet_getmac_otp">
 void <tt class="descname">ethernet_getmac_otp</tt><big>(</big>port<em>&nbsp;otp_data</em>, out port<em>&nbsp;otp_addr</em>, port<em>&nbsp;otp_ctrl</em>, char<em>&nbsp;macaddr[]</em><big>)</big><a class="headerlink" href="#ethernet_getmac_otp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Retrieves least significant 24bits from MAC address stored in OTP.</p>
+<dd><p>Retrieves the first MAC address stored in the OTP.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -228,14 +296,56 @@ void <tt class="descname">ethernet_getmac_otp</tt><big>(</big>port<em>&nbsp;otp_
 </table>
 </dd></dl>
 
+<dl class="function">
+<dt id="ethernet_getmac_otp_indexed">
+void <tt class="descname">ethernet_getmac_otp_indexed</tt><big>(</big>port<em>&nbsp;otp_data</em>, out port<em>&nbsp;otp_addr</em>, port<em>&nbsp;otp_ctrl</em>, int<em>&nbsp;macaddr[]</em>, unsigned<em>&nbsp;index</em><big>)</big><a class="headerlink" href="#ethernet_getmac_otp_indexed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the requested indexed MAC address stored in the OTP.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>otp_data</strong> &#8211; Data port connected to otp</li>
+<li><strong>otp_addr</strong> &#8211; Address port connected to otp</li>
+<li><strong>otp_ctrl</strong> &#8211; Control port connected to otp</li>
+<li><strong>macaddr</strong> &#8211; Array to be filled with the retrieved MAC address</li>
+<li><strong>index</strong> &#8211; The index of the mac address to retreive</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ethernet_getmac_otp_count">
+void <tt class="descname">ethernet_getmac_otp_count</tt><big>(</big>port<em>&nbsp;otp_data</em>, out port<em>&nbsp;otp_addr</em>, port<em>&nbsp;otp_ctrl</em>, int<em>&nbsp;macaddr[][2]</em>, unsigned<em>&nbsp;count</em><big>)</big><a class="headerlink" href="#ethernet_getmac_otp_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves a set of MAC addresses stored in the OTP.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>otp_data</strong> &#8211; Data port connected to otp</li>
+<li><strong>otp_addr</strong> &#8211; Address port connected to otp</li>
+<li><strong>otp_ctrl</strong> &#8211; Control port connected to otp</li>
+<li><strong>macaddr</strong> &#8211; Array to be filled with the retrieved MAC address</li>
+<li><strong>count</strong> &#8211; The number of the mac address to retreive</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 <div class="section" id="ethernet-phy-api">
 <h2>Ethernet Phy API<a class="headerlink" href="#ethernet-phy-api" title="Permalink to this headline">¶</a></h2>
-<dt><dl class="function">
+<dl class="function">
 <dt id="phy_init">
-void <tt class="descname">phy_init</tt><big>(</big>clock<em>&nbsp;clk_smi</em>, out port<em>&nbsp;?p_mii_resetn</em>, <a class="reference internal" href="#smi_interface_t" title="smi_interface_t">smi_interface_t</a><em>&nbsp;&amp;smi0</em>, <a class="reference internal" href="#mii_interface_t" title="mii_interface_t">mii_interface_t</a><em>&nbsp;&amp;mii0</em><big>)</big><a class="headerlink" href="#phy_init" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">phy_init</tt><big>(</big>clock<em>&nbsp;clk_smi</em>, out port<em>&nbsp;?p_mii_resetn</em>, <a class="reference internal" href="#smi_interface_t" title="smi_interface_t"><span>smi_interface_t</span></a><em>&nbsp;&amp;smi0</em>, <a class="reference internal" href="#mii_interface_t" title="mii_interface_t"><span>mii_interface_t</span></a><em>&nbsp;&amp;mii0</em><big>)</big><a class="headerlink" href="#phy_init" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reset and initialize the ethernet phy.</p>
-<p>This function resets the ethernet phy and initializes the MII resources. It should be called before calling <a class="reference internal" href="#ethernet_server" title="ethernet_server"><tt class="xref c c-func docutils literal"><span class="pre">ethernet_server()</span></tt></a>. This function is designed to work with SMSC phys models: ...</p>
+<p>This function resets the ethernet phy and initializes the MII resources. It should be called before calling <a class="reference internal" href="#ethernet_server" title="ethernet_server"><span>ethernet_server()</span></a>. This function is designed to work with SMSC phys</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -252,14 +362,38 @@ void <tt class="descname">phy_init</tt><big>(</big>clock<em>&nbsp;clk_smi</em>, 
 </table>
 </dd></dl>
 
+<dl class="function">
+<dt id="phy_init_two_port">
+void <tt class="descname">phy_init_two_port</tt><big>(</big>clock<em>&nbsp;clk_smi</em>, out port<em>&nbsp;?p_mii_resetn</em>, <a class="reference internal" href="#smi_interface_t" title="smi_interface_t"><span>smi_interface_t</span></a><em>&nbsp;&amp;smi0</em>, <a class="reference internal" href="#smi_interface_t" title="smi_interface_t"><span>smi_interface_t</span></a><em>&nbsp;&amp;smi1</em>, <a class="reference internal" href="#mii_interface_t" title="mii_interface_t"><span>mii_interface_t</span></a><em>&nbsp;&amp;mii0</em>, <a class="reference internal" href="#mii_interface_t" title="mii_interface_t"><span>mii_interface_t</span></a><em>&nbsp;&amp;mii1</em><big>)</big><a class="headerlink" href="#phy_init_two_port" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset and initialize two ethernet phys.</p>
+<p>This function resets the ethernet phys and initializes the MII resources. It should be called before calling <a class="reference internal" href="#ethernet_server_two_port" title="ethernet_server_two_port"><span>ethernet_server_two_port()</span></a>. This function is designed to work with SMSC phys</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>clk_smi</strong> &#8211; The clock block used for smi clocking</li>
+<li><strong>p_mii_resetn</strong> &#8211; This port connected to the phy reset line. This parameter can be null if the reset line is multiplexed on the SMI MDIO port.</li>
+<li><strong>smi0</strong> &#8211; The first SMI resources to connect to the phy</li>
+<li><strong>smi1</strong> &#8211; The second SMI resources to connect to the phy</li>
+<li><strong>mii0</strong> &#8211; The first MII resources to connect to the phy</li>
+<li><strong>mii1</strong> &#8211; The second MII resources to connect to the phy</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 <div class="section" id="mac-server-api">
 <h2>MAC Server API<a class="headerlink" href="#mac-server-api" title="Permalink to this headline">¶</a></h2>
-<dt><dl class="function">
+<dl class="function">
 <dt id="ethernet_server">
-void <tt class="descname">ethernet_server</tt><big>(</big><a class="reference internal" href="#mii_interface_t" title="mii_interface_t">mii_interface_t</a><em>&nbsp;&amp;mii</em>, int<em>&nbsp;mac_address[]</em>, chanend<em>&nbsp;rx[]</em>, int<em>&nbsp;num_rx</em>, chanend<em>&nbsp;tx[]</em>, int<em>&nbsp;num_tx</em>, <a class="reference internal" href="#smi_interface_t" title="smi_interface_t">smi_interface_t</a> &amp;<em>&nbsp;?smi</em>, chanend<em>&nbsp;?connect_status</em><big>)</big><a class="headerlink" href="#ethernet_server" title="Permalink to this definition">¶</a></dt>
+void <tt class="descname">ethernet_server</tt><big>(</big><a class="reference internal" href="#mii_interface_t" title="mii_interface_t"><span>mii_interface_t</span></a><em>&nbsp;&amp;mii</em>, int<em>&nbsp;mac_address[]</em>, chanend<em>&nbsp;rx[]</em>, int<em>&nbsp;num_rx</em>, chanend<em>&nbsp;tx[]</em>, int<em>&nbsp;num_tx</em>, <a class="reference internal" href="#smi_interface_t" title="smi_interface_t"><span>smi_interface_t</span></a> &amp;<em>&nbsp;?smi</em>, chanend<em>&nbsp;?connect_status</em><big>)</big><a class="headerlink" href="#ethernet_server" title="Permalink to this definition">¶</a></dt>
 <dd><p>Single MII port MAC/ethernet server.</p>
 <p>This function provides both MII layer and MAC layer functionality. It runs in 5 threads and communicates to clients over the channel array parameters.</p>
+<p>The clients connected via the rx/tx channels can communicate with the server using the APIs found in ethernet_rx_client.h and ethernet_tx_client.h</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -278,7 +412,44 @@ void <tt class="descname">ethernet_server</tt><big>(</big><a class="reference in
 </tr>
 </tbody>
 </table>
+<p>If the smi and connect_status parameters are supplied then the connect_status channel will output when the link goes up or down. The channel will output a zero byte, followed by the status (1 for up, 0 for down), followed by a zero byte, followed by an END control token.,</p>
+<p>The following code snippet is an example of how to receive this update:</p>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>(void) inuchar(connect_status);
+new_status = inuchar(c);
+(void) inuchar(c, 0);
+(void) inct(c);
+</pre></div>
+</div>
+</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="ethernet_server_two_port">
+void <tt class="descname">ethernet_server_two_port</tt><big>(</big><a class="reference internal" href="#mii_interface_t" title="mii_interface_t"><span>mii_interface_t</span></a><em>&nbsp;&amp;mii1</em>, <a class="reference internal" href="#mii_interface_t" title="mii_interface_t"><span>mii_interface_t</span></a><em>&nbsp;&amp;mii2</em>, int<em>&nbsp;mac_address[]</em>, chanend<em>&nbsp;rx[]</em>, int<em>&nbsp;num_rx</em>, chanend<em>&nbsp;tx[]</em>, int<em>&nbsp;num_tx</em>, <a class="reference internal" href="#smi_interface_t" title="smi_interface_t"><span>smi_interface_t</span></a> &amp;<em>&nbsp;?smi1</em>, <a class="reference internal" href="#smi_interface_t" title="smi_interface_t"><span>smi_interface_t</span></a> &amp;<em>&nbsp;?smi2</em>, chanend<em>&nbsp;?connect_status</em><big>)</big><a class="headerlink" href="#ethernet_server_two_port" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dual MII port MAC/ethernet server.</p>
+<p>This function provides both MII layer and MAC layer functionality. It runs in 7 threads and communicates to clients over the channel array parameters.</p>
 <p>The clients connected via the rx/tx channels can communicate with the server using the APIs found in ethernet_rx_client.h and ethernet_tx_client.h</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>mii1</strong> &#8211; The first mii interface resources that the server will connect to</li>
+<li><strong>mii2</strong> &#8211; The second mii interface resources that the server will connect to</li>
+<li><strong>mac_address</strong> &#8211; The mac_address the server will use. This should be a two-word array that stores the 6-byte macaddr in a little endian manner (so reinterpreting the array as a char array is as one would expect)</li>
+<li><strong>rx</strong> &#8211; An array of chanends to connect to clients of the server who wish to receive packets.</li>
+<li><strong>num_rx</strong> &#8211; The number of clients connected to the rx array</li>
+<li><strong>tx</strong> &#8211; An array of chanends to connect to clients of the server who wish to transmit packets.</li>
+<li><strong>num_tx</strong> &#8211; The number of clients connected to the txx array</li>
+<li><strong>smi1</strong> &#8211; An optional parameter of resources to connect to the first PHY (via SMI) to check when the link is up.</li>
+<li><strong>smi2</strong> &#8211; An optional parameter of resources to connect to a second PHY (via SMI) to check when the link is up.</li>
+<li><strong>connect_status</strong> &#8211; An optional parameter of a channel that is signalled when the link goes up or down (requires the smi parameter to be supplied).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <p>If the smi and connect_status parameters are supplied then the connect_status channel will output when the link goes up or down. The channel will output a zero byte, followed by the status (1 for up, 0 for down), followed by a zero byte, followed by an END control token.,</p>
 <p>The following code snippet is an example of how to receive this update:</p>
 <blockquote>
@@ -296,7 +467,7 @@ new_status = inuchar(c);
 <h2>RX Client API<a class="headerlink" href="#rx-client-api" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="packet-receive-functions">
 <h3>Packet Receive Functions<a class="headerlink" href="#packet-receive-functions" title="Permalink to this headline">¶</a></h3>
-<dt><dl class="function">
+<dl class="function">
 <dt id="mac_rx">
 void <tt class="descname">mac_rx</tt><big>(</big>chanend<em>&nbsp;c_mac</em>, unsigned char<em>&nbsp;buffer[]</em>, unsigned int<em>&nbsp;&amp;len</em>, unsigned int<em>&nbsp;&amp;src_port</em><big>)</big><a class="headerlink" href="#mac_rx" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function receives a complete frame (i.e.</p>
@@ -328,7 +499,7 @@ void <tt class="descname">mac_rx</tt><big>(</big>chanend<em>&nbsp;c_mac</em>, un
 </table>
 </dd></dl>
 
-<dt><dl class="function">
+<dl class="function">
 <dt id="mac_rx_timed">
 void <tt class="descname">mac_rx_timed</tt><big>(</big>chanend<em>&nbsp;c_mac</em>, unsigned char<em>&nbsp;buffer[]</em>, unsigned int<em>&nbsp;&amp;len</em>, unsigned int<em>&nbsp;&amp;time</em>, unsigned int<em>&nbsp;&amp;src_port</em><big>)</big><a class="headerlink" href="#mac_rx_timed" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function receives a complete frame (i.e.</p>
@@ -351,7 +522,7 @@ void <tt class="descname">mac_rx_timed</tt><big>(</big>chanend<em>&nbsp;c_mac</e
 </table>
 </dd></dl>
 
-<dt><dl class="function">
+<dl class="function">
 <dt id="safe_mac_rx">
 void <tt class="descname">safe_mac_rx</tt><big>(</big>chanend<em>&nbsp;c_mac</em>, unsigned char<em>&nbsp;buffer[]</em>, unsigned int<em>&nbsp;&amp;len</em>, unsigned int<em>&nbsp;&amp;src_port</em>, int<em>&nbsp;n</em><big>)</big><a class="headerlink" href="#safe_mac_rx" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function receives a complete frame (i.e.</p>
@@ -374,7 +545,7 @@ void <tt class="descname">safe_mac_rx</tt><big>(</big>chanend<em>&nbsp;c_mac</em
 </table>
 </dd></dl>
 
-<dt><dl class="function">
+<dl class="function">
 <dt id="safe_mac_rx_timed">
 void <tt class="descname">safe_mac_rx_timed</tt><big>(</big>chanend<em>&nbsp;c_mac</em>, unsigned char<em>&nbsp;buffer[]</em>, unsigned int<em>&nbsp;&amp;len</em>, unsigned int<em>&nbsp;&amp;time</em>, unsigned int<em>&nbsp;&amp;src_port</em>, int<em>&nbsp;n</em><big>)</big><a class="headerlink" href="#safe_mac_rx_timed" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function receives a complete frame (i.e.</p>
@@ -398,13 +569,35 @@ void <tt class="descname">safe_mac_rx_timed</tt><big>(</big>chanend<em>&nbsp;c_m
 </table>
 </dd></dl>
 
+<dl class="function">
+<dt id="mac_rx_offset2">
+void <tt class="descname">mac_rx_offset2</tt><big>(</big>chanend<em>&nbsp;c_mac</em>, unsigned char<em>&nbsp;buffer[]</em>, unsigned int<em>&nbsp;&amp;len</em>, unsigned int<em>&nbsp;&amp;src_port</em><big>)</big><a class="headerlink" href="#mac_rx_offset2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receive a packet starting at the second byte of a buffer.</p>
+<p>This is useful when the contents of the packet should be aligned on a different boundary.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>c_mac</strong> &#8211; chanend of receive server.</li>
+<li><strong>buffer</strong> &#8211; The buffer to fill with the incoming packet</li>
+<li><strong>len</strong> &#8211; A reference parameter to be filled with the length of the received packet in bytes.</li>
+<li><strong>src_port</strong> &#8211; A reference parameter to be filled with the ethernet port the packet came from.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 <div class="section" id="configuration-functions">
 <h3>Configuration Functions<a class="headerlink" href="#configuration-functions" title="Permalink to this headline">¶</a></h3>
-<dt><dl class="function">
+<dl class="function">
 <dt id="mac_set_drop_packets">
 void <tt class="descname">mac_set_drop_packets</tt><big>(</big>chanend<em>&nbsp;c_mac_svr</em>, int<em>&nbsp;x</em><big>)</big><a class="headerlink" href="#mac_set_drop_packets" title="Permalink to this definition">¶</a></dt>
 <dd><p>Setup whether a link should drop packets or block if the link is not ready.</p>
+<p>NOTE: setting no dropped packets does not mean no packets will be dropped. If packets are not dropped at the mac layer, it will block the mii fifo. The Mii fifo could possibly overflow and frames for other links could be dropped.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -417,10 +610,9 @@ void <tt class="descname">mac_set_drop_packets</tt><big>(</big>chanend<em>&nbsp;
 </tr>
 </tbody>
 </table>
-<p>NOTE: setting no dropped packets does not mean no packets will be dropped. If packets are not dropped at the mac layer, it will block the mii fifo. The Mii fifo could possibly overflow and frames for other links could be dropped.</p>
 </dd></dl>
 
-<dt><dl class="function">
+<dl class="function">
 <dt id="mac_set_queue_size">
 void <tt class="descname">mac_set_queue_size</tt><big>(</big>chanend<em>&nbsp;c_mac_svr</em>, int<em>&nbsp;x</em><big>)</big><a class="headerlink" href="#mac_set_queue_size" title="Permalink to this definition">¶</a></dt>
 <dd><p>Setup the size of the buffer queue within the mac attached to this link.</p>
@@ -438,10 +630,11 @@ void <tt class="descname">mac_set_queue_size</tt><big>(</big>chanend<em>&nbsp;c_
 </table>
 </dd></dl>
 
-<dt><dl class="function">
+<dl class="function">
 <dt id="mac_set_custom_filter">
 void <tt class="descname">mac_set_custom_filter</tt><big>(</big>chanend<em>&nbsp;c_mac_svr</em>, int<em>&nbsp;x</em><big>)</big><a class="headerlink" href="#mac_set_custom_filter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Setup the custom filter up on a link.</p>
+<p>For each packet, the filter value is &amp;-ed against the result of the mac_custom_filter function. If the result is non-zero then the packet is transmitted down the link.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -454,7 +647,6 @@ void <tt class="descname">mac_set_custom_filter</tt><big>(</big>chanend<em>&nbsp
 </tr>
 </tbody>
 </table>
-<p>For each packet, the filter value is &amp;-ed against the result of the mac_custom_filter function. If the result is non-zero then the packet is transmitted down the link.</p>
 </dd></dl>
 
 </div>
@@ -463,7 +655,7 @@ void <tt class="descname">mac_set_custom_filter</tt><big>(</big>chanend<em>&nbsp
 <h2>TX Client API<a class="headerlink" href="#tx-client-api" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="packet-transmit-functions">
 <h3>Packet Transmit Functions<a class="headerlink" href="#packet-transmit-functions" title="Permalink to this headline">¶</a></h3>
-<dt><dl class="function">
+<dl class="function">
 <dt id="mac_tx">
 void <tt class="descname">mac_tx</tt><big>(</big>chanend<em>&nbsp;c_mac</em>, unsigned int<em>&nbsp;buffer[]</em>, int<em>&nbsp;nbytes</em>, int<em>&nbsp;ifnum</em><big>)</big><a class="headerlink" href="#mac_tx" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sends an ethernet frame.</p>
@@ -484,12 +676,13 @@ void <tt class="descname">mac_tx</tt><big>(</big>chanend<em>&nbsp;c_mac</em>, un
 </table>
 </dd></dl>
 
-<dt><dl class="function">
+<dl class="function">
 <dt id="mac_tx_timed">
 void <tt class="descname">mac_tx_timed</tt><big>(</big>chanend<em>&nbsp;c_mac</em>, unsigned int<em>&nbsp;buffer[]</em>, int<em>&nbsp;nbytes</em>, unsigned int<em>&nbsp;&amp;time</em>, int<em>&nbsp;ifnum</em><big>)</big><a class="headerlink" href="#mac_tx_timed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sends an ethernet frame and gets the timestamp of the send.</p>
 <p>Frame includes dest/src MAC address(s), type and payload.</p>
 <p>This is a blocking call and returns the <em>actual time</em> the frame is sent to PHY according to the XCore 100Mhz 32-bit timer on the core the ethernet server is running.</p>
+<p>NOTE: This function will block until the packet is sent to PHY.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -505,17 +698,64 @@ void <tt class="descname">mac_tx_timed</tt><big>(</big>chanend<em>&nbsp;c_mac</e
 </tr>
 </tbody>
 </table>
-<p>NOTE: This function will block until the packet is sent to PHY.</p>
 </dd></dl>
 
+<dl class="function">
+<dt id="mac_tx_offset2">
+void <tt class="descname">mac_tx_offset2</tt><big>(</big>chanend<em>&nbsp;c_mac</em>, unsigned int<em>&nbsp;buffer[]</em>, int<em>&nbsp;nbytes</em>, int<em>&nbsp;ifnum</em><big>)</big><a class="headerlink" href="#mac_tx_offset2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends an ethernet frame.</p>
+<p>Frame includes dest/src MAC address(s), type and payload.</p>
+<p>The packet should start at offset 2 in the buffer. This allows the packet to be constructed with alignment on a different boundary, allowing for more efficient construction where many word values are not naturally aligned on word boundaries.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>c_mac</strong> &#8211; channel end to tx server.</li>
+<li><strong>buffer[]</strong> &#8211; byte array containing the ethernet frame. <em>This must be word aligned</em></li>
+<li><strong>nbytes</strong> &#8211; number of bytes in buffer</li>
+<li><strong>ifnum</strong> &#8211; the number of the eth interface to transmit to (use ETH_BROADCAST transmits to all ports)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<table border="1" class="docutils">
+<caption>Ethernet function synonyms</caption>
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Synonym</th>
+<th class="head">Function</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>ethernet_send_frame</td>
+<td>ethernet_send_frame</td>
+</tr>
+<tr><td>ethernet_send_frame_getTime</td>
+<td>ethernet_send_frame_getTime</td>
+</tr>
+<tr><td>ethernet_send_frame_offset2</td>
+<td>mac_tx_offset2</td>
+</tr>
+<tr><td>ethernet_get_my_mac_adrs</td>
+<td>mac_get_macaddr</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="id1">
 <h3>Configuration Functions<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
-<dt><dl class="function">
+<dl class="function">
 <dt id="mac_get_macaddr">
 int <tt class="descname">mac_get_macaddr</tt><big>(</big>chanend<em>&nbsp;c_mac</em>, unsigned char<em>&nbsp;macaddr[]</em><big>)</big><a class="headerlink" href="#mac_get_macaddr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the device MAC address.</p>
-<p>This function gets the MAC address of the device (the address passed into the <a class="reference internal" href="#ethernet_server" title="ethernet_server"><tt class="xref c c-func docutils literal"><span class="pre">ethernet_server()</span></tt></a> function.</p>
+<p>This function gets the MAC address of the device (the address passed into the <a class="reference internal" href="#ethernet_server" title="ethernet_server"><span>ethernet_server()</span></a> function.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -544,13 +784,13 @@ int <tt class="descname">mac_get_macaddr</tt><big>(</big>chanend<em>&nbsp;c_mac<
       </div>
       <div class="sphinxsidebar" id='d2'>
         <div class="sphinxsidebarwrapper">
-<h3><a href="index.html">Table Of Contents</a></h3>
+<h3><a href="index.html">Ethernet Component (1v4)</a></h3>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hw.html">H/W Development Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Etehrnet Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hw.html">Ethernet H/W Development Platforms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="system.html">Ethernet Mac Description</a></li>
-<li class="toctree-l1"><a class="reference internal" href="programming.html">Programming Guide</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">API</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="programming.html">Ethernet Programming Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Ethernet API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#configuration-defines">Configuration Defines</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#custom-filter-function">Custom Filter Function</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#data-structures">Data Structures</a></li>
@@ -569,9 +809,10 @@ int <tt class="descname">mac_get_macaddr</tt><big>(</big>chanend<em>&nbsp;c_mac<
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="singlethread.html">Single threaded MII</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none;margin-bottom: 10px;">
   <h3>Search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" size="18" />

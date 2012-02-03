@@ -21,8 +21,10 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://mathjax.connectmv.com/MathJax.js"></script>
+    <script type="text/javascript" src="_static/xcomment.js"></script>
     <link rel="top" title="Ethernet Component v1v4 documentation" href="#" />
-    <link rel="next" title="Overview" href="overview.html" /> 
+    <link rel="next" title="Etehrnet Overview" href="overview.html" /> 
 
 <script>
 function setheight() {
@@ -58,11 +60,11 @@ document.getElementById('d1').style.height=h2 + "px";
 <h1>XMOS Ethernet Component<a class="headerlink" href="#xmos-ethernet-component" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Etehrnet Overview</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="overview.html#component-summary">Component Summary</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="hw.html">H/W Development Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hw.html">Ethernet H/W Development Platforms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="system.html">Ethernet Mac Description</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="system.html#buffers-and-queues">Buffers and Queues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="system.html#filtering">Filtering</a></li>
@@ -74,9 +76,10 @@ document.getElementById('d1').style.height=h2 + "px";
 <li class="toctree-l3"><a class="reference internal" href="system.html#memory">Memory</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="system.html#single-threaded-lite-implementation-experimental">Single threaded &#8220;lite&#8221; implementation (experimental)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="programming.html">Programming Guide</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="programming.html">Ethernet Programming Guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="getting_started.html">Getting started</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="getting_started.html#installation">Installation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="getting_started.html#building">Building</a></li>
@@ -98,7 +101,7 @@ document.getElementById('d1').style.height=h2 + "px";
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Ethernet API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="api.html#configuration-defines">Configuration Defines</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#custom-filter-function">Custom Filter Function</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#data-structures">Data Structures</a></li>
@@ -117,6 +120,25 @@ document.getElementById('d1').style.height=h2 + "px";
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="singlethread.html">Single threaded MII</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="singlethread.html#using-single-threaded-mii">Using single threaded MII</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="singlethread.html#threads">Threads</a></li>
+<li class="toctree-l3"><a class="reference internal" href="singlethread.html#packet-storage">Packet storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="singlethread.html#api">API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="singlethread.html#management-api">Management API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="singlethread.html#example-minimal-programs">Example minimal programs</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="singlethread.html#internal-details-on-single-threaded-mii">Internal details on single threaded MII</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="singlethread.html#lld-mii-rx-tx-principles">LLD: MII RX/TX principles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="singlethread.html#interaction-between-lld-and-packet-manager">Interaction between LLD and packet manager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="singlethread.html#packet-buffering-management">Packet buffering management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="singlethread.html#interaction-between-packet-management-and-application-code">Interaction between packet management and application code</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="singlethread.html#server-for-single-threaded-mii">Server for single threaded MII</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -128,16 +150,17 @@ document.getElementById('d1').style.height=h2 + "px";
       </div>
       <div class="sphinxsidebar" id='d2'>
         <div class="sphinxsidebarwrapper">
-<h3><a href="#">Table Of Contents</a></h3>
+<h3><a href="#">Ethernet Component (1v4)</a></h3>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hw.html">H/W Development Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Etehrnet Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hw.html">Ethernet H/W Development Platforms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="system.html">Ethernet Mac Description</a></li>
-<li class="toctree-l1"><a class="reference internal" href="programming.html">Programming Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="programming.html">Ethernet Programming Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Ethernet API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="singlethread.html">Single threaded MII</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none;margin-bottom: 10px;">
   <h3>Search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" size="18" />

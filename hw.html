@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>H/W Development Platforms &mdash; Ethernet Component v1v4 documentation</title>
+    <title>Ethernet H/W Development Platforms &mdash; Ethernet Component v1v4 documentation</title>
     <link rel="stylesheet" href="_static/xdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -21,9 +21,11 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://mathjax.connectmv.com/MathJax.js"></script>
+    <script type="text/javascript" src="_static/xcomment.js"></script>
     <link rel="top" title="Ethernet Component v1v4 documentation" href="index.html" />
     <link rel="next" title="Ethernet Mac Description" href="system.html" />
-    <link rel="prev" title="Overview" href="overview.html" /> 
+    <link rel="prev" title="Etehrnet Overview" href="overview.html" /> 
 
 <script>
 function setheight() {
@@ -57,16 +59,17 @@ document.getElementById('d1').style.height=h2 + "px";
 </div>
 
             
-  <div class="section" id="h-w-development-platforms">
-<h1>H/W Development Platforms<a class="headerlink" href="#h-w-development-platforms" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="ethernet-h-w-development-platforms">
+<h1>Ethernet H/W Development Platforms<a class="headerlink" href="#ethernet-h-w-development-platforms" title="Permalink to this headline">¶</a></h1>
 <p>For initial development of ethernet applications the following XMOS
 development platforms can be used:</p>
 <blockquote>
 <div><ul class="simple">
-<li>XC-2 Ethernet Kit (<a class="reference external" href="http://www.xmos.com/products/development-kits/xc-2-ethernet-kit">http://www.xmos.com/products/development-kits/xc-2-ethernet-kit</a>)</li>
-<li>XDK XS1-G Development Kit (<a class="reference external" href="http://www.xmos.com/products/development-kits/xs1-g-development-kit">http://www.xmos.com/products/development-kits/xs1-g-development-kit</a>)</li>
-<li>XP-DSC-BLDC Motor Control Platform (<a class="reference external" href="http://www.xmos.com/development-kits/motor-control-platform">http://www.xmos.com/development-kits/motor-control-platform</a>)</li>
-<li>XK-AVB-LC-SYS AVB Audio Endpoint (<a class="reference external" href="http://www.xmos.com/products/reference-designs/avbl2">http://www.xmos.com/products/reference-designs/avbl2</a>)</li>
+<li><a class="reference external" href="http://www.xmos.com/products/development-kits/xc-2-ethernet-kit"><span>XC-2 Ethernet Kit</span></a></li>
+<li><a class="reference external" href="http://www.xmos.com/products/development-kits/xs1-g-development-kit"><span>XDK XS1-G Development Kit</span></a></li>
+<li><a class="reference external" href="http://www.xmos.com/development-kits/motor-control-platform"><span>XP-DSC-BLDC Motor Control Platform</span></a></li>
+<li><a class="reference external" href="http://www.xmos.com/products/reference-designs/avbl2"><span>XK-AVB-LC-SYS AVB Audio Endpoint</span></a></li>
+<li><a class="reference external" href="http://www.xmos.com/products/development-kits/xc-3-led-tile-kit"><span>XC-3 Dual-port Ethernet Kit</span></a></li>
 </ul>
 </div></blockquote>
 <p>For developing an application specific board with ethernet please
@@ -81,16 +84,17 @@ schematics, BOMs, design guidelines etc.</p>
       </div>
       <div class="sphinxsidebar" id='d2'>
         <div class="sphinxsidebarwrapper">
-<h3><a href="index.html">Table Of Contents</a></h3>
+<h3><a href="index.html">Ethernet Component (1v4)</a></h3>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">H/W Development Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Etehrnet Overview</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Ethernet H/W Development Platforms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="system.html">Ethernet Mac Description</a></li>
-<li class="toctree-l1"><a class="reference internal" href="programming.html">Programming Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="programming.html">Ethernet Programming Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Ethernet API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="singlethread.html">Single threaded MII</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none;margin-bottom: 10px;">
   <h3>Search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" size="18" />

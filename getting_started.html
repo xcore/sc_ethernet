@@ -21,10 +21,12 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://mathjax.connectmv.com/MathJax.js"></script>
+    <script type="text/javascript" src="_static/xcomment.js"></script>
     <link rel="top" title="Ethernet Component v1v4 documentation" href="index.html" />
-    <link rel="up" title="Programming Guide" href="programming.html" />
+    <link rel="up" title="Ethernet Programming Guide" href="programming.html" />
     <link rel="next" title="Source code structure" href="structure.html" />
-    <link rel="prev" title="Programming Guide" href="programming.html" /> 
+    <link rel="prev" title="Ethernet Programming Guide" href="programming.html" /> 
 
 <script>
 function setheight() {
@@ -62,13 +64,16 @@ document.getElementById('d1').style.height=h2 + "px";
 <h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
-<p>The ethernet repository can be found for download at:</p>
+<p>The latest stable release of ethernet repository can be found for download at:</p>
 <blockquote>
-<div><a class="reference external" href="http://www.github.com/xcore/sc_ethernet">http://www.github.com/xcore/sc_ethernet</a></div></blockquote>
+<div><a class="reference external" href="https://www.xmos.com/applications"><span>https://www.xmos.com/applications</span></a></div></blockquote>
+<p>The development head and early access betas can be found at:</p>
+<blockquote>
+<div><a class="reference external" href="http://www.github.com/xcore/sc_ethernet"><span>http://www.github.com/xcore/sc_ethernet</span></a></div></blockquote>
 </div>
 <div class="section" id="building">
 <h2>Building<a class="headerlink" href="#building" title="Permalink to this headline">¶</a></h2>
-<p>The repository follows the common build structure.</p>
+<p>The repository follows the xcommon build structure.</p>
 </div>
 </div>
 
@@ -79,12 +84,12 @@ document.getElementById('d1').style.height=h2 + "px";
       </div>
       <div class="sphinxsidebar" id='d2'>
         <div class="sphinxsidebarwrapper">
-<h3><a href="index.html">Table Of Contents</a></h3>
+<h3><a href="index.html">Ethernet Component (1v4)</a></h3>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hw.html">H/W Development Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Etehrnet Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hw.html">Ethernet H/W Development Platforms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="system.html">Ethernet Mac Description</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="programming.html">Programming Guide</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="programming.html">Ethernet Programming Guide</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="">Getting started</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#installation">Installation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#building">Building</a></li>
@@ -94,10 +99,11 @@ document.getElementById('d1').style.height=h2 + "px";
 <li class="toctree-l2"><a class="reference internal" href="app_tutorial.html">A Sample Ethernet Application (tutorial)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Ethernet API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="singlethread.html">Single threaded MII</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none;margin-bottom: 10px;">
   <h3>Search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" size="18" />

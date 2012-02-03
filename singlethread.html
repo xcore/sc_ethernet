@@ -1,0 +1,446 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Single threaded MII &mdash; Ethernet Component v1v4 documentation</title>
+    <link rel="stylesheet" href="_static/xdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1v4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://mathjax.connectmv.com/MathJax.js"></script>
+    <script type="text/javascript" src="_static/xcomment.js"></script>
+    <link rel="top" title="Ethernet Component v1v4 documentation" href="index.html" />
+    <link rel="prev" title="Ethernet API" href="api.html" /> 
+
+<script>
+function setheight() {
+h1 = document.getElementById('d1').style.height;
+h2 = document.getElementById('d2').style.height;
+
+if (parseInt(h1) > parseInt(h2)) {
+document.getElementById('d2').style.height=h1 + "px";
+}
+else {
+document.getElementById('d1').style.height=h2 + "px";
+}
+
+}
+</script>
+</head>
+
+<body onload="setheight();">
+
+  
+
+    <div class="document" id='d1'>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+<div style="float: right">
+<a href="api.html"
+                        title="previous chapter"> &lt&lt </a>
+</div>
+
+            
+  <div class="section" id="single-threaded-mii">
+<h1>Single threaded MII<a class="headerlink" href="#single-threaded-mii" title="Permalink to this headline">¶</a></h1>
+<p>The module &#8216;&#8217;module_mii_singlethread&#8217;&#8217; provides a component that
+folds the MII layer into a single thread (62.5 MIPS), and allows all other
+software to be written in one additional thread if required. It is meant for simple
+ethernet systems that do not require very high throughput and have relatively
+straightforward MAC filtering.</p>
+<p>The module &#8216;&#8217;module_mii_singlethread_server&#8217;&#8217; provides an interace to
+the single threaded MII driver that presents an interface similar to
+the 5-thread ethernet MII implementation.</p>
+<div class="section" id="using-single-threaded-mii">
+<h2>Using single threaded MII<a class="headerlink" href="#using-single-threaded-mii" title="Permalink to this headline">¶</a></h2>
+<p>The single threaded MII comprises three basic parts: an LLD (low level
+driver) that must always run in its own thread, a <em>packet manager</em> that
+must run on the same core, <em>input access functions</em>  that must be called
+from the same thread, and <em>output access functions</em> that must be called
+from the same core. It is designed for single-core applications, and uses a
+dual circular buffer to store incoming packets.</p>
+<div class="section" id="threads">
+<h3>Threads<a class="headerlink" href="#threads" title="Permalink to this headline">¶</a></h3>
+<p>The single threaded MII module requires at least two threads to operate,
+but more threads can be utilised to increase performance. Three common
+usage models are sketched below</p>
+<ol class="arabic simple">
+<li>Two threads: thread one runs the , and
+thread 2 runs packet management, application level packet handling
+and application level packet generation.</li>
+<li>Three threads: thread one runs the LLD (low level driver),
+thread 2 runs packet management and application level packet handling, and
+thread 3 runs application level packet generation.</li>
+</ol>
+<p>The thread that performs packet management also performs the MAC filtering.
+MAC filtering must be completed within 5 us (TBC) otherwise packet loss will
+occur. If more complexe MAC filtering is required, a proper ethernet
+module should be used.</p>
+</div>
+<div class="section" id="packet-storage">
+<h3>Packet storage<a class="headerlink" href="#packet-storage" title="Permalink to this headline">¶</a></h3>
+<p>Incoming packets are stored in circular buffers, and if those buffers are
+not emptied in time, packets will be dropped. The circular buffers are
+strict FIFOs, and it is therefore imperative that the application code does
+not leave old packets in the buffer - ideally all packets are dealt with in
+order of arrival, and if some packets cannot be dealt with immediately,
+they should be copied to out of the packet-store into an application buffer.</p>
+</div>
+<div class="section" id="api">
+<h3>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="miiBufferInit">
+void <tt class="descname">miiBufferInit</tt><big>(</big>struct miiData<em>&nbsp;&amp;this</em>, chanend<em>&nbsp;cIn</em>, chanend<em>&nbsp;cNotifications</em>, int<em>&nbsp;buffer[]</em>, int<em>&nbsp;words</em><big>)</big><a class="headerlink" href="#miiBufferInit" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function gives the MII layer a buffer space to buffer input packets into.</p>
+<p>The buffer space must be at least 1520 words, but can be longer to improve performance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>this</strong> &#8211; structure that contains persistent data for this MII connection.</li>
+<li><strong>cIn</strong> &#8211; channel that communicates with the low level input MII.</li>
+<li><strong>cNotifications</strong> &#8211; channel end that synchronises the interrupt and user layers.</li>
+<li><strong>buffer</strong> &#8211; array of words that can be used for buffering.</li>
+<li><strong>words</strong> &#8211; number of words in the array.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="miiGetInBuffer">
+{unsigned, unsigned, unsigned} e <tt class="descname">miiGetInBuffer</tt><big>(</big>struct miiData<em>&nbsp;&amp;this</em><big>)</big><a class="headerlink" href="#miiGetInBuffer" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function will obtain a buffer from the input queue, or 0 if there is no packet awaiting processing.</p>
+<p>When the packet has been processed, <tt class="xref c c-func docutils literal"><span class="pre">freeInBuffer()</span></tt> should be called to free the packet buffer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>this</strong> &#8211; structure that contains persistent data for this MII connection.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The address of the buffer and the number of bytes.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="miiFreeInBuffer">
+void <tt class="descname">miiFreeInBuffer</tt><big>(</big>struct miiData<em>&nbsp;&amp;this</em>, int<em>&nbsp;address</em><big>)</big><a class="headerlink" href="#miiFreeInBuffer" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function is called to informs the input layer that the packet has been processed and that the buffer can be reused.</p>
+<p>The address should be the number returned by miiInPacket. Packets should be released in a timly manner, and hte buffers are organised as a strict FIFO, so not processing a packet for a prolonged period of time shall lead to packet loss.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>this</strong> &#8211; structure that contains persistent data for this MII connection.</li>
+<li><strong>address</strong> &#8211; The address of the buffer to be freed as returned by <a class="reference internal" href="#miiGetInBuffer" title="miiGetInBuffer"><span>miiGetInBuffer()</span></a>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="miiNotified">
+select <tt class="descname">miiNotified</tt><big>(</big>struct miiData<em>&nbsp;&amp;this</em>, chanend<em>&nbsp;notificationChannel</em><big>)</big><a class="headerlink" href="#miiNotified" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function should be called to block the receiving thread.</p>
+<p>This function will return when something interesting has happened at the MII layer, and after its return, miiGetInBuffer can be called to test whether a new packet is available, and <a class="reference internal" href="#miiRestartBuffer" title="miiRestartBuffer"><span>miiRestartBuffer()</span></a> must be called.</p>
+<p>Note that this function can be one of the cases in a select statement, enabling the user layer to deal with different event sources in a non-deterministic manner.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>this</strong> &#8211; structure that contains persistent data for this MII connection.</li>
+<li><strong>notificationChannel</strong> &#8211; A channel-end that synchronises the user layer with the interrupt layer</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="miiRestartBuffer">
+void <tt class="descname">miiRestartBuffer</tt><big>(</big>struct miiData<em>&nbsp;&amp;this</em><big>)</big><a class="headerlink" href="#miiRestartBuffer" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function must be called every time that <a class="reference internal" href="#miiNotified" title="miiNotified"><span>miiNotified()</span></a> has returned and a buffer has been freed.</p>
+<p>It is safe to call this function more often, for example, prior to every select statement that contains <a class="reference internal" href="#miiNotified" title="miiNotified"><span>miiNotified()</span></a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="miiOutInit">
+void <tt class="descname">miiOutInit</tt><big>(</big>chanend<em>&nbsp;cOut</em><big>)</big><a class="headerlink" href="#miiOutInit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that initialises the transmitter of output packets.</p>
+<p>To be called with the channel end that is connected to the MII Low-Level Driver.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cOut</strong> &#8211; output channel to the Low-Level Driver.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="miiOutPacket">
+int <tt class="descname">miiOutPacket</tt><big>(</big>chanend<em>&nbsp;cOut</em>, int<em>&nbsp;buf[]</em>, int<em>&nbsp;index</em>, int<em>&nbsp;length</em><big>)</big><a class="headerlink" href="#miiOutPacket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that will cause a packet to be transmitted.</p>
+<p>It must get an array with an index into the array, a length of hte packet (in bytes), and a channel to the low-level driver. The low level driver will append a CRC around the packet. The function returns once the preamble is on the wire. The function <tt class="xref c c-func docutils literal"><span class="pre">miiOutputPacketDone()</span></tt> should be called to syncrhonise with the end of the packet.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>cOut</strong> &#8211; output channel to the Low-Level Driver.</li>
+<li><strong>buf</strong> &#8211; array that contains the message. Note that this is an array of words, that must contain the data in network order fill it using (buf, unsigned char[]).</li>
+<li><strong>index</strong> &#8211; index into the array that contains the first byte.</li>
+<li><strong>length</strong> &#8211; length of message in bytes, excluding CRC, which will be added upon transmission.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The time at which the message went onto the wire, measured in reference clock periods</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="miiOutPacketDone">
+void <tt class="descname">miiOutPacketDone</tt><big>(</big>chanend<em>&nbsp;cOut</em><big>)</big><a class="headerlink" href="#miiOutPacketDone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select function that must be called after a call to <a class="reference internal" href="#miiOutPacket" title="miiOutPacket"><span>miiOutPacket()</span></a>.</p>
+<p>Upon return of this function the packet has been put on the wire in its entirety, and the interframe gap has expired - the next call to miiOutPacket can be made without blocking. The function can be called in one of two ways: either as an ordinary function, or as a case in a select statement as in &#8220;case miiOutPacketDone(cOut);&#8221;.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cOut</strong> &#8211; output channel to the Low-Level Driver.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="management-api">
+<h3>Management API<a class="headerlink" href="#management-api" title="Permalink to this headline">¶</a></h3>
+<p>In addition to the operational functions listed above, the SMI and OTP functions
+from the 5-thread ethernet are available for initialization and MAC address retreival.</p>
+<p>The OTP functions have a modified signature, taking a structure containing the OTP
+ports, rather than having each port as an individual parameter.</p>
+</div>
+<div class="section" id="example-minimal-programs">
+<h3>Example minimal programs<a class="headerlink" href="#example-minimal-programs" title="Permalink to this headline">¶</a></h3>
+<p>The minimum two-threaded program is given below:</p>
+<div class="highlight-none"><div class="highlight"><pre>void pingDemo(chanend cIn, chanend cOut, chanend cNotifications) {
+    int b[3200];
+    miiBufferInit(cIn, cNotifications, b, 3200);
+    miiOutInit(cOut);
+    while (1) {
+        int nBytes, a;
+        miiNotified(cNotifications);
+        {a,nBytes} = miiGetInBuffer();
+        while(a != 0) {
+            handlePacket(cOut, a, nBytes);
+            miiFreeInBuffer(a);
+            {a,nBytes} = miiGetInBuffer();
+        }
+        miiRestartBuffer();
+    }
+}
+</pre></div>
+</div>
+<p>The function <tt class="docutils literal"><span class="pre">handlePacket</span></tt> will inspect the packet of length <tt class="docutils literal"><span class="pre">nBytes</span></tt>
+at address <tt class="docutils literal"><span class="pre">a</span></tt> in memory, and deal with it, possibly generating other
+packets using the output interface:</p>
+<div class="highlight-none"><div class="highlight"><pre>int txbuf[100], nBytes;
+// build packet of length nBytes in txbuf
+miiOutPacket(cOut, txbuf, 0, nBytes);
+miiOutPacketDone(cOut);
+</pre></div>
+</div>
+<p>Note that both <tt class="docutils literal"><span class="pre">miiOutPacketDone()</span></tt> and <tt class="docutils literal"><span class="pre">miiNotified()</span></tt> can be placed
+inside a select statement, enabling a single select to serve input
+requests, output requests, and, for example, time-outs or communication
+with another thread.</p>
+</div>
+</div>
+<div class="section" id="internal-details-on-single-threaded-mii">
+<h2>Internal details on single threaded MII<a class="headerlink" href="#internal-details-on-single-threaded-mii" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="lld-mii-rx-tx-principles">
+<h3>LLD: MII RX/TX principles<a class="headerlink" href="#lld-mii-rx-tx-principles" title="Permalink to this headline">¶</a></h3>
+<p>The LLD thread runs code that outputs packets over MII to the Ethernet PHY,
+and on interrupts receives packets from MII. The interrupt service time is
+short enough so that the input and output can proceed simultaneously. CRCs
+are computed on-the-fly, but the final CRC check on input has to be
+performed by another thread. Similarly, on the output side, the output
+thread has to perform some initial computations prior to passing control to
+the MII TX thread.</p>
+</div>
+<div class="section" id="interaction-between-lld-and-packet-manager">
+<h3>Interaction between LLD and packet manager<a class="headerlink" href="#interaction-between-lld-and-packet-manager" title="Permalink to this headline">¶</a></h3>
+<p>The LLD and the packet manager communicate over two channels: an
+input-channel and an output-channel. Both channels are streaming channels,
+and the channels must reside within a core. The communication protocol is
+as follows.</p>
+<p>On the input channel, the LLD first expects a word containing a buffer
+address. It will then fill the buffer with data, and finally transmit a
+word containing the address of the last word that was filled. The two words
+above that address contain the number of bits that are valid in the final
+word, and the partial CRC up until the last word. The LLD then expects a
+&#8216;0&#8217; to be transmitted to it, and then the address of the next buffer. There
+are tight timing constraints: there should be a gap of at least X
+instructions before sending the &#8216;0&#8217; word and another gap of at least X
+instructions prior to sending the next buffer address.</p>
+<p>On the output channel, the LLD thread will request a channel by sending a
+&#8216;1&#8217; control token. It will then expect a pointer to the end of the packet
+and an negative number denoting the length of the packet, followed by a &#8216;1&#8217;
+control token. The LLD will then send a word denoting the timestamp
+(measured in 40 ns MMI clock ticks) that the preamble was transmitted,
+prior to transmitting the packet. It will then wait for the inter-packet
+gap, and request the next packet using a &#8216;1&#8217; control token.</p>
+</div>
+<div class="section" id="packet-buffering-management">
+<h3>Packet buffering management<a class="headerlink" href="#packet-buffering-management" title="Permalink to this headline">¶</a></h3>
+<p>The packet store comprises two circular buffers, each with <em>free</em>, <em>read</em>, and
+<em>write</em> pointers. The write pointer points to the head of the buffer, where
+the next packet (of unknown length) will be inputted. Upon verifying the
+CRC and the MAC filtering, the write pointer is advanced, making sure that
+there are at least 1520 bytes free (the maximum packet size). If not, the
+buffer is denoted full. The free pointer points to the first full packet in
+the buffer, it is advanced when that buffer is freed (and may be advanced
+over many packets that have already been freed if they are freed out of
+order). The read pointer points to the first packet that the application
+code has not yet used.</p>
+<p>Because of the time consumed in checking the CRC and packet filtering,
+subsequent packets are stored in alternating buffers. Giving the MAC filter
+maximum time to take a decision.</p>
+</div>
+<div class="section" id="interaction-between-packet-management-and-application-code">
+<h3>Interaction between packet management and application code<a class="headerlink" href="#interaction-between-packet-management-and-application-code" title="Permalink to this headline">¶</a></h3>
+<p>The packet buffer uses an interrupt to store data into the packet buffer -
+that is, the write pointer is updated by means of an interrupt. Packets are
+read out in the same thread, but in the normal control flow, hence the read
+and free pointers are updated by the normal control flow. The interrupt
+routine leaves a token in a <em>notification</em> channel if it has done something
+to a buffer, and the normal control flow should, when it finds that token,
+inspect the input buffers, deal with data, free any buffers that can be
+freed, and finally check that any buffer overflow has been resolved by
+calling <tt class="docutils literal"><span class="pre">miiRestartBuffer()</span></tt></p>
+</div>
+</div>
+<div class="section" id="server-for-single-threaded-mii">
+<h2>Server for single threaded MII<a class="headerlink" href="#server-for-single-threaded-mii" title="Permalink to this headline">¶</a></h2>
+<p>In order to simply using the single threaded MII implementation, a module
+called <em>module_mii_singlethread_server</em> provides a top level interface
+similar to the 5 thread ethernet MII design.</p>
+<p>The top level thread function is called &#8216;&#8217;miiSingleServer&#8217;&#8216;. The signature is</p>
+<dl class="docutils">
+<dt>::</dt>
+<dd><dl class="first last docutils">
+<dt>void miiSingleServer(clock clk_smi,</dt>
+<dd>out port ?p_mii_resetn,
+smi_interface_t &amp;smi,
+mii_interface_t &amp;m,
+chanend appIn, chanend appOut,
+chanend connect_status, unsigned char mac_address[6])</dd>
+</dl>
+</dd>
+</dl>
+<p>The parameters are similar to those used by the 5-thread server.  Unlike the
+5-thread server, however, only one application is supported, using the <em>appIn</em>
+and <em>appOut</em> channels.  Likewise, only the <em>safe_mac_rx</em> and <em>mac_tx</em> functions
+are supported by the client library.</p>
+</div>
+</div>
+
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" id='d2'>
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Ethernet Component (1v4)</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Etehrnet Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hw.html">Ethernet H/W Development Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system.html">Ethernet Mac Description</a></li>
+<li class="toctree-l1"><a class="reference internal" href="programming.html">Ethernet Programming Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Ethernet API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Single threaded MII</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#using-single-threaded-mii">Using single threaded MII</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#threads">Threads</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#packet-storage">Packet storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#api">API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#management-api">Management API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example-minimal-programs">Example minimal programs</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#internal-details-on-single-threaded-mii">Internal details on single threaded MII</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lld-mii-rx-tx-principles">LLD: MII RX/TX principles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#interaction-between-lld-and-packet-manager">Interaction between LLD and packet manager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#packet-buffering-management">Packet buffering management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#interaction-between-packet-management-and-application-code">Interaction between packet management and application code</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#server-for-single-threaded-mii">Server for single threaded MII</a></li>
+</ul>
+</li>
+</ul>
+
+<div id="searchbox" style="display: none;margin-bottom: 10px;">
+  <h3>Search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+
+
+    <div class="footer">
+    </div>
+  </body>
+</html>
+
+
+

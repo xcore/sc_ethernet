@@ -21,9 +21,11 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://mathjax.connectmv.com/MathJax.js"></script>
+    <script type="text/javascript" src="_static/xcomment.js"></script>
     <link rel="top" title="Ethernet Component v1v4 documentation" href="index.html" />
-    <link rel="next" title="Programming Guide" href="programming.html" />
-    <link rel="prev" title="H/W Development Platforms" href="hw.html" /> 
+    <link rel="next" title="Ethernet Programming Guide" href="programming.html" />
+    <link rel="prev" title="Ethernet H/W Development Platforms" href="hw.html" /> 
 
 <script>
 function setheight() {
@@ -65,7 +67,8 @@ can connect to several clients and each channel connection to the
 server is for either RX (receiving packets from the MAC) or TX
 (transmitting packets to the MAC) operation.</p>
 <div class="figure">
-<img alt="_images/mac.png" src="_images/mac.png" />
+<img alt="_images/mac.png" src="_images/mac.png" style="width: 100%;" />
+<p class="caption">Mac component</p>
 </div>
 <div class="section" id="buffers-and-queues">
 <h2>Buffers and Queues<a class="headerlink" href="#buffers-and-queues" title="Permalink to this headline">¶</a></h2>
@@ -99,7 +102,7 @@ empty queue.</li>
 </ul>
 </div></blockquote>
 <p>The number of buffers available can be set in the <tt class="docutils literal"><span class="pre">ethernet_conf.h</span></tt>
-configuration file (see Section <a class="reference internal" href="api.html#sec-conf-defines"><em>Configuration Defines</em></a>).</p>
+configuration file (see <a class="reference internal" href="api.html#sec-conf-defines"><span>Configuration Defines</span></a>).</p>
 </div>
 <div class="section" id="filtering">
 <h2>Filtering<a class="headerlink" href="#filtering" title="Permalink to this headline">¶</a></h2>
@@ -116,11 +119,11 @@ set</li>
 maximum amount of flexibility and efficiency the application must
 supply custom code to perform this filtering.</p>
 <p>The user must supply a definition of the function
-<a class="reference internal" href="api.html#mac_custom_filter" title="mac_custom_filter"><tt class="xref c c-func docutils literal"><span class="pre">mac_custom_filter()</span></tt></a>. This function can inspect incoming
+<a class="reference internal" href="api.html#mac_custom_filter" title="mac_custom_filter"><span>mac_custom_filter()</span></a>. This function can inspect incoming
 packets in any manner suitable for applications and then returns
 either 0 if the packet is to be dropped or number which the clients
 can then use to determine which packets they wish to receive (using
-the client function <a class="reference internal" href="api.html#mac_set_custom_filter" title="mac_set_custom_filter"><tt class="xref c c-func docutils literal"><span class="pre">mac_set_custom_filter()</span></tt></a>.</p>
+the client function <a class="reference internal" href="api.html#mac_set_custom_filter" title="mac_set_custom_filter"><span>mac_set_custom_filter()</span></a>.</p>
 </div>
 <div class="section" id="timestamping">
 <h2>Timestamping<a class="headerlink" href="#timestamping" title="Permalink to this headline">¶</a></h2>
@@ -129,21 +132,21 @@ the client function <a class="reference internal" href="api.html#mac_set_custom_
 running on. The timestamp is taken at the end of the preamble
 immediately before the frame itself. This timestamp will be accurate
 to within 40ns. The timestamp is stored with the buffer data and can
-be retrieved by the client by using the <a class="reference internal" href="api.html#mac_rx_timed" title="mac_rx_timed"><tt class="xref c c-func docutils literal"><span class="pre">mac_rx_timed()</span></tt></a> function.</p>
+be retrieved by the client by using the <a class="reference internal" href="api.html#mac_rx_timed" title="mac_rx_timed"><span>mac_rx_timed()</span></a> function.</p>
 <p>On transmission of a ethernet frame over MII a timestamp is also
 taken. The timestamp is also taken at the end of the preamble
 immediately before the frame itself and is accurate to within 40ns.
-The client can retreive the timestamp using the <a class="reference internal" href="api.html#mac_tx_timed" title="mac_tx_timed"><tt class="xref c c-func docutils literal"><span class="pre">mac_tx_timed()</span></tt></a>
+The client can retreive the timestamp using the <a class="reference internal" href="api.html#mac_tx_timed" title="mac_tx_timed"><span>mac_tx_timed()</span></a>
 function. In this case the timestamp is stored on transmission and
 placed in a queue to be sent back to the client thread.</p>
 </div>
 <div class="section" id="mac-address-storage">
 <h2>MAC Address Storage<a class="headerlink" href="#mac-address-storage" title="Permalink to this headline">¶</a></h2>
 <p>The MAC address used for the server is set on instatiation of the
-server (as an argument to the <a class="reference internal" href="api.html#ethernet_server" title="ethernet_server"><tt class="xref c c-func docutils literal"><span class="pre">ethernet_server()</span></tt></a> function).
+server (as an argument to the <a class="reference internal" href="api.html#ethernet_server" title="ethernet_server"><span>ethernet_server()</span></a> function).
 This address should be unique for each device. For all XMOS develop
 boards, a unique mac address is stored in the one time programmable
-rom (OTP). To retreive this address the <a class="reference internal" href="api.html#ethernet_getmac_otp" title="ethernet_getmac_otp"><tt class="xref c c-func docutils literal"><span class="pre">ethernet_getmac_otp()</span></tt></a>
+rom (OTP). To retreive this address the <a class="reference internal" href="api.html#ethernet_getmac_otp" title="ethernet_getmac_otp"><span>ethernet_getmac_otp()</span></a>
 function is provided.</p>
 <p>For information on programming MAC addresses into OTP please contact
 XMOS for detalis.</p>
@@ -177,6 +180,16 @@ XMOS for detalis.</p>
 </table>
 </div>
 </div>
+<div class="section" id="single-threaded-lite-implementation-experimental">
+<h2>Single threaded &#8220;lite&#8221; implementation (experimental)<a class="headerlink" href="#single-threaded-lite-implementation-experimental" title="Permalink to this headline">¶</a></h2>
+<p>The two subdirectories called <tt class="docutils literal"><span class="pre">module_mii_singlethread</span></tt> and
+<tt class="docutils literal"><span class="pre">app_mii_singlethread_demo</span></tt> are an experimental single thread
+MII controller.  The file``mii.xc`` contains the definition of
+the MII port pins.</p>
+<p>The main pin control thread is hand written assembler utilising
+the event branching nature of the xcore to maintain two coroutines
+inside the single thread.</p>
+</div>
 </div>
 
 
@@ -186,10 +199,10 @@ XMOS for detalis.</p>
       </div>
       <div class="sphinxsidebar" id='d2'>
         <div class="sphinxsidebarwrapper">
-<h3><a href="index.html">Table Of Contents</a></h3>
+<h3><a href="index.html">Ethernet Component (1v4)</a></h3>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hw.html">H/W Development Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Etehrnet Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hw.html">Ethernet H/W Development Platforms</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Ethernet Mac Description</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#buffers-and-queues">Buffers and Queues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#filtering">Filtering</a></li>
@@ -201,13 +214,15 @@ XMOS for detalis.</p>
 <li class="toctree-l3"><a class="reference internal" href="#memory">Memory</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#single-threaded-lite-implementation-experimental">Single threaded &#8220;lite&#8221; implementation (experimental)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="programming.html">Programming Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="programming.html">Ethernet Programming Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Ethernet API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="singlethread.html">Single threaded MII</a></li>
 </ul>
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none;margin-bottom: 10px;">
   <h3>Search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" size="18" />
