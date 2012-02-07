@@ -165,8 +165,6 @@ static void smi_wr(int reg, int val, smi_interface_t &smi) {
     smi.p_smi_mdio <: 0;
 }
 
-#include <print.h>
-
 ////////////////////////////////////////////
 
 /* Phy configuration
@@ -197,10 +195,9 @@ int eth_phy_config(int eth100, smi_interface_t &smi)
   x = smi_rd(PHY_ID2_REG, smi);
   phyid = ((x >> 10) << 16) | phyid;
 
-//  printhexln(phyid);
   if (phyid != PHY_ID) {
       return (1);
-    }
+  }
   
   if (autonegotiate) {
       // 2a. config for either 100 or 10 Mbps
@@ -242,14 +239,14 @@ int eth_phy_config(int eth100, smi_interface_t &smi)
       basicControl = basicControl & ( ~(1 << BASIC_CONTROL_AUTONEG_EN_BIT));
       // now set 100 or 10 Mpbs bits
       if (eth100)
-          basicControl = basicControl |    (1 << BASIC_CONTROL_100_MBPS_BIT);
+          basicControl = basicControl | (1 << BASIC_CONTROL_100_MBPS_BIT);
       else
           basicControl = basicControl & ( ~(1 << BASIC_CONTROL_100_MBPS_BIT));
       
       smi_wr(BASIC_CONTROL_REG, basicControl, smi);
       
     }
-//  printstr("OK\n");
+
   return 0;  
   
 }

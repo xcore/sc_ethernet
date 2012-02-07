@@ -4,7 +4,6 @@
 #include "mii.h"
 #include "smi.h"
 #include "miiLLD.h"
-#include "print.h"
 
 #include <platform.h>
 
