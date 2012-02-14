@@ -92,9 +92,10 @@ void mii_commit(mii_buffer_t buf, int n) {
   hdr->size = (sizeof(malloc_hdr_t)/4) + ((n+3)>>2);
 
   pkt = (mii_packet_t *) buf;
-  pkt->tcount = 0;
   pkt->stage = 0;
+#if (NUM_ETHERNET_PORTS > 1) && !defined(DISABLE_ETHERNET_PORT_FORWARDING)
   pkt->forwarding = 0;
+#endif
 
   // This goes last - updating the write pointer is the action which enables the
   // ethernet_rx_server to start considering the packet.  The server will ignore
@@ -248,6 +249,7 @@ gen_get_field(filter_result)
 gen_get_field(src_port)
 gen_get_field(timestamp_id)
 gen_get_field(stage)
+gen_get_field(tcount)
 gen_get_field(crc)
 gen_get_field(forwarding)
 

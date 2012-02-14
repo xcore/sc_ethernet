@@ -247,7 +247,7 @@ static void processReceivedFrame(int buf,
        mii_free(buf);
    }
    else {
-     incr_transmit_count(buf, tcount-1);
+	   mii_packet_set_tcount(buf, tcount-1);
    }   
    return;
 }

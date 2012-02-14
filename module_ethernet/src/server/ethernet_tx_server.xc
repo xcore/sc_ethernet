@@ -161,6 +161,7 @@ void ethernet_tx_server(
 
             		mii_commit(buf[p], (length+(BUF_DATA_OFFSET*4)));
 
+            		mii_packet_set_tcount(buf[p], 0);
             		mii_packet_set_stage(buf[p], 1);
             	}
             }

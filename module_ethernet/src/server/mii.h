@@ -172,6 +172,7 @@ create_buf_getset(filter_result)
 create_buf_getset(src_port)
 create_buf_getset(timestamp_id)
 create_buf_getset(stage)
+create_buf_getset(tcount)
 create_buf_getset(crc)
 create_buf_getset(forwarding)
 

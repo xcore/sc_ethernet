@@ -41,23 +41,6 @@ int get_and_dec_transmit_count(int buf0)
   return count;
 }
 
-void incr_transmit_count(int buf0, int incr) 
-{
-  mii_packet_t *buf = (mii_packet_t *) buf0;
-#ifndef ETHERNET_USE_HARDWARE_LOCKS
-  swlock_acquire(&tc_lock);
-#else
-  __hwlock_acquire(ethernet_memory_lock);
-#endif
-  buf->tcount += incr;
-
-#ifndef ETHERNET_USE_HARDWARE_LOCKS
-  swlock_release(&tc_lock);
-#else
-  __hwlock_release(ethernet_memory_lock);
-#endif
-}
-
 
 
 

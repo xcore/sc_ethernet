@@ -19,28 +19,6 @@
 
 int mac_custom_filter_coerce(int);
 
-typedef enum 
-{
-  OPCODE_NULL,
-  OPCODE_AND,
-  OPCODE_OR 
-}
-  filter_opcode_t;
-
-// Frame filter
-typedef struct mac_filter_t {
-   unsigned int  opcode;
-   // Destination MAC address filter.
-   unsigned int dmac_msk[2];
-   unsigned int dmac_val[2];   
-   // VLAN and EType filter.
-   unsigned int vlan_msk[6];
-   unsigned int vlan_val[6];   
-  int val;
-} mac_filter_t;
-
-#define NUM_FILTERS 4
-
 
 #define is_broadcast(buf) (mii_packet_get_data(buf,0) & 0x1)
 #define compare_mac(buf,mac) (mii_packet_get_data(buf,0) == mac[0] && ((short) mii_packet_get_data(buf,1)) == ((short) mac[1]))
