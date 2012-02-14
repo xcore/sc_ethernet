@@ -27,7 +27,7 @@ static int CRCBad(int base, int end) {
     unsigned int tailLength = value(end, 2);
     unsigned int partCRC = value(end, 3);
     unsigned int tailBits = value(end, 1);
-    unsigned int length = end - base + (tailLength >> 3) - 4 + 4;
+    unsigned int length = end - base + (tailLength >> 3);
     switch(tailLength >> 3) {
     case 0:
         break;
