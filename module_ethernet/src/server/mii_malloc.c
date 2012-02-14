@@ -90,13 +90,18 @@ void mii_commit(mii_buffer_t buf, int n) {
   mii_packet_t *pkt;
 
   hdr->size = (sizeof(malloc_hdr_t)/4) + ((n+3)>>2);
-  info->wrptr += (hdr->size);
 
   pkt = (mii_packet_t *) buf;
   pkt->tcount = 0;
   pkt->stage = 0;
   pkt->forwarding = 0;
 
+  // This goes last - updating the write pointer is the action which enables the
+  // ethernet_rx_server to start considering the packet.  The server will ignore
+  // the packet initially, because the 'stage' is set to zero.  The filter thread
+  // will set the stage to 1 when the filter has run, and at that point the
+  // ethernet_rx_server thread will start to process it.
+  info->wrptr += (hdr->size);
   return;
 }
 
