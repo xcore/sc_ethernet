@@ -110,7 +110,6 @@ void mii_commit(mii_buffer_t buf, int n) {
 void mii_free(mii_buffer_t buf) {
   malloc_hdr_t *hdr = (malloc_hdr_t *) ((char *) buf - sizeof(malloc_hdr_t));
   mempool_info_t *info = (mempool_info_t *) hdr->info;
-  int free_buf = 1;
 
 #ifndef ETHERNET_USE_HARDWARE_LOCKS
   swlock_acquire(&info->lock);
@@ -118,7 +117,7 @@ void mii_free(mii_buffer_t buf) {
   __hwlock_acquire(ethernet_memory_lock);
 #endif
 
-  do {
+  while (1) {
 	// If we are freeing the oldest packet in the fifo then actually
 	// move the rd_ptr.
     if ((char *) hdr == (char *) info->rdptr ||
@@ -138,15 +137,15 @@ void mii_free(mii_buffer_t buf) {
       // If we have an unfreed packet, or have hit the end of the
       // mempool fifo then stop
       if (hdr->size > 0 || (char *) hdr == (char *) info->wrptr) {
-          free_buf = 0;
+          break;
       }
     } else {
       // If this isn't the oldest packet in the queue then just mark it
       // as free by making the size = -size
       hdr->size = -(hdr->size);
-      free_buf = 0;
+      break;
     }
-  } while (free_buf);
+  };
 
 #ifndef ETHERNET_USE_HARDWARE_LOCKS
   swlock_release(&info->lock);
