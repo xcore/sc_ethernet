@@ -48,6 +48,7 @@ void mii_init_mempool(mii_mempool_t mempool0, int size, int maxsize_bytes) {
   info->end -= (info->max_packet_size >> 2);
   info->rdptr = info->start;
   info->wrptr = info->start;
+  *(info->start) = 0;
 #ifndef ETHERNET_USE_HARDWARE_LOCKS
   swlock_init(&info->lock);
 #endif
@@ -61,22 +62,18 @@ mii_buffer_t mii_reserve(mii_mempool_t mempool)
   int *wrptr = info->wrptr;
 
   malloc_hdr_t *hdr;
-  if (wrptr > info->end) {
-    if (rdptr == info->start)
-    {
-      return 0;
-    }
-    else
-      wrptr = info->start;
+
+  // If the write pointer is at the start, then we check if the length is
+  // non-zero meaning the buffer is full
+  if (wrptr == info->start) {
+	  if (*wrptr != 0) return 0;
   }
 
-  // Test for space left in the range 1 -> mxa_packet_size
-  if (((unsigned)rdptr - (unsigned)wrptr - 1) < info->max_packet_size)
-  {
-    return 0;
+  // If the read pointer is beyond the write pointerm we check if there
+  // is enough space to avoid overwriting the tail
+  else if (((unsigned)rdptr - (unsigned)wrptr)-1 < info->max_packet_size) {
+	  return 0;
   }
-  
-  info->wrptr = wrptr;
   
   hdr = (malloc_hdr_t *) wrptr;
   hdr->info = info;
@@ -102,7 +99,12 @@ void mii_commit(mii_buffer_t buf, int n) {
   // the packet initially, because the 'stage' is set to zero.  The filter thread
   // will set the stage to 1 when the filter has run, and at that point the
   // ethernet_rx_server thread will start to process it.
-  info->wrptr += (hdr->size);
+  {
+	  int* wrptr = info->wrptr + hdr->size;
+	  if (wrptr > info->end) wrptr = info->start;
+	  info->wrptr = wrptr;
+  }
+
   return;
 }
 
@@ -120,19 +122,18 @@ void mii_free(mii_buffer_t buf) {
   while (1) {
 	// If we are freeing the oldest packet in the fifo then actually
 	// move the rd_ptr.
-    if ((char *) hdr == (char *) info->rdptr ||
-                      ((char *) hdr == (char *) info->start && 
-                       (char *) info->rdptr > (char *) info->end)) {
+    if ((char *) hdr == (char *) info->rdptr) {
 
       int size = hdr->size;
       if (size < 0) size = -size;
-      hdr = (malloc_hdr_t *) ((int *) hdr + size);
-      info->rdptr = (int *) hdr;
 
-      // Wrap to the start of the buffer
-      if ((char *) hdr > (char *) info->end) {
-        hdr = (malloc_hdr_t *) info->start;
-      }
+      // Mark as empty
+      hdr->size = 0;
+
+      // Move to the next packet
+      hdr = (malloc_hdr_t *) ((int *) hdr + size);
+      if ((char *) hdr > (char *) info->end) hdr = (malloc_hdr_t *) info->start;
+      info->rdptr = (int *) hdr;
 
       // If we have an unfreed packet, or have hit the end of the
       // mempool fifo then stop
