@@ -41,7 +41,7 @@ typedef struct malloc_hdr_t {
 
 void mii_init_mempool(mii_mempool_t mempool0, int size, int maxsize_bytes) {
   mempool_info_t *info = (mempool_info_t *) mempool0;
-  info->max_packet_size = sizeof(mii_packet_t) + sizeof(malloc_hdr_t) - (1518-maxsize_bytes);
+  info->max_packet_size = sizeof(mii_packet_t) + sizeof(malloc_hdr_t) - (((MAX_ETHERNET_PACKET_SIZE+3)&~3)-maxsize_bytes);
   info->max_packet_size = (info->max_packet_size + 3) & ~3;
   info->start = (int *) (mempool0 + sizeof(mempool_info_t));
   info->end = (int *) (mempool0 + size);
@@ -65,13 +65,11 @@ mii_buffer_t mii_reserve(mii_mempool_t mempool)
 
   // If the write pointer is at the start, then we check if the length is
   // non-zero meaning the buffer is full
-  if (wrptr == info->start) {
-	  if (*wrptr != 0) return 0;
-  }
+  if (wrptr == info->start && *wrptr != 0) return 0;
 
   // If the read pointer is beyond the write pointerm we check if there
   // is enough space to avoid overwriting the tail
-  else if (((unsigned)rdptr - (unsigned)wrptr)-1 < info->max_packet_size) {
+  if (((unsigned)rdptr - (unsigned)wrptr)-1 < info->max_packet_size) {
 	  return 0;
   }
   
