@@ -197,6 +197,8 @@ int mii_packet_get_data_word(int data, int n);
 #define mii_packet_set_data_word_imm(data, n, v) \
   asm("stw %0,%1[" STRINGIFY(n) "]"::"r"(v),"r"(data));
 
+#define mii_packet_get_data_word_imm(data, n, v) \
+  asm("ldw %0,%1[" STRINGIFY(n) "]":"=r"(v),"r"(data));
 
 #ifdef ETHERNET_INLINE_PACKET_GET
 inline int mii_packet_get_data(int buf, int n) {
