@@ -52,9 +52,6 @@ void add_ts_queue_entry(REFERENCE_PARAM(mii_ts_queue_t, q), int i);
 //! This is an atomic get and decrement of a buffers transmit counter
 int get_and_dec_transmit_count(int buf_num);
 
-//! This is an atomic increment of a buffers transmit counter
-void incr_transmit_count(int buf_num, int incr);
-
 //! This is an atomic test and clear of the forward to other port bit for a buffer
 int mii_packet_get_and_clear_forwarding(int buf_num, int ifnum);
 

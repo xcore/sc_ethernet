@@ -172,6 +172,7 @@ create_buf_getset(filter_result)
 create_buf_getset(src_port)
 create_buf_getset(timestamp_id)
 create_buf_getset(stage)
+create_buf_getset(tcount)
 create_buf_getset(crc)
 create_buf_getset(forwarding)
 
@@ -196,6 +197,8 @@ int mii_packet_get_data_word(int data, int n);
 #define mii_packet_set_data_word_imm(data, n, v) \
   asm("stw %0,%1[" STRINGIFY(n) "]"::"r"(v),"r"(data));
 
+#define mii_packet_get_data_word_imm(data, n, v) \
+  asm("ldw %0,%1[" STRINGIFY(n) "]":"=r"(v),"r"(data));
 
 #ifdef ETHERNET_INLINE_PACKET_GET
 inline int mii_packet_get_data(int buf, int n) {

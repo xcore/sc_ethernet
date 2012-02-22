@@ -5,8 +5,8 @@ Ethernet API
 
 .. _sec_conf_defines:
 
-Configuration Defines
----------------------
+Configuration Defines for 5 thread ethernet
+-------------------------------------------
 
 The file ethernet_conf.h must be provided in the application source
 code. This file can set the following defines:
@@ -100,6 +100,25 @@ code. This file can set the following defines:
     between ports, when there are multiple ports, is disabled.  Traffic
     is only forwarded to the clients.
 
+
+Configuration defines for single threaded MII
+---------------------------------------------
+
+**MII_NO_RESET**
+
+    By defining this symbol, the code for resetting the p_mii_resetn
+    port of the :c:func:`miiInitialise` function is removed, saving
+    approximatly 50 bytes of program memory.  If the application passes
+    *null* into the *p_mii_resetn* parameter, then the designer should
+    consider adding this to *ethernet_conf.h*.
+    
+**MII_NO_SMI_CONFIG**
+
+    Defining this will remove the configuration of the SMI registers.
+    The SMI ports will still be configured, so that subsequent SMI operations
+    will succeed.  The code to check for the SMI PHY ID, and set up
+    auto-negotiation of link speed will be removed.  This saves
+    approximately 200 bytes of program memory.
 
 Custom Filter Function
 ----------------------

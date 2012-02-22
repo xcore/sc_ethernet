@@ -4,13 +4,15 @@
 // LICENSE.txt and at <http://github.xcore.com/>
 
 #include <xs1.h>
-#include <print.h>
+
+#ifdef __ethernet_conf_h_exists__
+#include "ethernet_conf.h"
+#endif
+
 #include "miiDriver.h"
 #include "miiLLD.h"
 #include "mii.h"
 #include "smi.h"
-
-#include <stdlib.h>
 
 void miiInitialise(clock clk_smi,
         out port ?p_mii_resetn,
@@ -18,13 +20,17 @@ void miiInitialise(clock clk_smi,
 		mii_interface_t &m)
 {
 #ifndef MII_DRIVER_SIMULATION
+#ifndef MII_NO_RESET
     if (!isnull(p_mii_resetn)) {
         timer tmr;
         phy_reset(p_mii_resetn, tmr);
     }
+#endif
 	smi_port_init(clk_smi, smi);
     mii_port_init(m);
+#ifndef MII_NO_SMI_CONFIG
 	eth_phy_config(1, smi);
+#endif
 #else
     mii_port_init(m);
 #endif
