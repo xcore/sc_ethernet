@@ -197,6 +197,27 @@ mii_rxd_preamble:
     //----------------------------------------------------
     // OUT coroutine.
 
+stateDone:
+    clrsr  XS1_SR_IEBLE_MASK
+    chkct res[r9], 1
+    outct res[r9], 1
+drainIn:    
+    testct r5, res[r3]
+    bt    r5, doneDone
+    int   r5, res[r3]
+    bu    drainIn
+doneDone:
+    chkct res[r3], 1
+    outct res[r3], 1
+    ldw    r4, sp[1]
+    ldw    r5, sp[2]
+    ldw    r6, sp[3]
+    ldw    r7, sp[4]
+    ldw    r8, sp[5]
+    ldw    r9, sp[6]
+    ldw    r10, sp[7]
+    ldw    r11, sp[8]
+    retsp  STACKSIZE
     
     // Idle state, wait for a packet
 stateIdle:
@@ -212,6 +233,8 @@ outIdle:
     // Get a pointer to the next packet
     ldw   r9, sp[OUTchannel]
     outct res[r9], 1          // Request the next packet
+    testct r5, res[r9]
+    bt    r5, stateDone
     in    r7, res[r9]          // Read the poointer to the packet
 
     ldw   r5, cp[allFives]
