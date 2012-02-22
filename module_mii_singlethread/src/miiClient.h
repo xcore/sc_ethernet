@@ -40,6 +40,17 @@ struct miiData {                    // DO NOT CHANGE LOCATIONS OR ADD ANY FIELDS
  */
 extern void miiBufferInit(struct miiData &this, chanend cIn, chanend cNotifications, int buffer[], int words);
 
+/** Function that closes down the MII thread. This function should not be
+ * called between ``miiOutPacket()`` and ``miiOutPacketDone()``
+ *
+ * \param cNotifications channel end that synchronised interrupt and user layers.
+ *
+ * \param cIn channel that communicates with the low level input input MII.
+ *
+ * \param cOut channel that communicates with the low level input output MII.
+ */
+void miiClose(chanend cNotifications, chanend cIn, chanend cOut);
+
 /** This function will obtain a buffer from the input queue, or 0 if there
  * is no packet awaiting processing. When the packet has been processed,
  * freeInBuffer() should be called to free the packet buffer.

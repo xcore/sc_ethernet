@@ -295,3 +295,19 @@ void miiOutPacketDone(chanend c_out) {
 void miiOutInit(chanend c_out) {
     chkct(c_out, 1);
 }
+
+static void drain(chanend c) {
+    outct(c, 1);
+    while(!testct(c)) {
+        inuchar(c);
+    }
+    chkct(c, 1);
+}
+
+void miiClose(chanend cNotifications, chanend cIn, chanend cOut) {
+    asm("clrsr 2");        // disable interrupts
+    drain(cNotifications); // disconnect channel to ourselves
+	outct(cOut, 1);        // disconnect channel to output - stops mii
+    chkct(cOut, 1);
+    drain(cIn);            // disconnect input side.
+}
