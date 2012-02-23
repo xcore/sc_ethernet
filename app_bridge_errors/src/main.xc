@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include "miiClient.h"
 #include "miiDriver.h"
+#include "smi.h"
 
 
 on stdcore[2]: mii_interface_t mii0 =
@@ -116,8 +117,15 @@ int main() {
     streaming chan from0, to0, from1, to1;
     par {
         on stdcore[2]: {
-        	miiInitialise(clk_smi, p_mii_resetn, smi0, mii0);
-        	miiInitialise(clk_smi, p_mii_resetn, smi1, mii1);
+        	miiInitialise(p_mii_resetn, mii0);
+        	miiInitialise(p_mii_resetn, mii1);
+
+#ifndef MII_NO_SMI_CONFIG
+            smi_port_init(clk_smi, smi0);
+            smi_port_init(clk_smi, smi1);
+            eth_phy_config(1, smi0);
+            eth_phy_config(1, smi1);
+#endif
             par {
                 miiDriver(mii0, cIn0, cOut0);
                 miiDriver(mii1, cIn1, cOut1);

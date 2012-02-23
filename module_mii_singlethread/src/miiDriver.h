@@ -33,15 +33,11 @@ typedef struct mii_interface_t {
 
 /** This function intiializes the MII low level driver.
  *
- *  \param clk_smi        a clock block for the SMI
  *  \param p_mii_resetn   a port to reset the PHY (optional)
  *  \param m              the MII control structure
- *  \param smi            the SMI control structure
  */
-extern void miiInitialise(clock clk_smi,
-		out port ?p_mii_resetn,
-		smi_interface_t &smi,
-		mii_interface_t &m);
+extern void miiInitialise(out port ?p_mii_resetn,
+                          mii_interface_t &m);
 
 /** This function runs the MII low level driver. It requires at least 62.5
  * MIPS in order to be able to transmit and receive MII packets
@@ -55,13 +51,6 @@ extern void miiInitialise(clock clk_smi,
  *  \param cOut   output channel to the client thread.
  */
 extern void miiDriver(mii_interface_t &m, chanend cIn, chanend cOut);
-
-/** This function checks whether the PHY device thinks that there is a
- *  link attached to it, and returns 1 or zero based on that
- *
- *  \param smi           the SMI control structure
- */
-extern int miiCheckLinkState(smi_interface_t &smi);
 
 extern void phy_reset(out port p_mii_resetn, timer tmr);
 

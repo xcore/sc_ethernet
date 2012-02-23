@@ -1,7 +1,7 @@
 TARGET = XP-DSC-BLDC
 APP_NAME = 
 XCC_FLAGS = -g -O2
-USED_MODULES = module_mii_singlethread
+USED_MODULES = module_mii_singlethread module_ethernet_smi
 
 #=============================================================================
 # The following part of the Makefile includes the common build infrastructure
