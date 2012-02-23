@@ -14,6 +14,7 @@
 
 #include "miiClient.h"
 #include "miiDriver.h"
+#include "smi.h"
 
 
 on stdcore[0]: mii_interface_t mii =
@@ -112,7 +113,12 @@ int main() {
 
                 // Start server
                 {
-                	miiInitialise(clk_smi, null, smi, mii);
+                	miiInitialise(null, mii);
+
+#ifndef MII_NO_SMI_CONFIG
+                    smi_port_init(clk_smi, smi);
+                    eth_phy_config(1, smi);
+#endif
                 	miiDriver(mii, cIn, cOut);
                 }
         }

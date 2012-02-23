@@ -9,6 +9,7 @@
 #include <print.h>
 #include "miiDriver.h"
 #include "mii.h"
+#include "smi.h"
 #include "miiClient.h"
 
 extern void mac_set_macaddr(unsigned char macaddr[]);
@@ -36,7 +37,7 @@ static void theServer(chanend cIn, chanend cOut, chanend cNotifications,
 		case linkcheck_timer when timerafter(linkcheck_time) :> void :
 			{
 				static int phy_status = 0;
-				int new_status = miiCheckLinkState(smi);
+				int new_status = smiCheckLinkState(smi);
 				if (new_status != phy_status) {
 					outuchar(connect_status, 0);
 					outuchar(connect_status, new_status);
@@ -98,7 +99,11 @@ void miiSingleServer(clock clk_smi,
                      chanend connect_status, unsigned char mac_address[6]) {
     chan cIn, cOut;
     chan notifications;
-	miiInitialise(clk_smi, p_mii_resetn, smi, m);
+	miiInitialise(p_mii_resetn, m);
+#ifndef MII_NO_SMI_CONFIG
+	smi_port_init(clk_smi, smi);
+	eth_phy_config(1, smi);
+#endif
     par {
     	miiDriver(m, cIn, cOut);
         theServer(cIn, cOut, notifications, smi, connect_status, appIn, appOut, mac_address);

@@ -24,9 +24,6 @@
 #define PORT_ETH_RXER    XS1_PORT_1L
 #define PORT_ETH_FAKE    XS1_PORT_8C
 
-#define PORT_ETH_RST_N_MDIO  XS1_PORT_1P
-#define PORT_ETH_MDC         XS1_PORT_1O
-
 on stdcore[0]: mii_interface_t mii =
   {
     XS1_CLKBLK_1,
@@ -43,15 +40,6 @@ on stdcore[0]: mii_interface_t mii =
 
     PORT_ETH_FAKE,
   };
-
-#ifdef PORT_ETH_RST_N
-on stdcore[0]: out port p_mii_resetn = PORT_ETH_RST_N;
-on stdcore[0]: smi_interface_t smi = { 0, PORT_ETH_MDIO, PORT_ETH_MDC };
-#else
-on stdcore[0]: smi_interface_t smi = { 0, PORT_ETH_RST_N_MDIO, PORT_ETH_MDC };
-#endif
-
-on stdcore[0]: clock clk_smi = XS1_CLKBLK_5;
 
 
 
@@ -131,7 +119,7 @@ void regression(void) {
     chan notifications;
     par {
         {
-        	miiInitialise(clk_smi, null, smi, mii);
+        	miiInitialise(null, mii);
         	miiDriver(mii, cIn, cOut);
         }
         {x(); emptyIn(cIn, notifications);}

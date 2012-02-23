@@ -10,6 +10,7 @@
 #include <print.h>
 #include <platform.h>
 #include <stdlib.h>
+#include "smi.h"
 #include "miiClient.h"
 #include "miiDriver.h"
 
@@ -326,7 +327,9 @@ void packetResponse(void) {
     chan notifications;
     par {
         {
-        	miiInitialise(clk_smi, null, smi, mii);
+        	miiInitialise(null, mii);
+            smi_port_init(clk_smi, smi);
+            eth_phy_config(1, smi);
         	miiDriver(mii, cIn, cOut);
         }
         {x(); pingDemo(cIn, cOut, notifications);}
