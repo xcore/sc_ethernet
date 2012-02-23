@@ -31,21 +31,6 @@ typedef struct mii_interface_t {
 } mii_interface_t;
 #endif
 
-#ifdef __XC__
-/** Structure containing resources required for the SMI ethernet phy interface.
- *
- * This structure contains the resources required to communicate with
- * an ethernet phy over smi. 
- *   
- **/
-typedef struct smi_interface_t {
-    int phy_address;           /**< Address of PHY, typically 0 or 0x1F.  */
-    port p_smi_mdio;           /**< MDIO port. */
-    out port p_smi_mdc;        /**< MDC port.  */
-} smi_interface_t;
-
-#endif
-
 /** This function intiializes the MII low level driver.
  *
  *  \param clk_smi        a clock block for the SMI

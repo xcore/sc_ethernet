@@ -1,3 +1,4 @@
+#if 0
 // Copyright (c) 2011, XMOS Ltd., All rights reserved
 // This software is freely distributable under a derivative of the
 // University of Illinois/NCSA Open Source License posted in
@@ -33,4 +34,5 @@ void smi_loopback(int enable);
 int eth_phy_checklink(smi_interface_t &smi);
 
 
+#endif
 #endif
