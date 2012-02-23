@@ -1,7 +1,7 @@
 TARGET = XC-3
 APP_NAME =
 XCC_FLAGS = -g -Os -fsubword-select
-USED_MODULES = module_mii_singlethread
+USED_MODULES = module_mii_singlethread module_ethernet_smi
 
 
 #=============================================================================

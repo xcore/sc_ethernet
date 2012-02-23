@@ -2,7 +2,6 @@
 #include <xclib.h>
 #include "miiDriver.h"
 #include "mii.h"
-#include "smi.h"
 #include "miiLLD.h"
 
 #include <platform.h>

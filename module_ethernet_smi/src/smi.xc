@@ -5,7 +5,6 @@
 
 #include <xs1.h>
 
-#include "miiDriver.h"
 #include "smi.h"
 
 //////////////////////
@@ -131,7 +130,6 @@ static int smi_rd(int reg,  smi_interface_t &smi) {
     // turn around for 2 clocks
     smi.p_smi_mdc  <: 0;            // clock tick 1: negate MDC
 
-    //  if (!smi.mdio_mux)
     smi.p_smi_mdio :> void;         // clock tick 1: turn MDIO port around to become an input
                                     // clock tick 2: sample MDIO
 
@@ -165,122 +163,85 @@ static void smi_wr(int reg, int val, smi_interface_t &smi) {
     smi.p_smi_mdio <: 0;
 }
 
-////////////////////////////////////////////
+int eth_phy_config(int eth100, smi_interface_t &smi) {
+    unsigned x;
+    unsigned phyid;
 
-/* Phy configuration
-   If eth100 is non-zero, 100BaseT is advertised to the link peer
-   Full duplex is always advertised
-   autonegotiate is always ignored
-   Returns 0 if no error and link established
-   Returns 1 on ID read error or config register readback error
-   Returns 2 if no error but link times out (1 sec)
-*/
-int eth_phy_config(int eth100, smi_interface_t &smi)
-{
-  unsigned x;
-  unsigned phyid;
+    // This used to be an argument, but has been removed now
+    int autoNegAdvertReg, basicControl;
 
-  // This used to be an argument, but has been removed now
-  int autonegotiate = 1;
-  int autoNegAdvertReg, basicControl;
-
-  // 1. Check that the Phy ID can be read.  Return error 1 if not
-  // 2a. autoneg advertise 100/10 then autonegotiate
-  // 2b. set speed manually
-  // 3. establish link or timeout (return error 2)
-  // 4. short settling down delay
-  
-  // 1. Read phy ID from two regs & check it is OK
-  phyid = smi_rd(PHY_ID1_REG, smi);
-  x = smi_rd(PHY_ID2_REG, smi);
-  phyid = ((x >> 10) << 16) | phyid;
-
-  if (phyid != PHY_ID) {
-      return (1);
-  }
-  
-  if (autonegotiate) {
-      // 2a. config for either 100 or 10 Mbps
-        // Read autoNegAdvertReg
-          autoNegAdvertReg = smi_rd(AUTONEG_ADVERT_REG, smi);
-        
-        // Clear bits [9:5]
-        autoNegAdvertReg = autoNegAdvertReg & 0xfc1f;
-
-        // Set 100 or 10 Mpbs bits
-        if (eth100) {
-        	autoNegAdvertReg |= (1 << AUTONEG_ADVERT_100_BIT);
-        } else {
-        	autoNegAdvertReg |= (1 << AUTONEG_ADVERT_10_BIT);
-        }
-        
-        // Write back and validate
-        smi_wr(AUTONEG_ADVERT_REG, autoNegAdvertReg, smi);
-        if (smi_rd(AUTONEG_ADVERT_REG, smi) != autoNegAdvertReg) {
-            return (2);
-        }
-
-        basicControl = smi_rd(BASIC_CONTROL_REG, smi);
-        // clear autoneg bit
-        basicControl = basicControl & ( ~(1 << BASIC_CONTROL_AUTONEG_EN_BIT));
-        smi_wr(BASIC_CONTROL_REG, basicControl, smi);
-        // set autoneg bit
-        basicControl = basicControl | (1 << BASIC_CONTROL_AUTONEG_EN_BIT);
-        smi_wr(BASIC_CONTROL_REG, basicControl, smi);
-        // restart autoneg
-        basicControl = basicControl | (1 << BASIC_CONTROL_RESTART_AUTONEG_BIT);
-        smi_wr(BASIC_CONTROL_REG, basicControl, smi);
-        
-  } else {        // 2b. Don't autoneg, set speed manually
-      basicControl = smi_rd(BASIC_CONTROL_REG, smi);
-    // set duplex mode
-      basicControl = basicControl | (1 << BASIC_CONTROL_FULL_DUPLEX_BIT);
-      // clear autoneg bit
-      basicControl = basicControl & ( ~(1 << BASIC_CONTROL_AUTONEG_EN_BIT));
-      // now set 100 or 10 Mpbs bits
-      if (eth100)
-          basicControl = basicControl | (1 << BASIC_CONTROL_100_MBPS_BIT);
-      else
-          basicControl = basicControl & ( ~(1 << BASIC_CONTROL_100_MBPS_BIT));
-      
-      smi_wr(BASIC_CONTROL_REG, basicControl, smi);
-      
+    // 1. Check that the Phy ID can be read.  Return error 1 if not
+    phyid = smi_rd(PHY_ID1_REG, smi);
+    x = smi_rd(PHY_ID2_REG, smi);
+    phyid = ((x >> 10) << 16) | phyid;
+    
+    if (phyid != PHY_ID) {
+        return 1;
     }
+    
+#ifndef ETH_SMI_NOAUTONEGOTIATE
+    // 2a. config for either 100 or 10 Mbps
+    // Read autoNegAdvertReg
+    autoNegAdvertReg = smi_rd(AUTONEG_ADVERT_REG, smi);
+    
+    // Clear bits [9:5]
+    autoNegAdvertReg = autoNegAdvertReg & 0xfc1f;
+    
+    // Set 100 or 10 Mpbs bits
+    if (eth100) {
+        autoNegAdvertReg |= (1 << AUTONEG_ADVERT_100_BIT);
+    } else {
+        autoNegAdvertReg |= (1 << AUTONEG_ADVERT_10_BIT);
+    }
+    
+    // Write back and validate
+    smi_wr(AUTONEG_ADVERT_REG, autoNegAdvertReg, smi);
+    if (smi_rd(AUTONEG_ADVERT_REG, smi) != autoNegAdvertReg) {
+        return 2;
+    }
+    
+    basicControl = smi_rd(BASIC_CONTROL_REG, smi);
+    // clear autoneg bit
+    basicControl = basicControl & ( ~(1 << BASIC_CONTROL_AUTONEG_EN_BIT));
+    smi_wr(BASIC_CONTROL_REG, basicControl, smi);
+    // set autoneg bit
+    basicControl = basicControl | (1 << BASIC_CONTROL_AUTONEG_EN_BIT);
+    smi_wr(BASIC_CONTROL_REG, basicControl, smi);
+    // restart autoneg
+    basicControl = basicControl | (1 << BASIC_CONTROL_RESTART_AUTONEG_BIT);
+    smi_wr(BASIC_CONTROL_REG, basicControl, smi);    
+#else
+    basicControl = smi_rd(BASIC_CONTROL_REG, smi);
+    // set duplex mode
+    basicControl = basicControl | (1 << BASIC_CONTROL_FULL_DUPLEX_BIT);
+    // clear autoneg bit
+    basicControl = basicControl & ~( (1 << BASIC_CONTROL_AUTONEG_EN_BIT)|
+                                     (1 << BASIC_CONTROL_100_MBPS_BIT));
+    // now set 100 or 10 Mpbs bits
+    if (eth100) {
+        basicControl = basicControl | (1 << BASIC_CONTROL_100_MBPS_BIT);
+    }
+    smi_wr(BASIC_CONTROL_REG, basicControl, smi);
+#endif
 
-  return 0;  
-  
+    return 0;  
 }
 
 
-int eth_phy_checklink(smi_interface_t &smi)
-{
-  return ((smi_rd(BASIC_STATUS_REG, smi )>>BASIC_STATUS_LINK_BIT)&1);    
-
+void eth_phy_loopback(int enable, smi_interface_t &smi) {
+    int controlReg = smi_rd(BASIC_CONTROL_REG, smi);
+    // First clear both autoneg and loopback
+    controlReg = controlReg & ~ ((1 << BASIC_CONTROL_AUTONEG_EN_BIT) |
+                                 (1 << BASIC_CONTROL_LOOPBACK_BIT));
+    // Now selectively set one of them
+    if (enable) {
+        controlReg = controlReg | (1 << BASIC_CONTROL_LOOPBACK_BIT);
+    } else {
+        controlReg = controlReg | (1 << BASIC_CONTROL_AUTONEG_EN_BIT);
+    }  
+    smi_wr(BASIC_CONTROL_REG, controlReg, smi);
 }
 
-
-////////////////////////////////////////////
-// Loopback
-////////////////////////////////////////////
-/* Enable/disable internal phy loopback */
-void eth_phy_loopback(int enable, smi_interface_t &smi)
-{
-  int controlReg = smi_rd(BASIC_CONTROL_REG, smi);
-  // enable (set) or disable (clear) loopback
-  if (enable)
-  {
-	controlReg = controlReg | (1 << BASIC_CONTROL_LOOPBACK_BIT);
-	controlReg = controlReg & ( ~(1 << BASIC_CONTROL_AUTONEG_EN_BIT));
-  }
-  else
-  {
-	controlReg = controlReg & ((-1) - (1 << BASIC_CONTROL_LOOPBACK_BIT));
-	controlReg = controlReg | (1 << BASIC_CONTROL_AUTONEG_EN_BIT);
-  }
-  
-  smi_wr(BASIC_CONTROL_REG, controlReg, smi);
-  controlReg = smi_rd(BASIC_CONTROL_REG, smi);
+int smiCheckLinkState(smi_interface_t &smi) {
+    return smi_rd(BASIC_STATUS_REG, smi) & (1<<BASIC_STATUS_LINK_BIT);    
 }
-
-
-
