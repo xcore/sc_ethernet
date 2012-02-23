@@ -242,6 +242,6 @@ void eth_phy_loopback(int enable, smi_interface_t &smi) {
     smi_wr(BASIC_CONTROL_REG, controlReg, smi);
 }
 
-int eth_phy_checklink(smi_interface_t &smi) {
+int smiCheckLinkState(smi_interface_t &smi) {
     return smi_rd(BASIC_STATUS_REG, smi) & (1<<BASIC_STATUS_LINK_BIT);    
 }

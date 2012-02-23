@@ -58,7 +58,7 @@ void eth_phy_loopback(int enable, smi_interface_t &smi);
  * 
  * \returns non-zero if the link is alive; zero otherwise.
  */
-int eth_phy_checklink(smi_interface_t &smi);
+int smiCheckLinkState(smi_interface_t &smi);
 
 
 #endif
