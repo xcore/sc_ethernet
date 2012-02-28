@@ -1,6 +1,0 @@
-Writes a single MAC address to OTP. Must be linked against tools_libotp.
-The MAC address is specified as a 12 digit hexadecimal string on stdin.
-
-You will need to adjust the makefile to include the tools_libotp library
-and include path that are on your system.
-
