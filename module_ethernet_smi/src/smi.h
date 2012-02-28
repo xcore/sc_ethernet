@@ -37,12 +37,17 @@ void smi_port_init(clock clk_smi, smi_interface_t &smi);
  * Full duplex is always advertised
  *
  * \param smi structure that defines the ports to use for SMI
- *
- * \returns 0 if no error and link established; 1 on ID read error or
- * config register readback error; 2 if no error but link times out (3
- * sec)
  */
-int eth_phy_config(int eth100, smi_interface_t &smi);
+void eth_phy_config(int eth100, smi_interface_t &smi);
+
+/** Function that configures the Ethernet PHY to not
+ * autonegotiate.
+ *
+ * \param If eth100 is non-zero, it is set to 100, else to 10 Mbits/s
+ *
+ * \param smi structure that defines the ports to use for SMI
+ */
+void eth_phy_config_noauto(int eth100, smi_interface_t &smi);
 
 /** Function that can enable or disable loopback in the phy.
  * 
@@ -51,6 +56,14 @@ int eth_phy_config(int eth100, smi_interface_t &smi);
  * \param smi  structure containing the ports
  */
 void eth_phy_loopback(int enable, smi_interface_t &smi);
+
+/** Function that returns the PHY identification.
+ *
+ * \param smi  structure containing the ports
+ * 
+ * \returns the 32-bit identifier.
+ */
+int eth_phy_id(smi_interface_t &smi);
 
 /** Function that polls whether the link is alive.
  *
