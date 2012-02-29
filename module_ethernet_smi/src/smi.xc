@@ -39,6 +39,10 @@ void smi_port_init(clock clk_smi, smi_interface_t &smi) {
     start_clock (clk_smi);
 }
 
+// Constants used in calls to smi_bit_shift and smi_reg.
+
+#define SMI_READ 1
+#define SMI_WRITE 0
 
 // Shift in a number of data bits to or from the SMI port
 static int smi_bit_shift(smi_interface_t &smi, unsigned data, unsigned count, unsigned inning) {
@@ -60,37 +64,24 @@ static int smi_bit_shift(smi_interface_t &smi, unsigned data, unsigned count, un
     return data;
 }
 
-// Start sequence: lots of 1111, then a code (read/write), phy address,
-// register, and a turn-around.
-static void smi_start(smi_interface_t &smi, unsigned reg, unsigned code) {
-    smi_bit_shift(smi, 0xffffffff, 32, 0);         // Preamble
-    smi_bit_shift(smi, code << 10 | smi.phy_address << 5 | reg, 14, 0);
-}
-
-
-/* Register read, values are 16-bit */
-static int smi_rd(int reg,  smi_interface_t &smi) {
-    smi_start(smi, reg, 0x6);
-    smi_bit_shift(smi, 0, 2, 1);
-    return smi_bit_shift(smi, 0, 16, 1);
-}
-
-/* Register write, data values are 16-bit */
-static void smi_wr(int reg, int val, smi_interface_t &smi) {
-    smi_start(smi, reg, 0x5);
-    smi_bit_shift(smi, 2, 2, 0);
-    smi_bit_shift(smi, val, 16, 0);
+// Register access: lots of 1111, then a code (read/write), phy address,
+// register, and a turn-around, then data.
+static int smi_reg(smi_interface_t &smi, unsigned reg, unsigned val, int inning) {
+    smi_bit_shift(smi, 0xffffffff, 32, SMI_WRITE);         // Preamble
+    smi_bit_shift(smi, (5+inning) << 10 | smi.phy_address << 5 | reg, 14, SMI_WRITE);
+    smi_bit_shift(smi, 2, 2, inning);
+    return smi_bit_shift(smi, val, 16, inning);
 }
 
 int eth_phy_id(smi_interface_t &smi) {
-    unsigned lo = smi_rd(PHY_ID1_REG, smi);
-    unsigned hi = smi_rd(PHY_ID2_REG, smi);
+    unsigned lo = smi_reg(smi, PHY_ID1_REG, 0, SMI_READ);
+    unsigned hi = smi_reg(smi, PHY_ID2_REG, 0, SMI_READ);
     return ((hi >> 10) << 16) | lo;
 }
 
 void eth_phy_config(int eth100, smi_interface_t &smi) {
     int autoNegAdvertReg, basicControl;
-    autoNegAdvertReg = smi_rd(AUTONEG_ADVERT_REG, smi);
+    autoNegAdvertReg = smi_reg(smi, AUTONEG_ADVERT_REG, 0, SMI_READ);
     
     // Clear bits [9:5]
     autoNegAdvertReg &= 0xfc1f;
@@ -103,22 +94,22 @@ void eth_phy_config(int eth100, smi_interface_t &smi) {
     }
     
     // Write back
-    smi_wr(AUTONEG_ADVERT_REG, autoNegAdvertReg, smi);
+    smi_reg(smi, AUTONEG_ADVERT_REG, autoNegAdvertReg, SMI_WRITE);
     
-    basicControl = smi_rd(BASIC_CONTROL_REG, smi);
+    basicControl = smi_reg(smi, BASIC_CONTROL_REG, 0, SMI_READ);
     // clear autoneg bit
-    basicControl &= ~(1 << BASIC_CONTROL_AUTONEG_EN_BIT);
-    smi_wr(BASIC_CONTROL_REG, basicControl, smi);
+    // basicControl &= ~(1 << BASIC_CONTROL_AUTONEG_EN_BIT);
+    // smi_reg(smi, BASIC_CONTROL_REG, basicControl, SMI_WRITE);
     // set autoneg bit
     basicControl |= 1 << BASIC_CONTROL_AUTONEG_EN_BIT;
-    smi_wr(BASIC_CONTROL_REG, basicControl, smi);
+    smi_reg(smi, BASIC_CONTROL_REG, basicControl, SMI_WRITE);
     // restart autoneg
     basicControl |= 1 << BASIC_CONTROL_RESTART_AUTONEG_BIT;
-    smi_wr(BASIC_CONTROL_REG, basicControl, smi);    
+    smi_reg(smi, BASIC_CONTROL_REG, basicControl, SMI_WRITE);    
 }
 
 void eth_phy_config_noauto(int eth100, smi_interface_t &smi) {
-    int basicControl = smi_rd(BASIC_CONTROL_REG, smi);
+    int basicControl = smi_reg(smi, BASIC_CONTROL_REG, 0, SMI_READ);
     // set duplex mode, clear autoneg and 100 Mbps.
     basicControl |= 1 << BASIC_CONTROL_FULL_DUPLEX_BIT;
     basicControl &= ~( (1 << BASIC_CONTROL_AUTONEG_EN_BIT)|
@@ -126,12 +117,12 @@ void eth_phy_config_noauto(int eth100, smi_interface_t &smi) {
     if (eth100) {                // Optionally set 100 Mbps
         basicControl |= 1 << BASIC_CONTROL_100_MBPS_BIT;
     }
-    smi_wr(BASIC_CONTROL_REG, basicControl, smi);
+    smi_reg(smi, BASIC_CONTROL_REG, basicControl, SMI_WRITE);
 }
 
 
 void eth_phy_loopback(int enable, smi_interface_t &smi) {
-    int controlReg = smi_rd(BASIC_CONTROL_REG, smi);
+    int controlReg = smi_reg(smi, BASIC_CONTROL_REG, 0, SMI_READ);
     // First clear both autoneg and loopback
     controlReg = controlReg & ~ ((1 << BASIC_CONTROL_AUTONEG_EN_BIT) |
                                  (1 << BASIC_CONTROL_LOOPBACK_BIT));
@@ -141,9 +132,9 @@ void eth_phy_loopback(int enable, smi_interface_t &smi) {
     } else {
         controlReg = controlReg | (1 << BASIC_CONTROL_AUTONEG_EN_BIT);
     }  
-    smi_wr(BASIC_CONTROL_REG, controlReg, smi);
+    smi_reg(smi, BASIC_CONTROL_REG, controlReg, SMI_WRITE);
 }
 
 int smiCheckLinkState(smi_interface_t &smi) {
-    return smi_rd(BASIC_STATUS_REG, smi) & (1<<BASIC_STATUS_LINK_BIT);    
+    return (smi_reg(smi, BASIC_STATUS_REG, 0, SMI_READ) >> BASIC_STATUS_LINK_BIT) & 1;    
 }
