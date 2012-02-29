@@ -21,6 +21,15 @@ Key Features
    * High priority (VLAN priority tag) queues
    * 802.1Qat traffic shaping
    * Dual port
+   
+Low thread count MII driver
+===========================
+
+An alternative, low thread count MII driver is available.
+
+   * MII pins in 1 thread
+   * Rx buffer support handled by interrupt in a designated second thread
+   * Optional service thread for providing an API similar to the 5-thread implementation
 
 Firmware Overview
 =================
@@ -36,6 +45,8 @@ Known Issues
    * The rx_packet-rx_packet timing constraint may fail because of the user defined packet filters. The user
      is required to fill in the timing details inside any user specified filter in order to help the XTA
      analyze the receive filter timing correctly.
+   * Packets exceeding the Ethernet maximum length can cause system crash
+   * Does not reject Ethernet/Ethernet-II/Ethernet-DIX encoded frames where the frame length does not match the length field 
 
 Required Modules
 =================
