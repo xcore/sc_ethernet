@@ -50,11 +50,11 @@ static int smi_bit_shift(smi_interface_t &smi, unsigned data, unsigned count, un
             smi.p_smi_mdio <: data >> i;
         }
         smi.p_smi_mdc  <: 0;
+        smi.p_smi_mdc  <: 0;
         if (inning) {
             smi.p_smi_mdio :> dataBit;
             data = (data << 1) | dataBit;
         }
-        smi.p_smi_mdc  <: 0;
         smi.p_smi_mdc  <: ~0;
     }        
     return data;
@@ -65,19 +65,20 @@ static int smi_bit_shift(smi_interface_t &smi, unsigned data, unsigned count, un
 static void smi_start(smi_interface_t &smi, unsigned reg, unsigned code) {
     smi_bit_shift(smi, 0xffffffff, 32, 0);         // Preamble
     smi_bit_shift(smi, code << 10 | smi.phy_address << 5 | reg, 14, 0);
-    smi_bit_shift(smi, 0, 2, 1);
 }
 
 
 /* Register read, values are 16-bit */
 static int smi_rd(int reg,  smi_interface_t &smi) {
     smi_start(smi, reg, 0x6);
+    smi_bit_shift(smi, 0, 2, 1);
     return smi_bit_shift(smi, 0, 16, 1);
 }
 
 /* Register write, data values are 16-bit */
 static void smi_wr(int reg, int val, smi_interface_t &smi) {
     smi_start(smi, reg, 0x5);
+    smi_bit_shift(smi, 2, 2, 0);
     smi_bit_shift(smi, val, 16, 0);
 }
 
