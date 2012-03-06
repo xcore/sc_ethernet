@@ -139,6 +139,12 @@ void send_avb_1722_router_cmd(chanend c,
     c <: hash;
   }
 }
+
+void mac_initialize_routing_table(chanend c)
+{
+	c <: ETHERNET_TX_INIT_AVB_ROUTER;
+}
+
 #endif
 
 int mac_calc_idle_slope(int bps);

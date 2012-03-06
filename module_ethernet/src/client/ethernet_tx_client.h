@@ -98,6 +98,14 @@ int mac_get_macaddr(chanend c_mac, unsigned char macaddr[]);
 
 #define ethernet_get_my_mac_adrs mac_get_macaddr
 
+/**
+ * Initialise the ethernet routing table.
+ *
+ * This is used by AVB to pass routing information into the ethernet
+ * filtering component.
+ */
+void mac_initialize_routing_table(chanend c);
+
 /** Adjust the mac level router table
  * \todo - fill this in - maybe change the name to something non-AVB
  *         specific.  can it be useful outside of AVB?
