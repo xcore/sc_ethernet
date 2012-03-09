@@ -1,13 +1,11 @@
 XCORE.com ETHERNET SOFTWARE COMPONENT
 .................................
 
-:Stable release: 2.0
+:Latest release: 2.1.1rc1
+:Maintainer: DavidNorman
+:Description: A complete Ethernet MII and MAC interface for 100MBps Ethernet
 
-:Status: Feature complete
 
-:Maintainer: https://github.com/DavidNorman
-
-:Description: Ethernet MII driver
 
 
 
@@ -37,12 +35,13 @@ Known Issues
      is required to fill in the timing details inside any user specified filter in order to help the XTA
      analyze the receive filter timing correctly.
 
-Required Modules
-=================
-
-xcommon
-
 Support
 =======
 
 Issues may be submitted via the Issues tab in this github repo. Response to any issues submitted as at the discretion of the maintainer for this line.
+
+Required software (dependencies)
+================================
+
+  * xcommon (if using development tools earlier than 11.11.0)
+
