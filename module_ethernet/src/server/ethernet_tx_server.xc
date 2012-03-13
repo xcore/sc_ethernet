@@ -17,6 +17,10 @@
 #include "avb_1722_router_table.h"
 #endif
 
+#ifndef ETHERNET_TX_PHY_TIMER_OFFSET
+#define ETHERNET_TX_PHY_TIMER_OFFSET 5
+#endif
+
 #define MAX_LINKS 10
 
 #define LINK_POLL_PERIOD 10000000
@@ -252,7 +256,7 @@ void ethernet_tx_server(
     	if (buf[p] != 0) {
     		int i = mii_packet_get_timestamp_id(buf[p]);
     		int ts = mii_packet_get_timestamp(buf[p]);
-    		tx[i-1] <: ts;
+    		tx[i-1] <: ts + ETHERNET_TX_PHY_TIMER_OFFSET;
     		if (get_and_dec_transmit_count(buf[p]) == 0)
     			mii_free(buf[p]);
     	}
