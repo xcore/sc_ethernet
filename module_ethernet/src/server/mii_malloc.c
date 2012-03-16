@@ -84,7 +84,7 @@ void mii_commit(mii_buffer_t buf, int n) {
   mempool_info_t *info = (mempool_info_t *) hdr->info;
   mii_packet_t *pkt;
 
-  hdr->size = (sizeof(malloc_hdr_t)/4) + ((n+3)>>2);
+  unsigned size = (sizeof(malloc_hdr_t)/4) + ((n+3)>>2);
 
   pkt = (mii_packet_t *) buf;
   pkt->stage = 0;
@@ -98,8 +98,9 @@ void mii_commit(mii_buffer_t buf, int n) {
   // will set the stage to 1 when the filter has run, and at that point the
   // ethernet_rx_server thread will start to process it.
   {
-	  int* wrptr = info->wrptr + hdr->size;
+	  int* wrptr = info->wrptr + size;
 	  if (wrptr > info->end) wrptr = info->start;
+	  hdr->size = size;
 	  info->wrptr = wrptr;
   }
 
@@ -134,8 +135,9 @@ void mii_free(mii_buffer_t buf) {
       info->rdptr = (int *) hdr;
 
       // If we have an unfreed packet, or have hit the end of the
-      // mempool fifo then stop
-      if (hdr->size > 0 || (char *) hdr == (char *) info->wrptr) {
+      // mempool fifo then stop (order of test is important due to lock
+      // free mii_commit)
+      if ((char *) hdr == (char *) info->wrptr || hdr->size > 0) {
           break;
       }
     } else {
@@ -196,7 +198,13 @@ int mii_update_my_rdptr(mii_mempool_t mempool, int rdptr0)
 
   hdr = (malloc_hdr_t *) rdptr;
   size = hdr->size;
-  if (size < 0) size = -size;
+
+#ifdef MII_MALLOC_ASSERT
+  // Should always be a positive size
+  if (size <= 0) {
+	  __builtin_trap();
+  }
+#endif
 
   rdptr = rdptr + size;  
 
@@ -218,6 +226,13 @@ mii_buffer_t mii_get_my_next_buf(mii_mempool_t mempool, int rdptr0)
     else
       rdptr = info->start;
   }
+
+#ifdef MII_MALLOC_ASSERT
+  // Should always be a positive size
+  if (*rdptr <= 0) {
+	  __builtin_trap();
+  }
+#endif
 
   return (mii_buffer_t) ((char *) rdptr + sizeof(malloc_hdr_t));
 }
