@@ -66,7 +66,7 @@ static int smi_bit_shift(smi_interface_t &smi, unsigned data, unsigned count, un
 
 // Register access: lots of 1111, then a code (read/write), phy address,
 // register, and a turn-around, then data.
-static int smi_reg(smi_interface_t &smi, unsigned reg, unsigned val, int inning) {
+int smi_reg(smi_interface_t &smi, unsigned reg, unsigned val, int inning) {
     smi_bit_shift(smi, 0xffffffff, 32, SMI_WRITE);         // Preamble
     smi_bit_shift(smi, (5+inning) << 10 | smi.phy_address << 5 | reg, 14, SMI_WRITE);
     smi_bit_shift(smi, 2, 2, inning);

@@ -73,5 +73,7 @@ int eth_phy_id(smi_interface_t &smi);
  */
 int smiCheckLinkState(smi_interface_t &smi);
 
+/**/
+int smi_reg(smi_interface_t &smi, unsigned reg, unsigned val, int inning);
 
 #endif
