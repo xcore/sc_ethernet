@@ -134,4 +134,11 @@ void send_avb_1722_router_cmd(chanend c,
 void mac_set_qav_bandwidth(chanend c_mac,
                            int bits_per_second);
 
+
+#ifdef __XC__ 
+/* Select handler to check if the Ethernet link is up or down */
+#pragma select handler
+void mac_check_link_client(chanend c, unsigned char &linkNum, int &status);
+#endif
+
 #endif
