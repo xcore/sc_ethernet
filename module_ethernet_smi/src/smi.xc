@@ -46,7 +46,33 @@ void smi_port_init(clock clk_smi, smi_interface_t &smi) {
 
 // Shift in a number of data bits to or from the SMI port
 static int smi_bit_shift(smi_interface_t &smi, unsigned data, unsigned count, unsigned inning) {
-    int i = count, dataBit;
+    int i = count, dataBit = 0;
+#ifdef SMI_MDC_BIT
+    if (smi.phy_address < 0) {
+        if (!inning) {
+            smi.p_smi_mdc  <: 1 << SMI_MDC_BIT | 1 << SMI_MDIO_BIT;
+        }
+        while (i != 0) {
+            i--;
+            if (inning) {
+                smi.p_smi_mdc :> dataBit;
+                dataBit &= (1 << SMI_MDIO_BIT);
+            } else {
+                dataBit = ((data >> i) & 1) << SMI_MDIO_BIT;
+                smi.p_smi_mdc  <: 1 << SMI_MDC_BIT | dataBit;
+            }
+            smi.p_smi_mdc  <:                    dataBit;
+            smi.p_smi_mdc  <:                    dataBit;
+            if (inning) {
+                smi.p_smi_mdc :> dataBit;
+                dataBit &= (1 << SMI_MDIO_BIT);
+                data = (data << 1) | (dataBit >> SMI_MDIO_BIT);
+            }
+            smi.p_smi_mdc  <: 1 << SMI_MDC_BIT | dataBit;
+        }        
+        return data;
+    }
+#endif
     while (i != 0) {
         i--;
         smi.p_smi_mdc  <: ~0;
