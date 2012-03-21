@@ -23,6 +23,17 @@
 #include "ethernet_tx_client.h"
 #include "print.h"
 
+
+#pragma select handler
+void mac_check_link_client(chanend c, unsigned char &linkNum, int &status)
+{
+  inuchar_byref(c, linkNum);
+
+  status = inuchar(c);
+  (void) inuchar(c);
+  (void) inct(c);
+}
+
 #pragma unsafe arrays
 static void ethernet_send_frame_unify(chanend ethernet_tx_svr, unsigned int Buf[], int count, unsigned int &sentTime, unsigned int Cmd, int ifnum)
 {
