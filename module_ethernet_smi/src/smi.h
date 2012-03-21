@@ -16,9 +16,16 @@
  *   
  **/
 typedef struct smi_interface_t {
-    int phy_address;           /**< Address of PHY, typically 0 or 0x1F.  */
+    int phy_address;           /**< Address of PHY, typically 0 or 0x1F.
+                                * Set bit 31 of phy_address to 1 to
+                                * indicate that this is a shared MDIO and
+                                * MDC port. MDIO port should be set to some
+                                * random unused port, MDC port should be
+                                * set to the shared port. SMI_MDC_BIT and
+                                * SMI_MDIO_BIT should be defined to
+                                * indicate which bits are used. */
     port p_smi_mdio;           /**< MDIO port. */
-    out port p_smi_mdc;        /**< MDC port.  */
+    port p_smi_mdc;            /**< MDC port.  */
 } smi_interface_t;
 
 /** Function that configures the SMI ports. Needs a clock block that it
@@ -73,5 +80,7 @@ int eth_phy_id(smi_interface_t &smi);
  */
 int smiCheckLinkState(smi_interface_t &smi);
 
+/**/
+int smi_reg(smi_interface_t &smi, unsigned reg, unsigned val, int inning);
 
 #endif
