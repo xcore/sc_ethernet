@@ -26,6 +26,10 @@
 #include "ethernet_rx_server.h"
 #include <print.h>
 
+#ifndef ETHERNET_RX_PHY_TIMER_OFFSET
+#define ETHERNET_RX_PHY_TIMER_OFFSET -50
+#endif
+
 // data structure to keep track of link layer status.
 typedef struct
 {
@@ -157,7 +161,7 @@ void mac_rx_send_frame0(mii_packet_t &p,
       }
       link <: (char) 0;
       link <: (char) 0;      
-      link <: p.timestamp;
+      link <: p.timestamp + ETHERNET_RX_PHY_TIMER_OFFSET;
     }  
     
   }

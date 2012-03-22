@@ -17,11 +17,15 @@
 #include "avb_1722_router_table.h"
 #endif
 
+#ifndef ETHERNET_TX_PHY_TIMER_OFFSET
+#define ETHERNET_TX_PHY_TIMER_OFFSET 5
+#endif
+
 #define MAX_LINKS 10
 
 #define LINK_POLL_PERIOD 10000000
 
-void checkLink(smi_interface_t &smi,
+static void mac_check_link_server(smi_interface_t &smi,
                int linkNum,
                chanend c,
                int &phy_status)
@@ -179,10 +183,10 @@ void ethernet_tx_server(
     select {
       case tmr when timerafter(linkCheckTime) :> int:
         if (!isnull(smi1) && !isnull(connect_status)) {
-          checkLink(smi1, 0, connect_status, phy_status[0]);
+          mac_check_link_server(smi1, 0, connect_status, phy_status[0]);
         }
         if (!isnull(smi2) && !isnull(connect_status)) {
-          checkLink(smi2, 1, connect_status, phy_status[1]);
+          mac_check_link_server(smi2, 1, connect_status, phy_status[1]);
         }       
         linkCheckTime += LINK_POLL_PERIOD;
       break;
@@ -252,7 +256,7 @@ void ethernet_tx_server(
     	if (buf[p] != 0) {
     		int i = mii_packet_get_timestamp_id(buf[p]);
     		int ts = mii_packet_get_timestamp(buf[p]);
-    		tx[i-1] <: ts;
+    		tx[i-1] <: ts + ETHERNET_TX_PHY_TIMER_OFFSET;
     		if (get_and_dec_transmit_count(buf[p]) == 0)
     			mii_free(buf[p]);
     	}

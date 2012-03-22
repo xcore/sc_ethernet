@@ -19,6 +19,10 @@ extern hwlock_t ethernet_memory_lock;
 int buffer[BUFFER_SIZE];
 mii_mempool_t mempool;
 
+int done=0;
+
+void wait(unsigned);
+
 // Copied from the private data structure in mii_malloc.c
 typedef struct mempool_info_t {
   int *rdptr;
@@ -40,17 +44,17 @@ void do_error(unsigned line, char* string)
 
 #define error(a) do_error(__LINE__, a);
 
-void init()
+static void test_init_mempool()
 {
     mempool = (mii_mempool_t)buffer;
     mii_init_mempool(mempool, sizeof(buffer), PACKET_SIZE_IN_BYTES);
 }
 
-void test()
+void test_logical()
 {
 	ethernet_memory_lock = __hwlock_init();
 
-	init();
+	test_init_mempool();
 
     if (hdr->rdptr != &buffer[5]) error("Buffer rdptr not correct");
     if (hdr->wrptr != &buffer[5]) error("Buffer wrptr not correct");
@@ -61,7 +65,6 @@ void test()
     //
     // TEST GENERAL FILLING AND EMPTYING
     //
-
     {
     	unsigned b, b1,b2,b3,b4,b5,b6;
 
@@ -158,7 +161,7 @@ void test()
     //  TEST BUFFER FREE OF OUT-OF-ORDER PACKETS
     //
 
-	init();
+    test_init_mempool();
 	{
 		unsigned b1,b2,b3,b4,b5,b6;
 
@@ -218,6 +221,59 @@ void test()
         mii_free(b6);
         if ((unsigned)hdr->rdptr != b1-8) error("Buffer rdptr not correct");
 	}
-
-    printstrln("Ok");
 }
+
+
+// TESTS FOR CHECKING INTER-THREAD TIMING
+
+unsigned counter_no_mem = 0;
+unsigned counter_allocated = 0;
+unsigned counter_freed = 0;
+
+unsigned server_rdptr;
+
+void test_timing_init()
+{
+	test_init_mempool();
+	server_rdptr = mii_init_my_rdptr(mempool);
+}
+
+void test_timing_read()
+{
+	srand(11);
+	while (!done)
+	{
+		mii_buffer_t buf = mii_get_my_next_buf(mempool, server_rdptr);
+		if (buf != 0)
+		{
+			wait(0xf);
+			server_rdptr = mii_update_my_rdptr(mempool, server_rdptr);
+			wait(0xff);
+			mii_free(buf);
+			counter_freed++;
+		}
+	}
+}
+
+
+void test_timing_write()
+{
+	srand(7);
+	while (counter_allocated < 0x1000000)
+	{
+		mii_buffer_t buf = mii_reserve(mempool);
+		if (buf != 0)
+		{
+			mii_commit(buf, 40);
+			counter_allocated++;
+			wait(0xff);
+		}
+		else
+		{
+			counter_no_mem++;
+		}
+	}
+	done = 1;
+}
+
+
