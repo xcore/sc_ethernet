@@ -122,17 +122,18 @@ void mii_free(mii_buffer_t buf) {
 	// If we are freeing the oldest packet in the fifo then actually
 	// move the rd_ptr.
     if ((char *) hdr == (char *) info->rdptr) {
+      malloc_hdr_t *old_hdr = hdr;
 
       int size = hdr->size;
       if (size < 0) size = -size;
-
-      // Mark as empty
-      hdr->size = 0;
 
       // Move to the next packet
       hdr = (malloc_hdr_t *) ((int *) hdr + size);
       if ((char *) hdr > (char *) info->end) hdr = (malloc_hdr_t *) info->start;
       info->rdptr = (int *) hdr;
+
+      // Mark as empty
+      old_hdr->size = 0;
 
       // If we have an unfreed packet, or have hit the end of the
       // mempool fifo then stop (order of test is important due to lock
