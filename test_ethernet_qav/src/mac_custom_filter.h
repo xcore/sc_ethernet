@@ -7,7 +7,7 @@
 
 unsigned short get_ethertype(unsigned char buf[]);
 
-inline unsigned int mac_custom_filter(unsigned int data[]){
+static inline unsigned int mac_custom_filter(unsigned int data[]){
 	int mask = FILTER_BROADCAST;
 	unsigned short etype;
 

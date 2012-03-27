@@ -16,7 +16,7 @@ int swlock_try_acquire_xc(swlock_t &lock);
 
 void swlock_acquire_xc(swlock_t &lock);
 
-inline void swlock_release_xc(swlock_t &lock)
+static inline void swlock_release_xc(swlock_t &lock)
 {
   lock = 0;
 }
@@ -27,7 +27,7 @@ int swlock_try_acquire(volatile swlock_t *lock);
 
 void swlock_acquire(volatile swlock_t *lock);
 
-inline void swlock_release(volatile swlock_t *lock)
+static inline void swlock_release(volatile swlock_t *lock)
 {
   *lock = 0;
 }
