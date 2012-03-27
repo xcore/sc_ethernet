@@ -237,33 +237,3 @@ mii_buffer_t mii_get_my_next_buf(mii_mempool_t mempool, int rdptr0)
 
   return (mii_buffer_t) ((char *) rdptr + sizeof(malloc_hdr_t));
 }
-
-// These are the non-inline implementations of the mii_packet member
-// get functions
-
-int mii_packet_get_data(int buf, int n)
-{
-	return (int)(((mii_packet_t*)buf)->data[n]);
-}
-
-int mii_packet_get_data_word(int data, int n)
-{
-	return ((unsigned int*)data)[n];
-}
-
-#define gen_get_field(field) \
-	int mii_packet_get_##field (int buf) \
-	{ \
-		return ((mii_packet_t*)buf)->field; \
-	}
-
-gen_get_field(length)
-gen_get_field(timestamp)
-gen_get_field(filter_result)
-gen_get_field(src_port)
-gen_get_field(timestamp_id)
-gen_get_field(stage)
-gen_get_field(tcount)
-gen_get_field(crc)
-gen_get_field(forwarding)
-
