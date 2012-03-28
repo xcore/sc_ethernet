@@ -25,4 +25,5 @@
     <subpartnumber>XM-000073-SW</subpartnumber>
     <vendor>XMOS</vendor>
     <xpd_version>1.0</xpd_version>
+    <docdir>doc</docdir>
 </xpd>
