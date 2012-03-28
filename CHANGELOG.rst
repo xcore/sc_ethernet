@@ -1,15 +1,15 @@
-XCORE.com ETHERNET Changelog
-======================
+Ethernet Component Change Log
+=============================
 
-:Version:   2.0.0
+2.1.2
+-----
+  * Fix for ethernet buffering errors
 
-Firmware
-=======
+2.1.1
+-----
+   * Updated documentation and packaging for tools compatibility
 
-module_ethernet
-----------------------
-
-2.0.3
+2.1.0
 -----
    * Single thread MII driver interface added
    * Interface thread to make single thread MII driver similar to 5 thread interface
@@ -40,4 +40,3 @@ module_ethernet
 -----
 
    * Initial complete implementation
-
