@@ -19,6 +19,8 @@
     <release parenthash = "121fd01bb152513b1ce7dcef2a65840b92068ad0" version = "2.1.0rc0" githash = "46c1c61dcc8b3c6eae646451b39c345c5cd27853"></release>
     <release parenthash = "a3f7b77d3501f9e572c018011cb01aa3b618fcfc" version = "2.1.1rc0" githash = "a5d0bbd2469f4aa8a166f53041a959e6d8c182ab"></release>
     <release parenthash = "3649124bcfe5df28473671639a4fc541c2b11b81" version = "2.1.1rc1"></release>
+    <partnumber>XM-001621-DH</partnumber>
+    <subpartnumber>XM-000073-SW</subpartnumber>
     <vendor>XMOS</vendor>
     <xpd_version>1.0</xpd_version>
 </xpd>
