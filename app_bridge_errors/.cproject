@@ -3,8 +3,8 @@
 <cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
     <storageModule moduleId="org.eclipse.cdt.core.settings">
               
-        <cconfiguration id="com.xmos.cdt.toolchain.78990848">
-            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.xmos.cdt.toolchain.78990848" moduleId="org.eclipse.cdt.core.settings" name="Default">
+        <cconfiguration id="com.xmos.cdt.toolchain.56212532">
+            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.xmos.cdt.toolchain.56212532" moduleId="org.eclipse.cdt.core.settings" name="Default">
                 <externalSettings />
                 <extensions>
                     <extension id="com.xmos.cdt.core.XEBinaryParser" point="org.eclipse.cdt.core.BinaryParser" />
@@ -12,18 +12,40 @@
                     <extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser" />
                 </extensions>
             </storageModule>
+            <storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
+                <buildTargets>
+                    <target name="all" path=""
+targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+                        <buildCommand>xmake</buildCommand>
+                        <buildArguments></buildArguments>
+                        <buildTarget>all</buildTarget>
+                        <stopOnError>true</stopOnError>
+                        <useDefaultCommand>true</useDefaultCommand>
+                        <runAllBuilders>true</runAllBuilders>
+                    </target>
+                    <target name="clean" path=""
+targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+                        <buildCommand>xmake</buildCommand>
+                        <buildArguments></buildArguments>
+                        <buildTarget>clean</buildTarget>
+                        <stopOnError>true</stopOnError>
+                        <useDefaultCommand>true</useDefaultCommand>
+                        <runAllBuilders>true</runAllBuilders>
+                    </target>
+                </buildTargets>
+            </storageModule>
             <storageModule moduleId="cdtBuildSystem" version="4.0.0">
-                <configuration buildProperties="" description="" id="com.xmos.cdt.toolchain.78990848" name="Default" parent="org.eclipse.cdt.build.core.emptycfg">
-                    <folderInfo id="com.xmos.cdt.toolchain.78990848.1127281840" name="/" resourcePath="">
-                        <toolChain id = "com.xmos.cdt.toolchain.87169390" name="com.xmos.cdt.toolchain" superClass="com.xmos.cdt.toolchain">
-                            <targetPlatform archList="all" binaryParser="com.xmos.cdt.core.XEBinaryParser" id = "com.xmos.cdt.core.platform.87573612" isAbstract="false" osList="linux,win32,macosx" superClass="com.xmos.cdt.core.platform" />
-                            <builder arguments="" id = "com.xmos.cdt.builder.base.29613313" keepEnvironmentInBuildfile="false" managedBuildOn="false" superClass="com.xmos.cdt.builder.base">
+                <configuration buildProperties="" description="" id="com.xmos.cdt.toolchain.56212532" name="Default" parent="org.eclipse.cdt.build.core.emptycfg">
+                    <folderInfo id="com.xmos.cdt.toolchain.56212532.1127281840" name="/" resourcePath="">
+                        <toolChain id = "com.xmos.cdt.toolchain.72147944" name="com.xmos.cdt.toolchain" superClass="com.xmos.cdt.toolchain">
+                            <targetPlatform archList="all" binaryParser="com.xmos.cdt.core.XEBinaryParser" id = "com.xmos.cdt.core.platform.74072550" isAbstract="false" osList="linux,win32,macosx" superClass="com.xmos.cdt.core.platform" />
+                            <builder arguments="" id = "com.xmos.cdt.builder.base.72662178" keepEnvironmentInBuildfile="false" managedBuildOn="false" superClass="com.xmos.cdt.builder.base">
                                 <outputEntries>
                                     <entry flags="VALUE_WORKSPACE_PATH" kind="outputPath" name="bin" />
                                 </outputEntries>
                             </builder>
-                            <tool id = "com.xmos.cdt.xc.compiler.81716250" name="com.xmos.cdt.xc.compiler" superClass="com.xmos.cdt.xc.compiler">
-                                <option id = "com.xmos.c.compiler.option.include.paths.5141789" name="com.xmos.c.compiler.option.include.paths" superClass="com.xmos.c.compiler.option.include.paths" valueType="includePath">
+                            <tool id = "com.xmos.cdt.xc.compiler.47556445" name="com.xmos.cdt.xc.compiler" superClass="com.xmos.cdt.xc.compiler">
+                                <option id = "com.xmos.c.compiler.option.include.paths.20913315" name="com.xmos.c.compiler.option.include.paths" superClass="com.xmos.c.compiler.option.include.paths" valueType="includePath">
                                     <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include/gcc&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include/c++/4.2.1&quot;' />
@@ -34,8 +56,8 @@
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi/src}&quot;' />
 
                                 </option>
-                                <inputType id = "com.xmos.cdt.xc.compiler.input.49301440" name="XC Sources" superClass="com.xmos.cdt.xc.compiler.input" />
-                                <option id = "gnu.c.compiler.option.include.paths.27613600" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
+                                <inputType id = "com.xmos.cdt.xc.compiler.input.99453774" name="XC Sources" superClass="com.xmos.cdt.xc.compiler.input" />
+                                <option id = "gnu.c.compiler.option.include.paths.73975512" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_mii_singlethread/src}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_mii_singlethread}&quot;' />
@@ -43,31 +65,15 @@
 
                                 </option>
                             </tool>
-                            <tool id = "com.xmos.cdt.xc.compiler.base.31189643" name="com.xmos.cdt.xc.compiler.base" superClass="com.xmos.cdt.xc.compiler.base">
-                                <option id = "gnu.c.compiler.option.include.paths.90808934" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
+                            <tool id = "com.xmos.cdt.xc.compiler.base.82781852" name="com.xmos.cdt.xc.compiler.base" superClass="com.xmos.cdt.xc.compiler.base">
+                                <option id = "gnu.c.compiler.option.include.paths.41951685" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_mii_singlethread/src}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_mii_singlethread}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi/src}&quot;' />
 
                                 </option>
-                                <option id = "com.xmos.c.compiler.option.include.paths.30837954" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_mii_singlethread/src}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_mii_singlethread}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi/src}&quot;' />
-
-                                </option>
-                            </tool>
-                            <tool id = "com.xmos.cdt.c.compiler.base.35088081" name="com.xmos.cdt.c.compiler.base" superClass="com.xmos.cdt.c.compiler.base">
-                                <option id = "gnu.c.compiler.option.include.paths.65028096" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_mii_singlethread/src}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_mii_singlethread}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi/src}&quot;' />
-
-                                </option>
-                                <option id = "com.xmos.c.compiler.option.include.paths.70818779" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
+                                <option id = "com.xmos.c.compiler.option.include.paths.60179275" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_mii_singlethread/src}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_mii_singlethread}&quot;' />
@@ -75,15 +81,15 @@
 
                                 </option>
                             </tool>
-                            <tool id = "com.xmos.cdt.cpp.compiler.base.59746957" name="com.xmos.cdt.cpp.compiler.base" superClass="com.xmos.cdt.cpp.compiler.base">
-                                <option id = "gnu.c.compiler.option.include.paths.78413197" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
+                            <tool id = "com.xmos.cdt.c.compiler.base.11547004" name="com.xmos.cdt.c.compiler.base" superClass="com.xmos.cdt.c.compiler.base">
+                                <option id = "gnu.c.compiler.option.include.paths.38126008" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_mii_singlethread/src}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_mii_singlethread}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi/src}&quot;' />
 
                                 </option>
-                                <option id = "com.xmos.c.compiler.option.include.paths.71838447" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
+                                <option id = "com.xmos.c.compiler.option.include.paths.21238770" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_mii_singlethread/src}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_mii_singlethread}&quot;' />
@@ -91,15 +97,31 @@
 
                                 </option>
                             </tool>
-                            <tool id = "com.xmos.cdt.core.assembler.base.32565748" name="com.xmos.cdt.core.assembler.base" superClass="com.xmos.cdt.core.assembler.base">
-                                <option id = "gnu.c.compiler.option.include.paths.83334822" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
+                            <tool id = "com.xmos.cdt.cpp.compiler.base.69897107" name="com.xmos.cdt.cpp.compiler.base" superClass="com.xmos.cdt.cpp.compiler.base">
+                                <option id = "gnu.c.compiler.option.include.paths.92324989" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_mii_singlethread/src}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_mii_singlethread}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi/src}&quot;' />
 
                                 </option>
-                                <option id = "com.xmos.c.compiler.option.include.paths.57924525" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
+                                <option id = "com.xmos.c.compiler.option.include.paths.64862478" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_mii_singlethread/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_mii_singlethread}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi/src}&quot;' />
+
+                                </option>
+                            </tool>
+                            <tool id = "com.xmos.cdt.core.assembler.base.69689133" name="com.xmos.cdt.core.assembler.base" superClass="com.xmos.cdt.core.assembler.base">
+                                <option id = "gnu.c.compiler.option.include.paths.93248838" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_mii_singlethread/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_mii_singlethread}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi/src}&quot;' />
+
+                                </option>
+                                <option id = "com.xmos.c.compiler.option.include.paths.57804578" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_mii_singlethread/src}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_mii_singlethread}&quot;' />
@@ -202,6 +224,6 @@
 
     </storageModule>
     <storageModule moduleId="cdtBuildSystem" version="4.0.0">
-        <project id = "app_bridge_errors.null.72605134" name="app_bridge_errors" />
+        <project id = "app_bridge_errors.null.67548887" name="app_bridge_errors" />
     </storageModule>
 </cproject>

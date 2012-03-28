@@ -3,8 +3,8 @@
 <cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
     <storageModule moduleId="org.eclipse.cdt.core.settings">
               
-        <cconfiguration id="com.xmos.cdt.toolchain.27250483">
-            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.xmos.cdt.toolchain.27250483" moduleId="org.eclipse.cdt.core.settings" name="Default">
+        <cconfiguration id="com.xmos.cdt.toolchain.7964135">
+            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.xmos.cdt.toolchain.7964135" moduleId="org.eclipse.cdt.core.settings" name="Default">
                 <externalSettings />
                 <extensions>
                     <extension id="com.xmos.cdt.core.XEBinaryParser" point="org.eclipse.cdt.core.BinaryParser" />
@@ -12,58 +12,80 @@
                     <extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser" />
                 </extensions>
             </storageModule>
+            <storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
+                <buildTargets>
+                    <target name="all" path=""
+targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+                        <buildCommand>xmake</buildCommand>
+                        <buildArguments> -f .makefile</buildArguments>
+                        <buildTarget>all</buildTarget>
+                        <stopOnError>true</stopOnError>
+                        <useDefaultCommand>true</useDefaultCommand>
+                        <runAllBuilders>true</runAllBuilders>
+                    </target>
+                    <target name="clean" path=""
+targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+                        <buildCommand>xmake</buildCommand>
+                        <buildArguments> -f .makefile</buildArguments>
+                        <buildTarget>clean</buildTarget>
+                        <stopOnError>true</stopOnError>
+                        <useDefaultCommand>true</useDefaultCommand>
+                        <runAllBuilders>true</runAllBuilders>
+                    </target>
+                </buildTargets>
+            </storageModule>
             <storageModule moduleId="cdtBuildSystem" version="4.0.0">
-                <configuration buildProperties="" description="" id="com.xmos.cdt.toolchain.27250483" name="Default" parent="org.eclipse.cdt.build.core.emptycfg">
-                    <folderInfo id="com.xmos.cdt.toolchain.27250483.1127281840" name="/" resourcePath="">
-                        <toolChain id = "com.xmos.cdt.toolchain.97241340" name="com.xmos.cdt.toolchain" superClass="com.xmos.cdt.toolchain">
-                            <targetPlatform archList="all" binaryParser="com.xmos.cdt.core.XEBinaryParser" id = "com.xmos.cdt.core.platform.73232905" isAbstract="false" osList="linux,win32,macosx" superClass="com.xmos.cdt.core.platform" />
-                            <builder arguments=" -f .makefile" id = "com.xmos.cdt.builder.base.68146936" keepEnvironmentInBuildfile="false" managedBuildOn="false" superClass="com.xmos.cdt.builder.base">
+                <configuration buildProperties="" description="" id="com.xmos.cdt.toolchain.7964135" name="Default" parent="org.eclipse.cdt.build.core.emptycfg">
+                    <folderInfo id="com.xmos.cdt.toolchain.7964135.1127281840" name="/" resourcePath="">
+                        <toolChain id = "com.xmos.cdt.toolchain.79302742" name="com.xmos.cdt.toolchain" superClass="com.xmos.cdt.toolchain">
+                            <targetPlatform archList="all" binaryParser="com.xmos.cdt.core.XEBinaryParser" id = "com.xmos.cdt.core.platform.65443608" isAbstract="false" osList="linux,win32,macosx" superClass="com.xmos.cdt.core.platform" />
+                            <builder arguments=" -f .makefile" id = "com.xmos.cdt.builder.base.53660961" keepEnvironmentInBuildfile="false" managedBuildOn="false" superClass="com.xmos.cdt.builder.base">
                                 <outputEntries>
                                     <entry flags="VALUE_WORKSPACE_PATH" kind="outputPath" name="bin" />
                                 </outputEntries>
                             </builder>
-                            <tool id = "com.xmos.cdt.xc.compiler.9065732" name="com.xmos.cdt.xc.compiler" superClass="com.xmos.cdt.xc.compiler">
-                                <option id = "com.xmos.c.compiler.option.include.paths.76080756" name="com.xmos.c.compiler.option.include.paths" superClass="com.xmos.c.compiler.option.include.paths" valueType="includePath">
+                            <tool id = "com.xmos.cdt.xc.compiler.29298924" name="com.xmos.cdt.xc.compiler" superClass="com.xmos.cdt.xc.compiler">
+                                <option id = "com.xmos.c.compiler.option.include.paths.16342786" name="com.xmos.c.compiler.option.include.paths" superClass="com.xmos.c.compiler.option.include.paths" valueType="includePath">
                                     <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include/gcc&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include/c++/4.2.1&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include/c++/4.2.1/xcore-xmos-elf&quot;' />
                                     
                                 </option>
-                                <inputType id = "com.xmos.cdt.xc.compiler.input.58959241" name="XC Sources" superClass="com.xmos.cdt.xc.compiler.input" />
-                                <option id = "gnu.c.compiler.option.include.paths.85587683" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
+                                <inputType id = "com.xmos.cdt.xc.compiler.input.89308776" name="XC Sources" superClass="com.xmos.cdt.xc.compiler.input" />
+                                <option id = "gnu.c.compiler.option.include.paths.95420075" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
                                     
                                 </option>
                             </tool>
-                            <tool id = "com.xmos.cdt.xc.compiler.base.19940851" name="com.xmos.cdt.xc.compiler.base" superClass="com.xmos.cdt.xc.compiler.base">
-                                <option id = "gnu.c.compiler.option.include.paths.35303115" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
+                            <tool id = "com.xmos.cdt.xc.compiler.base.44569896" name="com.xmos.cdt.xc.compiler.base" superClass="com.xmos.cdt.xc.compiler.base">
+                                <option id = "gnu.c.compiler.option.include.paths.87963174" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
                                     
                                 </option>
-                                <option id = "com.xmos.c.compiler.option.include.paths.58480042" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
-                                    
-                                </option>
-                            </tool>
-                            <tool id = "com.xmos.cdt.c.compiler.base.19408023" name="com.xmos.cdt.c.compiler.base" superClass="com.xmos.cdt.c.compiler.base">
-                                <option id = "gnu.c.compiler.option.include.paths.91507446" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
-                                    
-                                </option>
-                                <option id = "com.xmos.c.compiler.option.include.paths.18971676" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
+                                <option id = "com.xmos.c.compiler.option.include.paths.41177287" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
                                     
                                 </option>
                             </tool>
-                            <tool id = "com.xmos.cdt.cpp.compiler.base.98992248" name="com.xmos.cdt.cpp.compiler.base" superClass="com.xmos.cdt.cpp.compiler.base">
-                                <option id = "gnu.c.compiler.option.include.paths.66948796" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
+                            <tool id = "com.xmos.cdt.c.compiler.base.17963433" name="com.xmos.cdt.c.compiler.base" superClass="com.xmos.cdt.c.compiler.base">
+                                <option id = "gnu.c.compiler.option.include.paths.17502234" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
                                     
                                 </option>
-                                <option id = "com.xmos.c.compiler.option.include.paths.94659051" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
+                                <option id = "com.xmos.c.compiler.option.include.paths.85423405" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
                                     
                                 </option>
                             </tool>
-                            <tool id = "com.xmos.cdt.core.assembler.base.31648389" name="com.xmos.cdt.core.assembler.base" superClass="com.xmos.cdt.core.assembler.base">
-                                <option id = "gnu.c.compiler.option.include.paths.57767955" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
+                            <tool id = "com.xmos.cdt.cpp.compiler.base.94016906" name="com.xmos.cdt.cpp.compiler.base" superClass="com.xmos.cdt.cpp.compiler.base">
+                                <option id = "gnu.c.compiler.option.include.paths.64424388" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
                                     
                                 </option>
-                                <option id = "com.xmos.c.compiler.option.include.paths.13385645" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
+                                <option id = "com.xmos.c.compiler.option.include.paths.33191832" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
+                                    
+                                </option>
+                            </tool>
+                            <tool id = "com.xmos.cdt.core.assembler.base.45265405" name="com.xmos.cdt.core.assembler.base" superClass="com.xmos.cdt.core.assembler.base">
+                                <option id = "gnu.c.compiler.option.include.paths.16701807" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
+                                    
+                                </option>
+                                <option id = "com.xmos.c.compiler.option.include.paths.65156733" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
                                     
                                 </option>
                             </tool>
@@ -162,6 +184,6 @@
 
     </storageModule>
     <storageModule moduleId="cdtBuildSystem" version="4.0.0">
-        <project id = "module_ethernet_smi.null.97799837" name="module_ethernet_smi" />
+        <project id = "module_ethernet_smi.null.17862772" name="module_ethernet_smi" />
     </storageModule>
 </cproject>

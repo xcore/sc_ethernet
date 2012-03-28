@@ -3,8 +3,8 @@
 <cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
     <storageModule moduleId="org.eclipse.cdt.core.settings">
               
-        <cconfiguration id="com.xmos.cdt.toolchain.15043431">
-            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.xmos.cdt.toolchain.15043431" moduleId="org.eclipse.cdt.core.settings" name="Default">
+        <cconfiguration id="com.xmos.cdt.toolchain.82590649">
+            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.xmos.cdt.toolchain.82590649" moduleId="org.eclipse.cdt.core.settings" name="Default">
                 <externalSettings />
                 <extensions>
                     <extension id="com.xmos.cdt.core.XEBinaryParser" point="org.eclipse.cdt.core.BinaryParser" />
@@ -12,18 +12,40 @@
                     <extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser" />
                 </extensions>
             </storageModule>
+            <storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
+                <buildTargets>
+                    <target name="all" path=""
+targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+                        <buildCommand>xmake</buildCommand>
+                        <buildArguments></buildArguments>
+                        <buildTarget>all</buildTarget>
+                        <stopOnError>true</stopOnError>
+                        <useDefaultCommand>true</useDefaultCommand>
+                        <runAllBuilders>true</runAllBuilders>
+                    </target>
+                    <target name="clean" path=""
+targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+                        <buildCommand>xmake</buildCommand>
+                        <buildArguments></buildArguments>
+                        <buildTarget>clean</buildTarget>
+                        <stopOnError>true</stopOnError>
+                        <useDefaultCommand>true</useDefaultCommand>
+                        <runAllBuilders>true</runAllBuilders>
+                    </target>
+                </buildTargets>
+            </storageModule>
             <storageModule moduleId="cdtBuildSystem" version="4.0.0">
-                <configuration buildProperties="" description="" id="com.xmos.cdt.toolchain.15043431" name="Default" parent="org.eclipse.cdt.build.core.emptycfg">
-                    <folderInfo id="com.xmos.cdt.toolchain.15043431.1127281840" name="/" resourcePath="">
-                        <toolChain id = "com.xmos.cdt.toolchain.50982525" name="com.xmos.cdt.toolchain" superClass="com.xmos.cdt.toolchain">
-                            <targetPlatform archList="all" binaryParser="com.xmos.cdt.core.XEBinaryParser" id = "com.xmos.cdt.core.platform.63404986" isAbstract="false" osList="linux,win32,macosx" superClass="com.xmos.cdt.core.platform" />
-                            <builder arguments="" id = "com.xmos.cdt.builder.base.47677880" keepEnvironmentInBuildfile="false" managedBuildOn="false" superClass="com.xmos.cdt.builder.base">
+                <configuration buildProperties="" description="" id="com.xmos.cdt.toolchain.82590649" name="Default" parent="org.eclipse.cdt.build.core.emptycfg">
+                    <folderInfo id="com.xmos.cdt.toolchain.82590649.1127281840" name="/" resourcePath="">
+                        <toolChain id = "com.xmos.cdt.toolchain.79306408" name="com.xmos.cdt.toolchain" superClass="com.xmos.cdt.toolchain">
+                            <targetPlatform archList="all" binaryParser="com.xmos.cdt.core.XEBinaryParser" id = "com.xmos.cdt.core.platform.76569945" isAbstract="false" osList="linux,win32,macosx" superClass="com.xmos.cdt.core.platform" />
+                            <builder arguments="" id = "com.xmos.cdt.builder.base.15956049" keepEnvironmentInBuildfile="false" managedBuildOn="false" superClass="com.xmos.cdt.builder.base">
                                 <outputEntries>
                                     <entry flags="VALUE_WORKSPACE_PATH" kind="outputPath" name="bin" />
                                 </outputEntries>
                             </builder>
-                            <tool id = "com.xmos.cdt.xc.compiler.59349329" name="com.xmos.cdt.xc.compiler" superClass="com.xmos.cdt.xc.compiler">
-                                <option id = "com.xmos.c.compiler.option.include.paths.35508934" name="com.xmos.c.compiler.option.include.paths" superClass="com.xmos.c.compiler.option.include.paths" valueType="includePath">
+                            <tool id = "com.xmos.cdt.xc.compiler.10004662" name="com.xmos.cdt.xc.compiler" superClass="com.xmos.cdt.xc.compiler">
+                                <option id = "com.xmos.c.compiler.option.include.paths.27994123" name="com.xmos.c.compiler.option.include.paths" superClass="com.xmos.c.compiler.option.include.paths" valueType="includePath">
                                     <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include/gcc&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include/c++/4.2.1&quot;' />
@@ -36,8 +58,8 @@
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks}&quot;' />
 
                                 </option>
-                                <inputType id = "com.xmos.cdt.xc.compiler.input.25058920" name="XC Sources" superClass="com.xmos.cdt.xc.compiler.input" />
-                                <option id = "gnu.c.compiler.option.include.paths.82848945" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
+                                <inputType id = "com.xmos.cdt.xc.compiler.input.57617084" name="XC Sources" superClass="com.xmos.cdt.xc.compiler.input" />
+                                <option id = "gnu.c.compiler.option.include.paths.63857932" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
@@ -47,8 +69,8 @@
 
                                 </option>
                             </tool>
-                            <tool id = "com.xmos.cdt.xc.compiler.base.29845287" name="com.xmos.cdt.xc.compiler.base" superClass="com.xmos.cdt.xc.compiler.base">
-                                <option id = "gnu.c.compiler.option.include.paths.59084306" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
+                            <tool id = "com.xmos.cdt.xc.compiler.base.55340620" name="com.xmos.cdt.xc.compiler.base" superClass="com.xmos.cdt.xc.compiler.base">
+                                <option id = "gnu.c.compiler.option.include.paths.88615754" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
@@ -57,27 +79,7 @@
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks}&quot;' />
 
                                 </option>
-                                <option id = "com.xmos.c.compiler.option.include.paths.47311387" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/client}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks}&quot;' />
-
-                                </option>
-                            </tool>
-                            <tool id = "com.xmos.cdt.c.compiler.base.32200657" name="com.xmos.cdt.c.compiler.base" superClass="com.xmos.cdt.c.compiler.base">
-                                <option id = "gnu.c.compiler.option.include.paths.37569940" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/client}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks}&quot;' />
-
-                                </option>
-                                <option id = "com.xmos.c.compiler.option.include.paths.33905761" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
+                                <option id = "com.xmos.c.compiler.option.include.paths.9447393" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
@@ -87,8 +89,8 @@
 
                                 </option>
                             </tool>
-                            <tool id = "com.xmos.cdt.cpp.compiler.base.8657208" name="com.xmos.cdt.cpp.compiler.base" superClass="com.xmos.cdt.cpp.compiler.base">
-                                <option id = "gnu.c.compiler.option.include.paths.23321482" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
+                            <tool id = "com.xmos.cdt.c.compiler.base.16338304" name="com.xmos.cdt.c.compiler.base" superClass="com.xmos.cdt.c.compiler.base">
+                                <option id = "gnu.c.compiler.option.include.paths.96725352" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
@@ -97,7 +99,7 @@
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks}&quot;' />
 
                                 </option>
-                                <option id = "com.xmos.c.compiler.option.include.paths.68808715" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
+                                <option id = "com.xmos.c.compiler.option.include.paths.45190697" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
@@ -107,8 +109,8 @@
 
                                 </option>
                             </tool>
-                            <tool id = "com.xmos.cdt.core.assembler.base.92594042" name="com.xmos.cdt.core.assembler.base" superClass="com.xmos.cdt.core.assembler.base">
-                                <option id = "gnu.c.compiler.option.include.paths.28939833" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
+                            <tool id = "com.xmos.cdt.cpp.compiler.base.16226053" name="com.xmos.cdt.cpp.compiler.base" superClass="com.xmos.cdt.cpp.compiler.base">
+                                <option id = "gnu.c.compiler.option.include.paths.96383507" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
@@ -117,7 +119,27 @@
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks}&quot;' />
 
                                 </option>
-                                <option id = "com.xmos.c.compiler.option.include.paths.62132187" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
+                                <option id = "com.xmos.c.compiler.option.include.paths.29662507" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/client}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks}&quot;' />
+
+                                </option>
+                            </tool>
+                            <tool id = "com.xmos.cdt.core.assembler.base.32885353" name="com.xmos.cdt.core.assembler.base" superClass="com.xmos.cdt.core.assembler.base">
+                                <option id = "gnu.c.compiler.option.include.paths.89882360" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/client}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks}&quot;' />
+
+                                </option>
+                                <option id = "com.xmos.c.compiler.option.include.paths.94888771" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
@@ -222,6 +244,6 @@
 
     </storageModule>
     <storageModule moduleId="cdtBuildSystem" version="4.0.0">
-        <project id = "app_ethernet_loopback.null.76729609" name="app_ethernet_loopback" />
+        <project id = "app_ethernet_loopback.null.25103848" name="app_ethernet_loopback" />
     </storageModule>
 </cproject>

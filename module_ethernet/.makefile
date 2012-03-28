@@ -1,10 +1,8 @@
 all:
-	@echo =======================================================
-	@echo Build complete [module only - cannot be run on its own]
-	@echo =======================================================
-	
+	@echo "** Module only - only builds as part of application **"
+
+
 clean:
-	@echo =======================================================
-	@echo Build clean [module only - cannot be run on its own]
-	@echo =======================================================
+	@echo "** Module only - only builds as part of application **"
+
 
