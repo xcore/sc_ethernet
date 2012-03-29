@@ -24,24 +24,10 @@ XCC_FLAGS = -report -g -DMAC_CUSTOM_FILTER -save-temps -fcomment-asm
 
 USED_MODULES = module_ethernet module_locks
 
+
 #=============================================================================
 # The following part of the Makefile includes the common build infrastructure
 # for compiling XMOS applications. You should not need to edit below here.
 
-
-# Use the latest 1v* version of module_xmos_common
--include ../module_xcommon/build/Makefile.common
--include ../../xcommon/module_xcommon/build/Makefile.common
-
-# The final target of the build. This is usually dependent on a binary file
-# in the $(BIN_DIR) directory e.g.
-#
-#  all : $(BIN_DIR)/my_app.xe
-
-all: $(BIN_DIR)/$(APP_NAME).xe
-	@echo Build Complete
-
-
-clean: clean_common
-
-test: all
+XMOS_MAKE_PATH ?= ../..
+include $(XMOS_MAKE_PATH)/xcommon/module_xcommon/build/Makefile.common
