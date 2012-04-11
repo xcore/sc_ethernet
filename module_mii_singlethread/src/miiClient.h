@@ -118,9 +118,10 @@ void miiOutInit(chanend cOut);
  *
  * \param cOut   output channel to the Low-Level Driver.
  *
- * \param buf    array that contains the message. Note that this is an
- *               array of words, that must contain the data in network order
- *               fill it using (buf, unsigned char[]).
+ * \param buf    array that contains the message. That this is an array
+ *               of words, that must contain the data in network order: fill
+ *               it using (buf, unsigned char[]). The last three words
+ *               beyond the end of the buffer will be modified.
  *
  * \param index  index into the array that contains the first byte.
  *
@@ -132,6 +133,29 @@ void miiOutInit(chanend cOut);
  * 
  */
 int miiOutPacket(chanend cOut, int buf[], int index, int length);
+
+/** Function that will cause a packet to be transmitted. It must get an
+ * address, a length of the packet (in bytes),
+ * and a channel to the low-level driver. The low level driver will append
+ * a CRC around the packet. The function returns once the preamble is on
+ * the wire. The function miiOutputPacketDone() should be called to syncrhonise
+ * with the end of the packet.
+ *
+ * \param cOut   output channel to the Low-Level Driver.
+ *
+ * \param buf    address that contains the message. This must be
+ *               word aligned, and must contain the data in network
+ *               order. The last three
+ *               words beyond the end of the buffer will be modified.
+ *
+ * \param length length of message in bytes, excluding CRC, which will be added
+ *               upon transmission.
+ *
+ * \returns      The time at which the message went onto the wire, measured in
+ *               reference clock periods
+ * 
+ */
+int miiOutPacket_(chanend c_out, int buf, int length);
 
 /** Select function that must be called after a call to miiOutPacket(). Upon
  * return of this function the packet has been put on the wire in its
