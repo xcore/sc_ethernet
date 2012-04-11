@@ -1,7 +1,7 @@
 TARGET = xp-skc-l2-single
 APP_NAME = 
 XCC_FLAGS = -g -O2
-USED_MODULES = module_mii_singlethread module_ethernet_smi module_slicekit_xn
+USED_MODULES = module_mii_singlethread module_ethernet_smi
 
 
 #=============================================================================
