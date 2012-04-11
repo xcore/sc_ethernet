@@ -1,6 +1,6 @@
-TARGET = XK-1
+TARGET = xp-skc-l2-single
 APP_NAME = 
-XCC_FLAGS = -g -O2
+XCC_FLAGS = -g -O2 -DSMI_MDC_BIT=1 -DSMI_MDIO_BIT=0
 USED_MODULES = module_ethernet_smi
 
 

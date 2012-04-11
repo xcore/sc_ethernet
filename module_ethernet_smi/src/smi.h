@@ -11,31 +11,36 @@
 
 /** Structure containing resources required for the SMI ethernet phy interface.
  *
- * This structure contains the resources required to communicate with
- * an ethernet phy over smi. 
- *   
- **/
+ * This structure can be filled in two ways. One indicate that the SMI
+ * interface is connected using two 1-bit port, the other indicates that
+ * the interface is connected using a single multi-bit port.
+ *
+ * If used with two 1-bit ports, set the ``phy_address``, ``p_smi_mdio_``
+ * and ``p_smi_mdc`` as normal.
+ *
+ * If used with a single multi-bit port, then you must set bit 31 of
+ * phy_address to 1 to indicate that this is a shared MDIO and MDC port.
+ * MDIO port should be set to an unused port, MDC port should be
+ * set to the shared port.
+ *
+ * The code to deal with a single multi-bit port is not included by
+ * default. To include it you must define SMI_MDC_BIT and SMI_MDIO_BIT, and
+ * they should be set to the pin numbers (0..31) in the multi-bit port.
+ */
 typedef struct smi_interface_t {
-    int phy_address;           /**< Address of PHY, typically 0 or 0x1F.
-                                * Set bit 31 of phy_address to 1 to
-                                * indicate that this is a shared MDIO and
-                                * MDC port. MDIO port should be set to some
-                                * random unused port, MDC port should be
-                                * set to the shared port. SMI_MDC_BIT and
-                                * SMI_MDIO_BIT should be defined to
-                                * indicate which bits are used. */
+    int phy_address;           /**< Address of PHY, typically 0 or 0x1F. */
     port p_smi_mdio;           /**< MDIO port. */
     port p_smi_mdc;            /**< MDC port.  */
 } smi_interface_t;
 
-/** Function that configures the SMI ports. Needs a clock block that it
- * connects up to the ports. Note that there is no deinit function.
- *
- * \param clk_smi clock block used to clock the SMI pins.
+/** Function that configures the SMI ports. No clock block is needed.
+ * Note that there is no deinit function.
  *
  * \param smi structure containing the clock and data ports for SMI.
  */
-void smi_port_init(clock clk_smi, smi_interface_t &smi);
+void smiInit(smi_interface_t &smi);
+
+#define smi_port_init(clk,smi) _Pragma("warning \"smi_port_init in module_ethernet_smi deprecated, use smiInit without clock block\"") smiInit(smi)
 
 /** Function that configures the Ethernet PHY explicitly to set to
  * autonegotiate.
