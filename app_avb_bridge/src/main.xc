@@ -45,16 +45,17 @@ on stdcore[SWITCH_CORE]: clock clk_smi = XS1_CLKBLK_5;
 
 static void ethernetSwitch() {
     chan cInLeft, cInRight, cOutLeft, cOutRight;
-    chan qLeft, qRight, qTransmit, qAVB;
+    chan qLeft, qRight, qAVB;
+    streaming chan qTransmit;
     miiInitialise(null, miiLeft);
     miiInitialise(null, miiRight);
     par {
-        miiDriver(miiLeft, cInLeft, cOutLeft);
-        miiDriver(miiRight, cInRight, cOutRight);
+        miiDriver(miiLeft, cInLeft, cOutLeft);        // done
+        miiDriver(miiRight, cInRight, cOutRight);     // done
         copyManager(cInLeft, qLeft);
         copyManager(cInRight, qRight);
         queueManager(qLeft, qRight, qTransmit, qAVB);
-        transmitter(qTransmit, cOutLeft, cOutRight);
+        transmitter(qTransmit, cOutLeft, cOutRight);  // done
         avbManager(qAVB);
     }
 }
