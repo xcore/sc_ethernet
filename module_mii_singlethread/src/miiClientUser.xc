@@ -300,6 +300,28 @@ int miiOutPacket(chanend c_out, int b[], int index, int length) {
     return precise + 64;
 }
 
+#define assign(base,i,c)  asm("stw %0,%1[%2]"::"r"(c),"r"(base),"r"(i))
+#define assignl(c,base,i) asm("ldw %0,%1[%2]"::"r"(c),"r"(base),"r"(i))
+
+int miiOutPacket_(chanend c_out, int a, int length) {
+    int roundedLength;
+    int oddBytes = length & 3;
+    int precise;
+    int x;
+
+    roundedLength = length >> 2;
+    assign(a, roundedLength+1, tailValues[oddBytes]);
+    assignl(x, a, roundedLength);
+    assign(a, roundedLength, x & (1 << (oddBytes << 3)) - 1);
+    assign(a, roundedLength+2, -roundedLength + 1);
+    outuint(c_out, a + length - oddBytes - 4);
+
+    precise = inuint(c_out);
+
+    // 64 takes you from the start of the preamble to the start of the destination address
+    return precise + 64;
+}
+
 void miiOutPacketDone(chanend c_out) {
 	chkct(c_out, 1);
 }
