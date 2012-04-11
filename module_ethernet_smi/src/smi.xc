@@ -33,10 +33,15 @@
 
 
 // Initialise the ports and clock blocks
-void smi_port_init(clock clk_smi, smi_interface_t &smi) {
-    configure_clock_ref(clk_smi, SMI_CLOCK_DIVIDER);
-    configure_out_port_no_ready(smi.p_smi_mdc,   clk_smi, 1);
-    start_clock (clk_smi);
+// Initialise the ports and clock blocks
+void smiInit(smi_interface_t &smi) {
+#ifdef SMI_MDC_BIT
+    if (smi.phy_address < 0) {
+        smi.p_smi_mdc <: 1 << SMI_MDC_BIT;
+        return;
+    }
+#endif
+    smi.p_smi_mdc <: 1;
 }
 
 // Constants used in calls to smi_bit_shift and smi_reg.
@@ -46,47 +51,50 @@ void smi_port_init(clock clk_smi, smi_interface_t &smi) {
 
 // Shift in a number of data bits to or from the SMI port
 static int smi_bit_shift(smi_interface_t &smi, unsigned data, unsigned count, unsigned inning) {
-    int i = count, dataBit = 0;
+    int i = count, dataBit = 0, t;
 #ifdef SMI_MDC_BIT
     if (smi.phy_address < 0) {
-        if (!inning) {
-            smi.p_smi_mdc  <: 1 << SMI_MDC_BIT | 1 << SMI_MDIO_BIT;
-        }
-        while (i != 0) {
-            i--;
-            if (inning) {
-                smi.p_smi_mdc :> dataBit;
+        smi.p_smi_mdc :> void @ t;
+        if (inning) {
+            while (i != 0) {
+                i--;
+                smi.p_smi_mdc @ (t + 30) :> dataBit;
                 dataBit &= (1 << SMI_MDIO_BIT);
-            } else {
-                dataBit = ((data >> i) & 1) << SMI_MDIO_BIT;
-                smi.p_smi_mdc  <: 1 << SMI_MDC_BIT | dataBit;
-            }
-            smi.p_smi_mdc  <:                    dataBit;
-            smi.p_smi_mdc  <:                    dataBit;
-            if (inning) {
-                smi.p_smi_mdc :> dataBit;
-                dataBit &= (1 << SMI_MDIO_BIT);
+                smi.p_smi_mdc            <: dataBit;
                 data = (data << 1) | (dataBit >> SMI_MDIO_BIT);
+                smi.p_smi_mdc @ (t + 60) <: 1 << SMI_MDC_BIT | dataBit;
+                smi.p_smi_mdc            :> void;
+                t += 60;
             }
-            smi.p_smi_mdc  <: 1 << SMI_MDC_BIT | dataBit;
-        }        
+            smi.p_smi_mdc @ (t+30) :> void;
+        } else {
+            while (i != 0) {
+                i--;
+                dataBit = ((data >> i) & 1) << SMI_MDIO_BIT;
+                smi.p_smi_mdc @ (t + 30) <:                    dataBit;
+                smi.p_smi_mdc @ (t + 60) <: 1 << SMI_MDC_BIT | dataBit;
+                t += 60;
+            }
+            smi.p_smi_mdc @ (t+30) <: 1 << SMI_MDC_BIT | dataBit;
+        }
         return data;
     }
 #endif
+    smi.p_smi_mdc <: ~0 @ t;
     while (i != 0) {
         i--;
-        smi.p_smi_mdc  <: ~0;
+        smi.p_smi_mdc @ (t+30) <: 0;
         if (!inning) {
             smi.p_smi_mdio <: data >> i;
         }
-        smi.p_smi_mdc  <: 0;
-        smi.p_smi_mdc  <: 0;
+        smi.p_smi_mdc @ (t+60) <: ~0;
         if (inning) {
             smi.p_smi_mdio :> dataBit;
             data = (data << 1) | dataBit;
         }
-        smi.p_smi_mdc  <: ~0;
-    }        
+        t += 60;
+    }
+    smi.p_smi_mdc @ (t+30) <: ~0;
     return data;
 }
 
