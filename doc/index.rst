@@ -9,4 +9,4 @@ XMOS Ethernet Component
    programming
    api
    singlethread
-
+   smi
