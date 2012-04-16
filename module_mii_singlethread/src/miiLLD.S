@@ -1,4 +1,5 @@
-#include <xs1.h>
+.cc_top miiLLD.func, miiLLD
+    #include <xs1.h>
     // Two coroutines, IN  and OUT. The IN coroutine is jumped to on an IN event.
     // The OUT coroutine is jumped to from IN by jumping to R3.
     // The IN event vectors on the RXD/RXDV ports, and change the vectors depending on the
@@ -343,3 +344,4 @@ tailValues:
 .set      tailValues.globound,4
     
     .text
+.cc_bottom miiLLD.func
