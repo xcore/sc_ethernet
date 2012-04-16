@@ -1,3 +1,4 @@
+.cc_top miiInstallHandler.func, miiInstallHandler
 // Copyright (c) 2011, XMOS Ltd, All rights reserved
 // This software is freely distributable under a derivative of the
 // University of Illinois/NCSA Open Source License posted in
@@ -122,3 +123,4 @@ returnFromInterrupt:
     
     kret
 
+.cc_bottom miiInstallHandler.func
