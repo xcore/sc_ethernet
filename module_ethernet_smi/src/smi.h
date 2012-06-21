@@ -9,6 +9,7 @@
 #include <xs1.h>
 #include <xccompat.h>
 
+
 /** Structure containing resources required for the SMI ethernet phy interface.
  *
  * This structure can be filled in two ways. One indicate that the SMI
@@ -38,9 +39,9 @@ typedef struct smi_interface_t {
  *
  * \param smi structure containing the clock and data ports for SMI.
  */
-void smiInit(smi_interface_t &smi);
+void smi_init(REFERENCE_PARAM(smi_interface_t, smi));
 
-#define smi_port_init(clk,smi) _Pragma("warning \"smi_port_init in module_ethernet_smi deprecated, use smiInit without clock block\"") smiInit(smi)
+#define smi_port_init(clk,smi) _Pragma("warning \"smi_port_init in module_ethernet_smi deprecated, use smiInit without clock block\"") smi_init(smi)
 
 /** Function that configures the Ethernet PHY explicitly to set to
  * autonegotiate.
@@ -50,7 +51,7 @@ void smiInit(smi_interface_t &smi);
  *
  * \param smi structure that defines the ports to use for SMI
  */
-void eth_phy_config(int eth100, smi_interface_t &smi);
+void eth_phy_config(int eth100, REFERENCE_PARAM(smi_interface_t, smi));
 
 /** Function that configures the Ethernet PHY to not
  * autonegotiate.
@@ -59,7 +60,7 @@ void eth_phy_config(int eth100, smi_interface_t &smi);
  *
  * \param smi structure that defines the ports to use for SMI
  */
-void eth_phy_config_noauto(int eth100, smi_interface_t &smi);
+void eth_phy_config_noauto(int eth100, REFERENCE_PARAM(smi_interface_t, smi));
 
 /** Function that can enable or disable loopback in the phy.
  * 
@@ -67,7 +68,7 @@ void eth_phy_config_noauto(int eth100, smi_interface_t &smi);
  *
  * \param smi  structure containing the ports
  */
-void eth_phy_loopback(int enable, smi_interface_t &smi);
+void eth_phy_loopback(int enable, REFERENCE_PARAM(smi_interface_t, smi));
 
 /** Function that returns the PHY identification.
  *
@@ -75,7 +76,7 @@ void eth_phy_loopback(int enable, smi_interface_t &smi);
  * 
  * \returns the 32-bit identifier.
  */
-int eth_phy_id(smi_interface_t &smi);
+int eth_phy_id(REFERENCE_PARAM(smi_interface_t, smi));
 
 /** Function that polls whether the link is alive.
  *
@@ -83,9 +84,9 @@ int eth_phy_id(smi_interface_t &smi);
  * 
  * \returns non-zero if the link is alive; zero otherwise.
  */
-int smiCheckLinkState(smi_interface_t &smi);
+int smi_check_link_state(REFERENCE_PARAM(smi_interface_t, smi));
 
 /**/
-int smi_reg(smi_interface_t &smi, unsigned reg, unsigned val, int inning);
+int smi_reg(REFERENCE_PARAM(smi_interface_t, smi), unsigned reg, unsigned val, int inning);
 
 #endif

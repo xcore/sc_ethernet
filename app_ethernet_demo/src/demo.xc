@@ -26,45 +26,14 @@
 #include "ethernet_tx_client.h"
 #include "checksum.h"
 #include "getmac.h"
+#include "ethernet_quickstart.h"
 
-//***** Ethernet Configuration ****
-// OTP Core
-#ifndef ETHERNET_OTP_CORE
-	#define ETHERNET_OTP_CORE 2
-#endif
-
-// OTP Ports
-on stdcore[ETHERNET_OTP_CORE]: port otp_data = XS1_PORT_32B; 		// OTP_DATA_PORT
-on stdcore[ETHERNET_OTP_CORE]: out port otp_addr = XS1_PORT_16C;	// OTP_ADDR_PORT
-on stdcore[ETHERNET_OTP_CORE]: port otp_ctrl = XS1_PORT_16D;		// OTP_CTRL_PORT
-
-
-on stdcore[2]: mii_interface_t mii =
-  {
-    XS1_CLKBLK_1,
-    XS1_CLKBLK_2,
-
-    PORT_ETH_RXCLK,
-    PORT_ETH_RXER,
-    PORT_ETH_RXD,
-    PORT_ETH_RXDV,
-
-    PORT_ETH_TXCLK,
-    PORT_ETH_TXEN,
-    PORT_ETH_TXD,
-  };
-
-#ifdef PORT_ETH_RST_N
-on stdcore[2]: out port p_mii_resetn = PORT_ETH_RST_N;
-on stdcore[2]: smi_interface_t smi = { PORT_ETH_MDIO, PORT_ETH_MDC, 0 };
-#else
-on stdcore[2]: smi_interface_t smi = { PORT_ETH_RST_N_MDIO, PORT_ETH_MDC, 1 };
-#endif
-
-on stdcore[2]: clock clk_smi = XS1_CLKBLK_5;
+otp_ports_t otp_ports = ETH_QUICKSTART_OTP_PORTS_INIT;
+smi_interface_t smi = ETH_QUICKSTART_SMI_INIT;
+mii_interface_t mii = ETH_QUICKSTART_MII_INIT;
 
 unsigned char own_mac_addr[6]; // MAC address on core 0
-int mac_address[2]; // MAC address on core 2
+
 
 unsigned char ethertype_ip[] = {0x08, 0x00};
 unsigned char ethertype_arp[] = {0x08, 0x06};
@@ -80,7 +49,6 @@ unsigned char ethertype_arp[] = {0x08, 0x06};
 #define UDP_RESPONSE 3
 
 void demo(chanend tx, chanend rx);
-extern void ethernet_register_traphandler();
 
 #pragma unsafe arrays
 int is_ethertype(unsigned char data[], unsigned char type[]){
@@ -113,6 +81,10 @@ int is_broadcast(unsigned char data[]){
 
 	return 1;
 }
+
+
+
+int mac_address[2];
 
 //::custom-filter
 int mac_custom_filter(unsigned int data[]){
@@ -344,15 +316,17 @@ int is_valid_icmp_packet(const unsigned char rxbuf[], int nbytes)
 
 void demo(chanend tx, chanend rx)
 {
-  unsigned char rxbuf[1600];
-  unsigned int txbuf[1600];
+  unsigned int rxbuf[1600/4];
+  unsigned int txbuf[1600/4];
   
   //::get-macaddr
   mac_get_macaddr(tx, own_mac_addr);
   //::
 
   //::setup-filter
+#ifdef ETHERNET_USE_FULL
   mac_set_custom_filter(rx, 0x1);
+#endif
   //::
   printstr("Test started\n");
 
@@ -361,19 +335,24 @@ void demo(chanend tx, chanend rx)
   {
     unsigned int src_port;
     unsigned int nbytes;
-    mac_rx(rx, rxbuf, nbytes, src_port);
+    mac_rx(rx, (rxbuf,char[]), nbytes, src_port);
+#ifdef ETHERNET_USE_LITE
+    if (mac_custom_filter(rxbuf) != 0x1)
+      continue;
+#endif
+
     printstr("packet\n");
    //::arp_packet_check
-    if (is_valid_arp_packet(rxbuf, nbytes))
+    if (is_valid_arp_packet((rxbuf,char[]), nbytes))
       {
-        build_arp_response(rxbuf, txbuf, own_mac_addr);
+        build_arp_response((rxbuf,char[]), txbuf, own_mac_addr);
         mac_tx(tx, txbuf, nbytes, ETH_BROADCAST);
         printstr("ARP response sent\n");
       }
   //::icmp_packet_check  
-    else if (is_valid_icmp_packet(rxbuf, nbytes))
+    else if (is_valid_icmp_packet((rxbuf,char[]), nbytes))
       {
-        build_icmp_response(rxbuf, (txbuf, unsigned char[]), own_mac_addr);
+        build_icmp_response((rxbuf,char[]), (txbuf, unsigned char[]), own_mac_addr);
         mac_tx(tx, txbuf, nbytes, ETH_BROADCAST);
         printstr("ICMP response sent\n");
       }
@@ -388,23 +367,28 @@ int main()
   par
     {
       //::ethernet
-      on stdcore[2]:
+      on stdcore[ETH_CORE]:
       {
-		ethernet_getmac_otp(otp_data, otp_addr, otp_ctrl,
-                                    (mac_address, char[]));
-		phy_init(clk_smi,
-#ifdef PORT_ETH_RST_N
-               p_mii_resetn,
-#else
-               null,
-#endif
-                 smi,
-                 mii);
+        ethernet_getmac_otp(otp_ports,
+                            (mac_address, char[]));
+        smi_init(smi);
+        eth_phy_config(1, smi);
+
+#ifdef ETHERNET_USE_FULL
         ethernet_server(mii, mac_address,
                         rx, 1,
                         tx, 1,
                         null,
                         null);
+#else
+        ethernet_server_lite(mii,
+                             mac_address,
+                             rx[0],
+                             tx[0],
+                             null,
+                             null);
+#endif
+
       }
       //::
 

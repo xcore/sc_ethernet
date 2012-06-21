@@ -34,7 +34,7 @@
 
 // Initialise the ports and clock blocks
 // Initialise the ports and clock blocks
-void smiInit(smi_interface_t &smi) {
+void smi_init(smi_interface_t &smi) {
 #ifdef SMI_MDC_BIT
     if (smi.phy_address < 0) {
         smi.p_smi_mdc <: 1 << SMI_MDC_BIT;
@@ -169,6 +169,6 @@ void eth_phy_loopback(int enable, smi_interface_t &smi) {
     smi_reg(smi, BASIC_CONTROL_REG, controlReg, SMI_WRITE);
 }
 
-int smiCheckLinkState(smi_interface_t &smi) {
+int smi_check_link_state(smi_interface_t &smi) {
     return (smi_reg(smi, BASIC_STATUS_REG, 0, SMI_READ) >> BASIC_STATUS_LINK_BIT) & 1;    
 }

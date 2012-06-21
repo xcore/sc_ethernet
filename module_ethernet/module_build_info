@@ -9,10 +9,17 @@
 #
 # You can also set MODULE_XCC_C_FLAGS, MODULE_XCC_XC_FLAGS etc..
 
-OPTIONAL_HEADERS += ethernet_conf.h
+DEPENDENT_MODULES = module_ethernet_smi module_locks
+
+INCLUDE_DIRS = src/include src/common src/full src/lite src/getmac
+INCLUDE_DIRS += src/board_support/$(TARGET)
+
+OPTIONAL_HEADERS += ethernet_conf.h ethernet_board_defaults.h
 
 MODULE_XCC_XC_FLAGS = $(XCC_FLAGS) -g -O3
 MODULE_XCC_C_FLAGS = $(XCC_FLAGS) -std=c99 -g -Os
 
 XCC_FLAGS_mii_malloc.c = $(XCC_FLAGS) -O3 -g
-XCC_FLAGS_mii.xc = $(XCC_FLAGS) -O3 -fschedule
+XCC_FLAGS_mii.xc = $(XCC_FLAGS) -O3 -fschedule -g0
+XCC_FLAGS_miiClientUser.xc = $(XCC_FLAGS) -fsubword-select
+XCC_FLAGS_mii_single_server.xc = $(XCC_FLAGS) -fsubword-select

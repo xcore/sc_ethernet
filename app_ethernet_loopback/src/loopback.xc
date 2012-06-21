@@ -13,44 +13,11 @@
 #include "frame_channel.h"
 #include "getmac.h"
 #include <print.h>
+#include "ethernet_quickstart.h"
 
-//***** Ethernet Configuration ****
-// OTP Core
-#ifndef ETHERNET_OTP_CORE
-	#define ETHERNET_OTP_CORE 2
-#endif
-
-// OTP Ports
-on stdcore[ETHERNET_OTP_CORE]: port otp_data = XS1_PORT_32B; 		// OTP_DATA_PORT
-on stdcore[ETHERNET_OTP_CORE]: out port otp_addr = XS1_PORT_16C;	// OTP_ADDR_PORT
-on stdcore[ETHERNET_OTP_CORE]: port otp_ctrl = XS1_PORT_16D;		// OTP_CTRL_PORT
-
-on stdcore[2]: mii_interface_t mii =
-  {
-    XS1_CLKBLK_1,
-    XS1_CLKBLK_2,
-
-    PORT_ETH_RXCLK,
-    PORT_ETH_RXER,
-    PORT_ETH_RXD,
-    PORT_ETH_RXDV,
-
-    PORT_ETH_TXCLK,
-    PORT_ETH_TXEN,
-    PORT_ETH_TXD,
-  };
-
-
-#ifdef PORT_ETH_RST_N
-on stdcore[2]: out port p_mii_resetn = PORT_ETH_RST_N;
-on stdcore[2]: smi_interface_t smi = { PORT_ETH_MDIO, PORT_ETH_MDC, 0 };
-#else
-on stdcore[2]: smi_interface_t smi = { PORT_ETH_RST_N_MDIO, PORT_ETH_MDC, 1 };
-#endif
-
-on stdcore[2]: clock clk_smi = XS1_CLKBLK_5;
-
-
+otp_ports_t otp_ports = ETH_QUICKSTART_OTP_PORTS_INIT;
+smi_interface_t smi = ETH_QUICKSTART_SMI_INIT;
+mii_interface_t mii = ETH_QUICKSTART_MII_INIT;
 
 void test(chanend tx, chanend rx);
 void set_filter_broadcast(chanend rx);
@@ -115,15 +82,10 @@ int main()
       on stdcore[2]:
       {
         int mac_address[2];
-		ethernet_getmac_otp(otp_data, otp_addr, otp_ctrl, (mac_address, char[]));
-        phy_init(clk_smi, 
-#ifdef PORT_ETH_RST_N
-               p_mii_resetn,
-#else
-               null,
-#endif
-                 smi,
-                 mii);
+        ethernet_getmac_otp(otp_ports,
+                            (mac_address, char[]));
+        smi_init(smi);
+        eth_phy_config(1, smi);
         ethernet_server(mii, mac_address,
                         rx, 1,
                         tx, 1,

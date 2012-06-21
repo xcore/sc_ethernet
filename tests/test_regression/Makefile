@@ -18,10 +18,13 @@ APP_NAME =
 # If the variable XCC_MAP_FLAGS is set it overrides the flags passed to 
 # xcc for the final link (mapping) stage.
 
-XCC_FLAGS = -g -DMAC_CUSTOM_FILTER -report
-
+XCC_FLAGS = -report -g -DMAC_CUSTOM_FILTER
 
 # The USED_MODULES variable lists other module used by the application. 
+
+ifeq ($(notdir $(abspath ..)),tests)
+XMOS_MODULE_PATH += ../../..
+endif
 
 USED_MODULES = module_ethernet
 
