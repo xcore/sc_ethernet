@@ -79,7 +79,6 @@ void serviceLinkCmd(chanend link, int linkIndex, unsigned int &cmd)
       // request for data just mark it.x
       case ETHERNET_RX_FRAME_REQ:
       case ETHERNET_RX_FRAME_REQ_OFFSET2:
-      case ETHERNET_RX_TYPE_PAYLOAD_REQ:
          // Handled elsewhere.
 
         renotify=0;
@@ -146,45 +145,19 @@ void mac_rx_send_frame0(mii_packet_t &p,
                         chanend link, 
                         unsigned int cmd)
 {
-  int i, length;
-  
-  if (cmd == ETHERNET_RX_FRAME_REQ_OFFSET2) {
-    i=0;
-    length = p.length;
-    slave {
-      link <: p.src_port;
-      link <: length-(i<<2);
-      link <: (char) 0;
-      link <: (char) 0;
-      for (;i < (length+3)>>2;i++) {
-        link <: byterev(p.data[i]);
-      }
-      link <: (char) 0;
-      link <: (char) 0;      
-      link <: p.timestamp + ETHERNET_RX_PHY_TIMER_OFFSET;
-    }  
-    
-  }
-  else {
-    // base on payload request need to adjust bytes to sent.
-    if (cmd == ETHERNET_RX_FRAME_REQ) {
-      i=0;
-    } else {
-      // strip source/dest MAC address, 6 bytes each.
-      i=3;
-    }
-    
-    length = p.length;
-    
-    slave {
-      link <: p.src_port;
-      link <: length-(i<<2);
-      for (;i < (length+3)>>2;i++) {
-        link <: p.data[i];
-      }
-      link <: p.timestamp;
-      
-    }  
+  int length;
+  length = p.length;
+  slave {
+     link <: p.src_port;
+     link <: length;
+     for (int i=0;i < (length+3)>>2;i++) {
+       link <: byterev(p.data[i]);
+     }
+     if (cmd == ETHERNET_RX_FRAME_REQ_OFFSET2) {
+       link <: (char) 0;
+       link <: (char) 0;
+     }
+     link <: p.timestamp;
   }
 }
 
@@ -205,7 +178,7 @@ static void processReceivedFrame(int buf,
      for (i = 0; i < n; i += 1) {
          int match = 0;
          match = (custom_filter_mask[i] & result);
-         
+
          if (match) {
              // We have a match, add the packet to the client's
              // packet queue (if there is space)
@@ -310,8 +283,7 @@ void ethernet_rx_server(
      select
        {
        case (int i=0;i<num_link;i++) serviceLinkCmd(link[i], i, cmd):
-         if (cmd == ETHERNET_RX_FRAME_REQ || 
-             cmd == ETHERNET_RX_TYPE_PAYLOAD_REQ ||
+         if (cmd == ETHERNET_RX_FRAME_REQ ||
              cmd == ETHERNET_RX_FRAME_REQ_OFFSET2)
            {
              int rdIndex = link_status[i].rdIndex;

@@ -24,7 +24,7 @@
 #pragma unsafe arrays
 static int ethernet_unified_get_data(chanend ethernet_rx_svr, unsigned char Buf[], unsigned int &rxTime, unsigned int &src_port, unsigned int Cmd, int n)
 {
-  unsigned int i, j,k, rxByteCnt, transferCnt, rxData, temp;
+  unsigned int i, rxByteCnt;
   // sent command to request data.
 
   (void) inct(ethernet_rx_svr);
@@ -39,36 +39,31 @@ static int ethernet_unified_get_data(chanend ethernet_rx_svr, unsigned char Buf[
     // get reply from server.
     ethernet_rx_svr :> src_port;
     ethernet_rx_svr :> rxByteCnt;
-    if (Cmd == ETHERNET_RX_FRAME_REQ_OFFSET2) 
-      rxByteCnt += 4;    
-   
-    // get required bytes.
-    transferCnt = (rxByteCnt + 3) >> 2;
-    j = 0;
-    for (i = 0; i < transferCnt; i++)
-      {      
-        // get word data.
-        ethernet_rx_svr :> rxData;
-        if (Cmd == ETHERNET_RX_FRAME_REQ_OFFSET2) 
-          rxData = byterev(rxData);
-        // process each byte in word
-        for (k = 0; k < 4; k++)
-          {
-            // only for actual bytes t
-            if (j < rxByteCnt && j < n)
-              {
-                temp = (rxData >> (k * 8));
-                Buf[j] = temp;
-              }
-            j += 1;
-          }   
+    if (Cmd == ETHERNET_RX_FRAME_REQ_OFFSET2) {
+      i = 2;
+      rxByteCnt += 4;
+    }
+    else {
+      i = 0;
+    }
+
+    for (;i < rxByteCnt; i++)
+      {
+        char data;
+        ethernet_rx_svr :> data;
+        Buf[i] = data;
+      }
+    for (i = 0;i < (4-rxByteCnt&3);i++)
+      {
+        char data;
+        ethernet_rx_svr :> data;
       }
     ethernet_rx_svr :> rxTime;
   }
   return (rxByteCnt);
 }
 
-void mac_rx(chanend ethernet_rx_svr, unsigned char Buf[], 
+void mac_rx(chanend ethernet_rx_svr, unsigned char Buf[],
            unsigned int &len,
            unsigned int &src_port)
 {

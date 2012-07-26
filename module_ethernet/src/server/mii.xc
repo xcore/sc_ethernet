@@ -539,6 +539,7 @@ void mii_tx_pins(
 #endif
 
 		// Check that we are out of the IFS period
+
 		tmr :> time;
 		if (((int) time - (int) prev_eof_time) >= ETHERNET_IFS_AS_REF_CLOCK_COUNT) {
 			ok_to_transmit = 1;

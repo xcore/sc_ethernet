@@ -3,14 +3,11 @@
 // University of Illinois/NCSA Open Source License posted in
 // LICENSE.txt and at <http://github.xcore.com/>
 
+#define FILTER_BROADCAST 0xF0000000
 
-#define MAX_ETHERNET_PACKET_SIZE (1518)
+unsigned short get_ethertype(unsigned char buf[]);
 
-#define NUM_MII_RX_BUF 5
-#define NUM_MII_TX_BUF 2
+static inline unsigned int mac_custom_filter(unsigned int data[]){
 
-#define MAX_ETHERNET_CLIENTS   (4)    
-
-
-#define PHY_ADDRESS (0)
-
+        return 0xffffffff;
+}

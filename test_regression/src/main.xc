@@ -14,6 +14,10 @@
 #include "getmac.h"
 #include "eth_phy.h"
 
+#ifndef ETH_CORE
+#define ETH_CORE 1
+#endif
+
 #define RUNTEST(name, x) printstrln("*************************** " name " ***************************"); \
 							  printstrln( (x) ? "PASSED" : "FAILED" )
 
@@ -28,17 +32,14 @@
 
 //***** Ethernet Configuration ****
 // OTP Core
-#ifndef ETHERNET_OTP_CORE
-	#define ETHERNET_OTP_CORE 2
-#endif
 
 // OTP Ports
-on stdcore[ETHERNET_OTP_CORE]: port otp_data = XS1_PORT_32B; 		// OTP_DATA_PORT
-on stdcore[ETHERNET_OTP_CORE]: out port otp_addr = XS1_PORT_16C;	// OTP_ADDR_PORT
-on stdcore[ETHERNET_OTP_CORE]: port otp_ctrl = XS1_PORT_16D;		// OTP_CTRL_PORT
+on stdcore[ETH_CORE]: port otp_data = XS1_PORT_32B; 		// OTP_DATA_PORT
+on stdcore[ETH_CORE]: out port otp_addr = XS1_PORT_16C;	// OTP_ADDR_PORT
+on stdcore[ETH_CORE]: port otp_ctrl = XS1_PORT_16D;		// OTP_CTRL_PORT
 
 mii_interface_t mii =
-  on stdcore[2]:
+  on stdcore[ETH_CORE]:
   {
     XS1_CLKBLK_1,
     XS1_CLKBLK_2,
@@ -54,14 +55,18 @@ mii_interface_t mii =
   };
 
 
-#ifdef PORT_ETH_RST_N
-on stdcore[2]: out port p_mii_resetn = PORT_ETH_RST_N;
-on stdcore[2]: smi_interface_t smi = { PORT_ETH_MDIO, PORT_ETH_MDC, 0 };
-#else
-on stdcore[2]: smi_interface_t smi = { PORT_ETH_RST_N_MDIO, PORT_ETH_MDC, 1 };
+#ifndef PORT_ETH_RST_N
+#define PORT_ETH_RST_N PORT_ETH_RSTN
 #endif
 
-on stdcore[2]: clock clk_smi = XS1_CLKBLK_5;
+#ifdef PORT_ETH_RST_N
+on stdcore[ETH_CORE]: out port p_mii_resetn = PORT_ETH_RST_N;
+on stdcore[ETH_CORE]: smi_interface_t smi = { PORT_ETH_MDIO, PORT_ETH_MDC, 0 };
+#else
+on stdcore[ETH_CORE]: smi_interface_t smi = { PORT_ETH_RST_N_MDIO, PORT_ETH_MDC, 1 };
+#endif
+
+on stdcore[ETH_CORE]: clock clk_smi = XS1_CLKBLK_5;
 
 void wait(int ticks)
 {
@@ -544,7 +549,7 @@ int main()
 
   par
   {
-      on stdcore[2]:
+      on stdcore[1]:
       {
         int mac_address[2];
         ethernet_getmac_otp(otp_data, otp_addr, otp_ctrl, (mac_address, char[]));

@@ -28,6 +28,7 @@ static unsigned ethernet_filtered_by_address=0;
 static unsigned ethernet_filtered_by_user_filter=0;
 static unsigned ethernet_filtered_by_length=0;
 static unsigned ethernet_filtered_by_bad_crc=0;
+static unsigned ethernet_filter_received=0;
 
 void ethernet_get_filter_counts(unsigned &address, unsigned &filter, unsigned &length, unsigned &crc)
 {
@@ -50,6 +51,10 @@ void ethernet_filter(const int mac[], streaming chanend c[NUM_ETHERNET_PORTS]) {
 #pragma xta endpoint "rx_packet"
 			case (int ifnum=0; ifnum<NUM_ETHERNET_PORTS; ifnum++) c[ifnum] :> buf :
 			{
+#ifdef ETHERNET_COUNT_PACKETS
+								ethernet_filter_received++;
+#endif
+
 				if (buf)
 				{
 					int length = mii_packet_get_length(buf);
@@ -129,6 +134,7 @@ void ethernet_filter(const int mac[], streaming chanend c[NUM_ETHERNET_PORTS]) {
 #endif
 							}
 							mii_packet_set_filter_result(buf, res);
+
 							mii_packet_set_stage(buf, 1);
 						}
 					}
