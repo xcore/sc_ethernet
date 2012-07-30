@@ -154,7 +154,7 @@ void mac_get_global_counters(chanend mac_svr,
 		                     unsigned& mismatched_address,
 		                     unsigned& filtered,
 		                     unsigned& bad_crc
-		                     )
+                             )
 {
 #ifdef ETHERNET_COUNT_PACKETS
   send_cmd(mac_svr, ETHERNET_RX_OVERFLOW_MII_CNT_REQ);
@@ -165,6 +165,5 @@ void mac_get_global_counters(chanend mac_svr,
   mac_svr :> bad_crc;
 #endif
 }
-
 
 #endif

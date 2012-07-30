@@ -1,12 +1,12 @@
 #include <xs1.h>
 #include <xclib.h>
-#include "miiDriver.h"
+#include "mii_driver.h"
 #include "mii_lite.h"
-#include "miiLLD.h"
+#include "mii_lld.h"
 
 #include <platform.h>
 
-#include "miiClient.h"
+#include "mii_client.h"
 
 // Timing tuning constants
 #define CLK_DELAY_TRANSMIT   7  // Note: used to be 2 (improved simulator?)

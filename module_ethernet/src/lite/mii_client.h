@@ -38,7 +38,7 @@ struct miiData {                    // DO NOT CHANGE LOCATIONS OR ADD ANY FIELDS
  *
  * \param words     number of words in the array.
  */
-extern void miiBufferInit(struct miiData &this, chanend cIn, chanend cNotifications, int buffer[], int words);
+extern void mii_buffer_init(struct miiData &this, chanend cIn, chanend cNotifications, int buffer[], int words);
 
 /** Function that closes down the MII thread. This function should not be
  * called between ``miiOutPacket()`` and ``miiOutPacketDone()``
@@ -49,7 +49,7 @@ extern void miiBufferInit(struct miiData &this, chanend cIn, chanend cNotificati
  *
  * \param cOut channel that communicates with the low level input output MII.
  */
-void miiClose(chanend cNotifications, chanend cIn, chanend cOut);
+void mii_close(chanend cNotifications, chanend cIn, chanend cOut);
 
 /** This function will obtain a buffer from the input queue, or 0 if there
  * is no packet awaiting processing. When the packet has been processed,
@@ -59,7 +59,7 @@ void miiClose(chanend cNotifications, chanend cIn, chanend cOut);
  *
  * \return The address of the buffer and the number of bytes.
  */
-{unsigned, unsigned, unsigned} extern miiGetInBuffer(struct miiData &this);
+{unsigned, unsigned, unsigned} extern mii_get_in_buffer(struct miiData &this);
 
 /** This function is called to informs the input layer that the packet has
  * been processed and that the buffer can be reused. The address should be
@@ -72,7 +72,7 @@ void miiClose(chanend cNotifications, chanend cIn, chanend cOut);
  *
  * \param address The address of the buffer to be freed as returned by miiGetInBuffer().
  */
-extern void miiFreeInBuffer(struct miiData &this, int address);
+extern void mii_free_in_buffer(struct miiData &this, int address);
 
 /** This function should be called to block the receiving thread. This
  * function will return when something interesting has happened at the MII
@@ -89,14 +89,14 @@ extern void miiFreeInBuffer(struct miiData &this, int address);
  * \param notificationChannel A channel-end that synchronises the user
  * layer with the interrupt layer
  */
-extern select miiNotified(struct miiData &this, chanend notificationChannel);
+extern select mii_notified(struct miiData &this, chanend notificationChannel);
 
 /** This function must be called every time that miiNotified() has returned
  * and a buffer has been freed. It is safe to call this function more
  * often, for example, prior to every select statement that contains
  * miiNotified().
  */
-extern void miiRestartBuffer(struct miiData &this);
+extern void mii_restart_buffer(struct miiData &this);
 
 
 
@@ -107,7 +107,7 @@ extern void miiRestartBuffer(struct miiData &this);
  *
  * \param cOut   output channel to the Low-Level Driver.
  */
-void miiOutInit(chanend cOut);
+void mii_out_init(chanend cOut);
 
 /** Function that will cause a packet to be transmitted. It must get an
  * array with an index into the array, a length of hte packet (in bytes),
@@ -132,7 +132,7 @@ void miiOutInit(chanend cOut);
  *               reference clock periods
  * 
  */
-int miiOutPacket(chanend cOut, int buf[], int index, int length);
+int mii_out_packet(chanend cOut, int buf[], int index, int length);
 
 /** Function that will cause a packet to be transmitted. It must get an
  * address, a length of the packet (in bytes),
@@ -155,7 +155,7 @@ int miiOutPacket(chanend cOut, int buf[], int index, int length);
  *               reference clock periods
  * 
  */
-int miiOutPacket_(chanend c_out, int buf, int length);
+int mii_out_packet_(chanend c_out, int buf, int length);
 
 /** Select function that must be called after a call to miiOutPacket(). Upon
  * return of this function the packet has been put on the wire in its
@@ -167,4 +167,4 @@ int miiOutPacket_(chanend c_out, int buf, int length);
  * \param cOut   output channel to the Low-Level Driver.
  */
 #pragma select handler
-void miiOutPacketDone(chanend cOut);
+void mii_out_packet_done(chanend cOut);

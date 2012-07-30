@@ -6,15 +6,15 @@
 #include <xs1.h>
 #include <xclib.h>
 #include <print.h>
-#include "miiClient.h"
-#include "miiLLD.h"
+#include "mii_client.h"
+#include "mii_lld.h"
 
 #define POLY   0xEDB88320
 
-extern void miiInstallHandler(struct miiData &this,
-                              int bufferAddr,
-                              chanend miiChannel,
-                              chanend notificationChannel);
+extern void mii_install_handler(struct miiData &this,
+                                int bufferAddr,
+                                chanend miiChannel,
+                                chanend notificationChannel);
 
 
 static int value_1(int address) {
@@ -120,7 +120,7 @@ static int get(int addr) {
 
 /* Called once on startup */
 
-void miiBufferInit(struct miiData &this, chanend cIn, chanend cNotifications, int buffer[], int numberWords) {
+void mii_buffer_init(struct miiData &this, chanend cIn, chanend cNotifications, int buffer[], int numberWords) {
     int address;
     this.notifySeen = 1;
     this.notifyLast = 1;
@@ -140,7 +140,7 @@ void miiBufferInit(struct miiData &this, chanend cIn, chanend cNotifications, in
     this.miiPacketsReceived = 0;
     this.miiPacketsCRCError = 0;
     this.readBank = 0;
-    miiInstallHandler(this, this.wrPtr[0], cIn, cNotifications);
+    mii_install_handler(this, this.wrPtr[0], cIn, cNotifications);
 }
 
 
@@ -159,7 +159,7 @@ case inuchar_byref(notificationChannel, this.notifySeen):
 }
 
 #pragma unsafe arrays
-{unsigned, unsigned, unsigned} miiGetInBuffer(struct miiData &this) {
+{unsigned, unsigned, unsigned} mii_get_in_buffer(struct miiData &this) {
     unsigned nBytes, timeStamp;
     for(int i = 0; i < 2; i++) {
         this.readBank = !this.readBank;
@@ -217,7 +217,7 @@ static void miiRejectBuffer(struct miiData &this, unsigned int currentBuffer) {
 }
 
 #pragma unsafe arrays
-void miiRestartBuffer(struct miiData &this) {
+void mii_restart_buffer(struct miiData &this) {
     int bn;
     if (this.nextBuffer != -1) {
         return;
@@ -242,7 +242,7 @@ void miiRestartBuffer(struct miiData &this) {
 }
 
 #pragma unsafe arrays
-void miiFreeInBuffer(struct miiData &this, int base) {
+void mii_free_in_buffer(struct miiData &this, int base) {
     int bankNumber = base < this.firstPtr[1] ? 0 : 1;
     int modifiedFreePtr = 0;
     base -= 4;
@@ -281,7 +281,7 @@ void miiClientUser(struct miiData &this, int base, int end, chanend notification
 }
 
 #pragma unsafe arrays
-int miiOutPacket(chanend c_out, int b[], int index, int length) {
+int mii_out_packet(chanend c_out, int b[], int index, int length) {
     int a, roundedLength;
     int oddBytes = length & 3;
     int precise;
@@ -303,7 +303,7 @@ int miiOutPacket(chanend c_out, int b[], int index, int length) {
 #define assign(base,i,c)  asm("stw %0,%1[%2]"::"r"(c),"r"(base),"r"(i))
 #define assignl(c,base,i) asm("ldw %0,%1[%2]"::"r"(c),"r"(base),"r"(i))
 
-int miiOutPacket_(chanend c_out, int a, int length) {
+int mii_out_packet_(chanend c_out, int a, int length) {
     int roundedLength;
     int oddBytes = length & 3;
     int precise;
@@ -322,11 +322,11 @@ int miiOutPacket_(chanend c_out, int a, int length) {
     return precise + 64;
 }
 
-void miiOutPacketDone(chanend c_out) {
+void mii_out_packet_done(chanend c_out) {
 	chkct(c_out, 1);
 }
 
-void miiOutInit(chanend c_out) {
+void mii_out_init(chanend c_out) {
     chkct(c_out, 1);
 }
 

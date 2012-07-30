@@ -21,5 +21,5 @@ MODULE_XCC_C_FLAGS = $(XCC_FLAGS) -std=c99 -g -Os
 
 XCC_FLAGS_mii_malloc.c = $(XCC_FLAGS) -O3 -g
 XCC_FLAGS_mii.xc = $(XCC_FLAGS) -O3 -fschedule -g0
-XCC_FLAGS_miiClientUser.xc = $(XCC_FLAGS) -fsubword-select
+XCC_FLAGS_mii_client_user.xc = $(XCC_FLAGS) -fsubword-select
 XCC_FLAGS_mii_single_server.xc = $(XCC_FLAGS) -fsubword-select

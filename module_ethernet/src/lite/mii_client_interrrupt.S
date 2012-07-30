@@ -1,4 +1,4 @@
-.cc_top miiInstallHandler.func, miiInstallHandler
+.cc_top mii_install_handler.func, mii_install_handler
 // Copyright (c) 2011, XMOS Ltd, All rights reserved
 // This software is freely distributable under a derivative of the
 // University of Illinois/NCSA Open Source License posted in
@@ -11,21 +11,21 @@
     
 #define KERNEL_STACK_SAVE 12         // TODO: make smaller
     
-// call: int miiInstallHandler(chanend interrupt, int buffer[])
-.globl miiInstallHandler.nstackwords
-.globl miiInstallHandler.maxthreads
-.globl miiInstallHandler.maxtimers
-.globl miiInstallHandler.maxchanends
-.globl miiInstallHandler.maxsync
-.type  miiInstallHandler, @function
-.linkset miiInstallHandler.locnoside, 0
-.linkset miiInstallHandler.nstackwords, 0
-.linkset miiInstallHandler.maxchanends, 0
-.linkset miiInstallHandler.maxtimers, 0
-.linkset miiInstallHandler.maxthreads, 0
-.linkset miiInstallHandler.maxsync, 0
+// call: int mii_install_handler(chanend interrupt, int buffer[])
+.globl mii_install_handler.nstackwords
+.globl mii_install_handler.maxthreads
+.globl mii_install_handler.maxtimers
+.globl mii_install_handler.maxchanends
+.globl mii_install_handler.maxsync
+.type  mii_install_handler, @function
+.linkset mii_install_handler.locnoside, 0
+.linkset mii_install_handler.nstackwords, 0
+.linkset mii_install_handler.maxchanends, 0
+.linkset mii_install_handler.maxtimers, 0
+.linkset mii_install_handler.maxthreads, 0
+.linkset mii_install_handler.maxsync, 0
 
-.globl miiInstallHandler
+.globl mii_install_handler
 
 #define nextBuffer                0
 #define packetInLLD               1
@@ -36,7 +36,7 @@
 
     
     .align 4
-miiInstallHandler:
+mii_install_handler:
     setd   res[r3], r3                //    synchronising interrupt routine and user land
     stw    r3, r0[notificationChannelEnd]    //    it points to itself
 
@@ -123,4 +123,4 @@ returnFromInterrupt:
     
     kret
 
-.cc_bottom miiInstallHandler.func
+.cc_bottom mii_install_handler.func

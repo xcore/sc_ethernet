@@ -4,15 +4,15 @@
 // LICENSE.txt and at <http://github.xcore.com/>
 
 #include <xs1.h>
-
+#define MII_FORCE_USE_LITE
 #include "ethernet_derived_conf.h"
 
-#include "miiDriver.h"
-#include "miiLLD.h"
+#include "mii_driver.h"
+#include "mii_lld.h"
 #include "mii.h"
 #include "mii_lite.h"
 
-void miiInitialise(out port ?p_mii_resetn,
+void mii_initialise(out port ?p_mii_resetn,
                    mii_interface_t &m)
 {
 #ifndef MII_DRIVER_SIMULATION
@@ -28,7 +28,7 @@ void miiInitialise(out port ?p_mii_resetn,
 
 #ifdef ETHERNET_USE_LITE
 // TODO: implement miiDriver straight in miiLLD.
-void miiDriver(mii_interface_t &m, chanend cIn, chanend cOut)
+void mii_driver(mii_interface_t &m, chanend cIn, chanend cOut)
 {
     timer tmr;
     miiLLD(m.p_mii_rxd, m.p_mii_rxdv, m.p_mii_txd, cIn, cOut, m.p_mii_timing, tmr);

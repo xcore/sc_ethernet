@@ -4,7 +4,7 @@
 #include <xs1.h>
 #include <xccompat.h>
 
-#include "miiDriver.h"
+#include "mii_driver.h"
 
 /**
  * This funciton initialises all MII ports

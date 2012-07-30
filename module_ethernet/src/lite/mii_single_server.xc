@@ -7,17 +7,17 @@
 #include <xs1.h>
 #include <xclib.h>
 #include <print.h>
-#include "miiDriver.h"
+#include "mii_driver.h"
 #include "mii.h"
 #include "mii_lite.h"
 #include "smi.h"
-#include "miiClient.h"
+#include "mii_client.h"
 
 #ifdef ETHERNET_USE_LITE
 
 extern void mac_set_macaddr_lite(unsigned char macaddr[]);
 
-static void theServer(chanend cIn, chanend cOut, chanend cNotifications,
+static void the_server(chanend cIn, chanend cOut, chanend cNotifications,
 		smi_interface_t &smi, chanend ?connect_status,
 		chanend appIn, chanend appOut, char mac_address[6]) {
     int havePacket = 0;
@@ -30,8 +30,8 @@ static void theServer(chanend cIn, chanend cOut, chanend cNotifications,
 	struct miiData miiData;
     mac_set_macaddr_lite(mac_address);
 
-    miiBufferInit(miiData, cIn, cNotifications, b, 3200);
-    miiOutInit(cOut);
+    mii_buffer_init(miiData, cIn, cNotifications, b, 3200);
+    mii_out_init(cOut);
     
     linkcheck_timer :> linkcheck_time;
 
@@ -65,9 +65,9 @@ static void theServer(chanend cIn, chanend cOut, chanend cNotifications,
                 asm("ldw %0, %1[%2]" : "=r" (val) : "r" (a) , "r" (i));
                 appIn <: val;
             }
-            miiFreeInBuffer(miiData, a);
-            miiRestartBuffer(miiData);
-            {a,nBytes,timeStamp} = miiGetInBuffer(miiData);
+            mii_free_in_buffer(miiData, a);
+            mii_restart_buffer(miiData);
+            {a,nBytes,timeStamp} = mii_get_in_buffer(miiData);
             if (a == 0) {
                 havePacket = 0;
             } else {
@@ -80,14 +80,14 @@ static void theServer(chanend cIn, chanend cOut, chanend cNotifications,
             for(int i = 0; i < ((outBytes + 3) >>2); i++) {
                 appOut :> txbuf[i];
             }
-            miiOutPacket(cOut, txbuf, 0, outBytes);
-            miiOutPacketDone(cOut);
+            mii_out_packet(cOut, txbuf, 0, outBytes);
+            mii_out_packet_done(cOut);
             break;
         }
 
         // Check that there is a packet
         if (!havePacket) {
-            {a,nBytes,timeStamp} = miiGetInBuffer(miiData);
+            {a,nBytes,timeStamp} = mii_get_in_buffer(miiData);
             if (a != 0) {
                 havePacket = 1;
                 outuint(appIn, nBytes);
@@ -97,21 +97,21 @@ static void theServer(chanend cIn, chanend cOut, chanend cNotifications,
 }
 
 
-void miiSingleServer(out port ?p_mii_resetn,
+void mii_single_server(out port ?p_mii_resetn,
                      smi_interface_t &smi,
                      mii_interface_t &m,
                      chanend appIn, chanend appOut,
                      chanend connect_status, unsigned char mac_address[6]) {
     chan cIn, cOut;
     chan notifications;
-	miiInitialise(p_mii_resetn, m);
+	mii_initialise(p_mii_resetn, m);
 #ifndef MII_NO_SMI_CONFIG
 	smi_init(smi);
 	eth_phy_config(1, smi);
 #endif
     par {
-      {asm(""::"r"(notifications));miiDriver(m, cIn, cOut);}
-        theServer(cIn, cOut, notifications, smi, connect_status, appIn, appOut, mac_address);
+      {asm(""::"r"(notifications));mii_driver(m, cIn, cOut);}
+        the_server(cIn, cOut, notifications, smi, connect_status, appIn, appOut, mac_address);
     }
 
 }
@@ -130,8 +130,8 @@ void ethernet_server_lite(mii_interface_t &m,
   eth_phy_config(1, smi);
 #endif
   par {
-    {asm(""::"r"(notifications));miiDriver(m, cIn, cOut);}
-    theServer(cIn, cOut, notifications, smi, connect_status,
+    {asm(""::"r"(notifications));mii_driver(m, cIn, cOut);}
+    the_server(cIn, cOut, notifications, smi, connect_status,
               c_rx, c_tx, (mac_address, char[]));
   }
 }

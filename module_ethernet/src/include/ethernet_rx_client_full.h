@@ -19,6 +19,7 @@
 #define _ETHERNET_RX_CLIENT_FULL_H_ 1
 #include <xccompat.h>
 
+
 /** This function receives a complete frame (i.e. src/dest MAC address,
  *  type & payload),  excluding pre-amble, SoF & CRC32 from the ethernet
  *  server.

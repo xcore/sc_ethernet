@@ -28,21 +28,24 @@
 #include "getmac.h"
 #include "ethernet_quickstart.h"
 
+// Port Definitions
+// Here are the port definitions required by ethernet
 otp_ports_t otp_ports = ETH_QUICKSTART_OTP_PORTS_INIT;
 smi_interface_t smi = ETH_QUICKSTART_SMI_INIT;
 mii_interface_t mii = ETH_QUICKSTART_MII_INIT;
 
-unsigned char own_mac_addr[6]; // MAC address on core 0
-
-
-unsigned char ethertype_ip[] = {0x08, 0x00};
-unsigned char ethertype_arp[] = {0x08, 0x06};
 
 //::ip_address_define
 // NOTE: YOU MAY NEED TO REDEFINE THIS TO AN IP ADDRESS THAT WORKS
 // FOR YOUR NETWORK
 #define OWN_IP_ADDRESS {169, 254, 5, 27}
 //::
+
+
+unsigned char ethertype_ip[] = {0x08, 0x00};
+unsigned char ethertype_arp[] = {0x08, 0x06};
+
+unsigned char own_mac_addr[6]; // MAC address on core 0
 
 #define ARP_RESPONSE 1
 #define ICMP_RESPONSE 2
