@@ -5,4 +5,4 @@ Mac address reading example code
 :description: A small example that shows how to read a ethernet MAC address out of otp.
 :keywords: ethernet, mac, mii, otp
 
- A small example that shows how to read a ethernet MAC address out of otp.
+A small example that shows how to read a ethernet MAC address out of otp.

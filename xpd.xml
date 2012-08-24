@@ -19,7 +19,7 @@
             <keyword>ethernet</keyword>
             <keyword>mac</keyword>
             <keyword>mii</keyword>
-            <keyword>otpA small example that shows how to read a ethernet MAC address out of otp.</keyword>
+            <keyword>otp</keyword>
         </component>
         <component description = "An example of looping back packets using the low level" scope = "Early Development" path = "app_ethernet_loopback" type = "demoCode" id = "app_ethernet_loopback" name = "Low level ethernet loopback example"></component>
         <component description = "A library for handling hardware and software locks between tasks." scope = "General Use" path = "module_locks" type = "demoCode" id = "module_locks" name = "Lock handling library">
