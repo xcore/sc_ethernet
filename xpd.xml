@@ -1,10 +1,17 @@
 <?xml version="1.0" ?>
 <xpd>
-    <dependency repo = "xcommon">
-        <githash>3416f530590333980bbe152a9123b16becdb441f</githash>
-        <uri>https://github.com/xcore/xcommon.git</uri>
-        <version>1.0.0rc1</version>
-    </dependency>
+    <components>
+        <component description = "&lt;Add one line here&gt;" scope = "&lt;Put one of Roadmap, Experimental, Early Development or General Use&gt;" path = "module_ethernet_smi" type = "demoCode" id = "module_ethernet_smi" name = "&lt;Add title here&gt;"></component>
+        <component description = "&lt;Add one line here&gt;" scope = "&lt;Put one of Roadmap, Experimental, Early Development or General Use&gt;" path = "app_ethernet_demo" type = "demoCode" id = "app_ethernet_demo" name = "&lt;Add title here&gt;"></component>
+        <component description = "MII interface and low level ethernet MAC" buildresults_path = "module_ethernet/.module_ethernet.buildresults" scope = "General Use" path = "module_ethernet" metainfo_path = "module_ethernet/module_ethernet.metainfo" type = "component" id = "module_ethernet">
+            <keyword>ethernet</keyword>
+            <keyword>mii</keyword>
+            <keyword>mac</keyword>
+        </component>
+        <component description = "&lt;Add one line here&gt;" scope = "&lt;Put one of Roadmap, Experimental, Early Development or General Use&gt;" path = "app_macaddr_reader" type = "demoCode" id = "app_macaddr_reader" name = "&lt;Add title here&gt;"></component>
+        <component description = "&lt;Add one line here&gt;" scope = "&lt;Put one of Roadmap, Experimental, Early Development or General Use&gt;" path = "app_ethernet_loopback" type = "demoCode" id = "app_ethernet_loopback" name = "&lt;Add title here&gt;"></component>
+        <component description = "&lt;Add one line here&gt;" scope = "&lt;Put one of Roadmap, Experimental, Early Development or General Use&gt;" path = "module_locks" type = "demoCode" id = "module_locks" name = "&lt;Add title here&gt;"></component>
+    </components>
     <description>A complete Ethernet MII and MAC interface for 100MBps Ethernet</description>
     <docdir>doc</docdir>
     <exclude_dir>test_buffering</exclude_dir>
@@ -29,9 +36,9 @@
     <release parenthash = "a3f7b77d3501f9e572c018011cb01aa3b618fcfc" version = "2.1.1rc0" githash = "a5d0bbd2469f4aa8a166f53041a959e6d8c182ab"></release>
     <release parenthash = "3649124bcfe5df28473671639a4fc541c2b11b81" version = "2.1.1rc1" githash = "4a4c97eebbd51bd31e7cbc1d1a1c95ea4095429a"></release>
     <release parenthash = "3649124bcfe5df28473671639a4fc541c2b11b81" version = "2.1.1" githash = "4a4c97eebbd51bd31e7cbc1d1a1c95ea4095429a"></release>
-    <release parenthash = "8fcc083ae0baec2ab658d382e6102fc63f39e2ca" version = "2.1.2rc0"></release>
-    <scope>product</scope>
+    <release parenthash = "8fcc083ae0baec2ab658d382e6102fc63f39e2ca" version = "2.1.2rc0" githash = "e0d8f57a0f817547484f00be5231b536439397d2"></release>
     <subpartnumber>XM-000073-SW</subpartnumber>
     <vendor>XMOS</vendor>
     <xpd_version>1.0</xpd_version>
+    <scope>product</scope>
 </xpd>

@@ -25,6 +25,7 @@ XCC_FLAGS_lite = -g -DCONFIG_LITE
 
 USED_MODULES = module_ethernet
 
+XCC_FLAGS = $(XCC_FLAGS_lite)
 
 #=============================================================================
 # The following part of the Makefile includes the common build infrastructure
