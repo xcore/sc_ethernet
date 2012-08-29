@@ -377,21 +377,11 @@ int main()
         smi_init(smi);
         eth_phy_config(1, smi);
 
-#ifdef ETHERNET_USE_FULL
         ethernet_server(mii, mac_address,
                         rx, 1,
                         tx, 1,
                         null,
                         null);
-#else
-        ethernet_server_lite(mii,
-                             mac_address,
-                             rx[0],
-                             tx[0],
-                             null,
-                             null);
-#endif
-
       }
       //::
 
