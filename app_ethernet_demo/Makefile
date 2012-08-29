@@ -23,7 +23,8 @@ XCC_FLAGS_lite = -g -DCONFIG_LITE
 
 # The USED_MODULES variable lists other module used by the application. 
 
-USED_MODULES = module_ethernet
+USED_MODULES = module_ethernet module_otp_board_info
+
 
 #=============================================================================
 # The following part of the Makefile includes the common build infrastructure

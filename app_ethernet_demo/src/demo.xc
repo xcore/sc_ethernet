@@ -21,16 +21,19 @@
 #include <print.h>
 #include <platform.h>
 #include <stdlib.h>
+#include "otp_board_info.h"
 #include "ethernet_server.h"
 #include "ethernet_rx_client.h"
 #include "ethernet_tx_client.h"
 #include "checksum.h"
-#include "getmac.h"
 #include "ethernet_quickstart.h"
 
 // Port Definitions
+
+// These ports are for accessing the OTP memory
+otp_ports_t otp_ports = OTP_PORTS_INITIALIZER;
+
 // Here are the port definitions required by ethernet
-otp_ports_t otp_ports = ETH_QUICKSTART_OTP_PORTS_INIT;
 smi_interface_t smi = ETH_QUICKSTART_SMI_INIT;
 mii_interface_t mii = ETH_QUICKSTART_MII_INIT;
 
@@ -87,23 +90,15 @@ int is_broadcast(unsigned char data[]){
 
 
 
-int mac_address[2];
+char mac_address[6];
 
 //::custom-filter
 int mac_custom_filter(unsigned int data[]){
-	char addr[6];
-
-	addr[0] = mac_address[0];
-	addr[1] = mac_address[0] >> 8;
-	addr[2] = mac_address[0] >> 16;
-	addr[3] = mac_address[0] >> 24;
-	addr[4] = mac_address[1];
-	addr[5] = mac_address[1] >> 8;
 
 	if (is_broadcast((data,char[])) &&
             is_ethertype((data,char[]), ethertype_arp)){
 		return 1;
-	}else if (is_mac_addr((data,char[]), addr) &&
+	}else if (is_mac_addr((data,char[]), mac_address) &&
                   is_ethertype((data,char[]), ethertype_ip)){          
 		return 1;
 	}
@@ -372,9 +367,7 @@ int main()
       //::ethernet
       on stdcore[ETH_CORE]:
       {
-        ethernet_getmac_otp(otp_ports,
-                            (mac_address, char[]));
-        smi_init(smi);
+        otp_board_info_get_mac(otp_ports, 0, mac_address);
         eth_phy_config(1, smi);
 
         ethernet_server(mii, mac_address,

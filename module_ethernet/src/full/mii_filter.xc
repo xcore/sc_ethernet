@@ -42,8 +42,12 @@ void ethernet_get_filter_counts(unsigned &address, unsigned &filter, unsigned &l
 
 
 #pragma unsafe arrays
-void ethernet_filter(const int mac[], streaming chanend c[NUM_ETHERNET_PORTS]) {
-	int buf;
+void ethernet_filter(const char mac_address[], streaming chanend c[NUM_ETHERNET_PORTS]) {
+  unsigned int mac[2];
+  int buf;
+  // create integer version of mac address for speed
+  mac[0] = mac_address[0] + (((unsigned) mac_address[1]) << 8)  + (((unsigned) mac_address[2]) << 16)  + (((unsigned) mac_address[3]) << 24);
+  mac[1] = (((unsigned) mac_address[4])) + (((unsigned) mac_address[5]) << 8);
 
 	while (1)
 	{

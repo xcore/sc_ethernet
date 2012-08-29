@@ -5,7 +5,6 @@
 #include "platform.h"
 #include "mii.h"
 #include "smi.h"
-#include "getmac.h"
 
 #ifndef ETH_CORE
   #ifdef BOARD_DEFAULT_ETH_CORE

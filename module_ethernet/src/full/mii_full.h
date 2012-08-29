@@ -188,6 +188,10 @@ inline void mii_packet_set_data_short(int buf, int n, int v) {
   __asm__("st16 %0,%1[%2]"::"r"(v),"r"(buf),"r"(n+(BUF_DATA_OFFSET*2)));
 }
 
+inline void mii_packet_set_data_byte(int buf, int n, int v) {
+  __asm__("st8 %0,%1[%2]"::"r"(v),"r"(buf),"r"(n+(BUF_DATA_OFFSET*4)));
+}
+
 #ifdef __XC__
 void mii_rx_pins(
 #ifdef ETHERNET_RX_HP_QUEUE
