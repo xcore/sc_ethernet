@@ -29,7 +29,7 @@
         </component>
     </components>
     <dependency repo = "sc_otp">
-        <githash>8a0a48642e6b5b4dcd49a371cbf2707a8560caac</githash>
+        <githash>3bf6bfafe15eb0f0f238af90c6231565a443dc0b</githash>
         <uri>git@github.com:xcore/sc_otp</uri>
     </dependency>
     <description>A complete Ethernet MII and MAC interface for 100MBps Ethernet</description>
