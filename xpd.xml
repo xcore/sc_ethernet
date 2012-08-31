@@ -28,6 +28,10 @@
             <keyword>synchronization</keyword>
         </component>
     </components>
+    <dependency repo = "sc_otp">
+        <githash>8a0a48642e6b5b4dcd49a371cbf2707a8560caac</githash>
+        <uri>git@github.com:xcore/sc_otp</uri>
+    </dependency>
     <description>A complete Ethernet MII and MAC interface for 100MBps Ethernet</description>
     <docdir>doc</docdir>
     <exclude_dir>test_buffering</exclude_dir>

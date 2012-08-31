@@ -9,7 +9,7 @@
  *  \param m              the MII control structure
  */
 extern void mii_initialise(out port ?p_mii_resetn,
-                           mii_interface_t &m);
+                           mii_interface_lite_t &m);
 
 /** This function runs the MII low level driver. It requires at least 62.5
  * MIPS in order to be able to transmit and receive MII packets
@@ -22,7 +22,7 @@ extern void mii_initialise(out port ?p_mii_resetn,
  *  \param cIn    input channel to the client thread.
  *  \param cOut   output channel to the client thread.
  */
-extern void mii_driver(mii_interface_t &m, chanend cIn, chanend cOut);
+extern void mii_driver(mii_interface_lite_t &m, chanend cIn, chanend cOut);
 
 extern void phy_reset(out port p_mii_resetn, timer tmr);
 

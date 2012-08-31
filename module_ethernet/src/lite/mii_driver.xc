@@ -26,12 +26,12 @@ void mii_initialise(out port ?p_mii_resetn,
     mii_port_init(m);
 }
 
-#ifdef ETHERNET_USE_LITE
+
 // TODO: implement miiDriver straight in miiLLD.
-void mii_driver(mii_interface_t &m, chanend cIn, chanend cOut)
+void mii_driver(mii_interface_lite_t &m, chanend cIn, chanend cOut)
 {
     timer tmr;
     miiLLD(m.p_mii_rxd, m.p_mii_rxdv, m.p_mii_txd, cIn, cOut, m.p_mii_timing, tmr);
 }
-#endif
+
 

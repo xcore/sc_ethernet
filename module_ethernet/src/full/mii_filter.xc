@@ -10,8 +10,17 @@
 #include <print.h>
 #include "mii_malloc.h"
 #include "mii_filter.h"
-#include "mac_custom_filter.h"
 #include "ethernet_derived_conf.h"
+
+
+#ifdef __mac_custom_filter_h_exists__
+#include "mac_custom_filter.h"
+#else
+int mac_custom_filter(unsigned int buf[]) {
+  return 0xffffffff;
+}
+#endif
+
 
 #ifdef ETHERNET_USE_FULL
 // Smallest packet + interframe gap is 84 bytes = 6.72 us

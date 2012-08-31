@@ -11,10 +11,14 @@
 
 DEPENDENT_MODULES = module_ethernet_smi module_locks
 
-INCLUDE_DIRS = src/include src/common src/full src/lite src/getmac
-INCLUDE_DIRS += src/board_support/$(TARGET)
+ETH_SOURCE_DIRS = src/include src/common src/full src/lite src/getmac
+ETH_SOURCE_DIRS += src/board_support/$(TARGET)
 
-OPTIONAL_HEADERS += ethernet_conf.h ethernet_board_defaults.h
+SOURCE_DIRS = $(ETH_SOURCE_DIRS)
+INCLUDE_DIRS = $(ETH_SOURCE_DIRS)
+
+
+OPTIONAL_HEADERS += ethernet_conf.h ethernet_board_defaults.h xtcp_conf_derived.h mac_custom_filter.h
 
 MODULE_XCC_XC_FLAGS = $(XCC_FLAGS) -g -O3
 MODULE_XCC_C_FLAGS = $(XCC_FLAGS) -std=c99 -g -Os

@@ -9,15 +9,20 @@
 #include "ethernet_board_defaults.h"
 #endif
 
-#ifdef __xtcp_client_conf_h_exists__
-#include "xtcp_client_conf.h"
+#ifdef __xtcp_conf_derived_h_exists__
+#include "xtcp_conf_derived.h"
 #endif
 
-#if !defined(ETHERNET_USE_LITE) && defined(UIP_USE_SINGLE_THREADED_ETHERNET)
+#if !defined(ETHERNET_USE_LITE)
+#if !XTCP_SEPARATE_MAC
 #define ETHERNET_USE_LITE 1
+#else
+#define ETHERNET_USE_LITE 0
+#endif
 #endif
 
-#if !defined(ETHERNET_USE_LITE) && !defined(ETHERNET_USE_FULL)
+
+#if !ETHERNET_USE_LITE && !defined(ETHERNET_USE_FULL)
 #define ETHERNET_USE_FULL 1
 #endif
 

@@ -48,7 +48,7 @@ mii_interface_t mii = ETH_QUICKSTART_MII_INIT;
 unsigned char ethertype_ip[] = {0x08, 0x00};
 unsigned char ethertype_arp[] = {0x08, 0x06};
 
-unsigned char own_mac_addr[6]; // MAC address on core 0
+unsigned char own_mac_addr[6];
 
 #define ARP_RESPONSE 1
 #define ICMP_RESPONSE 2
@@ -65,8 +65,6 @@ int is_ethertype(unsigned char data[], unsigned char type[]){
 #pragma unsafe arrays
 int is_mac_addr(unsigned char data[], unsigned char addr[]){
 	for (int i=0;i<6;i++){
-#pragma xta label "sc_ethernet_is_mac_addr_1"
-#pragma xta command "add loop sc_ethernet_is_mac_addr_1 6"
           if (data[i] != addr[i]){
 			return 0;
 		}
@@ -78,8 +76,6 @@ int is_mac_addr(unsigned char data[], unsigned char addr[]){
 #pragma unsafe arrays
 int is_broadcast(unsigned char data[]){
 	for (int i=0;i<6;i++){
-#pragma xta label "sc_ethernet_is_broadcast_1"
-#pragma xta command "add loop sc_ethernet_is_broadcast_1 6"
           if (data[i] != 0xFF){
 			return 0;
 		}
@@ -88,18 +84,11 @@ int is_broadcast(unsigned char data[]){
 	return 1;
 }
 
-
-
-char mac_address[6];
-
 //::custom-filter
 int mac_custom_filter(unsigned int data[]){
-
-	if (is_broadcast((data,char[])) &&
-            is_ethertype((data,char[]), ethertype_arp)){
+	if (is_ethertype((data,char[]), ethertype_arp)){
 		return 1;
-	}else if (is_mac_addr((data,char[]), mac_address) &&
-                  is_ethertype((data,char[]), ethertype_ip)){          
+	}else if (is_ethertype((data,char[]), ethertype_ip)){
 		return 1;
 	}
 
@@ -335,6 +324,8 @@ void demo(chanend tx, chanend rx)
     unsigned int nbytes;
     mac_rx(rx, (rxbuf,char[]), nbytes, src_port);
 #ifdef ETHERNET_USE_LITE
+    if (!is_broadcast((rxbuf,char[])) && !is_mac_addr((rxbuf,char[]), own_mac_addr))
+      continue;
     if (mac_custom_filter(rxbuf) != 0x1)
       continue;
 #endif
@@ -367,6 +358,7 @@ int main()
       //::ethernet
       on stdcore[ETH_CORE]:
       {
+        char mac_address[6];
         otp_board_info_get_mac(otp_ports, 0, mac_address);
         eth_phy_config(1, smi);
 
