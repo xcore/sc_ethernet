@@ -117,8 +117,8 @@ void mii_single_server(out port ?p_mii_resetn,
 }
 
 void ethernet_server_lite(mii_interface_t &m,
-                          int mac_address[2],
-                          chanend c_rx, chanend c_tx,
+                          char mac_address[6],
+                          chanend c_rx[], int num_rx, chanend c_tx[], int num_tx,
                           smi_interface_t &?smi,
                           chanend ?connect_status)
 {
@@ -132,7 +132,7 @@ void ethernet_server_lite(mii_interface_t &m,
   par {
     {asm(""::"r"(notifications));mii_driver(m, cIn, cOut);}
     the_server(cIn, cOut, notifications, smi, connect_status,
-              c_rx, c_tx, (mac_address, char[]));
+              c_rx[0], c_tx[0], mac_address);
   }
 }
 

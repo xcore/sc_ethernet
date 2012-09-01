@@ -47,7 +47,7 @@ void ethernet_tx_server(
                         mii_mempool_t tx_mem_lp[],
                         int num_q, 
                         mii_ts_queue_t ts_queue[],
-                        const int mac_addr[],
+                        const char mac_addr[],
                         chanend tx[],
                         int num_tx,
                         smi_interface_t &?smi1, 
@@ -150,9 +150,8 @@ void ethernet_tx_server(
 
 #if defined(ENABLE_ETHERNET_SOURCE_ADDRESS_WRITE)
             		{
-            			mii_packet_set_data_short(buf[p], 3, (mac_addr,short[])[0]);
-            			mii_packet_set_data_short(buf[p], 4, (mac_addr,short[])[1]);
-            			mii_packet_set_data_short(buf[p], 5, (mac_addr,short[])[2]);
+                          for (int i=0;i<6;i++)
+                            mii_packet_set_data_byte(buf[p], 6+i, mac_addr[i]);
             		}
 #endif
 
@@ -207,7 +206,7 @@ void ethernet_tx_server(
             case ETHERNET_GET_MAC_ADRS:
               slave {
                 for (int j=0;j< 6;j++) {
-                  tx[i] <: (char) (mac_addr,char[])[j];
+                  tx[i] <: mac_addr[j];
                 }
               }
               break;

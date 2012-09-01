@@ -21,16 +21,19 @@
 #include <print.h>
 #include <platform.h>
 #include <stdlib.h>
+#include "otp_board_info.h"
 #include "ethernet_server.h"
 #include "ethernet_rx_client.h"
 #include "ethernet_tx_client.h"
 #include "checksum.h"
-#include "getmac.h"
 #include "ethernet_quickstart.h"
 
 // Port Definitions
+
+// These ports are for accessing the OTP memory
+otp_ports_t otp_ports = OTP_PORTS_INITIALIZER;
+
 // Here are the port definitions required by ethernet
-otp_ports_t otp_ports = ETH_QUICKSTART_OTP_PORTS_INIT;
 smi_interface_t smi = ETH_QUICKSTART_SMI_INIT;
 mii_interface_t mii = ETH_QUICKSTART_MII_INIT;
 
@@ -45,7 +48,7 @@ mii_interface_t mii = ETH_QUICKSTART_MII_INIT;
 unsigned char ethertype_ip[] = {0x08, 0x00};
 unsigned char ethertype_arp[] = {0x08, 0x06};
 
-unsigned char own_mac_addr[6]; // MAC address on core 0
+unsigned char own_mac_addr[6];
 
 #define ARP_RESPONSE 1
 #define ICMP_RESPONSE 2
@@ -62,8 +65,6 @@ int is_ethertype(unsigned char data[], unsigned char type[]){
 #pragma unsafe arrays
 int is_mac_addr(unsigned char data[], unsigned char addr[]){
 	for (int i=0;i<6;i++){
-#pragma xta label "sc_ethernet_is_mac_addr_1"
-#pragma xta command "add loop sc_ethernet_is_mac_addr_1 6"
           if (data[i] != addr[i]){
 			return 0;
 		}
@@ -75,8 +76,6 @@ int is_mac_addr(unsigned char data[], unsigned char addr[]){
 #pragma unsafe arrays
 int is_broadcast(unsigned char data[]){
 	for (int i=0;i<6;i++){
-#pragma xta label "sc_ethernet_is_broadcast_1"
-#pragma xta command "add loop sc_ethernet_is_broadcast_1 6"
           if (data[i] != 0xFF){
 			return 0;
 		}
@@ -85,26 +84,11 @@ int is_broadcast(unsigned char data[]){
 	return 1;
 }
 
-
-
-int mac_address[2];
-
 //::custom-filter
 int mac_custom_filter(unsigned int data[]){
-	char addr[6];
-
-	addr[0] = mac_address[0];
-	addr[1] = mac_address[0] >> 8;
-	addr[2] = mac_address[0] >> 16;
-	addr[3] = mac_address[0] >> 24;
-	addr[4] = mac_address[1];
-	addr[5] = mac_address[1] >> 8;
-
-	if (is_broadcast((data,char[])) &&
-            is_ethertype((data,char[]), ethertype_arp)){
+	if (is_ethertype((data,char[]), ethertype_arp)){
 		return 1;
-	}else if (is_mac_addr((data,char[]), addr) &&
-                  is_ethertype((data,char[]), ethertype_ip)){          
+	}else if (is_ethertype((data,char[]), ethertype_ip)){
 		return 1;
 	}
 
@@ -340,6 +324,8 @@ void demo(chanend tx, chanend rx)
     unsigned int nbytes;
     mac_rx(rx, (rxbuf,char[]), nbytes, src_port);
 #ifdef ETHERNET_USE_LITE
+    if (!is_broadcast((rxbuf,char[])) && !is_mac_addr((rxbuf,char[]), own_mac_addr))
+      continue;
     if (mac_custom_filter(rxbuf) != 0x1)
       continue;
 #endif
@@ -372,26 +358,15 @@ int main()
       //::ethernet
       on stdcore[ETH_CORE]:
       {
-        ethernet_getmac_otp(otp_ports,
-                            (mac_address, char[]));
-        smi_init(smi);
+        char mac_address[6];
+        otp_board_info_get_mac(otp_ports, 0, mac_address);
         eth_phy_config(1, smi);
 
-#ifdef ETHERNET_USE_FULL
         ethernet_server(mii, mac_address,
                         rx, 1,
                         tx, 1,
                         null,
                         null);
-#else
-        ethernet_server_lite(mii,
-                             mac_address,
-                             rx[0],
-                             tx[0],
-                             null,
-                             null);
-#endif
-
       }
       //::
 

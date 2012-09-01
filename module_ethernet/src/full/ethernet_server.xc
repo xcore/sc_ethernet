@@ -20,7 +20,7 @@ void phy_init(smi_interface_t &smi0,
 }
 
 void ethernet_server(mii_interface_t &m,
-                     int mac_address[],
+                     char mac_address[],
                      chanend rx[],
                      int num_rx,
                      chanend tx[],

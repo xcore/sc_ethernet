@@ -7,15 +7,15 @@
 #include <print.h>
 #include <platform.h>
 #include <stdlib.h>
+#include "otp_board_info.h"
 #include "ethernet_server.h"
 #include "ethernet_tx_client.h"
 #include "ethernet_rx_client.h"
 #include "frame_channel.h"
-#include "getmac.h"
 #include <print.h>
 #include "ethernet_quickstart.h"
 
-otp_ports_t otp_ports = ETH_QUICKSTART_OTP_PORTS_INIT;
+otp_ports_t otp_ports = OTP_PORTS_INITIALIZER;
 smi_interface_t smi = ETH_QUICKSTART_SMI_INIT;
 mii_interface_t mii = ETH_QUICKSTART_MII_INIT;
 
@@ -81,9 +81,8 @@ int main()
     {
       on stdcore[2]:
       {
-        int mac_address[2];
-        ethernet_getmac_otp(otp_ports,
-                            (mac_address, char[]));
+        char mac_address[6];
+        otp_board_info_get_mac(otp_ports, 0, mac_address);
         smi_init(smi);
         eth_phy_config(1, smi);
         ethernet_server(mii, mac_address,

@@ -1,0 +1,66 @@
+-- -*- mode: lua -*-
+
+configPoints = {
+   combine_smi_ports = {
+      short = "Combine SMI ports on single port",
+      long = "Combine the MDC and MDIO ports for controlling the phy onto one 4 bit port",
+      help =
+[[
+If this option is selected then the SMI interface will use a single 4-bit port. Otherwise, two 1-bit ports are used.
+]],
+      type = "bool",
+      default = false,
+      define = "SMI_COMBINE_MDC_MDIO"
+   }
+}
+
+derivedValues = {}
+
+function getConfigStatus()
+         return "General", {};
+end
+
+ports = {
+  p_eth_mdc = {
+    short   = "SMI MDC",
+    long    = "MDC clock signal for SMI phy configuration interface",
+    help    = "",
+    width   = 1,
+    define  = "PORT_ETH_MDC",
+    value   = "XS1_PORT_1I",
+    enableIf = not swblock.params.combine_smi_ports
+  },
+  p_eth_mdio = {
+    short   = "SMI MDIO",
+    long    = "MDIO I/O signal for SMI phy configuration interface",
+    help    = "",
+    width   = 1,
+    define  = "PORT_ETH_MDIO",
+    value   = "XS1_PORT_1G",
+    enableIf = not swblock.params.combine_smi_ports
+  },
+  p_eth_mdc_mdio = {
+    short   = "SMI Combined MDC/MDIO",
+    long    = "Combined MDC/MDIO signal for SMI phy configuration",
+    help    = "This port combines the MDC/MDIO signals with the MDC signal being the top bit of the 4-bit port",
+    width   = 4,
+    define  = "PORT_ETH_MDC_MDIO",
+    value   = "XS1_PORT_4C",
+    enableIf = swblock.params.combine_smi_ports,
+  }
+}
+
+channels = {}
+
+generatedCode = {
+   includes = {"smi.h"},
+   globals  = [[
+    smi_interface_t smi${swblock.id} =
+       {${swblock.params.phy_id},
+        ${swblock.ports.p_eth_mdio},
+        ${swblock.ports.p_eth_mdc}};
+   ]],
+   body = ""
+}
+
+api = {'smi_init','smi_reg','eth_phy_config','smi_check_link_state','smi_reg'}
