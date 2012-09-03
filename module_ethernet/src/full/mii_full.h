@@ -9,7 +9,7 @@
 #include <xccompat.h>
 #include "mii.h"
 
-#include "ethernet_derived_conf.h"
+#include "ethernet_conf_derived.h"
 
 #ifndef NUM_ETHERNET_PORTS
 #define NUM_ETHERNET_PORTS (1)

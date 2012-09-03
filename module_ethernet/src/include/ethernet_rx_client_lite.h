@@ -50,8 +50,6 @@ void mac_rx_lite(chanend c_mac,
                  REFERENCE_PARAM(unsigned int, len),
                  REFERENCE_PARAM(unsigned int, src_port));
 
-#define mac_rx(a,b,c,d) mac_rx_lite(a,b,c,d)
-
 /** This function receives a complete frame (i.e. src/dest MAC address,
  *  type & payload),  excluding pre-amble, SoF & CRC32 from the ethernet
  *  server. In addition it will only fill the given buffer up to a specified
@@ -78,8 +76,5 @@ void safe_mac_rx_lite(chanend c_mac,
                       REFERENCE_PARAM(unsigned int, src_port),
                       int n);
 
-#define safe_mac_rx(a,b,c,d,e) safe_mac_rx_lite(a,b,c,d,e)
-
-#define mac_set_customer_filter(a,b)
 
 #endif

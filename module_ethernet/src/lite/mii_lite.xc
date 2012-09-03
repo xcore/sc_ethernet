@@ -12,7 +12,7 @@
 #define CLK_DELAY_TRANSMIT   7  // Note: used to be 2 (improved simulator?)
 
 
-void mii_port_init(mii_interface_t &m) {
+void mii_port_init(mii_interface_lite_t &m) {
 	configure_clock_src(m.clk_mii_rx, m.p_mii_rxclk);
 	configure_clock_src(m.clk_mii_tx, m.p_mii_txclk);
 

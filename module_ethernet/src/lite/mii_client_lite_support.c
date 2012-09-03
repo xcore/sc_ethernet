@@ -1,10 +1,8 @@
 #include <xs1.h>
 #include <xccompat.h>
-#include "ethernet_derived_conf.h"
+#include "ethernet_conf_derived.h"
 #include "ethernet_rx_client.h"
 #include "ethernet_tx_client.h"
-
-#ifdef ETHERNET_USE_LITE
 
 static unsigned char mac_s_macaddr[6];
 
@@ -19,4 +17,3 @@ int mac_get_macaddr_lite(chanend c_mac, unsigned char macaddr[]) {
     return 1;
 }
 
-#endif

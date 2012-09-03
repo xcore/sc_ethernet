@@ -35,10 +35,7 @@
  *                   (use ETH_BROADCAST transmits to all ports)
  *
  */
-void mac_tx(chanend c_mac, unsigned int buffer[], int nbytes, int ifnum);
-
-#define ethernet_send_frame mac_tx
-#define ethernet_send_frame_getTime mac_tx_timed
+void mac_tx_full(chanend c_mac, unsigned int buffer[], int nbytes, int ifnum);
 
 
 /** Sends an ethernet frame. Frame includes dest/src MAC address(s), type
@@ -81,9 +78,13 @@ void mac_tx_offset2(chanend c_mac, unsigned int buffer[], int nbytes, int ifnum)
  *  NOTE: This function will block until the packet is sent to PHY.
  */
 #ifdef __XC__ 
-void mac_tx_timed(chanend c_mac, unsigned int buffer[], int nbytes, unsigned int &time, int ifnum);
+void mac_tx_timed_full(chanend c_mac, unsigned int buffer[], int nbytes, unsigned int &time, int ifnum);
 #else
-void mac_tx_timed(chanend c_mac, unsigned int buffer[], int nbytes, unsigned int *time, int ifnum);
+void mac_tx_timed_full(chanend c_mac, unsigned int buffer[], int nbytes, unsigned int *time, int ifnum);
+#endif
+
+#ifndef mac_tx_timed_full
+#define mac_tx_timed mac_tx_timed_full
 #endif
 
 /** Get the device MAC address.
@@ -97,9 +98,7 @@ void mac_tx_timed(chanend c_mac, unsigned int buffer[], int nbytes, unsigned int
  *  \return zero on success and non-zero on failure.
  */
 
-int mac_get_macaddr(chanend c_mac, unsigned char macaddr[]);
-
-#define ethernet_get_my_mac_adrs mac_get_macaddr
+int mac_get_macaddr_full(chanend c_mac, unsigned char macaddr[]);
 
 /**
  * Initialise the ethernet routing table.

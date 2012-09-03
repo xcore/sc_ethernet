@@ -37,10 +37,6 @@
  */
 void mac_tx_lite(chanend c_mac, unsigned int buffer[], int nbytes, int ifnum);
 
-#define mac_tx mac_tx_lite
-#define ethernet_send_frame mac_tx
-#define ethernet_send_frame_getTime mac_tx_timed
-
 
 /** Get the device MAC address.
  *
@@ -55,8 +51,6 @@ void mac_tx_lite(chanend c_mac, unsigned int buffer[], int nbytes, int ifnum);
 
 int mac_get_macaddr_lite(chanend c_mac, unsigned char macaddr[]);
 
-#define mac_get_macaddr mac_get_macaddr_lite
-#define ethernet_get_my_mac_adrs mac_get_macaddr
 
 
 #endif

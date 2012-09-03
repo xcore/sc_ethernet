@@ -1,7 +1,7 @@
 #ifndef __ethernet_board_defaults_h__
 #define __ethernet_board_defaults_h__
 
-#define BOARD_DEFAULT_ETH_CORE 2
-#define BOARD_DEFAULT_PHY_ADDRESS 0x7f
+#define ETHERNET_DEFAULT_TILE tile[1]
+#define ETHERNET_DEFAULT_PHY_ADDRESS 0x0
 
 #endif // __ethernet_board_defaults_h__

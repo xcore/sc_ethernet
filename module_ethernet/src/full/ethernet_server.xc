@@ -19,14 +19,14 @@ void phy_init(smi_interface_t &smi0,
   eth_phy_config(1, smi0);
 }
 
-void ethernet_server(mii_interface_t &m,
-                     char mac_address[],
-                     chanend rx[],
-                     int num_rx,
-                     chanend tx[],
-                     int num_tx,
-                     smi_interface_t &?smi,
-                     chanend ?connect_status)
+void ethernet_server_full(mii_interface_t &m,
+                          char mac_address[],
+                          chanend rx[],
+                          int num_rx,
+                          chanend tx[],
+                          int num_tx,
+                          smi_interface_t &?smi,
+                          chanend ?connect_status)
 {
   streaming chan c[1];
   mii_init(m);

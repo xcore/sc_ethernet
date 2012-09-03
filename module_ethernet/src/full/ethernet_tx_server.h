@@ -8,7 +8,7 @@
 #include "mii_queue.h"
 #include "mii_malloc.h"
 
-#include "ethernet_derived_conf.h"
+#include "ethernet_conf_derived.h"
 
 
 #ifdef __XC__

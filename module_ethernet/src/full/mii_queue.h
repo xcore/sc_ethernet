@@ -8,7 +8,7 @@
 
 #include <xccompat.h>
 
-#include "ethernet_derived_conf.h"
+#include "ethernet_conf_derived.h"
 
 #ifndef NUM_MII_RX_BUF 
 #define NUM_MII_RX_BUF 5
