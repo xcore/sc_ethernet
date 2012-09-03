@@ -22,12 +22,16 @@ XCC_FLAGS = -report -g -DMAC_CUSTOM_FILTER
 
 # The USED_MODULES variable lists other module used by the application. 
 
+
+USED_MODULES = module_ethernet module_otp_board_info
+
+
+# This change to the module path is so that this application can be in the
+# tests sub-directory in it's git repo
 ifeq ($(notdir $(abspath ..)),tests)
-XMOS_MODULE_PATH += ../../..
+PATHSEP = $(if $(findstring Windows, $(OS))$(findstring WINDOWS,$(OS)),;,:)
+XMOS_MODULE_PATH := $(XMOS_MODULE_PATH)$(PATHSEP)../../..
 endif
-
-USED_MODULES = module_ethernet
-
 
 #=============================================================================
 # The following part of the Makefile includes the common build infrastructure
@@ -35,3 +39,4 @@ USED_MODULES = module_ethernet
 
 XMOS_MAKE_PATH ?= ../..
 include $(XMOS_MAKE_PATH)/xcommon/module_xcommon/build/Makefile.common
+

@@ -13,7 +13,6 @@
 #include "smi.h"
 #include "mii_client.h"
 
-#ifdef ETHERNET_USE_LITE
 
 extern void mac_set_macaddr_lite(unsigned char macaddr[]);
 
@@ -99,7 +98,7 @@ static void the_server(chanend cIn, chanend cOut, chanend cNotifications,
 
 void mii_single_server(out port ?p_mii_resetn,
                      smi_interface_t &smi,
-                     mii_interface_t &m,
+                     mii_interface_lite_t &m,
                      chanend appIn, chanend appOut,
                      chanend connect_status, unsigned char mac_address[6]) {
     chan cIn, cOut;
@@ -116,7 +115,7 @@ void mii_single_server(out port ?p_mii_resetn,
 
 }
 
-void ethernet_server_lite(mii_interface_t &m,
+void ethernet_server_lite(mii_interface_lite_t &m,
                           char mac_address[6],
                           chanend c_rx[], int num_rx, chanend c_tx[], int num_tx,
                           smi_interface_t &?smi,
@@ -137,4 +136,3 @@ void ethernet_server_lite(mii_interface_t &m,
 }
 
 
-#endif

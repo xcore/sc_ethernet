@@ -8,22 +8,23 @@
 #include <platform.h>
 #include <stdlib.h>
 #include "otp_board_info.h"
-#include "ethernet_server.h"
-#include "ethernet_tx_client.h"
-#include "ethernet_rx_client.h"
+#include "ethernet.h"
 #include "frame_channel.h"
+#include "mac_custom_filter.h"
 #include <print.h>
-#include "ethernet_quickstart.h"
 
 otp_ports_t otp_ports = OTP_PORTS_INITIALIZER;
-smi_interface_t smi = ETH_QUICKSTART_SMI_INIT;
-mii_interface_t mii = ETH_QUICKSTART_MII_INIT;
+smi_interface_t smi = ETHERNET_DEFAULT_SMI_INIT;
+mii_interface_t mii = ETHERNET_DEFAULT_MII_INIT;
+ethernet_reset_interface_t eth_rst = ETHERNET_DEFAULT_RESET_INTERFACE_INIT;
 
 void test(chanend tx, chanend rx);
 void set_filter_broadcast(chanend rx);
 
 void receiver(chanend rx, chanend loopback);
 void transmitter(chanend tx, chanend loopback);
+
+extern inline unsigned int mac_custom_filter(unsigned int data[]);
 
 void test(chanend tx, chanend rx)
 {
@@ -34,7 +35,9 @@ void test(chanend tx, chanend rx)
   { timer tmr; tmr :> time; tmr when timerafter(time + 600000000) :> time; }
   printstr("Ethernet initialised\n");
 
+#if ETHERNET_DEFAULT_IS_FULL
   mac_set_custom_filter(rx, 0x1);
+#endif
 
   printstr("Loopback running\n");
 
@@ -71,18 +74,17 @@ void transmitter(chanend tx, chanend loopback)
     }
 }
 
-extern unsigned int mac_custom_filter(unsigned char data[]);
-
 int main()
 {
   chan rx[1], tx[1];
 
   par
     {
-      on stdcore[2]:
+      on ETHERNET_DEFAULT_TILE:
       {
         char mac_address[6];
         otp_board_info_get_mac(otp_ports, 0, mac_address);
+        eth_phy_reset(eth_rst);
         smi_init(smi);
         eth_phy_config(1, smi);
         ethernet_server(mii, mac_address,

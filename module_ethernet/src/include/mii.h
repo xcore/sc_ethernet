@@ -3,7 +3,7 @@
 
 #include <xs1.h>
 #include <xccompat.h>
-#include "ethernet_derived_conf.h"
+#include "ethernet_conf_derived.h"
 
 #ifdef __XC__
 /** Structure containing resources required for the MII ethernet interface.
@@ -49,11 +49,12 @@ typedef struct mii_interface_lite_s {
 } mii_interface_lite_t;
 
 
-#if defined(ETHERNET_USE_FULL) && !defined(MII_FORCE_USE_LITE)
-#define mii_interface_t mii_interface_full_t
-#else
-#define mii_interface_t mii_interface_lite_t
+#ifndef ADD_SUFFIX
+#define _ADD_SUFFIX(A,B) A ## _ ## B
+#define ADD_SUFFIX(A,B) _ADD_SUFFIX(A,B)
 #endif
+
+#define mii_interface_t ADD_SUFFIX(ADD_SUFFIX(mii_interface,ETHERNET_DEFAULT_IMPLEMENTATION),t)
 
 #endif // __XC__
 

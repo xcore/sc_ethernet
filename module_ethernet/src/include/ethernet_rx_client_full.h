@@ -20,36 +20,24 @@
 #include <xccompat.h>
 
 
-/** This function receives a complete frame (i.e. src/dest MAC address,
- *  type & payload),  excluding pre-amble, SoF & CRC32 from the ethernet
- *  server.
- *
- *  This function is selectable i.e. it can be used as a case in a select e.g.
- *
- *  \verbatim
- *      select {
- *         ...
- *         case mac_rx(...):
- *            break;
- *          ...
- *        }
- *  \endverbatim
- *
- *  \param c_mac      A chanend connected to the ethernet server
- *  \param buffer     The buffer to fill with the incoming packet
- *  \param src_port   A reference parameter to be filled with the ethernet
- *                   port the packet came from.        
- *  \param len        A reference parameter to be filled with the length of 
- *                   the received packet in bytes. 
- *
- **/
 #ifdef __XC__
 #pragma select handler
 #endif
-void mac_rx(chanend c_mac, 
-            unsigned char buffer[], 
-            REFERENCE_PARAM(unsigned int, len),
-            REFERENCE_PARAM(unsigned int, src_port));
+void mac_rx_full(chanend c_mac,
+                 unsigned char buffer[],
+                 REFERENCE_PARAM(unsigned int, len),
+                 REFERENCE_PARAM(unsigned int, src_port));
+
+
+#ifdef __XC__
+#pragma select handler
+#endif
+void safe_mac_rx_full(chanend c_mac,
+                      unsigned char buffer[],
+                      REFERENCE_PARAM(unsigned int, len),
+                      REFERENCE_PARAM(unsigned int, src_port),
+                      int n);
+
 
 /** This function receives a complete frame (i.e. src/dest MAC address,
  *  type & payload),  excluding pre-amble, SoF & CRC32. It also timestamps
@@ -70,12 +58,11 @@ void mac_rx(chanend c_mac,
 #ifdef __XC__
 #pragma select handler
 #endif
-void mac_rx_timed(chanend c_mac, 
-                 unsigned char buffer[], 
-                 REFERENCE_PARAM(unsigned int, len),
-                 REFERENCE_PARAM(unsigned int, time),
-                 REFERENCE_PARAM(unsigned int, src_port));
-
+void mac_rx_timed(chanend c_mac,
+                  unsigned char buffer[],
+                  REFERENCE_PARAM(unsigned int, len),
+                  REFERENCE_PARAM(unsigned int, time),
+                  REFERENCE_PARAM(unsigned int, src_port));
 
 
 /** This function receives a complete frame (i.e. src/dest MAC address,
@@ -98,40 +85,12 @@ void mac_rx_timed(chanend c_mac,
 #ifdef __XC__
 #pragma select handler
 #endif
-void safe_mac_rx(chanend c_mac, 
-                unsigned char buffer[], 
-                REFERENCE_PARAM(unsigned int, len),
-                REFERENCE_PARAM(unsigned int, src_port),
-                int n);
-
-/** This function receives a complete frame (i.e. src/dest MAC address,
- *  type & payload),  excluding pre-amble, SoF & CRC32. It also timestamp 
- *  the arrival of the frame.  In addition it will only fill the given 
- *  buffer up to a specified length.
- *
- *  This function is selectable.
- *
- *  \param c_mac      A chanend connected to the ethernet server
- *  \param buffer     The buffer to fill with the incoming packet
- *  \param time       A reference parameter to be filled with the timestamp of 
- *                   the packet
- *  \param len        A reference parameter to be filled with the length of 
- *                   the received packet in bytes. 
- *  \param src_port   A reference parameter to be filled with the ethernet
- *                   port the packet came from.        
- *  \param n          The maximum number of bytes to fill the supplied buffer 
- *                   with.
- *
- **/
-#ifdef __XC__
-#pragma select handler
-#endif
-void safe_mac_rx_timed(chanend c_mac, 
-                      unsigned char buffer[], 
-                      REFERENCE_PARAM(unsigned int, len),
-                      REFERENCE_PARAM(unsigned int, time),
-                      REFERENCE_PARAM(unsigned int, src_port),
-                      int n);
+void safe_mac_rx_timed(chanend c_mac,
+                       unsigned char buffer[],
+                       REFERENCE_PARAM(unsigned int, len),
+                       REFERENCE_PARAM(unsigned int, time),
+                       REFERENCE_PARAM(unsigned int, src_port),
+                       int n);
 
 /** Setup whether a link should drop packets or block if the link is not ready
  *
@@ -204,9 +163,9 @@ void mac_get_global_counters(chanend mac_svr,
 #pragma select handler
 #endif
 void mac_rx_offset2(chanend c_mac, 
-                   unsigned char buffer[], 
+                    unsigned char buffer[],
                     REFERENCE_PARAM(unsigned int, len),
-                   REFERENCE_PARAM(unsigned int, src_port));
+                    REFERENCE_PARAM(unsigned int, src_port));
 
 
 #endif

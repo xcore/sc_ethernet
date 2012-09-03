@@ -5,7 +5,7 @@
 
 #include <xs1.h>
 #include "mii_queue.h"
-#include "mii_full.h"
+#include "mii.h"
 #include "mii_malloc.h"
 #include <print.h>
 #include <stdlib.h>
@@ -22,9 +22,8 @@
 
 #define ETHERNET_IFS_AS_REF_CLOCK_COUNT  (96)   // 12 bytes
 
-#ifdef ETHERNET_USE_FULL
 // Receive timing constraints
-
+#if ETHERNET_ENABLE_FULL_TIMINGS
 #pragma xta command "remove exclusion *"
 #pragma xta command "add exclusion mii_rx_eof"
 #pragma xta command "add exclusion mii_rx_begin"
@@ -112,6 +111,7 @@
 #pragma xta command "analyze endpoints mii_tx_final_partword_3 mii_tx_crc_3"
 #pragma xta command "set required - 240 ns"
 
+#endif
 // check the transmit interframe space.  It should ideally be quite close to 1560, which will
 // allow the timer check to control the transmission rather than being instruction time bound
 
@@ -123,7 +123,6 @@
 //#pragma xta command "analyze endpoints mii_tx_end mii_tx_start"
 //#pragma xta command "set required - 1560 ns"
 
-#endif
 
 #ifdef ETHERNET_COUNT_PACKETS
 static unsigned int ethernet_mii_no_queue_entries = 0;

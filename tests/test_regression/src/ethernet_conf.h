@@ -11,6 +11,6 @@
 
 #define MAX_ETHERNET_CLIENTS   (4)    
 
-
+#define ETHERNET_DEFAULT_IMPLEMENTATION full
 
 

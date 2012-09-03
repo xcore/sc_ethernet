@@ -5,7 +5,7 @@
 
 #include <xs1.h>
 #define MII_FORCE_USE_LITE
-#include "ethernet_derived_conf.h"
+#include "ethernet_conf_derived.h"
 
 #include "mii_driver.h"
 #include "mii_lld.h"
@@ -13,7 +13,7 @@
 #include "mii_lite.h"
 
 void mii_initialise(out port ?p_mii_resetn,
-                   mii_interface_t &m)
+                   mii_interface_lite_t &m)
 {
 #ifndef MII_DRIVER_SIMULATION
 #ifndef MII_NO_RESET

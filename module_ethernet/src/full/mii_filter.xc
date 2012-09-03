@@ -10,7 +10,7 @@
 #include <print.h>
 #include "mii_malloc.h"
 #include "mii_filter.h"
-#include "ethernet_derived_conf.h"
+#include "ethernet_conf_derived.h"
 
 
 #ifdef __mac_custom_filter_h_exists__
@@ -22,7 +22,7 @@ int mac_custom_filter(unsigned int buf[]) {
 #endif
 
 
-#ifdef ETHERNET_USE_FULL
+#if ETHERNET_ENABLE_FULL_TIMINGS
 // Smallest packet + interframe gap is 84 bytes = 6.72 us
 #pragma xta command "analyze endpoints rx_packet rx_packet"
 #pragma xta command "set required - 6.72 us"

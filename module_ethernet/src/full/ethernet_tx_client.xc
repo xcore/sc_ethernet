@@ -16,13 +16,12 @@
 #include <xs1.h>
 #include <xclib.h>
 
-#include "ethernet_derived_conf.h"
+#include "ethernet_conf_derived.h"
 #include "ethernet_server_def.h"
 
-#include "ethernet_tx_client.h"
+#include "ethernet_tx_client_full.h"
 #include "print.h"
 
-#ifdef ETHERNET_USE_FULL
 
 #pragma select handler
 void mac_check_link_client(chanend c, unsigned char &linkNum, int &status)
@@ -85,7 +84,7 @@ static void ethernet_send_frame_unify(chanend ethernet_tx_svr, unsigned int Buf[
 }
 
 
-void mac_tx(chanend ethernet_tx_svr, unsigned int Buf[], int count, int ifnum)
+void mac_tx_full(chanend ethernet_tx_svr, unsigned int Buf[], int count, int ifnum)
 {
   unsigned sentTime;
   ethernet_send_frame_unify(ethernet_tx_svr, Buf, count, sentTime, ETHERNET_TX_REQ, ifnum);
@@ -118,7 +117,7 @@ void mac_tx_timed(chanend ethernet_tx_svr, unsigned int Buf[], int count, unsign
 }
 
 
-int mac_get_macaddr(chanend ethernet_tx_svr, unsigned char Buf[])
+int mac_get_macaddr_full(chanend ethernet_tx_svr, unsigned char Buf[])
 {
   int i;
   ethernet_tx_svr <: ETHERNET_GET_MAC_ADRS;
@@ -170,6 +169,5 @@ void mac_set_qav_bandwidth(chanend c,
     c <: slope;
   }
 }
-#endif
 
 #endif

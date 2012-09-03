@@ -18,9 +18,9 @@
 #include "mii_full.h"
 #include "ethernet_server_def.h"
 #include "ethernet_rx_client.h"
-#include "ethernet_derived_conf.h"
+#include "ethernet_conf_derived.h"
 
-#ifdef ETHERNET_USE_FULL
+
 
 /** This function unifies all the variants of mac_rx.
  */
@@ -71,7 +71,7 @@ static int ethernet_unified_get_data(chanend ethernet_rx_svr, unsigned char Buf[
   return (rxByteCnt);
 }
 
-void mac_rx(chanend ethernet_rx_svr, unsigned char Buf[], 
+void mac_rx_full(chanend ethernet_rx_svr, unsigned char Buf[],
            unsigned int &len,
            unsigned int &src_port)
 {
@@ -87,7 +87,7 @@ void mac_rx_offset2(chanend ethernet_rx_svr, unsigned char Buf[], unsigned int &
   return;
 }
 
-void safe_mac_rx(chanend ethernet_rx_svr, unsigned char Buf[], unsigned int &len, unsigned int &src_port, int n)
+void safe_mac_rx_full(chanend ethernet_rx_svr, unsigned char Buf[], unsigned int &len, unsigned int &src_port, int n)
 {
   unsigned rxTime;
   len = ethernet_unified_get_data(ethernet_rx_svr, Buf, rxTime, src_port, ETHERNET_RX_FRAME_REQ, n);
@@ -166,4 +166,3 @@ void mac_get_global_counters(chanend mac_svr,
 #endif
 }
 
-#endif

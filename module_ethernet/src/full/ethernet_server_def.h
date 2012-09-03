@@ -17,7 +17,7 @@
 #ifndef _ETHERNET_SERVER_DEF_H_
 #define _ETHERNET_SERVER_DEF_H_ 1
 
-#include "ethernet_derived_conf.h"
+#include "ethernet_conf_derived.h"
 
 #ifndef MAX_ETHERNET_CLIENTS
 #define MAX_ETHERNET_CLIENTS   (4)      // Number of link layers to support
