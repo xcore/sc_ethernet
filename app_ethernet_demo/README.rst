@@ -1,7 +1,7 @@
 Low Level Ethernet Demo
 =======================
 
-:scope: Early Development
+:scope: Example
 :description: A simple demo of using the low level ethernet module
 :keywords: ethernet, mac, mii
 

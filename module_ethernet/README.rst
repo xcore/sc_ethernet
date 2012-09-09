@@ -1,5 +1,5 @@
-Low Level Ethernet Module
-=========================
+Low Level Ethernet Component
+============================
 
 :scope: General Use
 :description: MII interface and low level ethernet MAC

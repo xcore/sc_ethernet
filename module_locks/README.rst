@@ -1,4 +1,4 @@
-Lock handling library
+Lock Handling Library
 =====================
 
 :scope: General Use

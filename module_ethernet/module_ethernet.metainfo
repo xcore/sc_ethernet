@@ -31,7 +31,7 @@ This parameter controls the size of the receive buffer of the mac. Packets will 
       units = "bytes",
       default = 2048,
       min = 512,
-      max = 61440,
+      max = 30000,
       resourceUsageFlags = {"linear"},
       define = rx_buf_define
    },
@@ -45,7 +45,7 @@ This parameter controls the size of the transmit buffer of the mac. Packets will
       units = "bytes",
       default = 2048,
       min = 512,
-      max = 61440,
+      max = 30000,
       resourceUsageFlags = {"linear"},
       define = tx_buf_define
    },
@@ -245,8 +245,7 @@ channels = {
 }
 
 function getConfigStatus()
-   return "Trusted", {{issue = "Ethernet is great"},
-                      {note = "Ethernet is wonderbar"}}
+   return "Trusted", {}
 end
 
 if swblock.params.use_lite then
