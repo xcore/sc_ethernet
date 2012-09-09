@@ -12,7 +12,11 @@
 #include "mii_lite.h"
 #include "smi.h"
 #include "mii_client.h"
+#include "ethernet_conf_derived.h"
 
+#ifndef ETHERNET_LITE_RX_BUFSIZE
+#define ETHERNET_LITE_RX_BUFSIZE (3200*4)
+#endif
 
 extern void mac_set_macaddr_lite(unsigned char macaddr[]);
 
@@ -22,14 +26,14 @@ static void the_server(chanend cIn, chanend cOut, chanend cNotifications,
     int havePacket = 0;
     int outBytes;
     int nBytes, a, timeStamp;
-    int b[3200];
+    int b[ETHERNET_LITE_RX_BUFSIZE*2/4];
     int txbuf[400];
     timer linkcheck_timer;
     unsigned linkcheck_time;
 	struct miiData miiData;
     mac_set_macaddr_lite(mac_address);
 
-    mii_buffer_init(miiData, cIn, cNotifications, b, 3200);
+    mii_buffer_init(miiData, cIn, cNotifications, b, ETHERNET_LITE_RX_BUFSIZE*2/4);
     mii_out_init(cOut);
     
     linkcheck_timer :> linkcheck_time;

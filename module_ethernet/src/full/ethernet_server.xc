@@ -12,14 +12,14 @@
 #if (NUM_ETHERNET_PORTS == 1)
 
 void phy_init(smi_interface_t &smi0,
-              mii_interface_t &mii0)
+              mii_interface_full_t &mii0)
 {
   smi_init(smi0);
-  mii_init(mii0);
+  mii_init_full(mii0);
   eth_phy_config(1, smi0);
 }
 
-void ethernet_server_full(mii_interface_t &m,
+void ethernet_server_full(mii_interface_full_t &m,
                           char mac_address[],
                           chanend rx[],
                           int num_rx,
@@ -29,7 +29,7 @@ void ethernet_server_full(mii_interface_t &m,
                           chanend ?connect_status)
 {
   streaming chan c[1];
-  mii_init(m);
+  mii_init_full(m);
   init_mii_mem();
   par {
     // These thrads all communicate internally via shared memory

@@ -19,14 +19,6 @@
 #define MAX_ETHERNET_PACKET_SIZE (1518)
 #endif
 
-#ifndef NUM_MII_RX_BUF 
-#define NUM_MII_RX_BUF 5
-#endif
-
-#ifndef NUM_MII_TX_BUF 
-#define NUM_MII_TX_BUF 5
-#endif
-
 #ifndef ETHERNET_RX_CRC_ERROR_CHECK
 #define ETHERNET_RX_CRC_ERROR_CHECK
 #endif
@@ -37,30 +29,30 @@
 
 #ifdef ETHERNET_RX_HP_QUEUE
 
-#ifndef MII_RX_BUFSIZE_HIGH_PRIORITY
-#define MII_RX_BUFSIZE_HIGH_PRIORITY (2048)
+#ifndef ETHERNET_RX_BUFSIZE_HIGH_PRIORITY
+#define ETHERNET_RX_BUFSIZE_HIGH_PRIORITY (2048)
 #endif
 
-#ifndef MII_RX_BUFSIZE_LOW_PRIORITY
-#define MII_RX_BUFSIZE_LOW_PRIORITY (4096)
+#ifndef ETHERNET_RX_BUFSIZE_LOW_PRIORITY
+#define ETHERNET_RX_BUFSIZE_LOW_PRIORITY (4096)
 #endif
 
 #else 
 
-#ifndef MII_RX_BUFSIZE
-#define MII_RX_BUFSIZE (4096)
+#ifndef ETHERNET_RX_BUFSIZE
+#define ETHERNET_RX_BUFSIZE (4096)
 #endif
 
-#ifndef MII_RX_BUFSIZE_LOW_PRIORITY
-#define MII_RX_BUFSIZE_LOW_PRIORITY MII_RX_BUFSIZE
+#ifndef ETHERNET_RX_BUFSIZE_LOW_PRIORITY
+#define ETHERNET_RX_BUFSIZE_LOW_PRIORITY ETHERNET_RX_BUFSIZE
 #endif
 
 #endif
 
 
 
-#ifndef MII_TX_BUFSIZE
-#define MII_TX_BUFSIZE (2048)
+#ifndef ETHERNET_TX_BUFSIZE
+#define ETHERNET_TX_BUFSIZE (2048)
 #endif
 
 #ifndef ETHERNET_MAX_TX_PACKET_SIZE
@@ -83,7 +75,7 @@
 #include "mii_queue.h"
 
 #ifdef __XC__
-void mii_init(REFERENCE_PARAM(mii_interface_t, m));
+void mii_init_full(REFERENCE_PARAM(mii_interface_full_t, m));
 #endif
 
 
