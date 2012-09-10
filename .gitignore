@@ -1,4 +1,7 @@
-*/.build*/*
+.build*
+_build*
+**/.build*/*
+**/_build*/*
 */bin/*
 *.o
 *.xe
@@ -11,4 +14,5 @@ test_mii_singlethread/images/
 doc/.doxygen/
 doc/.sources/
 doc/Doxyfile-e
-
+__generated*
+toplevel_doc/*
