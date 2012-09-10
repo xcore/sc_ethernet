@@ -290,13 +290,12 @@ generatedCode = {
              smi_init(smi${swblock.id});
              eth_phy_config(1, smi${swblock.id});
              ethernet_server(mii${swblock.id},
+                             smi${swblock.id},
                              mac_address,
                              ${swblock.chanends.c_rx},
                              ${swblock.params.num_rx_clients},
                              ${swblock.chanends.c_tx},
-                             ${swblock.params.num_tx_clients},
-                             null,
-                             null);
+                             ${swblock.params.num_tx_clients});
           }
       ]]
 }

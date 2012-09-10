@@ -13,13 +13,12 @@
 #ifdef __XC__
 
 void ethernet_server_lite(mii_interface_lite_t &mii,
+                          smi_interface_t &?smi,
                           char mac_address[],
                           chanend rx[],
                           int num_rx,
                           chanend tx[],
-                          int num_tx,
-                          smi_interface_t &?smi,
-                          chanend ?connect_status);
+                          int num_tx);
 
 
 #endif

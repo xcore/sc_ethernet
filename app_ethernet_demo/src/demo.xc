@@ -360,11 +360,11 @@ int main()
         eth_phy_reset(eth_rst);
         smi_init(smi);
         eth_phy_config(1, smi);
-        ethernet_server(mii, mac_address,
-                        rx, 1,
-                        tx, 1,
+        ethernet_server(mii,
                         null,
-                        null);
+                        mac_address,
+                        rx, 1,
+                        tx, 1);
       }
       //::
 

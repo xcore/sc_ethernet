@@ -11,6 +11,8 @@
 #include "ethernet_rx_client_lite.h"
 #include "ethernet_rx_client_full.h"
 
+#define STATUS_PACKET_LEN -1
+
 /** This function receives a complete frame (i.e. src/dest MAC address,
  *  type & payload),  excluding pre-amble, SoF & CRC32 from the ethernet
  *  server.

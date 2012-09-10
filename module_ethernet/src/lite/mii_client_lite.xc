@@ -12,10 +12,19 @@ void safe_mac_rx_lite(chanend cIn,
                         int n) {
     inuint_byref(cIn, len);
     cIn <: 0;                             // Confirm that we take packet.
-    for(int i = 0; i< ((len+3)>>2); i++) {
-        cIn :> (buffer, unsigned int[]) [i];
+
+    if (len==-1) {
+      int status;
+      cIn :> status;
+      buffer[0] = status;
+      cIn :> src_port;
     }
-    src_port = 0;
+    else {
+      for(int i = 0; i< ((len+3)>>2);  i++) {
+      cIn :> (buffer, unsigned int[]) [i];
+      }
+      src_port = 0;
+    }
 }
 
 

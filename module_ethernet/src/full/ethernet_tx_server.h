@@ -7,7 +7,6 @@
 #include "mii_full.h"
 #include "mii_queue.h"
 #include "mii_malloc.h"
-
 #include "ethernet_conf_derived.h"
 
 
@@ -22,8 +21,7 @@ void ethernet_tx_server(
                         const char mac_addr[],
                         chanend tx[], int num_tx,
                         smi_interface_t &?smi1,
-                        smi_interface_t &?smi2,
-                        chanend ?connect_status);
+                        smi_interface_t &?smi2);
 #else
 void ethernet_tx_server(
 #ifdef ETHERNET_TX_HP_QUEUE
@@ -35,7 +33,6 @@ void ethernet_tx_server(
                         const char mac_addr[],
                         chanend tx[], int num_tx,
                         smi_interface_t *smi1,
-                        smi_interface_t *smi2,
-                        chanend connect_status);
+                        smi_interface_t *smi2);
 #endif
 

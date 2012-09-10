@@ -63,10 +63,11 @@
 #define ETHERNET_RX_QUEUE_SIZE_SET       (0x80000018)
 
 #define ETHERNET_RX_FRAME_REQ_OFFSET2    (0x80000019)
+#define ETHERNET_RX_FRAME_REQ_OFFSET2    (0x80000019)
+#define ETHERNET_RX_WANTS_STATUS_UPDATES_SET (0x80000020)
 
-
-#define ETHERNET_REQ_ACK	             (0x80000020) // Acknowledged
-#define ETHERNET_REQ_NACK	             (0x80000021) // Negative ack.
+#define ETHERNET_REQ_ACK	             (0x80000021) // Acknowledged
+#define ETHERNET_REQ_NACK	             (0x80000022) // Negative ack.
 
 
 #define ETH_BROADCAST (-1)

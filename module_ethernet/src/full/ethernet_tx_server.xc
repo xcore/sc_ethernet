@@ -8,6 +8,7 @@
 #include "mii_queue.h"
 #include "ethernet_server_def.h"
 #include "mii_malloc.h"
+#include "ethernet_link_status.h"
 #include <print.h>
 #include <xs1.h>
 #include <xclib.h>
@@ -24,23 +25,21 @@
 
 #define LINK_POLL_PERIOD 10000000
 
-static void mac_check_link_server(smi_interface_t &smi,
-               int linkNum,
-               chanend c,
-               int &phy_status)
+static void do_link_check(smi_interface_t &smi, int linkNum)
 {
   int new_status = smi_check_link_state(smi);
-  if (new_status != phy_status) {
-    outuchar(c, linkNum);
-    outuchar(c, new_status);
-    outuchar(c, 0);
-    outct(c, XS1_CT_END);
-    phy_status = new_status;
-  }
+  ethernet_update_link_status(linkNum, new_status);
+  /* if (new_status != phy_status) { */
+  /*   outuchar(c, linkNum); */
+  /*   outuchar(c, new_status); */
+  /*   outuchar(c, 0); */
+  /*   outct(c, XS1_CT_END); */
+  /*   phy_status = new_status; */
+  /* } */
 }
 
 #pragma unsafe arrays
-void ethernet_tx_server(
+    void ethernet_tx_server(
 #ifdef ETHERNET_TX_HP_QUEUE
                         mii_mempool_t tx_mem_hp[],
 #endif
@@ -51,8 +50,7 @@ void ethernet_tx_server(
                         chanend tx[],
                         int num_tx,
                         smi_interface_t &?smi1, 
-                        smi_interface_t &?smi2, 
-                        chanend ?connect_status) 
+                        smi_interface_t &?smi2)
 {
   unsigned buf[NUM_ETHERNET_PORTS];
   int enabled[MAX_LINKS];
@@ -180,11 +178,11 @@ void ethernet_tx_server(
 
     select {
       case tmr when timerafter(linkCheckTime) :> int:
-        if (!isnull(smi1) && !isnull(connect_status)) {
-          mac_check_link_server(smi1, 0, connect_status, phy_status[0]);
+        if (!isnull(smi1)) {
+          do_link_check(smi1, 0);
         }
-        if (!isnull(smi2) && !isnull(connect_status)) {
-          mac_check_link_server(smi2, 1, connect_status, phy_status[1]);
+        if (!isnull(smi2)) {
+          do_link_check(smi2, 1);
         }       
         linkCheckTime += LINK_POLL_PERIOD;
       break;
