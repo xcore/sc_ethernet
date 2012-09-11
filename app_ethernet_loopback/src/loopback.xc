@@ -88,12 +88,10 @@ int main()
         smi_init(smi);
         eth_phy_config(1, smi);
         ethernet_server(mii,
-                        null
+                        smi,
                         mac_address,
                         rx, 1,
-                        tx, 1,
-                        null,
-                        null);
+                        tx, 1);
       }
       on stdcore[3] : test(tx[0], rx[0]);
     }
