@@ -137,4 +137,3 @@ void ethernet_server_lite(mii_interface_lite_t &m,
 }
 
 
-#endif
