@@ -10,14 +10,15 @@ If this option is selected then the SMI interface will use a single 4-bit port. 
 ]],
       type = "bool",
       default = false,
-      define = "SMI_COMBINE_MDC_MDIO"
+      define = "SMI_COMBINE_MDC_MDIO",
+      resourceUsageFlags = {"noeffect"}
    }
 }
 
 derivedValues = {}
 
 function getConfigStatus()
-         return "General", {};
+         return "Trusted", {};
 end
 
 ports = {
@@ -28,7 +29,7 @@ ports = {
     width   = 1,
     define  = "PORT_ETH_MDC",
     value   = "XS1_PORT_1I",
-    enableIf = not swblock.params.combine_smi_ports
+    enabled = not swblock.params.combine_smi_ports
   },
   p_eth_mdio = {
     short   = "SMI MDIO",
@@ -37,7 +38,7 @@ ports = {
     width   = 1,
     define  = "PORT_ETH_MDIO",
     value   = "XS1_PORT_1G",
-    enableIf = not swblock.params.combine_smi_ports
+    enabled = not swblock.params.combine_smi_ports
   },
   p_eth_mdc_mdio = {
     short   = "SMI Combined MDC/MDIO",
@@ -46,7 +47,7 @@ ports = {
     width   = 4,
     define  = "PORT_ETH_MDC_MDIO",
     value   = "XS1_PORT_4C",
-    enableIf = swblock.params.combine_smi_ports,
+    enabled = swblock.params.combine_smi_ports,
   }
 }
 

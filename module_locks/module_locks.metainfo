@@ -1,0 +1,21 @@
+-- -*- mode: lua -*-
+
+configPoints = {}
+
+derivedValues = {}
+
+function getConfigStatus()
+         return "Trusted", {};
+end
+
+ports = {}
+
+channels = {}
+
+generatedCode = {
+   includes = {"swlock.h"},
+   globals  = "",
+   body = ""
+}
+
+api = {'swlock_init','swlock_acquire','swlock_release'}

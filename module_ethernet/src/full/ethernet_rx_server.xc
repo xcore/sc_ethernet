@@ -24,6 +24,7 @@
 #include "mii_malloc.h"
 #include "mii_filter.h"
 #include "ethernet_rx_server.h"
+#include "ethernet_link_status.h"
 #include <print.h>
 
 #ifndef ETHERNET_RX_PHY_TIMER_OFFSET
@@ -39,6 +40,7 @@ typedef struct
    int rdIndex;
    int wrIndex;
    int fifo[NUM_MII_RX_BUF];
+   int wants_status_updates;
 } LinkLayerStatus_t;
 
 // Local data structures.
@@ -119,12 +121,16 @@ void serviceLinkCmd(chanend link, int linkIndex, unsigned int &cmd)
          }       
          }
          break;
-      case ETHERNET_RX_QUEUE_SIZE_SET: {        
+      case ETHERNET_RX_QUEUE_SIZE_SET: {
          int size;
          link :> size;
          link_status[linkIndex].max_queue_size = size;
          }
          break;
+      case ETHERNET_RX_WANTS_STATUS_UPDATES_SET: {
+         link :> link_status[linkIndex].wants_status_updates;
+      }
+        break;
      default:    // unreconised command.
          break;
    }
@@ -256,6 +262,15 @@ static void processReceivedFrame(int buf,
    return;
 }
 
+void send_status_packet(chanend c, int src_port, int status)
+{
+  slave {
+    c <: src_port;
+    c <: -1;
+    c <: status;
+  }
+}
+
 
 /** This implement Ethernet Rx server, with packet filtering.
  *  Each interface need to enable *filter* to receive. Each link interface
@@ -297,6 +312,7 @@ void ethernet_rx_server(
       link_status[i].rdIndex = 0;
       link_status[i].wrIndex = 0;
       link_status[i].notified = 0;
+      link_status[i].wants_status_updates = 0;
       custom_filter_mask[i] = 0;
    }
 
@@ -317,28 +333,42 @@ void ethernet_rx_server(
              int rdIndex = link_status[i].rdIndex;
              int wrIndex = link_status[i].wrIndex;
              int new_rdIndex;
-                          
-             if (rdIndex != wrIndex) {
-               int buf = link_status[i].fifo[rdIndex];
-               new_rdIndex=rdIndex+1;
-               new_rdIndex *= (new_rdIndex != NUM_MII_RX_BUF);
 
-               mac_rx_send_frame(buf, link[i], cmd);
-
-               if (get_and_dec_transmit_count(buf)==0)
-                 mii_free(buf);
-
-               link_status[i].rdIndex = new_rdIndex;
-
-               if (new_rdIndex != wrIndex) {
+             if (link_status[i].wants_status_updates == 2) {
+               // This currently only works for single port implementations
+               int status = ethernet_get_link_status(0);
+               send_status_packet(link[i], status, 0);
+               link_status[i].wants_status_updates = 1;
+               if (rdIndex != wrIndex) {
                  notify(link[i]);
                }
                else {
                  link_status[i].notified = 0;
-               }               
+               }
              }
+             else {
+               if (rdIndex != wrIndex) {
+                 int buf = link_status[i].fifo[rdIndex];
+                 new_rdIndex=rdIndex+1;
+                 new_rdIndex *= (new_rdIndex != NUM_MII_RX_BUF);
+
+                 mac_rx_send_frame(buf, link[i], cmd);
+
+                 if (get_and_dec_transmit_count(buf)==0)
+                   mii_free(buf);
+
+                 link_status[i].rdIndex = new_rdIndex;
+
+                 if (new_rdIndex != wrIndex) {
+                   notify(link[i]);
+                 }
+                 else {
+                   link_status[i].notified = 0;
+                 }               
+               }
               else { 
                // mac request without notification
+              }
              }
            }
          break;
@@ -362,10 +392,23 @@ void ethernet_rx_server(
         		   processReceivedFrame(buf, link, num_link);
                    break;
         	   }
-		   }
+           }
+
+           for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
+             if (ethernet_link_status_notification(p)) {
+               int status = ethernet_get_link_status(p);
+               for (int i=0;i<num_link;i++) {
+                 if (link_status[i].wants_status_updates) {
+                   link_status[i].wants_status_updates = 2;
+                   if (!link_status[i].notified)
+                     notify(link[i]);
+                 }
+               }
+             }
+           }
            break;
-         }
-       }       
+             }
+       }
    }
 }
 

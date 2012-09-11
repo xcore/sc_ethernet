@@ -577,7 +577,7 @@ void mii_tx_pins(
 extern clock ETH_REF_CLOCK;
 #endif
 
-void mii_init(mii_interface_t &m) {
+void mii_init_full(mii_interface_full_t &m) {
 #ifndef SIMULATION
 	timer tmr;
 	unsigned t;

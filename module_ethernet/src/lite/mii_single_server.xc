@@ -12,24 +12,28 @@
 #include "mii_lite.h"
 #include "smi.h"
 #include "mii_client.h"
+#include "ethernet_conf_derived.h"
 
+#ifndef ETHERNET_LITE_RX_BUFSIZE
+#define ETHERNET_LITE_RX_BUFSIZE (3200*4)
+#endif
 
 extern void mac_set_macaddr_lite(unsigned char macaddr[]);
 
 static void the_server(chanend cIn, chanend cOut, chanend cNotifications,
-		smi_interface_t &smi, chanend ?connect_status,
+		smi_interface_t &smi,
 		chanend appIn, chanend appOut, char mac_address[6]) {
     int havePacket = 0;
     int outBytes;
     int nBytes, a, timeStamp;
-    int b[3200];
+    int b[ETHERNET_LITE_RX_BUFSIZE*2/4];
     int txbuf[400];
     timer linkcheck_timer;
     unsigned linkcheck_time;
 	struct miiData miiData;
     mac_set_macaddr_lite(mac_address);
 
-    mii_buffer_init(miiData, cIn, cNotifications, b, 3200);
+    mii_buffer_init(miiData, cIn, cNotifications, b, ETHERNET_LITE_RX_BUFSIZE*2/4);
     mii_out_init(cOut);
     
     linkcheck_timer :> linkcheck_time;
@@ -41,13 +45,11 @@ static void the_server(chanend cIn, chanend cOut, chanend cNotifications,
 				static int phy_status = 0;
 				int new_status = smi_check_link_state(smi);
 				if (new_status != phy_status) {
-                                  if (!isnull(connect_status)) {
-                                    outuchar(connect_status, 0);
-                                    outuchar(connect_status, new_status);
-                                    outuchar(connect_status, 0);
-                                    outct(connect_status, XS1_CT_END);
-                                  }
-                                    phy_status = new_status;
+                                  outuint(appIn, -1);
+                                  appIn :> int _;
+                                  appIn <: new_status;
+                                  appIn <: 0;
+                                  phy_status = new_status;
 				}
 			}
 			linkcheck_time += 10000000;
@@ -100,7 +102,7 @@ void mii_single_server(out port ?p_mii_resetn,
                      smi_interface_t &smi,
                      mii_interface_lite_t &m,
                      chanend appIn, chanend appOut,
-                     chanend connect_status, unsigned char mac_address[6]) {
+                     unsigned char mac_address[6]) {
     chan cIn, cOut;
     chan notifications;
 	mii_initialise(p_mii_resetn, m);
@@ -110,16 +112,15 @@ void mii_single_server(out port ?p_mii_resetn,
 #endif
     par {
       {asm(""::"r"(notifications));mii_driver(m, cIn, cOut);}
-        the_server(cIn, cOut, notifications, smi, connect_status, appIn, appOut, mac_address);
+        the_server(cIn, cOut, notifications, smi, appIn, appOut, mac_address);
     }
 
 }
 
 void ethernet_server_lite(mii_interface_lite_t &m,
-                          char mac_address[6],
-                          chanend c_rx[], int num_rx, chanend c_tx[], int num_tx,
                           smi_interface_t &?smi,
-                          chanend ?connect_status)
+                          char mac_address[6],
+                          chanend c_rx[], int num_rx, chanend c_tx[], int num_tx)
 {
   chan cIn, cOut;
   chan notifications;
@@ -130,9 +131,10 @@ void ethernet_server_lite(mii_interface_lite_t &m,
 #endif
   par {
     {asm(""::"r"(notifications));mii_driver(m, cIn, cOut);}
-    the_server(cIn, cOut, notifications, smi, connect_status,
+    the_server(cIn, cOut, notifications, smi,
               c_rx[0], c_tx[0], mac_address);
   }
 }
 
 
+#endif

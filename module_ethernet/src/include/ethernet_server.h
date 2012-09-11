@@ -67,8 +67,62 @@ void ethernet_server(mii_interface_t &mii,
                      smi_interface_t &?smi,
                      chanend ?connect_status);
 
-#define ethernet_server ADD_SUFFIX(ethernet_server, ETHERNET_DEFAULT_IMPLEMENTATION)
 
+/** Single MII port MAC/ethernet server ("lite" variant")
+ *
+ *  This function provides both MII layer and MAC layer functionality. 
+ *  It runs in 2 threads and communicates to clients over the channel array
+ *  parameters. 
+ *
+ *  \param mii                  The mii interface resources that the
+ *                              server will connect to
+ *  \param mac_address          The mac_address the server will use. 
+ *                              This should be a two-word array that stores the
+ *                              6-byte macaddr in a little endian manner (so
+ *                              reinterpreting the array as a char array is as
+ *                              one would expect)
+ *  \param rx                   The chanend to connect to the client of
+ *                              the server who wish to receive packets.
+ *  \param tx                   An chanend to connect to the client of
+ *                              the server who wish to transmit packets.
+ *  \param smi                  An optional parameter of resources to connect 
+ *                              to a PHY (via SMI) to check when the link is up.
+ *
+ *  \param connect_status       An optional parameter of a channel that is
+ *                              signalled when the link goes up or down
+ *                              (requires the smi parameter to be supplied).
+ *
+ * The clients connected via the rx/tx channels can communicate with the
+ * server using the APIs found in ethernet_rx_client.h and ethernet_tx_client.h
+ *
+ * If the smi and connect_status parameters are supplied then the 
+ * connect_status channel will output when the link goes up or down. 
+ * The channel will output a zero byte, followed by the status (1 for up,
+ * 0 for down), followed by a zero byte, followed by an END control token.,
+ *
+ * The following code snippet is an example of how to receive this update:
+ *
+ * \verbatim
+ *    (void) inuchar(connect_status);
+ *    new_status = inuchar(c);
+ *    (void) inuchar(c, 0);
+ *    (void) inct(c);
+ * \endverbatim
+ **/
+void ethernet_server_lite(mii_interface_t &mii,
+                          char mac_address[],
+                          chanend rx[],
+                          int num_rx,
+                          chanend tx[],
+                          int num_tx,
+                          smi_interface_t &?smi,
+                          chanend ?connect_status);
+
+#endif
+
+
+#if !ETHERNET_USE_FULL
+#define ethernet_server ethernet_server_lite
 #endif
 
 #endif // _ethernet_server_h_

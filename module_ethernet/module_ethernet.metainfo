@@ -1,5 +1,13 @@
 -- -*- mode: lua -*-
 
+if swblock.params.mac_type == 'full' then
+  rx_buf_define = "ETHERNET_RX_BUFSIZE";
+  tx_buf_define = "ETHERNET_TX_BUFSIZE";
+else
+  rx_buf_define = "ETHERNET_LITE_RX_BUFSIZE";
+  tx_buf_define = "ETHERNET_LITE_TX_BUFSIZE";
+end
+
 configPoints = {
    mac_type = {
       short = "MAC Implementation Type",
@@ -11,6 +19,7 @@ cores and is still suitable for many ethernet control applications.
       type = "string",
       default = "lite",
       options = {"full","lite"},
+      define = "ETHERNET_DEFAULT_IMPLEMENTATION";
    },
    rx_buf_size = {
       short = "Receive buffer size",
@@ -22,9 +31,9 @@ This parameter controls the size of the receive buffer of the mac. Packets will 
       units = "bytes",
       default = 2048,
       min = 512,
-      max = 61440,
+      max = 30000,
       resourceUsageFlags = {"linear"},
-      define = "ETHERNET_RX_BUF_SIZE"
+      define = rx_buf_define
    },
    tx_buf_size = {
       short = "Transmit buffer size",
@@ -36,9 +45,9 @@ This parameter controls the size of the transmit buffer of the mac. Packets will
       units = "bytes",
       default = 2048,
       min = 512,
-      max = 61440,
+      max = 30000,
       resourceUsageFlags = {"linear"},
-      define = "ETHERNET_TX_BUF_SIZE"
+      define = tx_buf_define
    },
    num_rx_clients = {
       short = "Number of receive clients",
@@ -75,7 +84,7 @@ If this option is selected then the SMI interface will use a single 4-bit port. 
 ]],
       type = "bool",
       default = false,
-      resourceUsageFlags = {"orthogonal"},
+      resourceUsageFlags = {"noeffect"},
       define = "SMI_COMBINE_MDC_MDIO"
    },
    use_reset = {
@@ -88,22 +97,8 @@ the phy (using a 1-bit port).
 ]],
       type = "bool",
       default = true,
-      resourceUsageFlags = {"orthogonal"}
+      resourceUsageFlags = {"noeffect"}
    },
-   phy_id = {
-      short = "Phy ID",
-      long = "Phy ID",
-      help =
-[[
-This is the value of the phy ID to be identified via the SMI configuration
-interface.
-]],
-     type = "int",
-     default = 0,
-     min = 0,
-     max = 65535,
-     resourceUsageFlags = {"noeffect"}
-   }
 }
 
 derivedValues = {
@@ -178,7 +173,7 @@ ports = {
     width   = 1,
     define  = "PORT_ETH_RSTN",
     value   = "XS1_PORT_1H",
-    enableIf = swblock.params.use_reset
+    enabled = swblock.params.use_reset
   },
   p_eth_txen = {
     short   = "MII TX enable",
@@ -203,7 +198,7 @@ ports = {
     width   = 8,
     define  = "PORT_ETH_FAKE",
     value   = "XS1_PORT_8A",
-    enableIf = swblock.params.use_lite
+    enabled = swblock.params.use_lite
   },
   p_eth_mdc = {
     short   = "SMI MDC",
@@ -212,7 +207,7 @@ ports = {
     width   = 1,
     define  = "PORT_ETH_MDC",
     value   = "XS1_PORT_1I",
-    enableIf = not swblock.params.combine_smi_ports
+    enabled = not swblock.params.combine_smi_ports
   },
   p_eth_mdio = {
     short   = "SMI MDIO",
@@ -221,7 +216,7 @@ ports = {
     width   = 1,
     define  = "PORT_ETH_MDIO",
     value   = "XS1_PORT_1G",
-    enableIf = not swblock.params.combine_smi_ports
+    enabled = not swblock.params.combine_smi_ports
   },
   p_eth_mdc_mdio = {
     short   = "SMI Combined MDC/MDIO",
@@ -230,7 +225,7 @@ ports = {
     width   = 4,
     define  = "PORT_ETH_MDC_MDIO",
     value   = "XS1_PORT_4C",
-    enableIf = swblock.params.combine_smi_ports,
+    enabled = swblock.params.combine_smi_ports,
   }
 }
 
@@ -250,7 +245,7 @@ channels = {
 }
 
 function getConfigStatus()
-   return "Trusted Configuration", {}
+   return "Trusted", {}
 end
 
 if swblock.params.use_lite then
@@ -265,7 +260,7 @@ generatedCode = {
       [[
     // Uncomment this code if you want to access a mac address
     // from OTP (the one time programmable ROM on the device)
-    //otp_ports_t otp_ports = ETH_QUICKSTART_OTP_PORTS_INIT;
+    //otp_ports_t otp_ports = OTP_PORTS_INITIALIZER;
 
     smi_interface_t smi${swblock.id} =
        {${swblock.params.phy_id},
@@ -288,21 +283,21 @@ generatedCode = {
     body  =
       [[
           {
-             unsigned char own_mac_addr[6];
+             char mac_address[6];
              // Uncomment this code if you want to access a mac address
              // from OTP (the one time programmable ROM on the device)
-             //ethernet_getmac_otp(otp_ports,
-             //                   (mac_address, char[]));
+             // otp_board_info_get_mac(otp_ports, 0, mac_address);
              smi_init(smi${swblock.id});
              eth_phy_config(1, smi${swblock.id});
              ethernet_server(mii${swblock.id},
+                             smi${swblock.id},
                              mac_address,
                              ${swblock.chanends.c_rx},
                              ${swblock.params.num_rx_clients},
                              ${swblock.chanends.c_tx},
-                             ${swblock.params.num_tx_clients},
-                             null,
-                             null);
+                             ${swblock.params.num_tx_clients});
           }
       ]]
 }
+
+files = {["module_ethernet/ethernet_conf_example.h"] = "src/ethernet_conf.h"}
