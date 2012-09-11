@@ -43,7 +43,7 @@ static int ethernet_unified_get_data(chanend ethernet_rx_svr, unsigned char Buf[
     ethernet_rx_svr :> src_port;
     ethernet_rx_svr :> rxByteCnt;
 
-    if (rxByteCnt = -1) {
+    if (rxByteCnt == -1) {
       int status;
       ethernet_rx_svr :> status;
       Buf[0] = status;
