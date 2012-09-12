@@ -1,28 +1,27 @@
 <?xml version="1.0" ?>
 <xpd>
     <components>
-        <component name = "Lock Handling Library" buildresults_path = "module_locks/.module_locks.buildinfo" scope = "General Use" path = "module_locks" metainfo_path = "module_locks/module_locks.metainfo" type = "component" id = "module_locks" description = "A library for handling hardware and software locks between tasks.">
+        <component description = "A library for handling hardware and software locks between tasks." name = "Lock Handling Library" type = "component" docVersion = "latest" buildresults_path = "module_locks/.module_locks.buildinfo" scope = "General Use" path = "module_locks" metainfo_path = "module_locks/module_locks.metainfo" local = "true" id = "module_locks" docPartNumber = "xm-local-sc_ethernet(c193059d2f7e0333d8664575c46379f389e774dd).doc-module_locks">
             <keyword>locks</keyword>
             <keyword>concurrency</keyword>
             <keyword>synchronization</keyword>
         </component>
-        <component description = "A simple demo of using the low level ethernet module" scope = "Example" path = "app_ethernet_demo" type = "demoCode" id = "app_ethernet_demo" name = "Low Level Ethernet Demo">
+        <component description = "A simple demo of using the low level ethernet module" type = "demoCode" docVersion = "latest" scope = "Example" path = "app_ethernet_demo" docPartNumber = "xm-local-sc_ethernet(c193059d2f7e0333d8664575c46379f389e774dd).doc-app_ethernet_demo" local = "true" id = "app_ethernet_demo" name = "Low Level Ethernet Demo">
             <keyword>ethernet</keyword>
             <keyword>mac</keyword>
             <keyword>mii</keyword>
         </component>
-        <component name = "Low Level Ethernet Component" buildresults_path = "module_ethernet/.module_ethernet.buildinfo" scope = "General Use" path = "module_ethernet" metainfo_path = "module_ethernet/module_ethernet.metainfo" type = "component" id = "module_ethernet" description = "MII interface and low level ethernet MAC">
+        <component description = "MII interface and low level ethernet MAC" name = "Low Level Ethernet Component" type = "component" docVersion = "latest" buildresults_path = "module_ethernet/.module_ethernet.buildinfo" scope = "General Use" path = "module_ethernet" metainfo_path = "module_ethernet/module_ethernet.metainfo" local = "true" id = "module_ethernet" docPartNumber = "xm-local-sc_ethernet(c193059d2f7e0333d8664575c46379f389e774dd).doc-module_ethernet">
             <keyword>ethernet</keyword>
             <keyword>mii</keyword>
             <keyword>mac</keyword>
         </component>
-        <component description = "An example of looping back packets using the low level
-ethernet mac" scope = "Example" path = "app_ethernet_loopback" type = "demoCode" id = "app_ethernet_loopback" name = "Low Level Ethernet Loopback Demo">
+        <component description = "An example of looping back packets using the low level ethernet mac" type = "demoCode" docVersion = "latest" scope = "Example" path = "app_ethernet_loopback" docPartNumber = "xm-local-sc_ethernet(c193059d2f7e0333d8664575c46379f389e774dd).doc-app_ethernet_loopback" local = "true" id = "app_ethernet_loopback" name = "Low Level Ethernet Loopback Demo">
             <keyword>ethernet</keyword>
             <keyword>mac</keyword>
             <keyword>mii</keyword>
         </component>
-        <component name = "SMI Ethernet Phy Protocol Library" buildresults_path = "module_ethernet_smi/.module_ethernet_smi.buildinfo" scope = "General Use" path = "module_ethernet_smi" metainfo_path = "module_ethernet_smi/module_ethernet_smi.metainfo" type = "component" id = "module_ethernet_smi" description = "A library for communicating using the SMI protocol">
+        <component description = "A library for communicating using the SMI protocol" name = "SMI Ethernet Phy Protocol Library" type = "component" docVersion = "latest" buildresults_path = "module_ethernet_smi/.module_ethernet_smi.buildinfo" scope = "General Use" path = "module_ethernet_smi" metainfo_path = "module_ethernet_smi/module_ethernet_smi.metainfo" local = "true" id = "module_ethernet_smi" docPartNumber = "xm-local-sc_ethernet(c193059d2f7e0333d8664575c46379f389e774dd).doc-module_ethernet_smi">
             <keyword>smi</keyword>
             <keyword>ethernet</keyword>
         </component>
@@ -62,6 +61,7 @@ ethernet mac" scope = "Example" path = "app_ethernet_loopback" type = "demoCode"
     <release parenthash = "056a6e2f360a36361496b237d9b7d550617f9674" version = "2.2.0alpha1" githash = "3934d03be96a1800694e78fab686806335db4aac"></release>
     <release parenthash = "9ac3e763dd68000ff93cde7fc19eebdb3613d0cb" version = "2.2.0alpha2" githash = "84c16d9f520569776f8fc749bbaacd5efb2ba04d"></release>
     <release parenthash = "90167018a4af76f81f0a06f9b16d8773395bb5cc" version = "2.2.0alpha3" githash = "1569138fd8dc8691771466de2a09f3c7095be8ef"></release>
+    <release parenthash = "c193059d2f7e0333d8664575c46379f389e774dd" version = "2.2.0alpha4"></release>
     <subpartnumber>XM-001828-SM</subpartnumber>
     <vendor>XMOS</vendor>
     <xpd_version>1.0</xpd_version>
