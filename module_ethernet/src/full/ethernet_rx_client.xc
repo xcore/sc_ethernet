@@ -132,6 +132,14 @@ void mac_set_drop_packets(chanend mac_svr, int x)
   return;
 }
 
+
+void mac_request_status_packets(chanend mac_svr)
+{
+  send_cmd(mac_svr, ETHERNET_RX_WANTS_STATUS_UPDATES_SET);
+  mac_svr <: 1;
+  return;
+}
+
 void mac_set_queue_size(chanend mac_svr, int x)
 {
   send_cmd(mac_svr, ETHERNET_RX_QUEUE_SIZE_SET);
