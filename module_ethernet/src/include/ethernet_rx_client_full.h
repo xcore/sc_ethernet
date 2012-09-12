@@ -169,3 +169,5 @@ void mac_rx_offset2(chanend c_mac,
 
 
 #endif
+
+void mac_request_status_packets(chanend c_mac);
