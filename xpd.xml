@@ -16,8 +16,7 @@
             <keyword>mii</keyword>
             <keyword>mac</keyword>
         </component>
-        <component description = "An example of looping back packets using the low level
-ethernet mac" type = "demoCode" scope = "Example" path = "app_ethernet_loopback" local = "false" id = "app_ethernet_loopback" name = "Low Level Ethernet Loopback Demo">
+        <component description = "An example of looping back packets using the low level ethernet mac" type = "demoCode" scope = "Example" path = "app_ethernet_loopback" local = "false" id = "app_ethernet_loopback" name = "Low Level Ethernet Loopback Demo">
             <keyword>ethernet</keyword>
             <keyword>mac</keyword>
             <keyword>mii</keyword>
@@ -64,6 +63,7 @@ ethernet mac" type = "demoCode" scope = "Example" path = "app_ethernet_loopback"
     <release parenthash = "90167018a4af76f81f0a06f9b16d8773395bb5cc" version = "2.2.0alpha3" githash = "1569138fd8dc8691771466de2a09f3c7095be8ef"></release>
     <release parenthash = "c193059d2f7e0333d8664575c46379f389e774dd" version = "2.2.0alpha4" githash = "dc7e49a218bbeaab253512ccdb75f6572914f9ca"></release>
     <release parenthash = "dc7e49a218bbeaab253512ccdb75f6572914f9ca" version = "2.2.0alpha5" githash = "72cfc204011bb21cb15f623c7c9b04377e360d0d"></release>
+    <release parenthash = "1c690d7a622518f9ee499c66bf8b197db1ca2ca7" version = "2.2.0alpha6"></release>
     <subpartnumber>XM-001828-SM</subpartnumber>
     <vendor>XMOS</vendor>
     <xpd_version>1.0</xpd_version>
