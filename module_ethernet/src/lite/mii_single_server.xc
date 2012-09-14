@@ -21,7 +21,7 @@
 extern void mac_set_macaddr_lite(unsigned char macaddr[]);
 
 static void the_server(chanend cIn, chanend cOut, chanend cNotifications,
-		smi_interface_t &smi,
+		smi_interface_t &?smi,
 		chanend appIn, chanend appOut, char mac_address[6]) {
     int havePacket = 0;
     int outBytes;
@@ -41,6 +41,7 @@ static void the_server(chanend cIn, chanend cOut, chanend cNotifications,
     while (1) {
         select {
 		case linkcheck_timer when timerafter(linkcheck_time) :> void :
+                  if (!isnull(smi))
 			{
 				static int phy_status = 0;
 				int new_status = smi_check_link_state(smi);
@@ -81,6 +82,7 @@ static void the_server(chanend cIn, chanend cOut, chanend cNotifications,
             for(int i = 0; i < ((outBytes + 3) >>2); i++) {
                 appOut :> txbuf[i];
             }
+
             mii_out_packet(cOut, txbuf, 0, outBytes);
             mii_out_packet_done(cOut);
             break;
@@ -99,7 +101,7 @@ static void the_server(chanend cIn, chanend cOut, chanend cNotifications,
 
 
 void mii_single_server(out port ?p_mii_resetn,
-                     smi_interface_t &smi,
+                     smi_interface_t &?smi,
                      mii_interface_lite_t &m,
                      chanend appIn, chanend appOut,
                      unsigned char mac_address[6]) {
@@ -107,8 +109,10 @@ void mii_single_server(out port ?p_mii_resetn,
     chan notifications;
 	mii_initialise(p_mii_resetn, m);
 #ifndef MII_NO_SMI_CONFIG
-	smi_init(smi);
-	eth_phy_config(1, smi);
+        if (!isnull(smi)) {
+          smi_init(smi);
+          eth_phy_config(1, smi);
+        }
 #endif
     par {
       {asm(""::"r"(notifications));mii_driver(m, cIn, cOut);}
@@ -125,10 +129,6 @@ void ethernet_server_lite(mii_interface_lite_t &m,
   chan cIn, cOut;
   chan notifications;
   mii_port_init(m);
-#ifndef MII_NO_SMI_CONFIG
-  smi_init(smi);
-  eth_phy_config(1, smi);
-#endif
   par {
     {asm(""::"r"(notifications));mii_driver(m, cIn, cOut);}
     the_server(cIn, cOut, notifications, smi,
