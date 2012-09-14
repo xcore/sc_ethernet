@@ -18,11 +18,12 @@ APP_NAME =
 # If the variable XCC_MAP_FLAGS is set it overrides the flags passed to 
 # xcc for the final link (mapping) stage.
 
-XCC_FLAGS = -g 
+XCC_FLAGS_full = -g -report -DCONFIG_FULL
+XCC_FLAGS_lite = -g -report -DCONFIG_LITE
 
 # The USED_MODULES variable lists other module used by the application. 
 
-USED_MODULES = module_ethernet module_locks
+USED_MODULES = module_ethernet module_otp_board_info
 
 
 #=============================================================================

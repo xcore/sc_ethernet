@@ -23,7 +23,7 @@ XCC_FLAGS = -g -DMAC_CUSTOM_FILTER -report
 
 # The USED_MODULES variable lists other module used by the application. 
 
-USED_MODULES = module_ethernet module_locks
+USED_MODULES = module_ethernet module_otp_board_info
 
 
 #=============================================================================

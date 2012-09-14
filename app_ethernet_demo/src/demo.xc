@@ -21,53 +21,19 @@
 #include <print.h>
 #include <platform.h>
 #include <stdlib.h>
-#include "ethernet_server.h"
-#include "ethernet_rx_client.h"
-#include "ethernet_tx_client.h"
+#include "otp_board_info.h"
+#include "ethernet.h"
 #include "checksum.h"
-#include "getmac.h"
 
-//***** Ethernet Configuration ****
-// OTP Core
-#ifndef ETHERNET_OTP_CORE
-	#define ETHERNET_OTP_CORE 2
-#endif
+// Port Definitions
 
-// OTP Ports
-on stdcore[ETHERNET_OTP_CORE]: port otp_data = XS1_PORT_32B; 		// OTP_DATA_PORT
-on stdcore[ETHERNET_OTP_CORE]: out port otp_addr = XS1_PORT_16C;	// OTP_ADDR_PORT
-on stdcore[ETHERNET_OTP_CORE]: port otp_ctrl = XS1_PORT_16D;		// OTP_CTRL_PORT
+// These ports are for accessing the OTP memory
+otp_ports_t otp_ports = OTP_PORTS_INITIALIZER;
 
-
-on stdcore[2]: mii_interface_t mii =
-  {
-    XS1_CLKBLK_1,
-    XS1_CLKBLK_2,
-
-    PORT_ETH_RXCLK,
-    PORT_ETH_RXER,
-    PORT_ETH_RXD,
-    PORT_ETH_RXDV,
-
-    PORT_ETH_TXCLK,
-    PORT_ETH_TXEN,
-    PORT_ETH_TXD,
-  };
-
-#ifdef PORT_ETH_RST_N
-on stdcore[2]: out port p_mii_resetn = PORT_ETH_RST_N;
-on stdcore[2]: smi_interface_t smi = { PORT_ETH_MDIO, PORT_ETH_MDC, 0 };
-#else
-on stdcore[2]: smi_interface_t smi = { PORT_ETH_RST_N_MDIO, PORT_ETH_MDC, 1 };
-#endif
-
-on stdcore[2]: clock clk_smi = XS1_CLKBLK_5;
-
-unsigned char own_mac_addr[6]; // MAC address on core 0
-int mac_address[2]; // MAC address on core 2
-
-unsigned char ethertype_ip[] = {0x08, 0x00};
-unsigned char ethertype_arp[] = {0x08, 0x06};
+// Here are the port definitions required by ethernet
+smi_interface_t smi = ETHERNET_DEFAULT_SMI_INIT;
+mii_interface_t mii = ETHERNET_DEFAULT_MII_INIT;
+ethernet_reset_interface_t eth_rst = ETHERNET_DEFAULT_RESET_INTERFACE_INIT;
 
 //::ip_address_define
 // NOTE: YOU MAY NEED TO REDEFINE THIS TO AN IP ADDRESS THAT WORKS
@@ -75,12 +41,17 @@ unsigned char ethertype_arp[] = {0x08, 0x06};
 #define OWN_IP_ADDRESS {169, 254, 5, 27}
 //::
 
+
+unsigned char ethertype_ip[] = {0x08, 0x00};
+unsigned char ethertype_arp[] = {0x08, 0x06};
+
+unsigned char own_mac_addr[6];
+
 #define ARP_RESPONSE 1
 #define ICMP_RESPONSE 2
 #define UDP_RESPONSE 3
 
 void demo(chanend tx, chanend rx);
-extern void ethernet_register_traphandler();
 
 #pragma unsafe arrays
 int is_ethertype(unsigned char data[], unsigned char type[]){
@@ -91,8 +62,6 @@ int is_ethertype(unsigned char data[], unsigned char type[]){
 #pragma unsafe arrays
 int is_mac_addr(unsigned char data[], unsigned char addr[]){
 	for (int i=0;i<6;i++){
-#pragma xta label "sc_ethernet_is_mac_addr_1"
-#pragma xta command "add loop sc_ethernet_is_mac_addr_1 6"
           if (data[i] != addr[i]){
 			return 0;
 		}
@@ -104,8 +73,6 @@ int is_mac_addr(unsigned char data[], unsigned char addr[]){
 #pragma unsafe arrays
 int is_broadcast(unsigned char data[]){
 	for (int i=0;i<6;i++){
-#pragma xta label "sc_ethernet_is_broadcast_1"
-#pragma xta command "add loop sc_ethernet_is_broadcast_1 6"
           if (data[i] != 0xFF){
 			return 0;
 		}
@@ -116,20 +83,9 @@ int is_broadcast(unsigned char data[]){
 
 //::custom-filter
 int mac_custom_filter(unsigned int data[]){
-	char addr[6];
-
-	addr[0] = mac_address[0];
-	addr[1] = mac_address[0] >> 8;
-	addr[2] = mac_address[0] >> 16;
-	addr[3] = mac_address[0] >> 24;
-	addr[4] = mac_address[1];
-	addr[5] = mac_address[1] >> 8;
-
-	if (is_broadcast((data,char[])) &&
-            is_ethertype((data,char[]), ethertype_arp)){
+	if (is_ethertype((data,char[]), ethertype_arp)){
 		return 1;
-	}else if (is_mac_addr((data,char[]), addr) &&
-                  is_ethertype((data,char[]), ethertype_ip)){          
+	}else if (is_ethertype((data,char[]), ethertype_ip)){
 		return 1;
 	}
 
@@ -344,15 +300,17 @@ int is_valid_icmp_packet(const unsigned char rxbuf[], int nbytes)
 
 void demo(chanend tx, chanend rx)
 {
-  unsigned char rxbuf[1600];
-  unsigned int txbuf[1600];
+  unsigned int rxbuf[1600/4];
+  unsigned int txbuf[1600/4];
   
   //::get-macaddr
   mac_get_macaddr(tx, own_mac_addr);
   //::
 
   //::setup-filter
+#if ETHERNET_DEFAULT_IS_FULL
   mac_set_custom_filter(rx, 0x1);
+#endif
   //::
   printstr("Test started\n");
 
@@ -361,19 +319,26 @@ void demo(chanend tx, chanend rx)
   {
     unsigned int src_port;
     unsigned int nbytes;
-    mac_rx(rx, rxbuf, nbytes, src_port);
+    mac_rx(rx, (rxbuf,char[]), nbytes, src_port);
+#if ETHERNET_DEFAULT_IS_LITE
+    if (!is_broadcast((rxbuf,char[])) && !is_mac_addr((rxbuf,char[]), own_mac_addr))
+      continue;
+    if (mac_custom_filter(rxbuf) != 0x1)
+      continue;
+#endif
+
     printstr("packet\n");
    //::arp_packet_check
-    if (is_valid_arp_packet(rxbuf, nbytes))
+    if (is_valid_arp_packet((rxbuf,char[]), nbytes))
       {
-        build_arp_response(rxbuf, txbuf, own_mac_addr);
+        build_arp_response((rxbuf,char[]), txbuf, own_mac_addr);
         mac_tx(tx, txbuf, nbytes, ETH_BROADCAST);
         printstr("ARP response sent\n");
       }
   //::icmp_packet_check  
-    else if (is_valid_icmp_packet(rxbuf, nbytes))
+    else if (is_valid_icmp_packet((rxbuf,char[]), nbytes))
       {
-        build_icmp_response(rxbuf, (txbuf, unsigned char[]), own_mac_addr);
+        build_icmp_response((rxbuf,char[]), (txbuf, unsigned char[]), own_mac_addr);
         mac_tx(tx, txbuf, nbytes, ETH_BROADCAST);
         printstr("ICMP response sent\n");
       }
@@ -388,23 +353,18 @@ int main()
   par
     {
       //::ethernet
-      on stdcore[2]:
+      on ETHERNET_DEFAULT_TILE:
       {
-		ethernet_getmac_otp(otp_data, otp_addr, otp_ctrl,
-                                    (mac_address, char[]));
-		phy_init(clk_smi,
-#ifdef PORT_ETH_RST_N
-               p_mii_resetn,
-#else
-               null,
-#endif
-                 smi,
-                 mii);
-        ethernet_server(mii, mac_address,
-                        rx, 1,
-                        tx, 1,
+        char mac_address[6];
+        otp_board_info_get_mac(otp_ports, 0, mac_address);
+        eth_phy_reset(eth_rst);
+        smi_init(smi);
+        eth_phy_config(1, smi);
+        ethernet_server(mii,
                         null,
-                        null);
+                        mac_address,
+                        rx, 1,
+                        tx, 1);
       }
       //::
 

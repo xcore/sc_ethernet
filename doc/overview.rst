@@ -1,4 +1,4 @@
-Etehrnet Overview
+Ethernet Overview
 =================
 
 Two independent ethernet components are available in this repository.

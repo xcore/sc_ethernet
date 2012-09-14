@@ -1,0 +1,303 @@
+-- -*- mode: lua -*-
+
+if swblock.params.mac_type == 'full' then
+  rx_buf_define = "ETHERNET_RX_BUFSIZE";
+  tx_buf_define = "ETHERNET_TX_BUFSIZE";
+else
+  rx_buf_define = "ETHERNET_LITE_RX_BUFSIZE";
+  tx_buf_define = "ETHERNET_LITE_TX_BUFSIZE";
+end
+
+configPoints = {
+   mac_type = {
+      short = "MAC Implementation Type",
+      long = "The underlying implementation of the Ethernet MAC",
+      help = [[
+The ethernet software block has two implementations: the "FULL" version which is high performance and has features to support Ethernet AVB and uses five logical cores or the "LITE" version which is lower perfomance but only uses two logical
+cores and is still suitable for many ethernet control applications.
+              ]],
+      type = "string",
+      default = "lite",
+      options = {"full","lite"},
+      define = "ETHERNET_DEFAULT_IMPLEMENTATION";
+   },
+   rx_buf_size = {
+      short = "Receive buffer size",
+      long = "The size (in bytes) of the ethernet receive buffer",
+      help = [[
+This parameter controls the size of the receive buffer of the mac. Packets will be placed in the buffer prior to being sent to the clients of the mac.
+             ]],
+      type = "int",
+      units = "bytes",
+      default = 2048,
+      min = 512,
+      max = 30000,
+      resourceUsageFlags = {"linear"},
+      define = rx_buf_define
+   },
+   tx_buf_size = {
+      short = "Transmit buffer size",
+      long = "The size (in bytes) of the ethernet transmit buffer",
+      help = [[
+This parameter controls the size of the transmit buffer of the mac. Packets will be placed in the buffer prior to being sent to the ethernet phy.
+             ]],
+      type = "int",
+      units = "bytes",
+      default = 2048,
+      min = 512,
+      max = 30000,
+      resourceUsageFlags = {"linear"},
+      define = tx_buf_define
+   },
+   num_rx_clients = {
+      short = "Number of receive clients",
+      long = "Number of tasks that will connect to the MAC for receiving packets",
+      help = [[
+Number of tasks that will connect to the MAC for receiving packets. These tasks connect to the MAC via channels.
+              ]],
+      type = "int",
+      min = 1,
+      max = 8,
+      default = 1,
+      resourceUsageFlags = {"linear","orthogonal"},
+      define = "ETHERNET_MAX_RX_CLIENTS"
+   },
+   num_tx_clients = {
+      short = "Number of transmit clients",
+      long = "Number of tasks that will connect to the MAC for transmitting packets",
+      help = [[
+Number of tasks that will connect to the MAC for transmitting packets. These tasks connect to the MAC via channels.
+             ]],
+      type = "int",
+      min = 1,
+      max = 8,
+      default = 1,
+      resourceUsageFlags = {"linear","orthogonal"},
+      define = "ETHERNET_MAX_TX_CLIENTS"
+   },
+   combine_smi_ports = {
+      short = "Combine SMI ports on single port",
+      long = "Combine the MDC and MDIO ports for controlling the phy onto one 4 bit port",
+      help =
+[[
+If this option is selected then the SMI interface will use a single 4-bit port. Otherwise, two 1-bit ports are used.
+]],
+      type = "bool",
+      default = false,
+      resourceUsageFlags = {"noeffect"},
+      define = "SMI_COMBINE_MDC_MDIO"
+   },
+   use_reset = {
+      short = "Use PHY reset signal",
+      long = "Use PHY reset signal",
+      help =
+[[
+   This option can be used if you want the MAC to assert a reset signal to
+the phy (using a 1-bit port).
+]],
+      type = "bool",
+      default = true,
+      resourceUsageFlags = {"noeffect"}
+   },
+}
+
+derivedValues = {
+   -- These two derived values set the correct defines to enable
+   -- the lite/full version
+   use_full = {
+      short = "Use full ethernet mac",
+      long = "Use full ethernet mac",
+      help = "",
+      type = "bool",
+      hidden = true,
+      value = (swblock.params.mac_type == "full"),
+      define = "ETHERNET_USE_FULL"
+   },
+   use_lite = {
+      short = "Use lite ethernet mac",
+      long = "Use lite ethernet mac",
+      help = "",
+      type = "bool",
+      hidden = true,
+      value = (swblock.params.mac_type == "lite"),
+      define = "ETHERNET_USE_LITE"
+   }
+}
+
+
+ports = {
+  p_eth_rxclk = {
+    short   = "MII RX Clock",
+    long    = "Clock signal for MII RX",
+    help    = "",
+    width   = 1,
+    define  = "PORT_ETH_RXCLK",
+    value   = "XS1_PORT_1A",
+  },
+  p_eth_txclk = {
+    short   = "MII TX Clock",
+    long    = "Clock signal for MII TX",
+    help    = "",
+    width   = 1,
+    define  = "PORT_ETH_TXCLK",
+    value   = "XS1_PORT_1C",
+  },
+  p_eth_rxer = {
+    short   = "MII RX Error",
+    long    = "Error signal for MII RX",
+    help    = "",
+    width   = 1,
+    define  = "PORT_ETH_RXER",
+    value   = "XS1_PORT_1B",
+  },
+  p_eth_txd = {
+    short   = "MII TX Data",
+    long    = "Data line for transmit (mac to phy)",
+    help    = "",
+    width   = 4,
+    define  = "PORT_ETH_TXD",
+    value   = "XS1_PORT_4D",
+  },
+  p_eth_rxd = {
+    short   = "MII RX Data",
+    long    = "Data line for receive (phy to mac)",
+    help    = "",
+    width   = 4,
+    define  = "PORT_ETH_RXD",
+    value   = "XS1_PORT_4C",
+  },
+  p_eth_rstn = {
+    short   = "MII Reset",
+    long    = "MII Reset",
+    help    = "",
+    width   = 1,
+    define  = "PORT_ETH_RSTN",
+    value   = "XS1_PORT_1H",
+    enabled = swblock.params.use_reset
+  },
+  p_eth_txen = {
+    short   = "MII TX enable",
+    long    = "Enable line for MII TX",
+    help    = "",
+    width   = 1,
+    define  = "PORT_ETH_TXEN",
+    value   = "XS1_PORT_1E",
+  },
+  p_eth_rxdv = {
+    short   = "MII RX Data Valid",
+    long    = "Valid line for MII RX",
+    help    = "",
+    width   = 1,
+    define  = "PORT_ETH_RXDV",
+    value   = "XS1_PORT_1D",
+  },
+  p_eth_fake = {
+    short   = "MII fake port",
+    long    = "MII lite fake port",
+    help    = "This port does not connect to any outside stimulus (hence is a 'fake'). However it is used internally by the implementation.",
+    width   = 8,
+    define  = "PORT_ETH_FAKE",
+    value   = "XS1_PORT_8A",
+    enabled = swblock.params.use_lite
+  },
+  p_eth_mdc = {
+    short   = "SMI MDC",
+    long    = "MDC clock signal for SMI phy configuration interface",
+    help    = "",
+    width   = 1,
+    define  = "PORT_ETH_MDC",
+    value   = "XS1_PORT_1I",
+    enabled = not swblock.params.combine_smi_ports
+  },
+  p_eth_mdio = {
+    short   = "SMI MDIO",
+    long    = "MDIO I/O signal for SMI phy configuration interface",
+    help    = "",
+    width   = 1,
+    define  = "PORT_ETH_MDIO",
+    value   = "XS1_PORT_1G",
+    enabled = not swblock.params.combine_smi_ports
+  },
+  p_eth_mdc_mdio = {
+    short   = "SMI Combined MDC/MDIO",
+    long    = "Combined MDC/MDIO signal for SMI phy configuration",
+    help    = "This port combines the MDC/MDIO signals with the MDC signal being the top bit of the 4-bit port",
+    width   = 4,
+    define  = "PORT_ETH_MDC_MDIO",
+    value   = "XS1_PORT_4C",
+    enabled = swblock.params.combine_smi_ports,
+  }
+}
+
+channels = {
+   c_rx = {
+      short = "RX Channel",
+      long = "Channel for receiving ethernet packets",
+      help = "",
+      arraySize = swblock.params.num_rx_clients
+   },
+   c_tx = {
+      short = "TX Channel",
+      long = "Channel for transmitting ethernet packets",
+      help = "",
+      arraySize = swblock.params.num_tx_clients
+   }
+}
+
+function getConfigStatus()
+   return "Trusted", {}
+end
+
+if swblock.params.use_lite then
+eth_fake_str = "," .. swblock.ports.p_eth_fake
+else
+eth_fake_str = ""
+end
+
+generatedCode = {
+   includes = {"ethernet_server.h"},
+   globals  =
+      [[
+    // Uncomment this code if you want to access a mac address
+    // from OTP (the one time programmable ROM on the device)
+    //otp_ports_t otp_ports = OTP_PORTS_INITIALIZER;
+
+    smi_interface_t smi${swblock.id} =
+       {${swblock.params.phy_id},
+        ${swblock.ports.p_eth_mdio},
+        ${swblock.ports.p_eth_mdc}};
+    mii_interface_t mii${swblock.id} =
+       {${swblock.clocks[0]},
+        ${swblock.clocks[1]},
+        ${swblock.ports.p_eth_rxclk},
+        ${swblock.ports.p_eth_rxer},
+        ${swblock.ports.p_eth_rxd},
+        ${swblock.ports.p_eth_rxdv},
+        ${swblock.ports.p_eth_txclk},
+        ${swblock.ports.p_eth_txen},
+        ${swblock.ports.p_eth_txd},
+        ${swblock.ports.p_eth_rxdv}
+        ${eth_fake_str}
+       };
+      ]],
+    body  =
+      [[
+          {
+             char mac_address[6];
+             // Uncomment this code if you want to access a mac address
+             // from OTP (the one time programmable ROM on the device)
+             // otp_board_info_get_mac(otp_ports, 0, mac_address);
+             smi_init(smi${swblock.id});
+             eth_phy_config(1, smi${swblock.id});
+             ethernet_server(mii${swblock.id},
+                             smi${swblock.id},
+                             mac_address,
+                             ${swblock.chanends.c_rx},
+                             ${swblock.params.num_rx_clients},
+                             ${swblock.chanends.c_tx},
+                             ${swblock.params.num_tx_clients});
+          }
+      ]]
+}
+
+files = {["module_ethernet/ethernet_conf_example.h"] = "src/ethernet_conf.h"}

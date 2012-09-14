@@ -1,6 +1,12 @@
 Ethernet Component Change Log
 =============================
 
+2.2.0
+-----
+  * Rearranged source code
+  * Combined "full" and "lite" versions
+  * Added quickstart initializers and board support code
+
 2.1.2
 -----
   * Fix for ethernet buffering errors

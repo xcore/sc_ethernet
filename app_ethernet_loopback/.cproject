@@ -3,8 +3,8 @@
 <cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
     <storageModule moduleId="org.eclipse.cdt.core.settings">
               
-        <cconfiguration id="com.xmos.cdt.toolchain.82590649">
-            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.xmos.cdt.toolchain.82590649" moduleId="org.eclipse.cdt.core.settings" name="Default">
+        <cconfiguration id="com.xmos.cdt.toolchain.70035756">
+            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.xmos.cdt.toolchain.70035756" moduleId="org.eclipse.cdt.core.settings" name="Default">
                 <externalSettings />
                 <extensions>
                     <extension id="com.xmos.cdt.core.XEBinaryParser" point="org.eclipse.cdt.core.BinaryParser" />
@@ -35,117 +35,297 @@ targetID="org.eclipse.cdt.build.MakeTargetBuilder">
                 </buildTargets>
             </storageModule>
             <storageModule moduleId="cdtBuildSystem" version="4.0.0">
-                <configuration buildProperties="" description="" id="com.xmos.cdt.toolchain.82590649" name="Default" parent="org.eclipse.cdt.build.core.emptycfg">
-                    <folderInfo id="com.xmos.cdt.toolchain.82590649.1127281840" name="/" resourcePath="">
-                        <toolChain id = "com.xmos.cdt.toolchain.79306408" name="com.xmos.cdt.toolchain" superClass="com.xmos.cdt.toolchain">
-                            <targetPlatform archList="all" binaryParser="com.xmos.cdt.core.XEBinaryParser" id = "com.xmos.cdt.core.platform.76569945" isAbstract="false" osList="linux,win32,macosx" superClass="com.xmos.cdt.core.platform" />
-                            <builder arguments="" id = "com.xmos.cdt.builder.base.15956049" keepEnvironmentInBuildfile="false" managedBuildOn="false" superClass="com.xmos.cdt.builder.base">
+                <configuration buildProperties="" description="" id="com.xmos.cdt.toolchain.70035756" name="Default" parent="org.eclipse.cdt.build.core.emptycfg">
+                    <folderInfo id="com.xmos.cdt.toolchain.70035756.1127281840" name="/" resourcePath="">
+                        <toolChain id = "com.xmos.cdt.toolchain.94547446" name="com.xmos.cdt.toolchain" superClass="com.xmos.cdt.toolchain">
+                            <targetPlatform archList="all" binaryParser="com.xmos.cdt.core.XEBinaryParser" id = "com.xmos.cdt.core.platform.43464873" isAbstract="false" osList="linux,win32,macosx" superClass="com.xmos.cdt.core.platform" />
+                            <builder arguments="" id = "com.xmos.cdt.builder.base.42485144" keepEnvironmentInBuildfile="false" managedBuildOn="false" superClass="com.xmos.cdt.builder.base">
                                 <outputEntries>
                                     <entry flags="VALUE_WORKSPACE_PATH" kind="outputPath" name="bin" />
                                 </outputEntries>
                             </builder>
-                            <tool id = "com.xmos.cdt.xc.compiler.10004662" name="com.xmos.cdt.xc.compiler" superClass="com.xmos.cdt.xc.compiler">
-                                <option id = "com.xmos.c.compiler.option.include.paths.27994123" name="com.xmos.c.compiler.option.include.paths" superClass="com.xmos.c.compiler.option.include.paths" valueType="includePath">
+                            <tool id = "com.xmos.cdt.xc.compiler.11484703" name="com.xmos.cdt.xc.compiler" superClass="com.xmos.cdt.xc.compiler">
+                                <option id = "com.xmos.c.compiler.option.include.paths.90119859" name="com.xmos.c.compiler.option.include.paths" superClass="com.xmos.c.compiler.option.include.paths" valueType="includePath">
                                     <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include/gcc&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include/c++/4.2.1&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include/c++/4.2.1/xcore-xmos-elf&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/lib}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/include}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xlatex}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/full}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/test}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/common}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/test/functional}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/getmac}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/images}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/board_support/XC-2}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/client}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/test/unit}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/text}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/lite}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml}&quot;' />
 
                                 </option>
-                                <inputType id = "com.xmos.cdt.xc.compiler.input.57617084" name="XC Sources" superClass="com.xmos.cdt.xc.compiler.input" />
-                                <option id = "gnu.c.compiler.option.include.paths.63857932" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
+                                <inputType id = "com.xmos.cdt.xc.compiler.input.84482161" name="XC Sources" superClass="com.xmos.cdt.xc.compiler.input" />
+                                <option id = "gnu.c.compiler.option.include.paths.56863091" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/lib}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/include}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xlatex}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/full}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/test}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/common}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/test/functional}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/getmac}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/images}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/board_support/XC-2}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/client}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/test/unit}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/text}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/lite}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks}&quot;' />
-
-                                </option>
-                            </tool>
-                            <tool id = "com.xmos.cdt.xc.compiler.base.55340620" name="com.xmos.cdt.xc.compiler.base" superClass="com.xmos.cdt.xc.compiler.base">
-                                <option id = "gnu.c.compiler.option.include.paths.88615754" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/client}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks}&quot;' />
-
-                                </option>
-                                <option id = "com.xmos.c.compiler.option.include.paths.9447393" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/client}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks}&quot;' />
-
-                                </option>
-                            </tool>
-                            <tool id = "com.xmos.cdt.c.compiler.base.16338304" name="com.xmos.cdt.c.compiler.base" superClass="com.xmos.cdt.c.compiler.base">
-                                <option id = "gnu.c.compiler.option.include.paths.96725352" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/client}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks}&quot;' />
-
-                                </option>
-                                <option id = "com.xmos.c.compiler.option.include.paths.45190697" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/client}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml}&quot;' />
 
                                 </option>
                             </tool>
-                            <tool id = "com.xmos.cdt.cpp.compiler.base.16226053" name="com.xmos.cdt.cpp.compiler.base" superClass="com.xmos.cdt.cpp.compiler.base">
-                                <option id = "gnu.c.compiler.option.include.paths.96383507" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
+                            <tool id = "com.xmos.cdt.xc.compiler.base.641989" name="com.xmos.cdt.xc.compiler.base" superClass="com.xmos.cdt.xc.compiler.base">
+                                <option id = "gnu.c.compiler.option.include.paths.17852228" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/lib}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/include}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xlatex}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/full}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/test}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/common}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/test/functional}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/getmac}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/images}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/board_support/XC-2}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/client}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/test/unit}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/text}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/lite}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml}&quot;' />
 
                                 </option>
-                                <option id = "com.xmos.c.compiler.option.include.paths.29662507" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
+                                <option id = "com.xmos.c.compiler.option.include.paths.86778839" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/lib}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/include}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xlatex}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/full}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/test}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/common}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/test/functional}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/getmac}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/images}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/board_support/XC-2}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/client}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/test/unit}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/text}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/lite}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml}&quot;' />
 
                                 </option>
                             </tool>
-                            <tool id = "com.xmos.cdt.core.assembler.base.32885353" name="com.xmos.cdt.core.assembler.base" superClass="com.xmos.cdt.core.assembler.base">
-                                <option id = "gnu.c.compiler.option.include.paths.89882360" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
+                            <tool id = "com.xmos.cdt.c.compiler.base.83437809" name="com.xmos.cdt.c.compiler.base" superClass="com.xmos.cdt.c.compiler.base">
+                                <option id = "gnu.c.compiler.option.include.paths.13320453" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/lib}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/include}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xlatex}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/full}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/test}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/common}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/test/functional}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/getmac}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/images}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/board_support/XC-2}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/client}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/test/unit}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/text}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/lite}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml}&quot;' />
 
                                 </option>
-                                <option id = "com.xmos.c.compiler.option.include.paths.94888771" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
+                                <option id = "com.xmos.c.compiler.option.include.paths.1561134" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/lib}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/include}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xlatex}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/full}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/test}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/common}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/test/functional}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/getmac}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/images}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/board_support/XC-2}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/client}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/test/unit}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/text}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/lite}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml}&quot;' />
+
+                                </option>
+                            </tool>
+                            <tool id = "com.xmos.cdt.cpp.compiler.base.11255493" name="com.xmos.cdt.cpp.compiler.base" superClass="com.xmos.cdt.cpp.compiler.base">
+                                <option id = "gnu.c.compiler.option.include.paths.78059319" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/lib}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/include}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xlatex}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/full}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/test}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/common}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/test/functional}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/getmac}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/images}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/board_support/XC-2}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/test/unit}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/text}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/lite}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml}&quot;' />
+
+                                </option>
+                                <option id = "com.xmos.c.compiler.option.include.paths.75725175" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/lib}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/include}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xlatex}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/full}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/test}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/common}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/test/functional}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/getmac}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/images}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/board_support/XC-2}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/test/unit}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/text}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/lite}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml}&quot;' />
+
+                                </option>
+                            </tool>
+                            <tool id = "com.xmos.cdt.core.assembler.base.66390902" name="com.xmos.cdt.core.assembler.base" superClass="com.xmos.cdt.core.assembler.base">
+                                <option id = "gnu.c.compiler.option.include.paths.24158709" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/lib}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/include}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xlatex}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/full}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/test}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/common}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/test/functional}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/getmac}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/images}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/board_support/XC-2}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/test/unit}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/text}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/lite}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml}&quot;' />
+
+                                </option>
+                                <option id = "com.xmos.c.compiler.option.include.paths.21643750" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/lib}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/include}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xlatex}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/full}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/test}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/common}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/test/functional}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/getmac}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/images}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/board_support/XC-2}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_smi}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous/test/unit}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/src}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml/_static/scriptaculous}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/text}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/lite}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_otp_board_info/_build/xdehtml}&quot;' />
 
                                 </option>
                             </tool>
@@ -244,6 +424,6 @@ targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 
     </storageModule>
     <storageModule moduleId="cdtBuildSystem" version="4.0.0">
-        <project id = "app_ethernet_loopback.null.25103848" name="app_ethernet_loopback" />
+        <project id = "app_ethernet_loopback.null.28975710" name="app_ethernet_loopback" />
     </storageModule>
 </cproject>
