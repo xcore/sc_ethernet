@@ -57,7 +57,6 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
   int pendingCmd[MAX_LINKS]={0};
   timer tmr;
   unsigned linkCheckTime = 0;
-  int phy_status[2] = {0};
   
   tmr :> linkCheckTime;
   linkCheckTime += LINK_POLL_PERIOD;
