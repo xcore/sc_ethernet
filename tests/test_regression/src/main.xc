@@ -523,14 +523,13 @@ int main()
         eth_phy_reset(eth_rst);
         smi_init(smi);
         eth_phy_config(1, smi);
-        ethernet_server(mii, mac_address,
+        ethernet_server(mii, smi,
+                        mac_address,
                         rx, MAX_LINKS,
-                        tx, MAX_LINKS,
-                        null,
-                        null);
+                        tx, MAX_LINKS);
       }
 
-      on stdcore[0]: runtests(tx, rx, MAX_LINKS);
+      on tile[0]: runtests(tx, rx, MAX_LINKS);
     }
 
   return 0;

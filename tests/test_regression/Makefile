@@ -25,7 +25,6 @@ XCC_FLAGS = -report -g -DMAC_CUSTOM_FILTER
 
 USED_MODULES = module_ethernet module_otp_board_info
 
-
 # This change to the module path is so that this application can be in the
 # tests sub-directory in it's git repo
 ifeq ($(notdir $(abspath ..)),tests)
