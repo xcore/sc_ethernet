@@ -19,7 +19,7 @@
 #include "ethernet_server_def.h"
 #include "ethernet_rx_client.h"
 #include "ethernet_conf_derived.h"
-
+#include <print.h>
 
 
 /** This function unifies all the variants of mac_rx.
@@ -27,7 +27,7 @@
 #pragma unsafe arrays
 static int ethernet_unified_get_data(chanend ethernet_rx_svr, unsigned char Buf[], unsigned int &rxTime, unsigned int &src_port, unsigned int Cmd, int n)
 {
-  unsigned int i, j,k, rxByteCnt, transferCnt, rxData, temp;
+  unsigned int i, j, k, rxByteCnt, transferCnt, rxData, temp;
   // sent command to request data.
 
   (void) inct(ethernet_rx_svr);
@@ -43,7 +43,7 @@ static int ethernet_unified_get_data(chanend ethernet_rx_svr, unsigned char Buf[
     ethernet_rx_svr :> src_port;
     ethernet_rx_svr :> rxByteCnt;
 
-    if (rxByteCnt == -1) {
+    if (rxByteCnt == STATUS_PACKET_LEN) {
       int status;
       ethernet_rx_svr :> status;
       Buf[0] = status;
