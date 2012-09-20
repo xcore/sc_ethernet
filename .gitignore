@@ -16,3 +16,15 @@ doc/.sources/
 doc/Doxyfile-e
 __generated*
 toplevel_doc/*
+*~
+#*#
+*.vcd
+*.log
+doc/*/.doxygen/*
+doc/*/.linked_dirs/*
+doc/*/.sources/*
+doc/*/.support/*
+.settings/*
+.DS_Store
+*.pyc
+*.xmt
