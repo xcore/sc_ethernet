@@ -1,8 +1,8 @@
-Low Level Ethernet Component
-============================
+Layer 2 Ethernet MAC
+====================
 
 :scope: General Use
-:description: MII interface and low level ethernet MAC
+:description: MII interface and L2 ethernet MAC
 :keywords: ethernet, mii, mac
 
 This module contains the code for a low level ethernet interface over MII.

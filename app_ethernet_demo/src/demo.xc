@@ -327,7 +327,7 @@ void demo(chanend tx, chanend rx)
       continue;
 #endif
 
-    printstr("packet\n");
+
    //::arp_packet_check
     if (is_valid_arp_packet((rxbuf,char[]), nbytes))
       {

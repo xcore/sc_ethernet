@@ -6,6 +6,7 @@
 #include <xs1.h>
 
 #include "smi.h"
+#include "print.h"
 
 // SMI Registers
 #define BASIC_CONTROL_REG                  0

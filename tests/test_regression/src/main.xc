@@ -523,6 +523,7 @@ int main()
         eth_phy_reset(eth_rst);
         smi_init(smi);
         eth_phy_config(1, smi);
+        eth_phy_loopback(1, smi);
         ethernet_server(mii, smi,
                         mac_address,
                         rx, MAX_LINKS,
