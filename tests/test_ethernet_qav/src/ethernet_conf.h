@@ -7,7 +7,7 @@
 #define __ethernet_conf_h__
 
 
-#define PHY_ADDRESS 0x0
+#define ETHERNET_DEFAULT_IMPLEMENTATION full
 
 #define ETHERNET_TX_HP_QUEUE 
 #define ETHERNET_TRAFFIC_SHAPER
@@ -21,7 +21,7 @@
 #define NUM_MII_RX_BUF 30
 #define NUM_MII_TX_BUF 2
 
-#define MAX_ETHERNET_CLIENTS   (4)    
+#define MAX_ETHERNET_CLIENTS   (4)
 
 
 
