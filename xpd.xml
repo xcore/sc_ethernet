@@ -69,7 +69,8 @@
     <release parenthash = "dc7e49a218bbeaab253512ccdb75f6572914f9ca" version = "2.2.0alpha5" githash = "72cfc204011bb21cb15f623c7c9b04377e360d0d"></release>
     <release parenthash = "1c690d7a622518f9ee499c66bf8b197db1ca2ca7" version = "2.2.0alpha6" githash = "12ea5c3269869908841f0e7330caee7c21bd89cc"></release>
     <release parenthash = "9139f2febed0e664c8f4a15893b0415d4f53942b" version = "2.2.0alpha7" githash = "db428f5a0b4bbc9ec7ac2c45792dfc6d038da2ee"></release>
-    <release parenthash = "3e59f852e8b3acfa646ab2187b0b3b24cc8ad91c" version = "2.2.0alpha8"></release>
+    <release parenthash = "3e59f852e8b3acfa646ab2187b0b3b24cc8ad91c" version = "2.2.0alpha8" githash = "08b7746cd7a8a8b78bc237467a3c0ed97023e704"></release>
+    <release parenthash = "8576975f9ba04a7469e2e4b04bfd1219acb425dc" version = "2.2.0alpha9"></release>
     <subpartnumber>XM-001828-SM</subpartnumber>
     <vendor>XMOS</vendor>
     <xcore_repo>sc_ethernet.git</xcore_repo>
