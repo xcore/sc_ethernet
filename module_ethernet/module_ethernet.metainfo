@@ -101,28 +101,7 @@ the phy (using a 1-bit port).
    },
 }
 
-derivedValues = {
-   -- These two derived values set the correct defines to enable
-   -- the lite/full version
-   use_full = {
-      short = "Use full ethernet mac",
-      long = "Use full ethernet mac",
-      help = "",
-      type = "bool",
-      hidden = true,
-      value = (swblock.params.mac_type == "full"),
-      define = "ETHERNET_USE_FULL"
-   },
-   use_lite = {
-      short = "Use lite ethernet mac",
-      long = "Use lite ethernet mac",
-      help = "",
-      type = "bool",
-      hidden = true,
-      value = (swblock.params.mac_type == "lite"),
-      define = "ETHERNET_USE_LITE"
-   }
-}
+derivedValues = {}
 
 
 ports = {
@@ -131,7 +110,6 @@ ports = {
     long    = "Clock signal for MII RX",
     help    = "",
     width   = 1,
-    define  = "PORT_ETH_RXCLK",
     value   = "XS1_PORT_1A",
   },
   p_eth_txclk = {
@@ -139,7 +117,6 @@ ports = {
     long    = "Clock signal for MII TX",
     help    = "",
     width   = 1,
-    define  = "PORT_ETH_TXCLK",
     value   = "XS1_PORT_1C",
   },
   p_eth_rxer = {
@@ -147,7 +124,6 @@ ports = {
     long    = "Error signal for MII RX",
     help    = "",
     width   = 1,
-    define  = "PORT_ETH_RXER",
     value   = "XS1_PORT_1B",
   },
   p_eth_txd = {
@@ -155,7 +131,6 @@ ports = {
     long    = "Data line for transmit (mac to phy)",
     help    = "",
     width   = 4,
-    define  = "PORT_ETH_TXD",
     value   = "XS1_PORT_4D",
   },
   p_eth_rxd = {
@@ -163,7 +138,6 @@ ports = {
     long    = "Data line for receive (phy to mac)",
     help    = "",
     width   = 4,
-    define  = "PORT_ETH_RXD",
     value   = "XS1_PORT_4C",
   },
   p_eth_rstn = {
@@ -171,7 +145,6 @@ ports = {
     long    = "MII Reset",
     help    = "",
     width   = 1,
-    define  = "PORT_ETH_RSTN",
     value   = "XS1_PORT_1H",
     enabled = swblock.params.use_reset
   },
@@ -180,7 +153,6 @@ ports = {
     long    = "Enable line for MII TX",
     help    = "",
     width   = 1,
-    define  = "PORT_ETH_TXEN",
     value   = "XS1_PORT_1E",
   },
   p_eth_rxdv = {
@@ -188,7 +160,6 @@ ports = {
     long    = "Valid line for MII RX",
     help    = "",
     width   = 1,
-    define  = "PORT_ETH_RXDV",
     value   = "XS1_PORT_1D",
   },
   p_eth_fake = {
@@ -196,7 +167,6 @@ ports = {
     long    = "MII lite fake port",
     help    = "This port does not connect to any outside stimulus (hence is a 'fake'). However it is used internally by the implementation.",
     width   = 8,
-    define  = "PORT_ETH_FAKE",
     value   = "XS1_PORT_8A",
     enabled = swblock.params.use_lite
   },
@@ -205,7 +175,6 @@ ports = {
     long    = "MDC clock signal for SMI phy configuration interface",
     help    = "",
     width   = 1,
-    define  = "PORT_ETH_MDC",
     value   = "XS1_PORT_1I",
     enabled = not swblock.params.combine_smi_ports
   },
@@ -214,7 +183,6 @@ ports = {
     long    = "MDIO I/O signal for SMI phy configuration interface",
     help    = "",
     width   = 1,
-    define  = "PORT_ETH_MDIO",
     value   = "XS1_PORT_1G",
     enabled = not swblock.params.combine_smi_ports
   },
@@ -223,7 +191,6 @@ ports = {
     long    = "Combined MDC/MDIO signal for SMI phy configuration",
     help    = "This port combines the MDC/MDIO signals with the MDC signal being the top bit of the 4-bit port",
     width   = 4,
-    define  = "PORT_ETH_MDC_MDIO",
     value   = "XS1_PORT_4C",
     enabled = swblock.params.combine_smi_ports,
   }
