@@ -49,6 +49,8 @@ ethernet mac" type = "demoCode" scope = "Example" path = "app_ethernet_loopback"
     <exclude_dir>test_ethernet_2_port</exclude_dir>
     <exclude_dir>test_mii_simplethread_tx_jitter</exclude_dir>
     <exclude_dir>test_regression</exclude_dir>
+    <exclude_dir>experimental</exclude_dir>
+    <exclude_dir>tests</exclude_dir>
     <location>git@github.com:xcore/sc_ethernet.git</location>
     <name>sc_ethernet</name>
     <maintainer>DavidNorman</maintainer>
