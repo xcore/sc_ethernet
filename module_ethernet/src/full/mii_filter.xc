@@ -12,7 +12,9 @@
 #include "mii_filter.h"
 #include "ethernet_conf_derived.h"
 
-
+#if ETHERNET_USE_XTCP_FILTER
+#include "xtcp_mac_filter.h"
+#else
 #ifdef __mac_custom_filter_h_exists__
 #include "mac_custom_filter.h"
 #else
@@ -20,7 +22,7 @@ int mac_custom_filter(unsigned int buf[]) {
   return 0xffffffff;
 }
 #endif
-
+#endif
 
 #if ETHERNET_ENABLE_FULL_TIMINGS
 // Smallest packet + interframe gap is 84 bytes = 6.72 us

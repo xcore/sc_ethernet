@@ -38,7 +38,7 @@ ethernet_reset_interface_t eth_rst = ETHERNET_DEFAULT_RESET_INTERFACE_INIT;
 //::ip_address_define
 // NOTE: YOU MAY NEED TO REDEFINE THIS TO AN IP ADDRESS THAT WORKS
 // FOR YOUR NETWORK
-#define OWN_IP_ADDRESS {169, 254, 5, 27}
+#define OWN_IP_ADDRESS {192, 168, 1, 178}
 //::
 
 
@@ -308,7 +308,7 @@ void demo(chanend tx, chanend rx)
   //::
 
   //::setup-filter
-#if ETHERNET_DEFAULT_IS_FULL
+#ifdef CONFIG_FULL
   mac_set_custom_filter(rx, 0x1);
 #endif
   //::
@@ -320,7 +320,7 @@ void demo(chanend tx, chanend rx)
     unsigned int src_port;
     unsigned int nbytes;
     mac_rx(rx, (rxbuf,char[]), nbytes, src_port);
-#if ETHERNET_DEFAULT_IS_LITE
+#ifdef CONFIG_LITE
     if (!is_broadcast((rxbuf,char[])) && !is_mac_addr((rxbuf,char[]), own_mac_addr))
       continue;
     if (mac_custom_filter(rxbuf) != 0x1)
@@ -369,7 +369,7 @@ int main()
       //::
 
       //::demo
-      on stdcore[0] : demo(tx[0], rx[0]);
+      on ETHERNET_DEFAULT_TILE : demo(tx[0], rx[0]);
       //::
     }
 
