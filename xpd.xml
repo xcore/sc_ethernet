@@ -22,7 +22,8 @@
             <keyword>mii</keyword>
             <keyword>mac</keyword>
         </component>
-        <component description = "An example of looping back packets using the low level ethernet mac" type = "demoCode" scope = "Example" path = "app_ethernet_loopback" local = "false" id = "app_ethernet_loopback" name = "Low Level Ethernet Loopback Demo">
+        <component description = "An example of looping back packets using the low level
+ethernet mac" type = "demoCode" scope = "Example" path = "app_ethernet_loopback" local = "false" id = "app_ethernet_loopback" name = "Low Level Ethernet Loopback Demo">
             <componentDependency>module_locks</componentDependency>
             <componentDependency>module_ethernet_smi</componentDependency>
             <componentDependency>module_ethernet</componentDependency>
@@ -37,7 +38,7 @@
         </component>
     </components>
     <dependency repo = "sc_otp">
-        <githash>3bf6bfafe15eb0f0f238af90c6231565a443dc0b</githash>
+        <githash>2dc4b25aceaf52d61b8bb41575a53c399043413e</githash>
         <uri>git@github.com:xcore/sc_otp</uri>
     </dependency>
     <description>A complete Ethernet MII and MAC interface for 100MBps Ethernet</description>
@@ -79,7 +80,7 @@
     <release parenthash = "8576975f9ba04a7469e2e4b04bfd1219acb425dc" version = "2.2.0alpha9" githash = "1cf8b500ceb49dccd94c62c6a5f69bdc857c46af"></release>
     <release parenthash = "674014d3f63bd00f028db9e3750c4efa10e76dc7" version = "2.2.0alpha10" githash = "7c15456233ff9be3b2f140bfa6d0c3a28858b64f"></release>
     <release parenthash = "7c15456233ff9be3b2f140bfa6d0c3a28858b64f" version = "2.2.0alpha11" githash = "bf6cdcff46b612e25dc0c13264cdb76b56924874"></release>
-    <release parenthash = "bf6cdcff46b612e25dc0c13264cdb76b56924874" version = "2.2.0alpha12"></release>
+    <release parenthash = "bf6cdcff46b612e25dc0c13264cdb76b56924874" version = "2.2.0alpha12" githash = "c32177d0564e2153e9e54cb7905b2d8c2a475264"></release>
     <subpartnumber>XM-001828-SM</subpartnumber>
     <vendor>XMOS</vendor>
     <xcore_repo>sc_ethernet.git</xcore_repo>
