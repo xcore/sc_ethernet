@@ -29,13 +29,6 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
 {
   int new_status = smi_check_link_state(smi);
   ethernet_update_link_status(linkNum, new_status);
-  /* if (new_status != phy_status) { */
-  /*   outuchar(c, linkNum); */
-  /*   outuchar(c, new_status); */
-  /*   outuchar(c, 0); */
-  /*   outct(c, XS1_CT_END); */
-  /*   phy_status = new_status; */
-  /* } */
 }
 
 #pragma unsafe arrays

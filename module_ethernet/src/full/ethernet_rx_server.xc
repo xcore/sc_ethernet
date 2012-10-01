@@ -24,6 +24,7 @@
 #include "mii_malloc.h"
 #include "mii_filter.h"
 #include "ethernet_rx_server.h"
+#include "ethernet_rx_client.h"
 #include "ethernet_link_status.h"
 #include <print.h>
 
@@ -266,7 +267,7 @@ void send_status_packet(chanend c, int src_port, int status)
 {
   slave {
     c <: src_port;
-    c <: -1;
+    c <: STATUS_PACKET_LEN;
     c <: status;
   }
 }
@@ -337,7 +338,7 @@ void ethernet_rx_server(
              if (link_status[i].wants_status_updates == 2) {
                // This currently only works for single port implementations
                int status = ethernet_get_link_status(0);
-               send_status_packet(link[i], status, 0);
+               send_status_packet(link[i], 0, status);
                link_status[i].wants_status_updates = 1;
                if (rdIndex != wrIndex) {
                  notify(link[i]);
