@@ -1,0 +1,81 @@
+<? xml version =" 1.0 " encoding =" UTF -8 "?>
+
+<Network xmlns="http://www.xmos.com"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.xmos.com http://www.xmos.com" >
+        
+    <Declarations>
+        <Declaration>core tile[2]</Declaration>
+    </Declarations>
+    
+    
+    <Packages>
+        <Package Id="0" Type="XS1-L2A-QF124" >
+            <Nodes>
+                <Node Id="0" InPackageId="0" Type="XS1-L1A" Oscillator="25MHz" SystemFrequency="500MHz">
+                    <Boot>
+                        <Source Location="SPI:bootFlash" />
+                        <Bootee NodeId="1" Core="0"/>
+                    </Boot>
+                    <Core Number="0" Reference="tile[0]">
+                        <Port Location="XS1_PORT_1A" Name="PORT_SPI_MISO"/>
+                        <Port Location="XS1_PORT_1B" Name="PORT_SPI_SS"/>
+                        <Port Location="XS1_PORT_1C" Name="PORT_SPI_CLK"/>
+                        <Port Location="XS1_PORT_1D" Name="PORT_SPI_MOSI"/>
+                        <Port Location="XS1_PORT_8D" Name="PORT_SPI_DISABLE"/>
+
+                    </Core>
+                </Node>
+                <Node Id="1" InPackageId="1" Type="XS1-L1A" Oscillator="25MHz" SystemFrequency="500MHz">
+                    <Boot>
+                        <Source Location="XMOSLINK"/>
+                    </Boot>
+                    <Core Number="0" Reference="tile[1]">
+                    </Core>
+                </Node>
+            </Nodes>
+        </Package> 
+    </Packages>
+
+    <Links>
+        <Link Encoding="5wire" Delays="0,1">
+            <LinkEndpoint NodeId="0" Link="XLG"/>
+            <LinkEndpoint NodeId="1" Link="XLF"/>
+        </Link>
+        <Link Encoding="5wire" Delays="0,1">
+            <LinkEndpoint NodeId="0" Link="XLH"/>
+            <LinkEndpoint NodeId="1" Link="XLE"/>
+        </Link>
+        <Link Encoding="5wire" Delays="0,1">
+            <LinkEndpoint NodeId="0" Link="XLE"/>
+            <LinkEndpoint NodeId="1" Link="XLH"/>
+        </Link>
+        <Link Encoding="5wire" Delays="0,1">
+            <LinkEndpoint NodeId="0" Link="XLF"/>
+            <LinkEndpoint NodeId="1" Link="XLG"/>
+        </Link>
+<!--    </Links>  
+
+
+	<Links>-->
+		<Link Encoding="2wire" Delays="4,4" Flags="SOD">
+			<LinkEndpoint NodeId="0" Link="X0LA" />
+			<LinkEndpoint RoutingId="0x8000" Chanend="1" />
+		</Link>
+    </Links>
+  
+    <ExternalDevices>
+        <Device NodeId="0" Core="0" Name="bootFlash" Class="SPIFlash" Type="M25P16">
+            <Attribute Name="PORT_SPI_MISO" Value="PORT_SPI_MISO" />
+            <Attribute Name="PORT_SPI_SS" Value="PORT_SPI_SS" />
+            <Attribute Name="PORT_SPI_CLK" Value="PORT_SPI_CLK" />
+            <Attribute Name="PORT_SPI_MOSI" Value="PORT_SPI_MOSI" />
+        </Device>
+    </ExternalDevices>
+
+    <JTAGChain>
+        <JTAGDevice NodeId="0"/>
+        <JTAGDevice NodeId="1"/>
+    </JTAGChain>
+
+</Network>

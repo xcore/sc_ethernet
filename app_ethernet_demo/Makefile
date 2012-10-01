@@ -2,7 +2,7 @@
 # compiled for. It either refers to an XN file in the source directories
 # or a valid argument for the --target option when compiling.
 
-TARGET = XC-2
+TARGET = XK-SK-L2
 
 # The APP_NAME variable determines the name of the final .xe file. It should
 # not include the .xe postfix. If left blank the name will default to 
@@ -15,11 +15,11 @@ APP_NAME =
 #
 #    XCC_XC_FLAGS, XCC_C_FLAGS, XCC_ASM_FLAGS, XCC_CPP_FLAGS
 #
-# If the variable XCC_MAP_FLAGS is set it overrides the flags passed to 
+# If the variable XCC_MAP_FLAGS is set it overrides the flags passed to
 # xcc for the final link (mapping) stage.
 
-XCC_FLAGS_full = -g -report -DCONFIG_FULL
-XCC_FLAGS_lite = -g -report -DCONFIG_LITE
+XCC_FLAGS_full = -g -report -DCONFIG_FULL -lxscope
+XCC_FLAGS_lite = -g -report -DCONFIG_LITE -lxscope
 
 # The USED_MODULES variable lists other module used by the application. 
 

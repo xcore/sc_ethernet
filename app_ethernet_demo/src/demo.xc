@@ -24,6 +24,19 @@
 #include "otp_board_info.h"
 #include "ethernet.h"
 #include "checksum.h"
+#include "xscope.h"
+
+// If you have a board with the xscope xlink enabled (e.g. the XC-2) then
+// change this define to 0, make sure you also remove the -lxscope from
+// the build flags in the Makefile
+#define USE_XSCOPE 1
+
+#if USE_XSCOPE
+void xscope_user_init(void) {
+  xscope_register(0);
+  xscope_config_io(XSCOPE_IO_BASIC);
+}
+#endif
 
 // Port Definitions
 
