@@ -9,6 +9,19 @@
 #include <xs1.h>
 #include <xccompat.h>
 
+#ifdef __ethernet_conf_derived_h_exists__
+#include "ethernet_conf_derived.h"
+#endif
+
+#ifdef __smi_conf_h_exists__
+#include "smi_conf.h"
+#endif
+
+
+#ifndef SMI_COMBINE_MDC_MDIO
+#define SMI_COMBINE_MDC_MDIO 0
+#endif
+
 
 /** Structure containing resources required for the SMI ethernet phy interface.
  *
@@ -30,7 +43,9 @@
  */
 typedef struct smi_interface_t {
     int phy_address;           /**< Address of PHY, typically 0 or 0x1F. */
+#if !SMI_COMBINE_MDC_MDIO
     port p_smi_mdio;           /**< MDIO port. */
+#endif
     port p_smi_mdc;            /**< MDC port.  */
 } smi_interface_t;
 

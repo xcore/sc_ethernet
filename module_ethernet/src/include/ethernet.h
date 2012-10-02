@@ -42,9 +42,14 @@
 #define ETHERNET_DEFAULT_MII_INIT ADD_SUFFIX(ETHERNET_DEFAULT_MII_INIT,ETHERNET_DEFAULT_IMPLEMENTATION)
 
 
+#if SMI_COMBINE_MDC_MDIO
+#define ETHERNET_DEFAULT_SMI_INIT {ETHERNET_DEFAULT_PHY_ADDRESS, \
+                                   PORT_ETH_MDIOC}
+#else
 #define ETHERNET_DEFAULT_SMI_INIT {ETHERNET_DEFAULT_PHY_ADDRESS, \
                                    PORT_ETH_MDIO,       \
                                    PORT_ETH_MDC}
+#endif
 
 
 #include "ethernet_server.h"

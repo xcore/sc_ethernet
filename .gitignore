@@ -16,3 +16,7 @@ doc/.sources/
 doc/Doxyfile-e
 __generated*
 toplevel_doc/*
+*.zip
+*.orig
+*.buildinfo
+**/.settings

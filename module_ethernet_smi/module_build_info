@@ -1,4 +1,4 @@
-OPTIONAL_HEADERS += ethernet_conf.h
+OPTIONAL_HEADERS += ethernet_conf_derived.h smi_conf.h
 
 MODULE_XCC_XC_FLAGS = $(XCC_FLAGS) -g -Os
 

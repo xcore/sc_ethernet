@@ -8,6 +8,26 @@
 #include "smi.h"
 #include "print.h"
 
+#ifndef SMI_HANDLE_COMBINED_PORTS
+  #if SMI_COMBINED_MDC_MDIO
+     #define SMI_HANDLE_COMBINED_PORTS 1
+  #else
+     #define SMI_HANDLE_COMBINED_PORTS 0
+  #endif
+#endif
+
+#if SMI_HANDLE_COMBINED_PORTS
+  #ifndef SMI_MDC_BIT
+  #warning SMI_MDC_BIT not defined in smi_conf.h - Assuming 0
+  #define SMI_MDC_BIT 0
+  #endif
+
+  #ifndef SMI_MDIO_BIT
+  #warning SMI_MDIO_BIT not defined in smi_conf.h - Assuming 1
+  #define SMI_MDIO_BIT 1
+  #endif
+#endif
+
 // SMI Registers
 #define BASIC_CONTROL_REG                  0
 #define BASIC_STATUS_REG                   1
@@ -34,15 +54,15 @@
 
 
 // Initialise the ports and clock blocks
-// Initialise the ports and clock blocks
 void smi_init(smi_interface_t &smi) {
-#ifdef SMI_MDC_BIT
-    if (smi.phy_address < 0) {
-        smi.p_smi_mdc <: 1 << SMI_MDC_BIT;
-        return;
-    }
+
+#if SMI_HANDLE_COMBINED_PORT
+  if (SMI_COMBINE_MDC_MDIO || (smi.phy_address < 0)) {
+    smi.p_smi_mdc <: 1 << SMI_MDC_BIT;
+    return;
+  }
 #endif
-    smi.p_smi_mdc <: 1;
+  smi.p_smi_mdc <: 1;
 }
 
 // Constants used in calls to smi_bit_shift and smi_reg.
@@ -53,8 +73,9 @@ void smi_init(smi_interface_t &smi) {
 // Shift in a number of data bits to or from the SMI port
 static int smi_bit_shift(smi_interface_t &smi, unsigned data, unsigned count, unsigned inning) {
     int i = count, dataBit = 0, t;
-#ifdef SMI_MDC_BIT
-    if (smi.phy_address < 0) {
+
+#if SMI_HANDLE_COMBINED_PORTS
+    if (SMI_COMBINE_MDC_MDIO || (smi.phy_address < 0)) {
         smi.p_smi_mdc :> void @ t;
         if (inning) {
             while (i != 0) {
@@ -80,7 +101,10 @@ static int smi_bit_shift(smi_interface_t &smi, unsigned data, unsigned count, un
         }
         return data;
     }
+
 #endif
+
+#if !SMI_COMBINE_MDC_MDIO
     smi.p_smi_mdc <: ~0 @ t;
     while (i != 0) {
         i--;
@@ -97,6 +121,7 @@ static int smi_bit_shift(smi_interface_t &smi, unsigned data, unsigned count, un
     }
     smi.p_smi_mdc @ (t+30) <: ~0;
     return data;
+#endif
 }
 
 // Register access: lots of 1111, then a code (read/write), phy address,
