@@ -18,7 +18,15 @@ APP_NAME =
 # If the variable XCC_MAP_FLAGS is set it overrides the flags passed to 
 # xcc for the final link (mapping) stage.
 
-XCC_FLAGS = -report -g -Wno-timing -lxscope
+XCC_FLAGS = -report -g -DMAC_CUSTOM_FILTER -save-temps -fcomment-asm -DCONFIG_FULL
+
+ifeq ($(TARGET),XR-AVB-LC-BRD)
+	XCC_FLAGS += -lxscope
+endif
+
+# The USED_MODULES variable lists other module used by the application. 
+
+USED_MODULES = module_ethernet module_otp_board_info
 
 # This change to the module path is so that this application can be in the
 # tests sub-directory in it's git repo
@@ -26,11 +34,6 @@ ifeq ($(notdir $(abspath ..)),tests)
 PATHSEP = $(if $(findstring Windows, $(OS))$(findstring WINDOWS,$(OS)),;,:)
 XMOS_MODULE_PATH := $(XMOS_MODULE_PATH)$(PATHSEP)../../..
 endif
-
-
-# The USED_MODULES variable lists other module used by the application. 
-
-USED_MODULES = module_ethernet module_locks
 
 
 #=============================================================================

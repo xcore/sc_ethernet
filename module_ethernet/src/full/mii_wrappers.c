@@ -25,59 +25,23 @@ hwlock_t ethernet_memory_lock = 0;
 #endif
 
 #ifdef ETHERNET_RX_HP_QUEUE
-
-#ifndef ETHERNET_RX_BUFSIZE_HIGH_PRIORITY
-#define ETHERNET_RX_BUFSIZE_HIGH_PRIORITY 256
-#endif
-
-#ifndef ETHERNET_RX_BUFSIZE_LOW_PRIORITY
-#define ETHERNET_RX_BUFSIZE_LOW_PRIORITY 512
-#endif
-
 #define ETHERNET_RX_HP_MEMSIZE  ((ETHERNET_RX_BUFSIZE_HIGH_PRIORITY +  2*sizeof(mii_packet_t) + 20)/4)
-#endif
-
-#define ETHERNET_RX_LP_MEMSIZE  ((ETHERNET_RX_BUFSIZE_LOW_PRIORITY + 2*sizeof(mii_packet_t) + 20)/4)
-
-#define ETHERNET_TX_LP_MEMSIZE  ((ETHERNET_TX_BUFSIZE + sizeof(mii_packet_t) + 20)/4)
-
-
-
-#ifdef ETHERNET_TX_HP_QUEUE
-
-#ifndef ETHERNET_TX_BUFSIZE_HIGH_PRIORITY
-#define ETHERNET_TX_BUFSIZE_HIGH_PRIORITY 256
-#endif
-
-#define ETHERNET_TX_HP_MEMSIZE  ((ETHERNET_TX_BUFSIZE_HIGH_PRIORITY +(ETHERNET_MAX_TX_HP_PACKET_SIZE + MII_PACKET_HEADER_SIZE) + 20)/4)
-#endif
-
-
-#ifdef ETHERNET_RX_HP_QUEUE
 int rx_hp_data[NUM_ETHERNET_PORTS][ETHERNET_RX_HP_MEMSIZE];
-#endif
-
-#ifdef ETHERNET_TX_HP_QUEUE
-int tx_hp_data[NUM_ETHERNET_PORTS][ETHERNET_TX_HP_MEMSIZE];
-#endif
-
-
-
-int rx_lp_data[NUM_ETHERNET_PORTS][ETHERNET_RX_LP_MEMSIZE];
-int tx_lp_data[NUM_ETHERNET_PORTS][ETHERNET_TX_LP_MEMSIZE];
-
-
-
-#ifdef ETHERNET_RX_HP_QUEUE
 mii_mempool_t rx_mem_hp[NUM_ETHERNET_PORTS];
 #endif
 
 #ifdef ETHERNET_TX_HP_QUEUE
+#define ETHERNET_TX_HP_MEMSIZE  ((ETHERNET_TX_BUFSIZE_HIGH_PRIORITY +(ETHERNET_MAX_TX_HP_PACKET_SIZE + MII_PACKET_HEADER_SIZE) + 20)/4)
+int tx_hp_data[NUM_ETHERNET_PORTS][ETHERNET_TX_HP_MEMSIZE];
 mii_mempool_t tx_mem_hp[NUM_ETHERNET_PORTS];
 #endif
 
-mii_mempool_t rx_mem_lp[NUM_ETHERNET_PORTS];
+#define ETHERNET_RX_LP_MEMSIZE  ((ETHERNET_RX_BUFSIZE_LOW_PRIORITY + 2*sizeof(mii_packet_t) + 20)/4)
+#define ETHERNET_TX_LP_MEMSIZE  ((ETHERNET_TX_BUFSIZE + sizeof(mii_packet_t) + 20)/4)
+int rx_lp_data[NUM_ETHERNET_PORTS][ETHERNET_RX_LP_MEMSIZE];
+int tx_lp_data[NUM_ETHERNET_PORTS][ETHERNET_TX_LP_MEMSIZE];
 
+mii_mempool_t rx_mem_lp[NUM_ETHERNET_PORTS];
 mii_mempool_t tx_mem_lp[NUM_ETHERNET_PORTS];
 
 #if ETHERNET_MAX_TX_PACKET_SIZE > ETHERNET_TX_BUFSIZE
@@ -103,7 +67,7 @@ void init_mii_mem() {
 		mii_init_mempool(rx_mem_hp[i], ETHERNET_RX_HP_MEMSIZE*4, 1518);
 #endif
 #ifdef ETHERNET_TX_HP_QUEUE
-		mii_init_mempool(tx_mem_hp[i], ETHERNET_TX_HP_MEMSIZE*4, 1518);
+		mii_init_mempool(tx_mem_hp[i], ETHERNET_TX_HP_MEMSIZE*4, ETHERNET_MAX_TX_HP_PACKET_SIZE);
 #endif
 		mii_init_mempool(rx_mem_lp[i], ETHERNET_RX_LP_MEMSIZE*4, 1518);
 		mii_init_mempool(tx_mem_lp[i], ETHERNET_TX_LP_MEMSIZE*4, ETHERNET_MAX_TX_PACKET_SIZE);

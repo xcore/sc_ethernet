@@ -92,6 +92,23 @@ void mac_tx_full(chanend ethernet_tx_svr, unsigned int Buf[], int count, int ifn
 }
 
 #pragma unsafe arrays
+void ethernet_send_avb_class_a_frame(chanend ethernet_tx_svr, 
+                    unsigned int Buf[], 
+                    int count, 
+                    int ifnum)
+{
+  ethernet_tx_svr <: ETHERNET_TX_REQ_OFFSET2_HP;
+
+  slave {
+    ethernet_tx_svr <: count;
+    ethernet_tx_svr <: ifnum;
+    for (int i=0;i<(count+7)>>2;i++)
+      ethernet_tx_svr <: byterev(Buf[i]);
+  }
+  return;
+}
+
+#pragma unsafe arrays
 void mac_tx_offset2(chanend ethernet_tx_svr, 
                     unsigned int Buf[], 
                     int count, 
@@ -168,6 +185,8 @@ void mac_set_qav_bandwidth(chanend c,
   slave {
     c <: slope;
   }
+  printintln(bps);
+  printintln(slope);
 }
 
 #endif

@@ -3,7 +3,9 @@
 // University of Illinois/NCSA Open Source License posted in
 // LICENSE.txt and at <http://github.xcore.com/>
 
+#include <print.h>
 #include "mii_full.h"
+#include <xscope.h>
 
 #ifndef ETHERNET_USE_HARDWARE_LOCKS
 #include "swlock.h"
@@ -43,6 +45,7 @@ void mii_init_mempool(mii_mempool_t mempool0, int size, int maxsize_bytes) {
   mempool_info_t *info = (mempool_info_t *) mempool0;
   info->max_packet_size = sizeof(mii_packet_t) + sizeof(malloc_hdr_t) - (((MAX_ETHERNET_PACKET_SIZE+3)&~3)-maxsize_bytes);
   info->max_packet_size = (info->max_packet_size + 3) & ~3;
+  printintln(info->max_packet_size);
   info->start = (int *) (mempool0 + sizeof(mempool_info_t));
   info->end = (int *) (mempool0 + size);
   info->end -= (info->max_packet_size >> 2);

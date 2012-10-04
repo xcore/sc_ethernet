@@ -2,8 +2,8 @@
 <?fileVersion 4.0.0?>
 <cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
     <storageModule moduleId="org.eclipse.cdt.core.settings">
-        <cconfiguration id="com.xmos.cdt.toolchain.9238178">
-            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.xmos.cdt.toolchain.9238178" moduleId="org.eclipse.cdt.core.settings" name="Default">
+        <cconfiguration id="com.xmos.cdt.toolchain.35392664">
+            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.xmos.cdt.toolchain.35392664" moduleId="org.eclipse.cdt.core.settings" name="Default">
                 <externalSettings />
                 <extensions>
                     <extension id="com.xmos.cdt.core.XEBinaryParser" point="org.eclipse.cdt.core.BinaryParser" />
@@ -32,17 +32,17 @@
                 </buildTargets>
             </storageModule>
             <storageModule moduleId="cdtBuildSystem" version="4.0.0">
-                <configuration buildProperties="" description="" id="com.xmos.cdt.toolchain.9238178" name="Default" parent="org.eclipse.cdt.build.core.emptycfg">
-                    <folderInfo id="com.xmos.cdt.toolchain.9238178.1127281840" name="/" resourcePath="">
-                        <toolChain id="com.xmos.cdt.toolchain.6300208" name="com.xmos.cdt.toolchain" superClass="com.xmos.cdt.toolchain">
-                            <targetPlatform archList="all" binaryParser="com.xmos.cdt.core.XEBinaryParser" id="com.xmos.cdt.core.platform.16213890" isAbstract="false" osList="linux,win32,macosx" superClass="com.xmos.cdt.core.platform" />
-                            <builder arguments="" id="com.xmos.cdt.builder.base.75121534" keepEnvironmentInBuildfile="false" managedBuildOn="false" superClass="com.xmos.cdt.builder.base">
+                <configuration buildProperties="" description="" id="com.xmos.cdt.toolchain.35392664" name="Default" parent="org.eclipse.cdt.build.core.emptycfg">
+                    <folderInfo id="com.xmos.cdt.toolchain.35392664.1127281840" name="/" resourcePath="">
+                        <toolChain id="com.xmos.cdt.toolchain.34870974" name="com.xmos.cdt.toolchain" superClass="com.xmos.cdt.toolchain">
+                            <targetPlatform archList="all" binaryParser="com.xmos.cdt.core.XEBinaryParser" id="com.xmos.cdt.core.platform.87832451" isAbstract="false" osList="linux,win32,macosx" superClass="com.xmos.cdt.core.platform" />
+                            <builder arguments="" id="com.xmos.cdt.builder.base.60950126" keepEnvironmentInBuildfile="false" managedBuildOn="false" superClass="com.xmos.cdt.builder.base">
                                 <outputEntries>
                                     <entry flags="VALUE_WORKSPACE_PATH" kind="outputPath" name="bin" />
                                 </outputEntries>
                             </builder>
-                            <tool id="com.xmos.cdt.xc.compiler.70164824" name="com.xmos.cdt.xc.compiler" superClass="com.xmos.cdt.xc.compiler">
-                                <option id="com.xmos.c.compiler.option.include.paths.96106724" name="com.xmos.c.compiler.option.include.paths" superClass="com.xmos.c.compiler.option.include.paths" valueType="includePath">
+                            <tool id="com.xmos.cdt.xc.compiler.23792313" name="com.xmos.cdt.xc.compiler" superClass="com.xmos.cdt.xc.compiler">
+                                <option id="com.xmos.c.compiler.option.include.paths.49668402" name="com.xmos.c.compiler.option.include.paths" superClass="com.xmos.c.compiler.option.include.paths" valueType="includePath">
                                     <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include/gcc&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include/c++/4.2.1&quot;' />
@@ -67,9 +67,12 @@
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet_smi}&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_locks/src}&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_locks}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_otp/module_otp_board_info/doc}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_otp/module_otp_board_info/src}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_otp/module_otp_board_info}&quot;' />
                                 </option>
-                                <inputType id="com.xmos.cdt.xc.compiler.input.70453438" name="XC Sources" superClass="com.xmos.cdt.xc.compiler.input" />
-                                <option id="gnu.c.compiler.option.include.paths.71572033" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
+                                <inputType id="com.xmos.cdt.xc.compiler.input.95522571" name="XC Sources" superClass="com.xmos.cdt.xc.compiler.input" />
+                                <option id="gnu.c.compiler.option.include.paths.13556139" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
@@ -90,10 +93,13 @@
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet_smi}&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_locks/src}&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_locks}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_otp/module_otp_board_info/doc}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_otp/module_otp_board_info/src}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_otp/module_otp_board_info}&quot;' />
                                 </option>
                             </tool>
-                            <tool id="com.xmos.cdt.xc.compiler.base.69937900" name="com.xmos.cdt.xc.compiler.base" superClass="com.xmos.cdt.xc.compiler.base">
-                                <option id="gnu.c.compiler.option.include.paths.4438756" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
+                            <tool id="com.xmos.cdt.xc.compiler.base.98136569" name="com.xmos.cdt.xc.compiler.base" superClass="com.xmos.cdt.xc.compiler.base">
+                                <option id="gnu.c.compiler.option.include.paths.42461208" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
@@ -114,8 +120,11 @@
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet_smi}&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_locks/src}&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_locks}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_otp/module_otp_board_info/doc}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_otp/module_otp_board_info/src}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_otp/module_otp_board_info}&quot;' />
                                 </option>
-                                <option id="com.xmos.c.compiler.option.include.paths.26411402" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
+                                <option id="com.xmos.c.compiler.option.include.paths.90445593" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
@@ -136,56 +145,13 @@
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet_smi}&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_locks/src}&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_locks}&quot;' />
-                                </option>
-                            </tool>
-                            <tool id="com.xmos.cdt.c.compiler.base.34271559" name="com.xmos.cdt.c.compiler.base" superClass="com.xmos.cdt.c.compiler.base">
-                                <option id="gnu.c.compiler.option.include.paths.90281021" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/client}&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet}&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks}&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include/c++/4.2.1&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include/c++/4.2.1/xcore-xmos-elf&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include/gcc&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet/board_support/XR-AVB-LC-BRD}&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet/src/common}&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet/src/full}&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet/src/include}&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet/src/lite}&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet/src}&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet_smi/src}&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet_smi}&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_locks/src}&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_locks}&quot;' />
-                                </option>
-                                <option id="com.xmos.c.compiler.option.include.paths.29537370" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/client}&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet}&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks}&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include/c++/4.2.1&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include/c++/4.2.1/xcore-xmos-elf&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include/gcc&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet/board_support/XR-AVB-LC-BRD}&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet/src/common}&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet/src/full}&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet/src/include}&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet/src/lite}&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet/src}&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet_smi/src}&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet_smi}&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_locks/src}&quot;' />
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_locks}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_otp/module_otp_board_info/doc}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_otp/module_otp_board_info/src}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_otp/module_otp_board_info}&quot;' />
                                 </option>
                             </tool>
-                            <tool id="com.xmos.cdt.cpp.compiler.base.62788711" name="com.xmos.cdt.cpp.compiler.base" superClass="com.xmos.cdt.cpp.compiler.base">
-                                <option id="gnu.c.compiler.option.include.paths.64178810" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
+                            <tool id="com.xmos.cdt.c.compiler.base.5242353" name="com.xmos.cdt.c.compiler.base" superClass="com.xmos.cdt.c.compiler.base">
+                                <option id="gnu.c.compiler.option.include.paths.66197752" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
@@ -206,8 +172,11 @@
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet_smi}&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_locks/src}&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_locks}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_otp/module_otp_board_info/doc}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_otp/module_otp_board_info/src}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_otp/module_otp_board_info}&quot;' />
                                 </option>
-                                <option id="com.xmos.c.compiler.option.include.paths.55534466" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
+                                <option id="com.xmos.c.compiler.option.include.paths.61693227" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
@@ -228,10 +197,13 @@
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet_smi}&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_locks/src}&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_locks}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_otp/module_otp_board_info/doc}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_otp/module_otp_board_info/src}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_otp/module_otp_board_info}&quot;' />
                                 </option>
                             </tool>
-                            <tool id="com.xmos.cdt.core.assembler.base.86223857" name="com.xmos.cdt.core.assembler.base" superClass="com.xmos.cdt.core.assembler.base">
-                                <option id="gnu.c.compiler.option.include.paths.47248149" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
+                            <tool id="com.xmos.cdt.cpp.compiler.base.9112082" name="com.xmos.cdt.cpp.compiler.base" superClass="com.xmos.cdt.cpp.compiler.base">
+                                <option id="gnu.c.compiler.option.include.paths.78810260" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
@@ -252,8 +224,11 @@
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet_smi}&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_locks/src}&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_locks}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_otp/module_otp_board_info/doc}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_otp/module_otp_board_info/src}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_otp/module_otp_board_info}&quot;' />
                                 </option>
-                                <option id="com.xmos.c.compiler.option.include.paths.97408826" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
+                                <option id="com.xmos.c.compiler.option.include.paths.14225508" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
@@ -274,6 +249,61 @@
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet_smi}&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_locks/src}&quot;' />
                                     <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_locks}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_otp/module_otp_board_info/doc}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_otp/module_otp_board_info/src}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_otp/module_otp_board_info}&quot;' />
+                                </option>
+                            </tool>
+                            <tool id="com.xmos.cdt.core.assembler.base.70737151" name="com.xmos.cdt.core.assembler.base" superClass="com.xmos.cdt.core.assembler.base">
+                                <option id="gnu.c.compiler.option.include.paths.3690550" valueType="includePath" superClass="gnu.c.compiler.option.include.paths">
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/client}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include/c++/4.2.1&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include/c++/4.2.1/xcore-xmos-elf&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include/gcc&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet/board_support/XR-AVB-LC-BRD}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet/src/common}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet/src/full}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet/src/include}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet/src/lite}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet/src}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet_smi/src}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet_smi}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_locks/src}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_locks}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_otp/module_otp_board_info/doc}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_otp/module_otp_board_info/src}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_otp/module_otp_board_info}&quot;' />
+                                </option>
+                                <option id="com.xmos.c.compiler.option.include.paths.31797350" valueType="includePath" superClass="com.xmos.c.compiler.option.include.paths">
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/server}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks/src}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet/src/client}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_locks}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include/c++/4.2.1&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include/c++/4.2.1/xcore-xmos-elf&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${XMOS_DOC_PATH}/../target/include/gcc&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet/board_support/XR-AVB-LC-BRD}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet/src/common}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet/src/full}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet/src/include}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet/src/lite}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet/src}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet_smi/src}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_ethernet_smi}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_locks/src}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_ethernet/module_locks}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_otp/module_otp_board_info/doc}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_otp/module_otp_board_info/src}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/sc_otp/module_otp_board_info}&quot;' />
                                 </option>
                             </tool>
                         </toolChain>
@@ -369,6 +399,6 @@
         </cconfiguration>
     </storageModule>
     <storageModule moduleId="cdtBuildSystem" version="4.0.0">
-        <project id="test_buffering.null.34263589" name="test_buffering" />
+        <project id="test_ethernet_qav.null.39032132" name="test_ethernet_qav" />
     </storageModule>
 </cproject>

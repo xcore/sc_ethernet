@@ -12,6 +12,7 @@
 #include <print.h>
 #include <xs1.h>
 #include <xclib.h>
+#include <xscope.h>
 
 #ifdef AVB_MAC
 #include "avb_1722_router_table.h"
@@ -97,7 +98,9 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
           for (unsigned int p=0; p<NUM_ETHERNET_PORTS; ++p) {
 #ifdef ETHERNET_TX_HP_QUEUE
         	  if (hp)
+            {
         		  buf[p] = mii_reserve(tx_mem_hp[p]);
+            }
         	  else
         		  buf[p] = mii_reserve(tx_mem_lp[p]);
 #else
@@ -156,6 +159,7 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
 
             		mii_packet_set_tcount(buf[p], 0);
             		mii_packet_set_stage(buf[p], 1);
+                xscope_probe_data(3, buf[p]);
             	}
             }
 
@@ -224,6 +228,7 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
               int slope;
               tx[i] :> slope;
               asm("stw %0,dp[g_mii_idle_slope]"::"r"(slope));
+              printstr("Set: "); printintln(slope);
             }
          break;
 #endif

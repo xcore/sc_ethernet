@@ -7,6 +7,7 @@
 #include <platform.h>
 #include <stdlib.h>
 #include <print.h>
+#include <xscope.h>
 
 extern void test_logical();
 extern void test_timing_init();
@@ -16,6 +17,13 @@ extern void test_timing_write();
 extern unsigned counter_no_mem;
 extern unsigned counter_allocated;
 extern unsigned counter_freed;
+
+void xscope_user_init(void)
+{
+    xscope_register(0, 0, "", 0, "");
+    // Enable XScope printing
+    xscope_config_io(XSCOPE_IO_BASIC);
+}
 
 void wait(unsigned mask)
 {
@@ -27,21 +35,27 @@ void wait(unsigned mask)
 
 int main()
 {
-	// Logical test
-	test_logical();
+	par
+	{
+		on stdcore[0]: 
+		{
+			// Logical test
+			test_logical();
 
-    printstrln("Logical test complete\n");
+		    printstrln("Logical test complete\n");
 
-	// Timing test
-	test_timing_init();
-	par {
-		test_timing_read();
-		test_timing_write();
+			// Timing test
+			test_timing_init();
+			par {
+				test_timing_read();
+				test_timing_write();
+			}
+
+			printstr("\nAllocated: ");printuint(counter_allocated);
+			printstr("\nFreed: ");printuint(counter_freed);
+			printstr("\nNo mem ");printuint(counter_no_mem);
+		}
 	}
-
-	printstr("\nAllocated: ");printuint(counter_allocated);
-	printstr("\nFreed: ");printuint(counter_freed);
-	printstr("\nNo mem ");printuint(counter_no_mem);
 
 	return 0;
 }

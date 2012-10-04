@@ -20,7 +20,7 @@
 #include "ethernet_rx_client.h"
 #include "ethernet_conf_derived.h"
 #include <print.h>
-
+#include <xscope.h>
 
 /** This function unifies all the variants of mac_rx.
  */
@@ -88,10 +88,14 @@ void mac_rx_full(chanend ethernet_rx_svr, unsigned char Buf[],
   return;
 }
 
+unsigned prev_time;
+
 void mac_rx_offset2(chanend ethernet_rx_svr, unsigned char Buf[], unsigned int &len, unsigned int &src_port)
 {
   unsigned rxTime;
   len = ethernet_unified_get_data(ethernet_rx_svr, Buf, rxTime, src_port, ETHERNET_RX_FRAME_REQ_OFFSET2, -1);
+  xscope_probe_data(0, rxTime-prev_time);
+  prev_time = rxTime;
   return;
 }
 

@@ -10,6 +10,7 @@
 #include <print.h>
 #include <stdlib.h>
 #include <syscall.h>
+#include <xscope.h>
 #include "ethernet_server_def.h"
 
 // Timing tuning constants
@@ -355,7 +356,6 @@ void mii_transmit_packet(unsigned buf, out buffered port:32 p_mii_txd, timer tmr
 
 #pragma xta endpoint "mii_tx_sof"
 	p_mii_txd <: 0x55555555;
-	p_mii_txd <: 0x55555555;
 	p_mii_txd <: 0xD5555555;
 
 #ifndef TX_TIMESTAMP_END_OF_PACKET
@@ -453,6 +453,9 @@ void mii_tx_pins(
 	int prev_eof_time, time;
 	timer tmr;
 	int ok_to_transmit=1;
+	int state = 1;
+
+	xscope_probe_data(2, 0);
 
 #if defined(ETHERNET_TX_HP_QUEUE) && defined(ETHERNET_TRAFFIC_SHAPER)
 	tmr :> credit_time;
@@ -490,6 +493,10 @@ void mii_tx_pins(
 #ifdef ETHERNET_TRAFFIC_SHAPER
 		if (buf && mii_packet_get_stage(buf) == 1) {
 
+			// xscope_probe_data(1, credit);
+			state = 2;
+
+
 			if (credit < 0) {
 				asm("ldw %0,dp[g_mii_idle_slope]":"=r"(idle_slope));
 
@@ -498,25 +505,32 @@ void mii_tx_pins(
 
 				elapsed = credit_time - prev_credit_time;
 				credit += elapsed * idle_slope;
+				// xscope_probe_data(4, elapsed);
 			}
 
 			if (credit < 0)
-			buf = 0;
+			{
+				buf = 0;
+			}
 			else {
 				int len = mii_packet_get_length(buf);
-				credit = credit - len << (MII_CREDIT_FRACTIONAL_BITS+3);
+				credit = credit - ((len+20) << (MII_CREDIT_FRACTIONAL_BITS+3));
 			}
-
 		}
 		else {
 			if (credit >= 0)
-			credit = 0;
+			{
+				credit = 0;
+			}
 			tmr :> credit_time;
 		}
 #endif
 
 		if (!buf || mii_packet_get_stage(buf) != 1)
-		buf = mii_get_next_buf(lp_queue);
+		{
+			buf = mii_get_next_buf(lp_queue);
+			state = 1;
+		}
 #else
 		buf = mii_get_next_buf(lp_queue);
 
@@ -553,12 +567,14 @@ void mii_tx_pins(
 			continue;
 		}
 
+		xscope_probe_data(2, state);
 #pragma xta endpoint "mii_tx_start"
 		mii_transmit_packet(buf, p_mii_txd, tmr);
 #pragma xta endpoint "mii_tx_end"
 
 		tmr :> prev_eof_time;
 		ok_to_transmit = 0;
+		xscope_probe_data(2, 0);
 
 		if (get_and_dec_transmit_count(buf) == 0) {
 			if (mii_packet_get_timestamp_id(buf)) {

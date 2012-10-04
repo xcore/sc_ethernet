@@ -108,6 +108,7 @@ int get_ts_queue_entry(mii_ts_queue_t *q)
     rdIndex *= (rdIndex != MAC_MAX_ENTRIES);
     q->rdIndex = rdIndex;
   }
+
 #ifndef ETHERNET_USE_HARDWARE_LOCKS
   swlock_release((swlock_t *) q->lock);
 #else
@@ -129,7 +130,8 @@ void add_ts_queue_entry(mii_ts_queue_t *q, int i)
   wrIndex = q->wrIndex;
   q->fifo[wrIndex] = i;
   wrIndex++;
-  wrIndex *= (wrIndex != MAC_MAX_ENTRIES);
+  if (wrIndex >= MAC_MAX_ENTRIES)
+    wrIndex = 0;
   q->wrIndex = wrIndex;
 
 #ifndef ETHERNET_USE_HARDWARE_LOCKS

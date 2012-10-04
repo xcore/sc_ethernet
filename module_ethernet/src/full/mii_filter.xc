@@ -75,6 +75,7 @@ void ethernet_filter(const char mac_address[], streaming chanend c[NUM_ETHERNET_
 					int endbytes;
 					int tail;
 
+
 					tail = mii_packet_get_data(buf,((length & 0xFFFFFFFC)/4)+1);
 
 					endbytes = (length & 3);
@@ -98,6 +99,7 @@ void ethernet_filter(const char mac_address[], streaming chanend c[NUM_ETHERNET_
 					}
 #endif
 					mii_packet_set_src_port(buf,ifnum);
+					printintln(length);
 
 					if (length < 60)
 					{
