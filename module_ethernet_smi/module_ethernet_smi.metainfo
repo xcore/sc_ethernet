@@ -27,8 +27,6 @@ ports = {
     long    = "MDC clock signal for SMI phy configuration interface",
     help    = "",
     width   = 1,
-    define  = "PORT_ETH_MDC",
-    value   = "XS1_PORT_1I",
     enabled = not swblock.params.combine_smi_ports
   },
   p_eth_mdio = {
@@ -36,8 +34,6 @@ ports = {
     long    = "MDIO I/O signal for SMI phy configuration interface",
     help    = "",
     width   = 1,
-    define  = "PORT_ETH_MDIO",
-    value   = "XS1_PORT_1G",
     enabled = not swblock.params.combine_smi_ports
   },
   p_eth_mdc_mdio = {
@@ -45,8 +41,6 @@ ports = {
     long    = "Combined MDC/MDIO signal for SMI phy configuration",
     help    = "This port combines the MDC/MDIO signals with the MDC signal being the top bit of the 4-bit port",
     width   = 4,
-    define  = "PORT_ETH_MDC_MDIO",
-    value   = "XS1_PORT_4C",
     enabled = swblock.params.combine_smi_ports,
   }
 }
@@ -65,3 +59,5 @@ generatedCode = {
 }
 
 api = {'smi_init','smi_reg','eth_phy_config','smi_check_link_state','smi_reg'}
+
+files = {["module_ethernet_smi/smi_conf_example.h"] = "src/smi_conf.h"}

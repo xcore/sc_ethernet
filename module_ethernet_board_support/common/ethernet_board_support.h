@@ -10,9 +10,6 @@
 
 #ifdef __ethernet_board_conf_h_exists__
 #include "ethernet_board_conf.h"
-#else
-#warning "Using ethernet_board_conf.h but TARGET is not set to a board that module_ethernet_board_support uses"
-#endif
 
 #include "ethernet_conf_derived.h"
 
@@ -84,5 +81,8 @@
 #endif
 
 
+#else
+#warning "Using ethernet_board_conf.h but TARGET is not set to a board that module_ethernet_board_support uses"
+#endif
 
 #endif // __ethernet_board_support_h__

@@ -6,10 +6,16 @@
             <keyword>concurrency</keyword>
             <keyword>synchronization</keyword>
         </component>
+        <component name = "Ethernet Board Support Definitions" type = "component" buildresults_path = "module_ethernet_board_support/.module_ethernet_board_support.buildinfo" scope = "General Use" path = "module_ethernet_board_support" metainfo_path = "module_ethernet_board_support/module_ethernet_board_support.metainfo" local = "false" id = "module_ethernet_board_support" description = "Ethernet configuration defines for XMOS development boards">
+            <keyword>ethernet</keyword>
+            <keyword>mii</keyword>
+            <keyword>mac</keyword>
+        </component>
         <component description = "A simple demo of using the low level ethernet module" type = "demoCode" scope = "Example" path = "app_ethernet_demo" local = "false" id = "app_ethernet_demo" name = "Low Level Ethernet Demo">
             <componentDependency>module_locks</componentDependency>
             <componentDependency>module_ethernet_smi</componentDependency>
             <componentDependency>module_ethernet</componentDependency>
+            <componentDependency>module_ethernet_board_support</componentDependency>
             <componentDependency>module_otp_board_info</componentDependency>
             <keyword>ethernet</keyword>
             <keyword>mac</keyword>
@@ -27,6 +33,7 @@ ethernet mac" type = "demoCode" scope = "Example" path = "app_ethernet_loopback"
             <componentDependency>module_locks</componentDependency>
             <componentDependency>module_ethernet_smi</componentDependency>
             <componentDependency>module_ethernet</componentDependency>
+            <componentDependency>module_ethernet_board_support</componentDependency>
             <componentDependency>module_otp_board_info</componentDependency>
             <keyword>ethernet</keyword>
             <keyword>mac</keyword>
@@ -82,7 +89,7 @@ ethernet mac" type = "demoCode" scope = "Example" path = "app_ethernet_loopback"
     <release parenthash = "7c15456233ff9be3b2f140bfa6d0c3a28858b64f" version = "2.2.0alpha11" githash = "bf6cdcff46b612e25dc0c13264cdb76b56924874"></release>
     <release parenthash = "bf6cdcff46b612e25dc0c13264cdb76b56924874" version = "2.2.0alpha12" githash = "c32177d0564e2153e9e54cb7905b2d8c2a475264"></release>
     <release parenthash = "fd78426b5cb674f2017a4ef1bd68676214bb032f" version = "2.2.0alpha13" githash = "ce916d0dd9b722416c1c95b30eff0bfdc750aa1a"></release>
-    <release parenthash = "ce916d0dd9b722416c1c95b30eff0bfdc750aa1a" version = "2.2.0alpha14"></release>
+    <release parenthash = "ce916d0dd9b722416c1c95b30eff0bfdc750aa1a" version = "2.2.0alpha14" githash = "bac76ccea4f57c8a4605f70065a74fe3be4e985d"></release>
     <subpartnumber>XM-001828-SM</subpartnumber>
     <vendor>XMOS</vendor>
     <xcore_repo>sc_ethernet.git</xcore_repo>
