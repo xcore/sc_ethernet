@@ -1,0 +1,26 @@
+-- -*- mode: lua -*-
+
+configPoints = {}
+
+derivedValues = {}
+
+function getConfigStatus()
+         return "Trusted", {};
+end
+
+ports = {}
+
+channels = {}
+
+generatedCode = {
+   includes = {"ethernet_board_support.h"},
+   globals  = [[
+// If you are using an XMOS development board you can use these
+// intializers for the ethernet component ports
+// smi_interface_t smi = ETHERNET_DEFAULT_SMI_INIT;
+// mii_interface_t mii = ETHERNET_DEFAULT_MII_INIT;
+// ethernet_reset_interface_t eth_rst = ETHERNET_DEFAULT_RESET_INTERFACE_INIT;
+               ]],
+   body = ""
+}
+

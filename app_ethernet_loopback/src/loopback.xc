@@ -9,11 +9,17 @@
 #include <stdlib.h>
 #include "otp_board_info.h"
 #include "ethernet.h"
+#include "ethernet_board_support.h"
 #include "frame_channel.h"
 #include "mac_custom_filter.h"
 #include <print.h>
 
 otp_ports_t otp_ports = OTP_PORTS_INITIALIZER;
+
+// Here are the port definitions required by ethernet
+// The intializers are taken from the ethernet_board_support.h header for
+// XMOS dev boards. If you are using a different board you will need to
+// supply explicit port structure intializers for these values
 smi_interface_t smi = ETHERNET_DEFAULT_SMI_INIT;
 mii_interface_t mii = ETHERNET_DEFAULT_MII_INIT;
 ethernet_reset_interface_t eth_rst = ETHERNET_DEFAULT_RESET_INTERFACE_INIT;
@@ -93,7 +99,7 @@ int main()
                         rx, 1,
                         tx, 1);
       }
-      on stdcore[3] : test(tx[0], rx[0]);
+      on tile[0] : test(tx[0], rx[0]);
     }
 
   return 0;

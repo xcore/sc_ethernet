@@ -5,9 +5,7 @@
 #include "ethernet_conf.h"
 #endif
 
-
 #define ETHERNET_DEFAULT_PHY_ADDRESS 0
-
 
 // This file will set the various port defines depending on which slot the
 // ethernet slice is connected to

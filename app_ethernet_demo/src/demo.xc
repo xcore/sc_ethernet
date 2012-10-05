@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include "otp_board_info.h"
 #include "ethernet.h"
+#include "ethernet_board_support.h"
 #include "checksum.h"
 #include "xscope.h"
 
@@ -44,6 +45,9 @@ void xscope_user_init(void) {
 otp_ports_t otp_ports = OTP_PORTS_INITIALIZER;
 
 // Here are the port definitions required by ethernet
+// The intializers are taken from the ethernet_board_support.h header for
+// XMOS dev boards. If you are using a different board you will need to
+// supply explicit port structure intializers for these values
 smi_interface_t smi = ETHERNET_DEFAULT_SMI_INIT;
 mii_interface_t mii = ETHERNET_DEFAULT_MII_INIT;
 ethernet_reset_interface_t eth_rst = ETHERNET_DEFAULT_RESET_INTERFACE_INIT;
