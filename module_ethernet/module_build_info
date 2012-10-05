@@ -11,7 +11,7 @@
 
 DEPENDENT_MODULES = module_ethernet_smi module_locks
 
-OPTIONAL_HEADERS += ethernet_conf.h xtcp_conf_derived.h mac_custom_filter.h
+OPTIONAL_HEADERS += ethernet_conf.h ethernet_board_conf.h xtcp_conf_derived.h mac_custom_filter.h
 
 MODULE_XCC_XC_FLAGS = $(XCC_FLAGS) -g -O3
 MODULE_XCC_C_FLAGS = $(XCC_FLAGS) -std=c99 -g -Os

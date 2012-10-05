@@ -6,7 +6,7 @@ Ethernet Board Support Definitions
 :keywords: ethernet, mii, mac
 
 This module contains a header file that defines port initializers and
-settings for the XMOS ethernet components for common XMOS development
+settings to use with XMOS ethernet components for common XMOS development
 boards. The supported boards in this module are:
 
    * sliceKIT Core Board (L2) + Ethernet Slice

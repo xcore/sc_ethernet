@@ -338,7 +338,7 @@ static void drain(chanend c) {
     chkct(c, 1);
 }
 
-void miiClose(chanend cNotifications, chanend cIn, chanend cOut) {
+void mii_close(chanend cNotifications, chanend cIn, chanend cOut) {
     asm("clrsr 2");        // disable interrupts
     drain(cNotifications); // disconnect channel to ourselves
 	outct(cOut, 1);        // disconnect channel to output - stops mii
