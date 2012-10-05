@@ -153,7 +153,7 @@ void miiNotify(struct miiData &this, chanend notificationChannel) {
     }
 }
 
-select miiNotified(struct miiData &this, chanend notificationChannel) {
+select mii_notified(struct miiData &this, chanend notificationChannel) {
 case inuchar_byref(notificationChannel, this.notifySeen):
     break;
 }

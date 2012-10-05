@@ -8,6 +8,7 @@
 #include <platform.h>
 #include <stdlib.h>
 #include "ethernet.h"
+#include "ethernet_board_support.h"
 #include "test_frame.h"
 #include "otp_board_info.h"
 

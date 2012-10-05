@@ -24,6 +24,13 @@ XCC_FLAGS = -report -g -Wno-timing
 
 USED_MODULES = module_ethernet module_locks
 
+# This change to the module path is so that this application can be in the
+# tests sub-directory in it's git repo
+ifeq ($(notdir $(abspath ..)),tests)
+PATHSEP = $(if $(findstring Windows, $(OS))$(findstring WINDOWS,$(OS)),;,:)
+XMOS_MODULE_PATH := $(XMOS_MODULE_PATH)$(PATHSEP)../../..
+endif
+
 
 #=============================================================================
 # The following part of the Makefile includes the common build infrastructure

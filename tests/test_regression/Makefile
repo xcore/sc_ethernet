@@ -23,7 +23,7 @@ XCC_FLAGS = -report -g -DMAC_CUSTOM_FILTER
 # The USED_MODULES variable lists other module used by the application. 
 
 
-USED_MODULES = module_ethernet module_otp_board_info
+USED_MODULES = module_ethernet module_ethernet_board_support module_otp_board_info
 
 # This change to the module path is so that this application can be in the
 # tests sub-directory in it's git repo

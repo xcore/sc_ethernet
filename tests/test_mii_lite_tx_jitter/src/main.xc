@@ -12,10 +12,9 @@
 #include <stdlib.h>
 #include <xscope.h>
 
-#include "miiClient.h"
-#include "miiDriver.h"
+#include "mii_client.h"
+#include "mii_driver.h"
 #include "smi.h"
-
 
 on stdcore[0]: mii_interface_t mii =
   {
@@ -60,11 +59,11 @@ void test(chanend cIn, chanend cOut, chanend cNotifications) {
     struct miiData miiData;
 	unsigned size=64;
     
-    miiBufferInit(miiData, cIn, cNotifications, b, 3200);
-    miiOutInit(cOut);
+    mii_buffer_init(miiData, cIn, cNotifications, b, 3200);
+    mii_out_init(cOut);
     
     // Send packet 1
-    miiOutPacket(cOut, (packet, int[]), 0, 64);
+    mii_out_packet(cOut, (packet, int[]), 0, 64);
 
     while (1) {
         select {
@@ -73,18 +72,18 @@ void test(chanend cIn, chanend cOut, chanend cNotifications) {
         case inuchar_byref(cNotifications, miiData.notifySeen): {
 			unsigned address, length, timeStamp;
 			do {
-				{address,length,timeStamp} = miiGetInBuffer(miiData);
+				{address,length,timeStamp} = mii_get_in_buffer(miiData);
 				if (address != 0) {
-					miiFreeInBuffer(miiData, address);
-					miiRestartBuffer(miiData);
+					mii_free_in_buffer(miiData, address);
+					mii_restart_buffer(miiData);
 				}
 			} while (address!=0);
 		}
 		break;
 
         // Transmit a packet
-        case miiOutPacketDone(cOut) : {
-        	unsigned t = miiOutPacket(cOut, (packet, int[]), 0, size);
+        case mii_out_packet_done(cOut) : {
+        	unsigned t = mii_out_packet(cOut, (packet, int[]), 0, size);
         	xscope_probe_data(0, t);
         	size += 1;
         	if (size > 1500) size=64;
@@ -113,13 +112,13 @@ int main() {
 
                 // Start server
                 {
-                	miiInitialise(null, mii);
+                	mii_initialise(null, mii);
 
 #ifndef MII_NO_SMI_CONFIG
                     smi_port_init(clk_smi, smi);
                     eth_phy_config(1, smi);
 #endif
-                	miiDriver(mii, cIn, cOut);
+                    mii_driver(mii, cIn, cOut);
                 }
         }
 

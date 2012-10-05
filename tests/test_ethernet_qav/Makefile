@@ -22,8 +22,14 @@ XCC_FLAGS = -report -g -DMAC_CUSTOM_FILTER -save-temps -fcomment-asm
 
 # The USED_MODULES variable lists other module used by the application. 
 
-USED_MODULES = module_ethernet module_locks
+USED_MODULES = module_ethernet module_ethernet_board_support module_otp_board_info
 
+# This change to the module path is so that this application can be in the
+# tests sub-directory in it's git repo
+ifeq ($(notdir $(abspath ..)),tests)
+PATHSEP = $(if $(findstring Windows, $(OS))$(findstring WINDOWS,$(OS)),;,:)
+XMOS_MODULE_PATH := $(XMOS_MODULE_PATH)$(PATHSEP)../../..
+endif
 
 #=============================================================================
 # The following part of the Makefile includes the common build infrastructure

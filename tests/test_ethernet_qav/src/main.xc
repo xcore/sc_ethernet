@@ -7,12 +7,10 @@
 #include <print.h>
 #include <platform.h>
 #include <stdlib.h>
-#include "ethernet_server.h"
-#include "ethernet_rx_client.h"
-#include "ethernet_tx_client.h"
+#include "ethernet.h"
+#include "ethernet_board_support.h"
+#include "otp_board_info.h"
 #include "test_frame.h"
-#include "getmac.h"
-#include "eth_phy.h"
 
 #define RUNTEST(name, x) printstrln("*************************** " name " ***************************"); \
 							  printstrln( (x) ? "PASSED" : "FAILED" )
@@ -27,45 +25,16 @@
 #define BUFFER_TEST_BUFSIZE NUM_MII_RX_BUF - 1
 
 //***** Ethernet Configuration ****
-// OTP Core
-#ifndef ETHERNET_CORE
-  #define ETHERNET_CORE 1
-#endif
+// These ports are for accessing the OTP memory
+otp_ports_t otp_ports = OTP_PORTS_INITIALIZER;
 
-// OTP Ports
-on stdcore[ETHERNET_CORE]: port otp_data = XS1_PORT_32B; 		// OTP_DATA_PORT
-on stdcore[ETHERNET_CORE]: out port otp_addr = XS1_PORT_16C;	// OTP_ADDR_PORT
-on stdcore[ETHERNET_CORE]: port otp_ctrl = XS1_PORT_16D;		// OTP_CTRL_PORT
-
-mii_interface_t mii =
-  on stdcore[ETHERNET_CORE]:
-  {
-    XS1_CLKBLK_1,
-    XS1_CLKBLK_2,
-
-    PORT_ETH_RXCLK,
-    PORT_ETH_RXER,
-    PORT_ETH_RXD,
-    PORT_ETH_RXDV,
-
-    PORT_ETH_TXCLK,
-    PORT_ETH_TXEN,
-    PORT_ETH_TXD,
-  };
-
-
-#ifdef PORT_ETH_RSTN
-#define PORT_ETH_RST_N PORT_ETH_RSTN
-#endif
-
-#ifdef PORT_ETH_RST_N
-on stdcore[ETHERNET_CORE]: out port p_mii_resetn = PORT_ETH_RST_N;
-on stdcore[ETHERNET_CORE]: smi_interface_t smi = { PORT_ETH_MDIO, PORT_ETH_MDC, 0 };
-#else
-on stdcore[ETHERNET_CORE]: smi_interface_t smi = { PORT_ETH_RST_N_MDIO, PORT_ETH_MDC, 1 };
-#endif
-
-on stdcore[ETHERNET_CORE]: clock clk_smi = XS1_CLKBLK_5;
+// Here are the port definitions required by ethernet
+// The intializers are taken from the ethernet_board_support.h header for
+// XMOS dev boards. If you are using a different board you will need to
+// supply explicit port structure intializers for these values
+smi_interface_t smi = ETHERNET_DEFAULT_SMI_INIT;
+mii_interface_t mii = ETHERNET_DEFAULT_MII_INIT;
+ethernet_reset_interface_t eth_rst = ETHERNET_DEFAULT_RESET_INTERFACE_INIT;
 
 void wait(int ticks)
 {
@@ -230,28 +199,23 @@ int main()
 
   par
   {
-      on stdcore[ETHERNET_CORE]:
+
+      //::ethernet
+      on ETHERNET_DEFAULT_TILE:
       {
-        int mac_address[2];
-        ethernet_getmac_otp(otp_data, otp_addr, otp_ctrl, (mac_address, char[]));
-        phy_init(clk_smi,
-#ifdef PORT_ETH_RST_N
-               p_mii_resetn,
-#else
-               null,
-#endif
-                 smi,
-                 mii);
-        eth_phy_loopback(1, smi);
-        ethernet_server(mii, mac_address,
-                        rx, MAX_LINKS,
-                        tx, MAX_LINKS,
+        char mac_address[6];
+        otp_board_info_get_mac(otp_ports, 0, mac_address);
+        eth_phy_reset(eth_rst);
+        smi_init(smi);
+        eth_phy_config(1, smi);
+        ethernet_server(mii,
                         null,
-                        null);
-
+                        mac_address,
+                        rx, 1,
+                        tx, 1);
       }
-
-      on stdcore[0]: runtests(tx, rx, MAX_LINKS);
+      //::
+      on tile[0]: runtests(tx, rx, MAX_LINKS);
     }
 
   return 0;

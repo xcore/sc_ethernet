@@ -10,10 +10,8 @@
 #include <platform.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "miiDriver.h"
-#include "miiClient.h"
-
-
+#include "mii_driver.h"
+#include "mii_client.h"
 
 #define PORT_ETH_RXCLK   XS1_PORT_1K
 #define PORT_ETH_RXD     XS1_PORT_4F
@@ -24,7 +22,7 @@
 #define PORT_ETH_RXER    XS1_PORT_1L
 #define PORT_ETH_FAKE    XS1_PORT_8C
 
-on stdcore[0]: mii_interface_t mii =
+on stdcore[0]: mii_interface_lite_t mii =
   {
     XS1_CLKBLK_1,
     XS1_CLKBLK_2,
@@ -57,15 +55,15 @@ void emptyIn(chanend cIn, chanend cNotifications) {
     int address = 0x1C000;
     struct miiData miiData;
 
-    miiBufferInit(miiData, cIn, cNotifications, b, 1600);
+    mii_buffer_init(miiData, cIn, cNotifications, b, 1600);
     asm("stw %0, %1[0]" :: "r" (b), "r" (address));
 
     while (1) {
 
         int nBytes, a, timeStamp;
-        miiNotified(miiData, cNotifications);
+        mii_notified(miiData, cNotifications);
         while(1) {
-            {a,nBytes,timeStamp} = miiGetInBuffer(miiData);
+            {a,nBytes,timeStamp} = mii_get_in_buffer(miiData);
 
             if (a == 0) {
                 break;
@@ -73,9 +71,9 @@ void emptyIn(chanend cIn, chanend cNotifications) {
             asm("stw %0, %1[1]" :: "r" (a), "r" (address));
             asm("stw %0, %1[2]" :: "r" (nBytes), "r" (address));
             asm("stw %0, %1[6]" :: "r" (timeStamp), "r" (address));
-            miiFreeInBuffer(miiData, a);
+            mii_free_in_buffer(miiData, a);
         }
-        miiRestartBuffer(miiData);
+        mii_restart_buffer(miiData);
     } 
 }
 
@@ -93,14 +91,14 @@ void emptyOut(chanend cOut) {
     for(int i = 0; i < 72; i++) {
         (txbuf, unsigned char[])[i] = i;
     }
-    miiOutInit(cOut);
+    mii_out_init(cOut);
     
     t :> now;
     while (1) {
         p1k when pinsneq(0) :> void;
         txbuf[0] = k;
-        k = miiOutPacket(cOut, (txbuf,int[]), 0, packetLen);
-        miiOutPacketDone(cOut);
+        k = mii_out_packet(cOut, (txbuf,int[]), 0, packetLen);
+        mii_out_packet_done(cOut);
     } 
 }
 
@@ -119,8 +117,8 @@ void regression(void) {
     chan notifications;
     par {
         {
-        	miiInitialise(null, mii);
-        	miiDriver(mii, cIn, cOut);
+        	mii_initialise(null, mii);
+        	mii_driver(mii, cIn, cOut);
         }
         {x(); emptyIn(cIn, notifications);}
         {x(); emptyOut(cOut);}
