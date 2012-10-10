@@ -1,10 +1,10 @@
 #ifndef __phy_reset_h__
 #define __phy_reset_h__
 #include "platform.h"
-#include "ethernet_conf_derived.h"
 #ifdef __ethernet_board_conf_h_exists__
 #include "ethernet_board_conf.h"
 #endif
+#include "ethernet_conf_derived.h"
 
 #if !defined(PORT_ETH_RST_N) && defined(PORT_ETH_RSTN)
 #define PORT_ETH_RST_N PORT_ETH_RSTN

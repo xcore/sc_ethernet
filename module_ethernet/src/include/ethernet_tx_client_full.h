@@ -78,9 +78,9 @@ void mac_tx_offset2(chanend c_mac, unsigned int buffer[], int nbytes, int ifnum)
  *  NOTE: This function will block until the packet is sent to PHY.
  */
 #ifdef __XC__ 
-void mac_tx_timed_full(chanend c_mac, unsigned int buffer[], int nbytes, unsigned int &time, int ifnum);
+void mac_tx_timed(chanend c_mac, unsigned int buffer[], int nbytes, unsigned int &time, int ifnum);
 #else
-void mac_tx_timed_full(chanend c_mac, unsigned int buffer[], int nbytes, unsigned int *time, int ifnum);
+void mac_tx_timed(chanend c_mac, unsigned int buffer[], int nbytes, unsigned int *time, int ifnum);
 #endif
 
 #ifndef mac_tx_timed_full

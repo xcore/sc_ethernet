@@ -13,6 +13,10 @@
 #include "ethernet_conf_derived.h"
 #endif
 
+#ifdef __ethernet_board_conf_h_exists__
+#include "ethernet_board_conf.h"
+#endif
+
 #ifdef __smi_conf_h_exists__
 #include "smi_conf.h"
 #endif
@@ -29,17 +33,12 @@
  * interface is connected using two 1-bit port, the other indicates that
  * the interface is connected using a single multi-bit port.
  *
- * If used with two 1-bit ports, set the ``phy_address``, ``p_smi_mdio_``
+ * If used with two 1-bit ports, set the ``phy_address``, ``p_smi_mdio``
  * and ``p_smi_mdc`` as normal.
  *
- * If used with a single multi-bit port, then you must set bit 31 of
- * phy_address to 1 to indicate that this is a shared MDIO and MDC port.
- * MDIO port should be set to an unused port, MDC port should be
- * set to the shared port.
+ * If SMI_COMBINE_MDC_MDIO is 1 then ``p_smi_mdio`` is ommited and ``p_mdc`` is
+ * assumbed to multibit port containing both mdio and mdc.
  *
- * The code to deal with a single multi-bit port is not included by
- * default. To include it you must define SMI_MDC_BIT and SMI_MDIO_BIT, and
- * they should be set to the pin numbers (0..31) in the multi-bit port.
  */
 typedef struct smi_interface_t {
     int phy_address;           /**< Address of PHY, typically 0 or 0x1F. */

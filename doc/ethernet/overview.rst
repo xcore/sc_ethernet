@@ -1,28 +1,19 @@
-Ethernet Overview
-=================
+Ethernet Layer 2 MAC Overview
+=============================
 
-Two independent ethernet components are available in this repository.
+The layer 2 MAC component implements a layer 2 ethernet MAC. It
+provides both MII communication to the PHY and MAC transport layer for
+ethernet packets and enables several clients to connect
+to it and send and receive
+packets.
 
-The first implementation runs in 5 threads that provides both MII
-communication to the PHY and MAC transport layer for ethernet packets.
-It enables several clients to connet to it and send and receive
-packets. The custom filter mechanism lets user place code into the
-MAC to filter out and distribute packets in arbitrary ways. In addition
-the MII layer will accurately timestamp packets on ingress and egress
-and pass this information through the MAC to the ethernet client.
-
-The code supports one or two PHY devices, both connected to the same
-xcore.
-
-The second implementation run in one thread, plus an interrupt handler
-which runs in the context of a second thread.  It is lightweight, and
-leaves the transmit buffering up to the client.  It also supports
-timestamping of both received and transmitted packets.  This implementation
-will only run when the MII thread has 62.5 MIPS of available processing
-capacity.
-
-A server is available which adds a second thread to the one thread
-implementation, making the interface similar to the 5 thread implementation.
+Two independent implementations are available. The FULL implementation
+runs on 5 logical cores, allows multiple clients with
+independent buffering per client and supports accurate packet
+timestamping, priority
+queuing, and 802.1Qav traffic shaping. The LITE implementation runs on two
+logical cores but is resricted to a single receive and trasnmit client
+and does not support any advanced features.
 
 Component Summary
 +++++++++++++++++
@@ -57,7 +48,7 @@ Component Summary
  |                       **Requirements**                            |
  +-------------------------------------------------------------------+
  +-------------------------------+-----------------------------------+
- | XMOS Desktop Tools            | v10.4 or later                    |  
+ | XMOS Desktop Tools            | v12.0 or later                    |
  +-------------------------------+-----------------------------------+
  | Ethernet                      | MII compatible 100Mbit PHY        |
  +-------------------------------+-----------------------------------+

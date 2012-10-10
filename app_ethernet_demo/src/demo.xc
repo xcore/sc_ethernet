@@ -32,6 +32,7 @@
 // the build flags in the Makefile
 #define USE_XSCOPE 1
 
+
 #if USE_XSCOPE
 void xscope_user_init(void) {
   xscope_register(0);

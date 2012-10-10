@@ -1,6 +1,6 @@
 SPHINX_PROJECT_NAME=Ethernet Component
 VERSION=1v4
-DOXYGEN_DIRS=../../sc_ethernet/module_ethernet ../../sc_ethernet/module_mii_singlethread
+DOXYGEN_DIRS=../../module_ethernet ../../module_ethernet_smi
 SOURCE_INCLUDE_DIRS=../../sc_ethernet
-XDOC_DIR ?= ../../xdoc
+XDOC_DIR ?= ../../../xdoc
 include $(XDOC_DIR)/Makefile.inc

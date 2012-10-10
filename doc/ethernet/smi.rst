@@ -1,18 +1,25 @@
-module_ethernet_smi API
-=======================
+SMI Component API
+=================
 
-This module is written to support SMI independently of the MII interface.
+The module ``module_ethernet_smi``
+is written to support SMI independently of the MII interface.
 Typically, Ethernet PHYs are configured on reset automatically, but the SMI
 interface may be useful for setting and testing register values
 dynamically. 
 
-There are two ways to interface SMI: using a pair of 1-bit ports, or using
+There are two ways to interface SMI:
+using a pair of 1-bit ports, or using
 a single multi-bit port.
 
 Configuration Defines
 ---------------------
+These defines can either be set in ``ethernet_conf.h`` or
+``smi_conf.h`` from within your application directory.
 
-Two defines can be defined on the command line:
+**SMI_COMBINE_MDC_MDIO**
+
+    This define should be set to 1 if you want to combine MDC and MDIO
+    onto a single bit port.
 
 **SMI_MDC_BIT**
 
@@ -34,7 +41,7 @@ Data Structures
 Phy API
 -------
 
-.. doxygenfunction:: smiInit
+.. doxygenfunction:: smi_init
 
 .. doxygenfunction:: eth_phy_config
 
@@ -44,7 +51,6 @@ Phy API
 
 .. doxygenfunction:: eth_phy_id
 
-.. doxygenfunction:: smiCheckLinkState
+.. doxygenfunction:: smi_check_link_state
 
-.. doxygenfunction:: smi_reg
 

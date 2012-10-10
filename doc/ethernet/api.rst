@@ -5,11 +5,20 @@ Ethernet API
 
 .. _sec_conf_defines:
 
-Configuration Defines for 5 thread ethernet
--------------------------------------------
+Configuration Defines
+---------------------
 
-The file ethernet_conf.h must be provided in the application source
+The file ``ethernet_conf.h`` may be provided in the application source
 code. This file can set the following defines:
+
+**ETHERNET_DEFAULT_IMPLEMENTATION**
+
+   This define can be set to ``full`` or ``lite`` and determines which
+   implementation is chosen by default when the application makes
+   calls to ``ethernet_server`` etc.
+
+Configuration Defines for FULL implementation
+---------------------------------------------
 
 **MAX_ETHERNET_PACKET_SIZE**
 
@@ -94,36 +103,14 @@ code. This file can set the following defines:
     will be automatically filled in with the MAC address passed
     to the port during initialization.
 
-**DISABLE_ETHERNET_PORT_FORWARDING**
-
-    By defining this preprocessor symbol, the forwarding of packets
-    between ports, when there are multiple ports, is disabled.  Traffic
-    is only forwarded to the clients.
-
-
-Configuration defines for single threaded MII
+Configuration defines for LITE implementation
 ---------------------------------------------
-
-**MII_NO_RESET**
-
-    By defining this symbol, the code for resetting the p_mii_resetn
-    port of the :c:func:`miiInitialise` function is removed, saving
-    approximatly 50 bytes of program memory.  If the application passes
-    *null* into the *p_mii_resetn* parameter, then the designer should
-    consider adding this to *ethernet_conf.h*.
-    
-**MII_NO_SMI_CONFIG**
-
-    Defining this will remove the configuration of the SMI registers.
-    The SMI ports will still be configured, so that subsequent SMI operations
-    will succeed.  The code to check for the SMI PHY ID, and set up
-    auto-negotiation of link speed will be removed.  This saves
-    approximately 200 bytes of program memory.
 
 Custom Filter Function
 ----------------------
 
-Every application is required to provide this function. It also needs
+For the FULL implementation, every application is required to
+provide this function. It also needs
 to be prototyped (or defined as an inline definition) in the header
 file ``mac_custom_filter.h``.
 
@@ -145,39 +132,23 @@ file ``mac_custom_filter.h``.
              bit per unique client destination for the packet.
            
 
-
 Data Structures
 ---------------
 
-.. doxygenstruct:: mii_interface_t
+Depending on the implementation you must supply a different port
+structure. The type ``mii_interface_t`` will be set to one of this
+structures depending on the ``ETHERNET_DEFAULT_IMPLEMENTATION`` define.
+
+.. doxygenstruct:: mii_interface_full_t
+
+.. doxygenstruct:: mii_interface_lite_t
 
 
-.. doxygenstruct:: smi_interface_t
-
-
-OTP MAC Address Reading
------------------------
-
-.. doxygenfunction:: ethernet_getmac_otp
-
-.. doxygenfunction:: ethernet_getmac_otp_indexed
-
-.. doxygenfunction:: ethernet_getmac_otp_count
-
-Ethernet Phy API
-----------------
-
-.. doxygenfunction:: phy_init
-
-.. doxygenfunction:: phy_init_two_port
 
 MAC Server API
 --------------
 
 .. doxygenfunction:: ethernet_server
-
-.. doxygenfunction:: ethernet_server_two_port
-
 
 RX Client API
 -------------

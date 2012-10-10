@@ -26,7 +26,8 @@ which compiles all the source files in the application and the modules
 that the application uses. We only have to add a couple of
 configuration options.
 
-Firstly, this application is for an XC-2 development board so the
+Firstly, this application is for an sliceKIT Core Board
+(the SLICEKIT-L2 target) so the
 TARGET variable needs to be set in the Makefile.
  
 ::
@@ -35,7 +36,7 @@ TARGET variable needs to be set in the Makefile.
   # compiled for. It either refers to an XN file in the source directories
   # or a valid argument for the --target option when compiling.
 
-  TARGET = XC-2
+  TARGET = SLICEKIT-L2
 
 Secondly, the application will use the ethernet module (and the locks
 module which is required by the ethernet module). So we state that the
@@ -45,7 +46,8 @@ application uses these.
 
   # The USED_MODULES variable lists other module used by the application. 
 
-  USED_MODULES = module_ethernet module_locks
+  USED_MODULES = module_ethernet module_ethernet_board_support \
+                 module_otp_board_info module_slicekit_support
 
 Given this information, the common Makefiles will build all the files
 in the required modules when building the application. This works from
@@ -70,6 +72,8 @@ this example).
 
 .. literalinclude:: app_ethernet_demo/src/ethernet_conf.h
 
+This application has two build configurations - one for the full
+implementation and on for the lite.
 
 mac_custom_filter
 +++++++++++++++++
@@ -111,8 +115,12 @@ file is the main() function which declares some variables (primarily
 XC channels). It also contains a top level par construct which sets
 the various functional units running that make up the program.
 
-On core 2 we run the ethernet server. First, the function :c:func:`ethernet_getmac_otp` reads the device mac address from ROM. The
-function :c:func:`phy_init` initializes the phy and them the main function
+We run the ethernet server (this is set to
+on the tile ``ETHERNET_DEFAULT_TILE`` which is supplied by the board support
+module). 
+First, the function :c:func:`otp_board_info_get_mac` reads the device mac address from ROM. The
+functions :c:func:`eht_phy_reset`, :c:func:`smi_config` and
+:c:func:`eth_phy_config` initializes the phy and them the main function
 :c:func:`ethernet_server` runs the ethernet component. The server
 communicates with other threads via the rx and tx channel arrays.
 
@@ -120,7 +128,7 @@ communicates with other threads via the rx and tx channel arrays.
   :start-after: //::ethernet
   :end-before: //::
 
-On core 0 we run the demo() function which takes ethernet packets and
+On tile 0 we run the demo() function as a task which takes ethernet packets and
 responds to ICMP ping requests. This function is described in the next section.
 
 .. literalinclude:: app_ethernet_demo/src/demo.xc 
@@ -132,8 +140,8 @@ Ethernet packet processing
 ++++++++++++++++++++++++++
 
 The demo() function does the actual ethernet packet processing. First
-the application gets the device mac address from the ethernet server
-on core 2.
+the application gets the device mac address from the ethernet server.
+
 
 .. literalinclude:: app_ethernet_demo/src/demo.xc
    :start-after: //::get-macaddr
@@ -154,6 +162,10 @@ custom_mac_filter function will get passed to this client.
    :start-after: //::setup-filter
    :end-before: //::
 
+Note that this is only for the configuration that uses the FULL
+configuration. If we are using the LITE configuration the filtering is
+done after the client recieved the packet later on.
+
 After we are set up to receive the correct packets we can go into the
 main loop that responds to ARP and ICMP packets.
 
@@ -163,6 +175,8 @@ buffer using the :c:func:`mac_rx` function.
 .. literalinclude:: app_ethernet_demo/src/demo.xc
    :start-after: //::mainloop
    :end-before: //::
+
+Here we can see the filtering that needs to be done for the LITE configuration.
 
 When the packet is received it may be an ARP or IP packet since both
 get past our filter. First we check if it is an ARP packet, if so then

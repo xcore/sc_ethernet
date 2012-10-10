@@ -16,7 +16,7 @@
  *
  *  \sa ethernet_server()
  **/
-typedef struct mii_interface_full_s {
+typedef struct mii_interface_full_t {
     clock clk_mii_rx;            /**< MII RX Clock Block **/
     clock clk_mii_tx;            /**< MII TX Clock Block **/
     
@@ -30,7 +30,7 @@ typedef struct mii_interface_full_s {
     out buffered port:32 p_mii_txd; /**< MII TX data wire */
 } mii_interface_full_t;
 
-typedef struct mii_interface_lite_s {
+typedef struct mii_interface_lite_t {
     clock clk_mii_rx;            /**< MII RX Clock Block **/
     clock clk_mii_tx;            /**< MII TX Clock Block **/
     

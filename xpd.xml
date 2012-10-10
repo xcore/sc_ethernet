@@ -49,7 +49,7 @@ ethernet mac" type = "demoCode" scope = "Example" path = "app_ethernet_loopback"
         <uri>git@github.com:xcore/sc_otp</uri>
     </dependency>
     <description>A complete Ethernet MII and MAC interface for 100MBps Ethernet</description>
-    <docdir>doc</docdir>
+    <docdir>doc/ethernet</docdir>
     <exclude_dir>test_buffering</exclude_dir>
     <exclude_dir>test_ethernet_qav</exclude_dir>
     <exclude_dir>test_mii_singlethread</exclude_dir>
