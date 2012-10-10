@@ -355,7 +355,6 @@ void mii_transmit_packet(unsigned buf, out buffered port:32 p_mii_txd, timer tmr
 
 #pragma xta endpoint "mii_tx_sof"
 	p_mii_txd <: 0x55555555;
-	p_mii_txd <: 0x55555555;
 	p_mii_txd <: 0xD5555555;
 
 #ifndef TX_TIMESTAMP_END_OF_PACKET
