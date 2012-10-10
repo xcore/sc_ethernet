@@ -20,9 +20,6 @@
 
 #define ETH_BROADCAST (-1)
 
-#define ETH_LINK_IS_DOWN  (0)
-#define ETH_LINK_IS_UP    (1)
-
 /** Sends an ethernet frame. Frame includes dest/src MAC address(s), type
  *  and payload.
  *
