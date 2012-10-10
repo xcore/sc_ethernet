@@ -80,10 +80,6 @@ void mac_tx_timed(chanend c_mac, unsigned int buffer[], int nbytes, unsigned int
 void mac_tx_timed(chanend c_mac, unsigned int buffer[], int nbytes, unsigned int *time, int ifnum);
 #endif
 
-#ifndef mac_tx_timed_full
-#define mac_tx_timed mac_tx_timed_full
-#endif
-
 /** Get the device MAC address.
  *
  *  This function gets the MAC address of the device (the address passed
