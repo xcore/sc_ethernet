@@ -11,8 +11,8 @@
 #include <platform.h>
 #include <stdlib.h>
 #include "smi.h"
-#include "miiClient.h"
-#include "miiDriver.h"
+#include "mii_client.h"
+#include "mii_driver.h"
 
 
 on stdcore[1]: mii_interface_t mii =
@@ -21,7 +21,7 @@ on stdcore[1]: mii_interface_t mii =
     XS1_CLKBLK_2,
 
     PORT_ETH_RXCLK,
-    PORT_ETH_RXER,
+    PORT_ETH_ERR,
     PORT_ETH_RXD,
     PORT_ETH_RXDV,
 
@@ -40,12 +40,6 @@ on stdcore[1]: smi_interface_t smi = { 0, PORT_ETH_MDIO, PORT_ETH_MDC };
 #endif
 
 on stdcore[1]: clock clk_smi = XS1_CLKBLK_5;
-
-//***** Ethernet Configuration ****
-
-//on stdcore[2]: clock clk_mii_ref = XS1_CLKBLK_REF;
-
-
 
 // NOTE: YOU MAY NEED TO REDEFINE THIS TO AN IP ADDRESS THAT WORKS
 // FOR YOUR NETWORK
@@ -253,7 +247,7 @@ int is_valid_icmp_packet(const unsigned char rxbuf[], int nbytes)
   return 1;
 }
 
-void handlePacket(chanend cOut, int a, int nBytes) {
+void handle_packet(chanend cOut, int a, int nBytes) {
     unsigned char own_mac_addr[6] = {0,0,12,13,14,15};
     int txbuf[400];
     unsigned char rxbuf[1600];
@@ -265,40 +259,40 @@ void handlePacket(chanend cOut, int a, int nBytes) {
     }
     if (is_valid_arp_packet(rxbuf, nBytes)) {
         nBytes = build_arp_response(rxbuf, txbuf, own_mac_addr);
-        miiOutPacket(cOut, txbuf, 0, nBytes);
-        miiOutPacketDone(cOut);
+        mii_out_packet(cOut, txbuf, 0, nBytes);
+        mii_out_packet_done(cOut);
     } else if (is_valid_icmp_packet(rxbuf, nBytes)) {
         nBytes = build_icmp_response(rxbuf, (txbuf, unsigned char[]), own_mac_addr);
-        miiOutPacket(cOut, txbuf, 0, nBytes);
-        miiOutPacketDone(cOut);
+        mii_out_packet(cOut, txbuf, 0, nBytes);
+        mii_out_packet_done(cOut);
     } else {
         //printf("Received %d bytes %x\n", nBytes, (rxbuf, int[])[0]);
     }
 }
 
-void pingDemo(chanend cIn, chanend cOut, chanend cNotifications) {
+void ping_demo(chanend cIn, chanend cOut, chanend cNotifications) {
     int b[3200];
     struct miiData miiData;
     
     printstr("Test started\n");
-    miiBufferInit(miiData, cIn, cNotifications, b, 3200);
+    mii_buffer_init(miiData, cIn, cNotifications, b, 3200);
     printstr("IN Inited\n");
-    miiOutInit(cOut);
+    mii_out_init(cOut);
     printstr("OUT inited\n");
     
     while (1) {
         int nBytes, a, timeStamp;
-        miiNotified(miiData, cNotifications);
+        mii_notified(miiData, cNotifications);
         while(1) {
-            {a,nBytes,timeStamp} = miiGetInBuffer(miiData);
+            {a,nBytes,timeStamp} = mii_get_in_buffer(miiData);
 
             if (a == 0) {
                 break;
             }
-            handlePacket(cOut, a, nBytes);
-            miiFreeInBuffer(miiData, a);
+            handle_packet(cOut, a, nBytes);
+            mii_free_in_buffer(miiData, a);
         }
-        miiRestartBuffer(miiData);
+        mii_restart_buffer(miiData);
     } 
 }
 
@@ -322,17 +316,17 @@ void burn() {
 }
 
 
-void packetResponse(void) {
+void packet_response(void) {
     chan cIn, cOut;
     chan notifications;
     par {
         {
-        	miiInitialise(null, mii);
+        	mii_initialise(null, mii);
             smi_port_init(clk_smi, smi);
             eth_phy_config(1, smi);
-        	miiDriver(mii, cIn, cOut);
+        	mii_driver(mii, cIn, cOut);
         }
-        {x(); pingDemo(cIn, cOut, notifications);}
+        {x(); ping_demo(cIn, cOut, notifications);}
         {burn();}
         {burn();}
         {burn();}
@@ -343,21 +337,9 @@ void packetResponse(void) {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 int main() {
     par {
-        on stdcore[1]: {packetResponse();}
+        on stdcore[1]: {packet_response();}
     }
 	return 0;
 }
