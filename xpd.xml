@@ -12,11 +12,12 @@
             <keyword>mac</keyword>
         </component>
         <component description = "A simple demo of using the low level ethernet module" type = "demoCode" scope = "Example" path = "app_ethernet_demo" local = "false" id = "app_ethernet_demo" name = "Low Level Ethernet Demo">
-            <componentDependency>module_locks</componentDependency>
-            <componentDependency>module_ethernet_smi</componentDependency>
             <componentDependency>module_ethernet</componentDependency>
             <componentDependency>module_ethernet_board_support</componentDependency>
             <componentDependency>module_otp_board_info</componentDependency>
+            <componentDependency>module_ethernet_smi</componentDependency>
+            <componentDependency>module_slicekit_support</componentDependency>
+            <componentDependency>module_locks</componentDependency>
             <keyword>ethernet</keyword>
             <keyword>mac</keyword>
             <keyword>mii</keyword>
@@ -45,8 +46,13 @@ ethernet mac" type = "demoCode" scope = "Example" path = "app_ethernet_loopback"
         </component>
     </components>
     <dependency repo = "sc_otp">
-        <githash>2dc4b25aceaf52d61b8bb41575a53c399043413e</githash>
+        <githash>c58cd84295fdbdd72a970417bb4cc54342a9d71c</githash>
         <uri>git@github.com:xcore/sc_otp</uri>
+        <version>1.0.0alpha0</version>
+    </dependency>
+    <dependency repo = "sc_util">
+        <githash>afbba103d8b5ed3378eaa3832b8f694dec2844bc</githash>
+        <uri>git@github.com:xcore/sc_util</uri>
     </dependency>
     <description>A complete Ethernet MII and MAC interface for 100MBps Ethernet</description>
     <docdir>doc/ethernet</docdir>
@@ -90,6 +96,7 @@ ethernet mac" type = "demoCode" scope = "Example" path = "app_ethernet_loopback"
     <release parenthash = "bf6cdcff46b612e25dc0c13264cdb76b56924874" version = "2.2.0alpha12" githash = "c32177d0564e2153e9e54cb7905b2d8c2a475264"></release>
     <release parenthash = "fd78426b5cb674f2017a4ef1bd68676214bb032f" version = "2.2.0alpha13" githash = "ce916d0dd9b722416c1c95b30eff0bfdc750aa1a"></release>
     <release parenthash = "ce916d0dd9b722416c1c95b30eff0bfdc750aa1a" version = "2.2.0alpha14" githash = "bac76ccea4f57c8a4605f70065a74fe3be4e985d"></release>
+    <release parenthash = "c493f197390356c78af7752c5330a193b5a1d51b" version = "2.2.0alpha15"></release>
     <subpartnumber>XM-001828-SM</subpartnumber>
     <vendor>XMOS</vendor>
     <xcore_repo>sc_ethernet.git</xcore_repo>
