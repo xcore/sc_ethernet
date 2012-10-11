@@ -36,7 +36,7 @@ int mac_custom_filter_coerce(int);
 #define is_broadcast(buf) (mii_packet_get_data(buf,0) & 0x1)
 #define compare_mac(buf,mac) (mii_packet_get_data(buf,0) == mac[0] && ((short) mii_packet_get_data(buf,1)) == ((short) mac[1]))
 
-#ifdef ETHERNET_COUNT_PACKETS
+#if ETHERNET_COUNT_PACKETS
 static unsigned ethernet_filtered_by_address=0;
 static unsigned ethernet_filtered_by_user_filter=0;
 static unsigned ethernet_filtered_by_length=0;
@@ -71,7 +71,7 @@ void ethernet_filter(const char mac_address[], streaming chanend c[NUM_ETHERNET_
 				{
 					int length = mii_packet_get_length(buf);
 
-#ifdef ETHERNET_RX_CRC_ERROR_CHECK
+#if ETHERNET_RX_CRC_ERROR_CHECK
 					unsigned poly = 0xEDB88320;
 					unsigned crc = mii_packet_get_crc(buf);
 					int endbytes;
@@ -103,16 +103,16 @@ void ethernet_filter(const char mac_address[], streaming chanend c[NUM_ETHERNET_
 
 					if (length < 60)
 					{
-#ifdef ETHERNET_COUNT_PACKETS
+#if ETHERNET_COUNT_PACKETS
 						ethernet_filtered_by_length++;
 #endif
 						mii_packet_set_filter_result(buf, 0);
 						mii_packet_set_stage(buf,1);
 					}
-#ifdef ETHERNET_RX_CRC_ERROR_CHECK
+#if ETHERNET_RX_CRC_ERROR_CHECK
 					else if (~crc)
 					{
-#ifdef ETHERNET_COUNT_PACKETS
+#if ETHERNET_COUNT_PACKETS
 						ethernet_filtered_by_bad_crc++;
 #endif
 						mii_packet_set_filter_result(buf, 0);
@@ -136,12 +136,12 @@ void ethernet_filter(const char mac_address[], streaming chanend c[NUM_ETHERNET_
 							if (broadcast || unicast) {
 #endif
 								int filter_result = mac_custom_filter_coerce(buf);
-#ifdef ETHERNET_COUNT_PACKETS
+#if ETHERNET_COUNT_PACKETS
 								if (filter_result == 0) ethernet_filtered_by_user_filter++;
 #endif
 								res |= filter_result;
 							} else {
-#ifdef ETHERNET_COUNT_PACKETS
+#if ETHERNET_COUNT_PACKETS
 								ethernet_filtered_by_address++;
 #endif
 							}

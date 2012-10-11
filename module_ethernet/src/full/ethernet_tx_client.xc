@@ -37,11 +37,11 @@ void mac_check_link_client(chanend c, unsigned char &linkNum, int &status)
 static void ethernet_send_frame_unify(chanend ethernet_tx_svr, unsigned int Buf[], int count, unsigned int &sentTime, unsigned int Cmd, int ifnum)
 {
   int i;
-#ifdef ETHERNET_TX_HP_QUEUE
+#if ETHERNET_TX_HP_QUEUE
   int etype;
 #endif
 
-#ifdef ETHERNET_TX_HP_QUEUE
+#if ETHERNET_TX_HP_QUEUE
   etype = (unsigned short) Buf[3];
   if (etype == 0x0081) {
     switch (Cmd) 
@@ -159,15 +159,16 @@ void mac_initialize_routing_table(chanend c)
 
 int mac_calc_idle_slope(int bps);
 
-#if defined(ETHERNET_TX_HP_QUEUE) && defined(ETHERNET_TRAFFIC_SHAPER)
 void mac_set_qav_bandwidth(chanend c,
                            int bps)
 {
+#if (ETHERNET_TX_HP_QUEUE) && (ETHERNET_TRAFFIC_SHAPER)
   int slope = mac_calc_idle_slope(bps);
   c <: ETHERNET_TX_SET_QAV_IDLE_SLOPE;
   slave {
     c <: slope;
   }
-}
-
+#else
+  #warning mac_set_qav_bandwidth(): Qav bandwidth can be set but traffic shaper is not enabled
 #endif
+}

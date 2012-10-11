@@ -33,7 +33,7 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
 
 #pragma unsafe arrays
     void ethernet_tx_server(
-#ifdef ETHERNET_TX_HP_QUEUE
+#if ETHERNET_TX_HP_QUEUE
                         mii_mempool_t tx_mem_hp[],
 #endif
                         mii_mempool_t tx_mem_lp[],
@@ -62,7 +62,7 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
     for (int i=0;i<num_tx;i++) {
       int cmd = pendingCmd[i];
       int length, dst_port, bufs_ok=1;
-#ifdef ETHERNET_TX_HP_QUEUE
+#if ETHERNET_TX_HP_QUEUE
       int hp=0;
 #endif
       switch (cmd) 
@@ -70,13 +70,13 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
         case ETHERNET_TX_REQ:
         case ETHERNET_TX_REQ_OFFSET2:
         case ETHERNET_TX_REQ_TIMED:      
-#ifdef ETHERNET_TX_HP_QUEUE
+#if ETHERNET_TX_HP_QUEUE
         case ETHERNET_TX_REQ_HP:
         case ETHERNET_TX_REQ_OFFSET2_HP:
         case ETHERNET_TX_REQ_TIMED_HP:      
 #endif
       
-#ifdef ETHERNET_TX_HP_QUEUE    
+#if ETHERNET_TX_HP_QUEUE    
           switch (cmd) {
           case ETHERNET_TX_REQ_HP:
             cmd = ETHERNET_TX_REQ;
@@ -94,7 +94,7 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
 #endif
 
           for (unsigned int p=0; p<NUM_ETHERNET_PORTS; ++p) {
-#ifdef ETHERNET_TX_HP_QUEUE
+#if ETHERNET_TX_HP_QUEUE
         	  if (hp)
         		  buf[p] = mii_reserve(tx_mem_hp[p]);
         	  else
@@ -185,7 +185,7 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
             case ETHERNET_TX_REQ:
             case ETHERNET_TX_REQ_OFFSET2:
             case ETHERNET_TX_REQ_TIMED:
-#if defined(ETHERNET_TX_HP_QUEUE)
+#if (ETHERNET_TX_HP_QUEUE)
             case ETHERNET_TX_REQ_HP:
             case ETHERNET_TX_REQ_OFFSET2_HP:
             case ETHERNET_TX_REQ_TIMED_HP:
@@ -216,7 +216,7 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
             init_avb_1722_router_table();
           break;           
 #endif
-#if defined(ETHERNET_TX_HP_QUEUE) && defined(ETHERNET_TRAFFIC_SHAPER)
+#if (ETHERNET_TX_HP_QUEUE) && (ETHERNET_TRAFFIC_SHAPER)
          case ETHERNET_TX_SET_QAV_IDLE_SLOPE:
             master
             {

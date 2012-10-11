@@ -20,17 +20,11 @@
 #endif
 
 #ifndef ETHERNET_RX_CRC_ERROR_CHECK
-#define ETHERNET_RX_CRC_ERROR_CHECK
+#define ETHERNET_RX_CRC_ERROR_CHECK (1)
 #endif
 
 #ifndef ETHERNET_COUNT_PACKETS
-#define ETHERNET_COUNT_PACKETS
-#endif
-
-#ifdef ETHERNET_RX_HP_QUEUE
-
-#ifndef ETHERNET_RX_BUFSIZE_HIGH_PRIORITY
-#define ETHERNET_RX_BUFSIZE_HIGH_PRIORITY (2048)
+#define ETHERNET_COUNT_PACKETS (1)
 #endif
 
 #ifndef ETHERNET_RX_BUFSIZE_LOW_PRIORITY
@@ -41,28 +35,24 @@
 #endif
 #endif // ETHERNET_RX_BUFSIZE_LOW_PRIORITY
 
-#else // !ETHERNET_RX_HP_QUEUE
-
-#ifndef ETHERNET_RX_BUFSIZE
-#define ETHERNET_RX_BUFSIZE (4096)
+#if ETHERNET_RX_HP_QUEUE
+#ifndef ETHERNET_RX_BUFSIZE_HIGH_PRIORITY
+#define ETHERNET_RX_BUFSIZE_HIGH_PRIORITY (2048)
+#endif
 #endif
 
-#ifndef ETHERNET_RX_BUFSIZE_LOW_PRIORITY
-#define ETHERNET_RX_BUFSIZE_LOW_PRIORITY ETHERNET_RX_BUFSIZE
+#ifndef ETHERNET_TX_BUFSIZE_LOW_PRIORITY
+#ifdef ETHERNET_TX_BUFSIZE
+#define ETHERNET_TX_BUFSIZE_LOW_PRIORITY ETHERNET_TX_BUFSIZE
+#else
+#define ETHERNET_TX_BUFSIZE_LOW_PRIORITY (4096)
 #endif
+#endif // ETHERNET_TX_BUFSIZE_LOW_PRIORITY
 
-#endif
-
-#ifdef ETHERNET_TX_HP_QUEUE
-
+#if ETHERNET_TX_HP_QUEUE
 #ifndef ETHERNET_TX_BUFSIZE_HIGH_PRIORITY
 #define ETHERNET_TX_BUFSIZE_HIGH_PRIORITY (2048)
 #endif
-
-#endif // ETHERNET_TX_HP_QUEUE
-
-#ifndef ETHERNET_TX_BUFSIZE
-#define ETHERNET_TX_BUFSIZE (2048)
 #endif
 
 #ifndef ETHERNET_MAX_TX_PACKET_SIZE
@@ -196,7 +186,7 @@ inline void mii_packet_set_data_byte(int buf, int n, int v) {
 
 #ifdef __XC__
 void mii_rx_pins(
-#ifdef ETHERNET_RX_HP_QUEUE
+#if ETHERNET_RX_HP_QUEUE
 		unsigned rxmem_hp,
 #endif
 		 unsigned rxmem_lp,
@@ -206,7 +196,7 @@ void mii_rx_pins(
 		 streaming chanend c);
 #else
 void mii_rx_pins(
-#ifdef ETHERNET_RX_HP_QUEUE
+#if ETHERNET_RX_HP_QUEUE
 		unsigned rxmem_hp,
 #endif
 		 unsigned rxmem_lp,
@@ -219,12 +209,12 @@ void mii_rx_pins(
 #ifdef __XC__
 void mii_tx_pins(
 #if (NUM_ETHERNET_PORTS > 1) && !defined(DISABLE_ETHERNET_PORT_FORWARDING)
-#ifdef ETHERNET_TX_HP_QUEUE
+#if ETHERNET_TX_HP_QUEUE
 				unsigned hp_forward[],
 #endif
 				unsigned lp_forward[],
 #endif
-#ifdef ETHERNET_TX_HP_QUEUE
+#if ETHERNET_TX_HP_QUEUE
                 unsigned hp_mempool,
 #endif
                 unsigned lp_mempool,
@@ -234,12 +224,12 @@ void mii_tx_pins(
 #else
 void mii_tx_pins(
 #if (NUM_ETHERNET_PORTS > 1) && !defined(DISABLE_ETHERNET_PORT_FORWARDING)
-#ifdef ETHERNET_TX_HP_QUEUE
+#if ETHERNET_TX_HP_QUEUE
 				unsigned* hp_forward,
 #endif
 				unsigned* lp_forward,
 #endif
-#ifdef ETHERNET_TX_HP_QUEUE
+#if ETHERNET_TX_HP_QUEUE
                 unsigned hp_mempool,
 #endif
                 unsigned lp_mempool,
@@ -248,7 +238,7 @@ void mii_tx_pins(
                 int ifnum);
 #endif
 
-#ifdef ETHERNET_COUNT_PACKETS
+#if ETHERNET_COUNT_PACKETS
 void ethernet_get_mii_counts(REFERENCE_PARAM(unsigned,dropped));
 #endif
 

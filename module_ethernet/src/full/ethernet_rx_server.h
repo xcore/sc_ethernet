@@ -37,7 +37,7 @@
  */
 
 void ethernet_rx_server(
-#ifdef ETHERNET_RX_HP_QUEUE
+#if ETHERNET_RX_HP_QUEUE
 		mii_mempool_t rxmem_hp[],
 #endif
 		mii_mempool_t rxmem_lp[],
