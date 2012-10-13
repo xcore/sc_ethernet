@@ -124,7 +124,7 @@
 //#pragma xta command "set required - 1560 ns"
 
 
-#ifdef ETHERNET_COUNT_PACKETS
+#if ETHERNET_COUNT_PACKETS
 static unsigned int ethernet_mii_no_queue_entries = 0;
 
 void ethernet_get_mii_counts(unsigned& dropped) {
@@ -134,7 +134,7 @@ void ethernet_get_mii_counts(unsigned& dropped) {
 
 #pragma unsafe arrays
 void mii_rx_pins(
-#ifdef ETHERNET_RX_HP_QUEUE
+#if ETHERNET_RX_HP_QUEUE
 		mii_mempool_t rxmem_hp,
 #endif
 		mii_mempool_t rxmem_lp,
@@ -160,16 +160,16 @@ void mii_rx_pins(
 		unsigned word;
 		unsigned buf, dptr;
 		unsigned buf_lp, dptr_lp;
-#ifdef ETHERNET_RX_HP_QUEUE
+#if ETHERNET_RX_HP_QUEUE
 		unsigned buf_hp, dptr_hp;
 #endif
 
-#ifdef ETHERNET_RX_HP_QUEUE
+#if ETHERNET_RX_HP_QUEUE
 		buf_hp = mii_reserve(rxmem_hp);
 #endif
 		buf_lp = mii_reserve(rxmem_lp);
 
-#ifdef ETHERNET_RX_HP_QUEUE
+#if ETHERNET_RX_HP_QUEUE
 		if (buf_hp) {
 			dptr_hp = mii_packet_get_data_ptr(buf_hp);
 		} else {
@@ -185,13 +185,13 @@ void mii_rx_pins(
 
 		if (buf_lp) {
 			dptr_lp = mii_packet_get_data_ptr(buf_lp);
-#ifdef ETHERNET_RX_HP_QUEUE
+#if ETHERNET_RX_HP_QUEUE
 		} else if (buf_hp) {
 			dptr_lp = dptr_hp;
 #endif
 		} else {
 #pragma xta label "mii_no_availible_buffers"
-#ifdef ETHERNET_COUNT_PACKETS
+#if ETHERNET_COUNT_PACKETS
 			ethernet_mii_no_queue_entries++;
 #endif
 			p_mii_rxdv when pinseq(0) :> int hi;
@@ -201,7 +201,7 @@ void mii_rx_pins(
 
 		crc = 0x9226F562;
 
-#ifdef ETHERNET_RX_HP_QUEUE
+#if ETHERNET_RX_HP_QUEUE
 		if (!dptr_hp) dptr_hp = dptr_lp;
 #endif
 
@@ -209,7 +209,7 @@ void mii_rx_pins(
 		p_mii_rxd :> word;
 		crc32(crc, word, poly);
 		mii_packet_set_data_word_imm(dptr_lp, 0, word);
-#ifdef ETHERNET_RX_HP_QUEUE
+#if ETHERNET_RX_HP_QUEUE
 		mii_packet_set_data_word_imm(dptr_hp, 0, word);
 #endif
 
@@ -217,7 +217,7 @@ void mii_rx_pins(
 		p_mii_rxd :> word;
 		crc32(crc, word, poly);
 		mii_packet_set_data_word_imm(dptr_lp, 1, word);
-#ifdef ETHERNET_RX_HP_QUEUE
+#if ETHERNET_RX_HP_QUEUE
 		mii_packet_set_data_word_imm(dptr_hp, 1, word);
 #endif
 
@@ -225,7 +225,7 @@ void mii_rx_pins(
 		p_mii_rxd :> word;
 		crc32(crc, word, poly);
 		mii_packet_set_data_word_imm(dptr_lp, 2, word);
-#ifdef ETHERNET_RX_HP_QUEUE
+#if ETHERNET_RX_HP_QUEUE
 		mii_packet_set_data_word_imm(dptr_hp, 2, word);
 #endif
 
@@ -233,12 +233,12 @@ void mii_rx_pins(
 		p_mii_rxd :> word;
 		crc32(crc, word, poly);
 		mii_packet_set_data_word_imm(dptr_lp, 3, word);
-#ifdef ETHERNET_RX_HP_QUEUE
+#if ETHERNET_RX_HP_QUEUE
 		mii_packet_set_data_word_imm(dptr_hp, 3, word);
 #endif
 
 		{
-#ifdef ETHERNET_RX_HP_QUEUE
+#if ETHERNET_RX_HP_QUEUE
 		unsigned short etype = (unsigned short)word;
 
 		if (etype == 0x0081) {
@@ -263,7 +263,7 @@ void mii_rx_pins(
 		if (!buf) {
 #pragma xta label "mii_rx_correct_priority_buffer_unavailable"
 			p_mii_rxdv when pinseq(0) :> int hi;
-#ifdef ETHERNET_COUNT_PACKETS
+#if ETHERNET_COUNT_PACKETS
 			ethernet_mii_no_queue_entries++;
 #endif
 			clearbuf(p_mii_rxd);
@@ -335,7 +335,7 @@ void mii_rx_pins(
 
 
 // Global for the transmit slope variable
-#if defined(ETHERNET_TX_HP_QUEUE) && defined(ETHERNET_TRAFFIC_SHAPER)
+#if (ETHERNET_TX_HP_QUEUE) && (ETHERNET_TRAFFIC_SHAPER)
 int g_mii_idle_slope=(11<<MII_CREDIT_FRACTIONAL_BITS);
 #endif
 
@@ -355,10 +355,9 @@ void mii_transmit_packet(unsigned buf, out buffered port:32 p_mii_txd, timer tmr
 
 #pragma xta endpoint "mii_tx_sof"
 	p_mii_txd <: 0x55555555;
-	p_mii_txd <: 0x55555555;
 	p_mii_txd <: 0xD5555555;
 
-#ifndef TX_TIMESTAMP_END_OF_PACKET
+#if !TX_TIMESTAMP_END_OF_PACKET
 	tmr :> time;
 	mii_packet_set_timestamp(buf, time);
 #endif
@@ -379,7 +378,7 @@ void mii_transmit_packet(unsigned buf, out buffered port:32 p_mii_txd, timer tmr
 		p_mii_txd <: word;
 	} while (i < word_count);
 
-#ifdef TX_TIMESTAMP_END_OF_PACKET
+#if TX_TIMESTAMP_END_OF_PACKET
 	tmr :> time;
 	mii_packet_set_timestamp(buf, time);
 #endif
@@ -431,13 +430,13 @@ void mii_transmit_packet(unsigned buf, out buffered port:32 p_mii_txd, timer tmr
 
 #pragma unsafe arrays
 void mii_tx_pins(
-#if (NUM_ETHERNET_PORTS > 1) && !defined(DISABLE_ETHERNET_PORT_FORWARDING)
-#ifdef ETHERNET_TX_HP_QUEUE
+#if (NUM_ETHERNET_PORTS > 1) && (DISABLE_ETHERNET_PORT_FORWARDING)
+#if ETHERNET_TX_HP_QUEUE
 		mii_mempool_t hp_forward[],
 #endif
 		mii_mempool_t lp_forward[],
 #endif
-#ifdef ETHERNET_TX_HP_QUEUE
+#if ETHERNET_TX_HP_QUEUE
 		mii_mempool_t hp_queue,
 #endif
 		mii_mempool_t lp_queue,
@@ -446,7 +445,7 @@ void mii_tx_pins(
 		int ifnum)
 {
 
-#if defined(ETHERNET_TX_HP_QUEUE) && defined(ETHERNET_TRAFFIC_SHAPER)
+#if (ETHERNET_TX_HP_QUEUE) && (ETHERNET_TRAFFIC_SHAPER)
 	int credit = 0;
 	int credit_time;
 #endif
@@ -454,7 +453,7 @@ void mii_tx_pins(
 	timer tmr;
 	int ok_to_transmit=1;
 
-#if defined(ETHERNET_TX_HP_QUEUE) && defined(ETHERNET_TRAFFIC_SHAPER)
+#if (ETHERNET_TX_HP_QUEUE) && (ETHERNET_TRAFFIC_SHAPER)
 	tmr :> credit_time;
 #endif
 	while (1) {
@@ -463,16 +462,16 @@ void mii_tx_pins(
 		int bytes_left;
 
 		int stage;
-#if defined(ETHERNET_TX_HP_QUEUE) && defined(ETHERNET_TRAFFIC_SHAPER)
+#if (ETHERNET_TX_HP_QUEUE) && (ETHERNET_TRAFFIC_SHAPER)
 		int prev_credit_time;
 		int idle_slope;
 		int elapsed;
 #endif
 
-#ifdef ETHERNET_TX_HP_QUEUE
+#if ETHERNET_TX_HP_QUEUE
 		buf = mii_get_next_buf(hp_queue);
 
-#if (NUM_ETHERNET_PORTS > 1) && !defined(DISABLE_ETHERNET_PORT_FORWARDING)
+#if (NUM_ETHERNET_PORTS > 1) && !(DISABLE_ETHERNET_PORT_FORWARDING)
 		if (!buf || mii_packet_get_stage(buf) == 0) {
 			for (unsigned int i=0; i<NUM_ETHERNET_PORTS; ++i) {
 				if (i == ifnum) continue;
@@ -487,7 +486,7 @@ void mii_tx_pins(
 		}
 #endif
 
-#ifdef ETHERNET_TRAFFIC_SHAPER
+#if ETHERNET_TRAFFIC_SHAPER
 		if (buf && mii_packet_get_stage(buf) == 1) {
 
 			if (credit < 0) {
@@ -522,7 +521,7 @@ void mii_tx_pins(
 
 #endif
 
-#if (NUM_ETHERNET_PORTS > 1) && !defined(DISABLE_ETHERNET_PORT_FORWARDING)
+#if (NUM_ETHERNET_PORTS > 1) && !(DISABLE_ETHERNET_PORT_FORWARDING)
 		if (!buf || mii_packet_get_stage(buf) == 0) {
 			for (unsigned int i=0; i<NUM_ETHERNET_PORTS; ++i) {
 				if (i == ifnum) continue;

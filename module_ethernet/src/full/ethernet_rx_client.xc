@@ -158,7 +158,7 @@ void mac_set_custom_filter(chanend mac_svr, int x)
  */
 void mac_get_link_counters(chanend mac_svr, int& dropped)
 {
-#ifdef ETHERNET_COUNT_PACKETS
+#if ETHERNET_COUNT_PACKETS
   send_cmd(mac_svr, ETHERNET_RX_OVERFLOW_CNT_REQ);
   mac_svr :> dropped;
 #endif
@@ -172,7 +172,7 @@ void mac_get_global_counters(chanend mac_svr,
 		                     unsigned& bad_crc
                              )
 {
-#ifdef ETHERNET_COUNT_PACKETS
+#if ETHERNET_COUNT_PACKETS
   send_cmd(mac_svr, ETHERNET_RX_OVERFLOW_MII_CNT_REQ);
   mac_svr :> mii_overflow;
   mac_svr :> bad_length;

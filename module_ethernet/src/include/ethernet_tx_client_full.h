@@ -20,9 +20,6 @@
 
 #define ETH_BROADCAST (-1)
 
-#define ETH_LINK_IS_DOWN  (0)
-#define ETH_LINK_IS_UP    (1)
-
 /** Sends an ethernet frame. Frame includes dest/src MAC address(s), type
  *  and payload.
  *
@@ -81,10 +78,6 @@ void mac_tx_offset2(chanend c_mac, unsigned int buffer[], int nbytes, int ifnum)
 void mac_tx_timed(chanend c_mac, unsigned int buffer[], int nbytes, unsigned int &time, int ifnum);
 #else
 void mac_tx_timed(chanend c_mac, unsigned int buffer[], int nbytes, unsigned int *time, int ifnum);
-#endif
-
-#ifndef mac_tx_timed_full
-#define mac_tx_timed mac_tx_timed_full
 #endif
 
 /** Get the device MAC address.

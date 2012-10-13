@@ -94,7 +94,7 @@ void serviceLinkCmd(chanend link, int linkIndex, unsigned int &cmd)
          custom_filter_mask[linkIndex] = filter_value;       
        } 
       break;
-#ifdef ETHERNET_COUNT_PACKETS
+#if ETHERNET_COUNT_PACKETS
       // overflow count return
       case ETHERNET_RX_OVERFLOW_CNT_REQ:
          link <: link_status[linkIndex].dropped_pkt_cnt;
@@ -284,7 +284,7 @@ void send_status_packet(chanend c, int src_port, int status)
  */
 #pragma unsafe arrays
 void ethernet_rx_server(
-#ifdef ETHERNET_RX_HP_QUEUE
+#if ETHERNET_RX_HP_QUEUE
 		mii_mempool_t rxmem_hp[],
 #endif
 		mii_mempool_t rxmem_lp[],
@@ -293,13 +293,13 @@ void ethernet_rx_server(
 {
    int i;
    unsigned int cmd;
-#ifdef ETHERNET_RX_HP_QUEUE
+#if ETHERNET_RX_HP_QUEUE
    int rdptr_hp[NUM_ETHERNET_PORTS];
 #endif
    int rdptr_lp[NUM_ETHERNET_PORTS];
 
    for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
-#ifdef ETHERNET_RX_HP_QUEUE
+#if ETHERNET_RX_HP_QUEUE
 	   rdptr_hp[p] = mii_init_my_rdptr(rxmem_hp[p]);
 #endif
 	   rdptr_lp[p] = mii_init_my_rdptr(rxmem_lp[p]);
@@ -375,7 +375,7 @@ void ethernet_rx_server(
          break;
        default:
          {
-#ifdef ETHERNET_RX_HP_QUEUE
+#if ETHERNET_RX_HP_QUEUE
            for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
         	   int buf = mii_get_my_next_buf(rxmem_hp[p], rdptr_hp[p]);
         	   if (buf != 0 && mii_packet_get_stage(buf) == 1) {

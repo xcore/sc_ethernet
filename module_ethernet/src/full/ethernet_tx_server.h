@@ -12,7 +12,7 @@
 
 #ifdef __XC__
 void ethernet_tx_server(
-#ifdef ETHERNET_TX_HP_QUEUE
+#if ETHERNET_TX_HP_QUEUE
                         mii_mempool_t tx_mem_hp[],
 #endif
                         mii_mempool_t tx_mem_lp[],
@@ -24,7 +24,7 @@ void ethernet_tx_server(
                         smi_interface_t &?smi2);
 #else
 void ethernet_tx_server(
-#ifdef ETHERNET_TX_HP_QUEUE
+#if ETHERNET_TX_HP_QUEUE
                         mii_mempool_t tx_mem_hp[],
 #endif
                         mii_mempool_t tx_mem_lp[],
