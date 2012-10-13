@@ -1,9 +1,9 @@
 Ethernet Mac Description
 ========================
 
-The ethernet MAC runs on two or five logical cores depending on the
+The ethernet MAC runs on two or five logical cores (aka threads) depending on the
 chosen implementation and communicates to client
-threads over channels. The server
+cores over channels. The server
 can connect to several clients and each channel connection to the
 server is for either RX (receiving packets from the MAC) or TX
 (transmitting packets to the MAC) operation.
@@ -27,13 +27,13 @@ Incoming buffers move around the different queues as follows:
 
    * Empty buffers are in the incoming queue awaiting a packet coming
      in from the MII interfaces
-   * Buffers received from the MII interface a filtered (see below)
+   * Buffers received from the MII interface are filtered (see below)
      and if they need to be kept then are moved into a forwarding
      queue.
    * Buffers in the forwarding queue are moved into a client queue
      depending on which client registered for that type of
      packet. 
-   * One the data from a buffer has been sent to a client the buffer
+   * Once the data from a buffer has been sent to a client the buffer
      is moved back into the incoming queue.
 
 Outgoing buffers move around the different queues as follows:
@@ -54,7 +54,7 @@ Filtering
 After incoming packets are received they are filtered. An initial
 filter is done where the packet is dropped unless:
 
-  #. The packet is destined for the hosts MAC address or
+  #. The packet is destined for the host's MAC address or
   #. The packet is destined for a MAC address with the broadcast bit
      set
 
@@ -65,7 +65,7 @@ supply custom code to perform this filtering.
 The user must supply a definition of the function
 :c:func:`mac_custom_filter`. This function can inspect incoming
 packets in any manner suitable for applications and then returns
-either 0 if the packet is to be dropped or number which the clients
+either 0 if the packet is to be dropped or a number which the clients
 can then use to determine which packets they wish to receive (using
 the client function :c:func:`mac_set_custom_filter`.
 
@@ -97,7 +97,7 @@ must be done by the single receive client of the ethernet server.
 MAC Address Storage
 -------------------
 
-The MAC address used for the server is set on instatiation of the
+The MAC address used for the server is set on instantiation of the
 server (as an argument to the :c:func:`ethernet_server` function). 
 This address should be unique for each device. For all XMOS develop
 boards, a unique mac address is stored in the one time programmable

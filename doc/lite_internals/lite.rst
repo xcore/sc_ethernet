@@ -1,42 +1,42 @@
-Single threaded MII
-===================
+Single logical core MII
+=======================
 
 The module ''module_mii_singlethread'' provides a component that
-folds the MII layer into a single thread (62.5 MIPS), and allows all other
-software to be written in one additional thread if required. It is meant for simple
+folds the MII layer into a single 62.5 MIPS logical core (aka thread), and allows all other
+software to be written in one additional core if required. It is meant for simple
 ethernet systems that do not require very high throughput and have relatively
 straightforward MAC filtering.
 
 The module ''module_mii_singlethread_server'' provides an interace to
-the single threaded MII driver that presents an interface similar to
-the 5-thread ethernet MII implementation.
+the single core MII driver that presents an interface similar to
+the 5-core ethernet MII implementation.
 
-Using single threaded MII
+Using single core MII
 -------------------------
 
-The single threaded MII comprises three basic parts: an LLD (low level
-driver) that must always run in its own thread, a *packet manager* that
-must run on the same core, *input access functions*  that must be called
-from the same thread, and *output access functions* that must be called
-from the same core. It is designed for single-core applications, and uses a
+The single logical-core MII comprises three basic parts: an LLD (low level
+driver) that must always run in its own core, a *packet manager* that
+must run on the same tile, *input access functions*  that must be called
+from the same core, and *output access functions* that must be called
+from the same tile. It is designed for single-tile applications, and uses a
 dual circular buffer to store incoming packets.
 
-Threads
+cores
 '''''''
 
-The single threaded MII module requires at least two threads to operate,
-but more threads can be utilised to increase performance. Three common
+The single logical-core MII module requires at least two cores to operate,
+but more cores can be utilised to increase performance. Three common
 usage models are sketched below
 
-#. Two threads: thread one runs the , and
-   thread 2 runs packet management, application level packet handling
+#. Two cores: core one runs the , and
+   core 2 runs packet management, application level packet handling
    and application level packet generation.
 
-#. Three threads: thread one runs the LLD (low level driver),
-   thread 2 runs packet management and application level packet handling, and
-   thread 3 runs application level packet generation.
+#. Three cores: core one runs the LLD (low level driver),
+   core 2 runs packet management and application level packet handling, and
+   core 3 runs application level packet generation.
 
-The thread that performs packet management also performs the MAC filtering.
+The core that performs packet management also performs the MAC filtering.
 MAC filtering must be completed within 5 us (TBC) otherwise packet loss will
 occur. If more complexe MAC filtering is required, a proper ethernet
 module should be used.
@@ -74,7 +74,7 @@ Management API
 ''''''''''''''
 
 In addition to the operational functions listed above, the SMI and OTP functions
-from the 5-thread ethernet are available for initialization and MAC address retreival.
+from the 5-core ethernet are available for initialization and MAC address retreival.
 
 The OTP functions have a modified signature, taking a structure containing the OTP
 ports, rather than having each port as an individual parameter.
@@ -82,7 +82,7 @@ ports, rather than having each port as an individual parameter.
 Example minimal programs
 ''''''''''''''''''''''''
 
-The minimum two-threaded program is given below::
+The minimum two-core program is given below::
 
     void pingDemo(chanend cIn, chanend cOut, chanend cNotifications) {
         int b[3200];    
@@ -113,28 +113,28 @@ packets using the output interface::
 Note that both ``miiOutPacketDone()`` and ``miiNotified()`` can be placed
 inside a select statement, enabling a single select to serve input
 requests, output requests, and, for example, time-outs or communication
-with another thread.
+with another core.
 
-Internal details on single threaded MII
+Internal details on single logical-core MII
 ---------------------------------------
 
 LLD: MII RX/TX principles
 '''''''''''''''''''''''''
 
-The LLD thread runs code that outputs packets over MII to the Ethernet PHY,
+The LLD core runs code that outputs packets over MII to the Ethernet PHY,
 and on interrupts receives packets from MII. The interrupt service time is
 short enough so that the input and output can proceed simultaneously. CRCs
 are computed on-the-fly, but the final CRC check on input has to be
-performed by another thread. Similarly, on the output side, the output
-thread has to perform some initial computations prior to passing control to
-the MII TX thread.
+performed by another core. Similarly, on the output side, the output
+core has to perform some initial computations prior to passing control to
+the MII TX core.
 
 Interaction between LLD and packet manager
 ''''''''''''''''''''''''''''''''''''''''''
 
 The LLD and the packet manager communicate over two channels: an
 input-channel and an output-channel. Both channels are streaming channels,
-and the channels must reside within a core. The communication protocol is
+and the channels must reside within a tile. The communication protocol is
 as follows.
 
 On the input channel, the LLD first expects a word containing a buffer
@@ -147,7 +147,7 @@ are tight timing constraints: there should be a gap of at least X
 instructions before sending the '0' word and another gap of at least X
 instructions prior to sending the next buffer address.
 
-On the output channel, the LLD thread will request a channel by sending a
+On the output channel, the LLD core will request a channel by sending a
 '1' control token. It will then expect a pointer to the end of the packet
 and an negative number denoting the length of the packet, followed by a '1'
 control token. The LLD will then send a word denoting the timestamp
@@ -178,7 +178,7 @@ Interaction between packet management and application code
 
 The packet buffer uses an interrupt to store data into the packet buffer -
 that is, the write pointer is updated by means of an interrupt. Packets are
-read out in the same thread, but in the normal control flow, hence the read
+read out in the same core, but in the normal control flow, hence the read
 and free pointers are updated by the normal control flow. The interrupt
 routine leaves a token in a *notification* channel if it has done something
 to a buffer, and the normal control flow should, when it finds that token,
@@ -186,14 +186,14 @@ inspect the input buffers, deal with data, free any buffers that can be
 freed, and finally check that any buffer overflow has been resolved by
 calling ``miiRestartBuffer()``
 
-Server for single threaded MII
+Server for single core MII
 ------------------------------
 
-In order to simply using the single threaded MII implementation, a module
+In order to simply using the single logical-core MII implementation, a module
 called *module_mii_singlethread_server'' provides a top level interface
-similar to the 5 thread ethernet MII design.
+similar to the 5 core ethernet MII design.
 
-The top level thread function is called ''miiSingleServer''. The signature is
+The top level core function is called ''miiSingleServer''. The signature is
 
 ::
   void miiSingleServer(clock clk_smi,
@@ -203,8 +203,8 @@ The top level thread function is called ''miiSingleServer''. The signature is
                      chanend appIn, chanend appOut,
                      chanend connect_status, unsigned char mac_address[6])
 
-The parameters are similar to those used by the 5-thread server.  Unlike the
-5-thread server, however, only one application is supported, using the *appIn*
+The parameters are similar to those used by the 5-core server.  Unlike the
+5-core server, however, only one application is supported, using the *appIn*
 and *appOut* channels.  Likewise, only the *safe_mac_rx* and *mac_tx* functions
 are supported by the client library.
 

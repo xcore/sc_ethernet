@@ -1,7 +1,7 @@
 Source code structure
 ---------------------
 
-Modules is found across several modules:
+Source code can be found across several modules:
 
   * ``module_ethernet`` contains the main MAC code
   * ``module_ethernet_smi`` contains the code for controlling an
@@ -19,7 +19,7 @@ Key Files
 +++++++++
 
 The following header files contain prototypes of all functions
-required to use use the ethernet component. The API is described in 
+required to use the ethernet component. The API is described in 
 :ref:`sec_api`.
 
 .. list-table:: Key Files
