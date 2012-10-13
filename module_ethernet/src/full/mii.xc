@@ -77,20 +77,17 @@
 #pragma xta command "add exclusion mii_tx_start"
 #pragma xta command "add exclusion mii_tx_end"
 
-#pragma xta command "add loop mii_tx_loop 1"
-
 #pragma xta command "analyze endpoints mii_tx_sof mii_tx_first_word"
 #pragma xta command "set required - 640 ns"
 
-#pragma xta command "analyze endpoints mii_tx_first_word mii_tx_word"
+#pragma xta command "analyze endpoints mii_tx_first_word mii_tx_word_loop"
 #pragma xta command "set required - 320 ns"
 
-#pragma xta command "analyze endpoints mii_tx_word mii_tx_word"
+#pragma xta command "analyze endpoints mii_tx_word_loop mii_tx_word_loop"
 #pragma xta command "set required - 320 ns"
 
-#pragma xta command "add loop mii_tx_loop 0"
-
-#pragma xta command "analyze endpoints mii_tx_word mii_tx_crc_0"
+#pragma xta command "add exclusion mii_tx_word_loop"
+#pragma xta command "analyze endpoints mii_tx_word_loop mii_tx_word"
 #pragma xta command "set required - 320 ns"
 
 #pragma xta command "analyze endpoints mii_tx_word mii_tx_final_partword_1"
@@ -102,14 +99,18 @@
 #pragma xta command "analyze endpoints mii_tx_word mii_tx_final_partword_3"
 #pragma xta command "set required - 320 ns"
 
-#pragma xta command "analyze endpoints mii_tx_final_partword_1 mii_tx_crc_1"
+#pragma xta command "analyze endpoints mii_tx_final_partword_3 mii_tx_final_partword_2"
 #pragma xta command "set required - 80 ns"
 
-#pragma xta command "analyze endpoints mii_tx_final_partword_2 mii_tx_crc_2"
-#pragma xta command "set required - 160 ns"
+#pragma xta command "analyze endpoints mii_tx_final_partword_2 mii_tx_final_partword_1"
+#pragma xta command "set required - 80 ns"
 
-#pragma xta command "analyze endpoints mii_tx_final_partword_3 mii_tx_crc_3"
-#pragma xta command "set required - 240 ns"
+#pragma xta command "analyze endpoints mii_tx_final_partword_1 mii_tx_crc"
+#pragma xta command "set required - 80 ns"
+
+#pragma xta command "add exclusion mii_tx_tail_bytes"
+#pragma xta command "analyze endpoints mii_tx_word mii_tx_crc"
+#pragma xta command "set required - 320 ns"
 
 #endif
 // check the transmit interframe space.  It should ideally be quite close to 1560, which will
@@ -369,62 +370,50 @@ void mii_transmit_packet(unsigned buf, out buffered port:32 p_mii_txd, timer tmr
 	i++;
 	crc32(crc, ~word, poly);
 
+	word = mii_packet_get_data_word(data, i);
+	i++;
+	crc32(crc, word, poly);
+
 	do {
 #pragma xta label "mii_tx_loop"
+#pragma xta endpoint "mii_tx_word_loop"
+		p_mii_txd <: word;
 		word = mii_packet_get_data_word(data, i);
 		i++;
 		crc32(crc, word, poly);
-#pragma xta endpoint "mii_tx_word"
-		p_mii_txd <: word;
 	} while (i < word_count);
+#pragma xta endpoint "mii_tx_word"
+	p_mii_txd <: word;
 
 #if TX_TIMESTAMP_END_OF_PACKET
 	tmr :> time;
 	mii_packet_set_timestamp(buf, time);
 #endif
 
-	switch (tail_byte_count)
-	{
-		case 0:
-			crc32(crc, 0, poly);
-			crc = ~crc;
-#pragma xta endpoint "mii_tx_crc_0"
-			p_mii_txd <: crc;
-			break;
+	if (tail_byte_count) {
+#pragma xta label "mii_tx_tail_bytes"
+		word = mii_packet_get_data_word(data, i);
+		switch (tail_byte_count) {
+#pragma fallthrough
+		case 3:
+#pragma xta endpoint "mii_tx_final_partword_3"
+			partout(p_mii_txd, 8, word);
+			word = crc8shr(crc, word, poly);
+#pragma fallthrough
+		case 2:
+#pragma xta endpoint "mii_tx_final_partword_2"
+			partout(p_mii_txd, 8, word);
+			word = crc8shr(crc, word, poly);
 		case 1:
-			word = mii_packet_get_data_word(data, i);
-			crc8shr(crc, word, poly);
 #pragma xta endpoint "mii_tx_final_partword_1"
 			partout(p_mii_txd, 8, word);
-			crc32(crc, 0, poly);
-			crc = ~crc;
-#pragma xta endpoint "mii_tx_crc_1"
-			p_mii_txd <: crc;
-			break;
-		case 2:
-			word = mii_packet_get_data_word(data, i);
-#pragma xta endpoint "mii_tx_final_partword_2"
-			partout(p_mii_txd, 16, word);
 			word = crc8shr(crc, word, poly);
-			crc8shr(crc, word, poly);
-			crc32(crc, 0, poly);
-			crc = ~crc;
-#pragma xta endpoint "mii_tx_crc_2"
-			p_mii_txd <: crc;
 			break;
-		case 3:
-			word = mii_packet_get_data_word(data, i);
-#pragma xta endpoint "mii_tx_final_partword_3"
-			partout(p_mii_txd, 24, word);
-			word = crc8shr(crc, word, poly);
-			word = crc8shr(crc, word, poly);
-			crc8shr(crc, word, poly);
-			crc32(crc, 0, poly);
-			crc = ~crc;
-#pragma xta endpoint "mii_tx_crc_3"
-			p_mii_txd <: crc;
-			break;
+		}
 	}
+	crc32(crc, 0xffffffff, poly);
+#pragma xta endpoint "mii_tx_crc"
+	p_mii_txd <: crc;
 }
 
 
