@@ -236,7 +236,7 @@ outIdle:
     outct res[r9], 1          // Request the next packet
     testct r5, res[r9]
     bt    r5, stateDone
-    in    r7, res[r9]          // Read the poointer to the packet
+    in    r7, res[r9]          // Read the pointer to the packet
 
     ldw   r5, cp[allFives]
 
