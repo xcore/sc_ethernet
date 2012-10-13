@@ -23,7 +23,7 @@ Configuration Defines for FULL implementation
 **MAX_ETHERNET_PACKET_SIZE**
 
     This define sets the largest packet size in bytes that the ethernet mac
-    will receive. The default it the largest possible ethernet packet
+    will receive. The default is the largest possible ethernet packet
     size (1518 bytes). Setting this to a smaller value will save
     memory but restrict the type of packets you can receieve.
 

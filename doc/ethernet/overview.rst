@@ -12,7 +12,7 @@ runs on 5 logical cores, allows multiple clients with
 independent buffering per client and supports accurate packet
 timestamping, priority
 queuing, and 802.1Qav traffic shaping. The LITE implementation runs on two
-logical cores but is resricted to a single receive and trasnmit client
+logical cores but is restricted to a single receive and trasnmit client
 and does not support any advanced features.
 
 Component Summary

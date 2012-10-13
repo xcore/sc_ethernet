@@ -5,8 +5,7 @@ This tutorial describes a demo included in the xmos ethernet
 package. The demo can be found in the directory app_ethernet_demo and
 provides a simple ethernet application that responds to ICMP ping
 requests. It assumes a basic knowledge of XC programming. For
-information on XMOS programming, you can find reference material about
-XC programming at the `XMOS website <http://www.xmos.com/support/documentation>`_.
+information on XMOS programming, you can find reference material at the `XMOS website <http://www.xmos.com/support/documentation>`_.
 
 To write an ethernet enabled application for an XMOS device requires
 several things:
@@ -26,7 +25,7 @@ which compiles all the source files in the application and the modules
 that the application uses. We only have to add a couple of
 configuration options.
 
-Firstly, this application is for an sliceKIT Core Board
+Firstly, this application is for a sliceKIT Core Board
 (the SLICEKIT-L2 target) so the
 TARGET variable needs to be set in the Makefile.
  
@@ -73,7 +72,7 @@ this example).
 .. literalinclude:: app_ethernet_demo/src/ethernet_conf.h
 
 This application has two build configurations - one for the full
-implementation and on for the lite.
+implementation and one for the lite.
 
 mac_custom_filter
 +++++++++++++++++
@@ -116,13 +115,13 @@ XC channels). It also contains a top level par construct which sets
 the various functional units running that make up the program.
 
 We run the ethernet server (this is set to
-on the tile ``ETHERNET_DEFAULT_TILE`` which is supplied by the board support
+the tile ``ETHERNET_DEFAULT_TILE`` which is supplied by the board support
 module). 
 First, the function :c:func:`otp_board_info_get_mac` reads the device mac address from ROM. The
-functions :c:func:`eht_phy_reset`, :c:func:`smi_config` and
-:c:func:`eth_phy_config` initializes the phy and them the main function
+functions :c:func:`eth_phy_reset`, :c:func:`smi_config` and
+:c:func:`eth_phy_config` initialize the phy and then the main function
 :c:func:`ethernet_server` runs the ethernet component. The server
-communicates with other threads via the rx and tx channel arrays.
+communicates with other logical cores via the rx and tx channel arrays.
 
 .. literalinclude:: app_ethernet_demo/src/demo.xc 
   :start-after: //::ethernet
@@ -154,7 +153,7 @@ custom_mac_filter function is run, if the result is non-zero then the
 result is and-ed against the mask. If this is non-zero then the packet
 is forwarded to the client.
 
-So in this case, the mask is 1 so all packets that get a 1 result from
+So in this case, the mask is 1 so all packets that get a result of 1 from
 custom_mac_filter function will get passed to this client.
 
 
@@ -162,9 +161,9 @@ custom_mac_filter function will get passed to this client.
    :start-after: //::setup-filter
    :end-before: //::
 
-Note that this is only for the configuration that uses the FULL
+Note that this is only for designs that use the FULL
 configuration. If we are using the LITE configuration the filtering is
-done after the client recieved the packet later on.
+done after the client recieves the packet later on.
 
 After we are set up to receive the correct packets we can go into the
 main loop that responds to ARP and ICMP packets.
