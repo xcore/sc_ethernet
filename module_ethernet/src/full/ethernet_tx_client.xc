@@ -169,6 +169,6 @@ void mac_set_qav_bandwidth(chanend c,
     c <: slope;
   }
 #else
-  #warning mac_set_qav_bandwidth(): Qav bandwidth can be set but traffic shaper is not enabled
+  //  #warning mac_set_qav_bandwidth(): Qav bandwidth can be set but traffic shaper is not enabled
 #endif
 }
