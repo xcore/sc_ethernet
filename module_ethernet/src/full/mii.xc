@@ -276,12 +276,10 @@ void mii_rx_pins(
 		crc32(crc, word, poly);
 		mii_packet_set_data_word_imm(dptr, 5, word);
 
-		mii_packet_set_src_port(buf, 0);
-		mii_packet_set_timestamp_id(buf, 0);
-		mii_packet_set_timestamp(buf, time);
-
 		i = 6;
 		endofframe = 0;
+
+		mii_packet_set_timestamp(buf, time);
 
 		do
 		{
@@ -303,6 +301,9 @@ void mii_rx_pins(
 				}
 			}
 		} while (!endofframe);
+
+		mii_packet_set_src_port(buf, 0);
+		mii_packet_set_timestamp_id(buf, 0);
 
 		{
 			unsigned tail;
