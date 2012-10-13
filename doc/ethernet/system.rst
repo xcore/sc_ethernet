@@ -1,9 +1,9 @@
 Ethernet Mac Description
 ========================
 
-The ethernet MAC runs on two or five logical cores (aka threads) depending on the
+The ethernet MAC runs on two or five logical cores depending on the
 chosen implementation and communicates to client
-cores over channels. The server
+tasks over channels. The server
 can connect to several clients and each channel connection to the
 server is for either RX (receiving packets from the MAC) or TX
 (transmitting packets to the MAC) operation.

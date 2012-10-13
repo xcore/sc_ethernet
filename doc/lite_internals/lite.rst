@@ -1,6 +1,8 @@
 Single logical core MII
 =======================
 
+**PLEASE NOTE THAT THIS DOCUMENTATION IS OUT OF DATE AND CONTAINS SEVERAL INCORRECT REFERENCES**
+
 The module ''module_mii_singlethread'' provides a component that
 folds the MII layer into a single 62.5 MIPS logical core (aka thread), and allows all other
 software to be written in one additional core if required. It is meant for simple

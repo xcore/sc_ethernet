@@ -114,14 +114,14 @@ file is the main() function which declares some variables (primarily
 XC channels). It also contains a top level par construct which sets
 the various functional units running that make up the program.
 
-We run the ethernet server (this is set to
+We run the ethernet server (this is set to run on
 the tile ``ETHERNET_DEFAULT_TILE`` which is supplied by the board support
 module). 
 First, the function :c:func:`otp_board_info_get_mac` reads the device mac address from ROM. The
 functions :c:func:`eth_phy_reset`, :c:func:`smi_config` and
 :c:func:`eth_phy_config` initialize the phy and then the main function
 :c:func:`ethernet_server` runs the ethernet component. The server
-communicates with other logical cores via the rx and tx channel arrays.
+communicates with other tasks via the rx and tx channel arrays.
 
 .. literalinclude:: app_ethernet_demo/src/demo.xc 
   :start-after: //::ethernet
@@ -161,7 +161,7 @@ custom_mac_filter function will get passed to this client.
    :start-after: //::setup-filter
    :end-before: //::
 
-Note that this is only for designs that use the FULL
+Note that this is only for build configuration that uses the FULL
 configuration. If we are using the LITE configuration the filtering is
 done after the client recieves the packet later on.
 
