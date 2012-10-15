@@ -46,9 +46,9 @@ ethernet mac" type = "demoCode" scope = "Example" path = "app_ethernet_loopback"
         </component>
     </components>
     <dependency repo = "sc_otp">
-        <githash>c58cd84295fdbdd72a970417bb4cc54342a9d71c</githash>
+        <githash>062aa923a78bc603b254b2a99b78593ab3a816ec</githash>
         <uri>git@github.com:xcore/sc_otp</uri>
-        <version>1.0.0alpha0</version>
+        <version>1.0.0rc0</version>
     </dependency>
     <dependency repo = "sc_util">
         <githash>afbba103d8b5ed3378eaa3832b8f694dec2844bc</githash>
@@ -99,7 +99,8 @@ ethernet mac" type = "demoCode" scope = "Example" path = "app_ethernet_loopback"
     <release parenthash = "c493f197390356c78af7752c5330a193b5a1d51b" version = "2.2.0alpha15" githash = "6a6e90e5c67465feb4c70a1d9917168f78193a5a"></release>
     <release parenthash = "82c3525d58693115ca2ef8532337b3e773897845" version = "2.2.0alpha16" githash = "7f4ea62f76a9b161503d5809ac0f395c391c29ba"></release>
     <release parenthash = "f0658120a5064d16b408fe332f25556079bb1cf9" version = "2.2.0alpha17" githash = "b4d5f2932cce0d0d8c5fa49636509c1b1b77fd0b"></release>
-    <release parenthash = "f8003d3a95522fff3fc31a4b388c957436416658" version = "2.2.0alpha18"></release>
+    <release parenthash = "f8003d3a95522fff3fc31a4b388c957436416658" version = "2.2.0alpha18" githash = "2e041b400855f2197b8f8babca2a4d53fb9a7e0a"></release>
+    <release parenthash = "2e041b400855f2197b8f8babca2a4d53fb9a7e0a" version = "2.2.0rc0"></release>
     <subpartnumber>XM-001828-SM</subpartnumber>
     <vendor>XMOS</vendor>
     <xcore_repo>sc_ethernet.git</xcore_repo>
