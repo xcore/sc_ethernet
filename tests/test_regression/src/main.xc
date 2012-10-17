@@ -28,7 +28,7 @@
 // Port Definitions
 
 // These ports are for accessing the OTP memory
-otp_ports_t otp_ports = OTP_PORTS_INITIALIZER;
+on ETHERNET_DEFAULT_TILE: otp_ports_t otp_ports = OTP_PORTS_INITIALIZER;
 
 // Here are the port definitions required by ethernet
 smi_interface_t smi = ETHERNET_DEFAULT_SMI_INIT;
