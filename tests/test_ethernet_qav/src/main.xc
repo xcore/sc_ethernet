@@ -26,7 +26,7 @@
 
 //***** Ethernet Configuration ****
 // These ports are for accessing the OTP memory
-otp_ports_t otp_ports = OTP_PORTS_INITIALIZER;
+on ETHERNET_DEFAULT_TILE: otp_ports_t otp_ports = OTP_PORTS_INITIALIZER;
 
 // Here are the port definitions required by ethernet
 // The intializers are taken from the ethernet_board_support.h header for
