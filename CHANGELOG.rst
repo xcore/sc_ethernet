@@ -1,6 +1,11 @@
 Ethernet Component Change Log
 =============================
 
+2.1.1
+-----
+  * Minor fix to example apps (ports structures should be declared on
+    a specific tile)
+
 2.2.0
 -----
   * Rearranged source code
