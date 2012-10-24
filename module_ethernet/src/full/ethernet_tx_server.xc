@@ -7,8 +7,8 @@
 #include "mii_full.h"
 #include "mii_queue.h"
 #include "ethernet_server_def.h"
-#include "mii_malloc.h"
 #include "ethernet_link_status.h"
+#include "mii_malloc_wrapping.h"
 #include <print.h>
 #include <xs1.h>
 #include <xclib.h>
@@ -31,6 +31,115 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
   ethernet_update_link_status(linkNum, new_status);
 }
 
+
+transaction mii_transmit_packet_from_chan(chanend c,
+                                          out buffered port:32 p_mii_txd,
+                                          timer tmr,
+                                          int len,
+                                          int do_byterev,
+                                          int &time);
+
+void handle_tx_cmd(const char mac_addr[],
+                   out buffered port:32 p_mii_txd,
+                   timer tmr,
+                   chanend tx, int cmd)
+{
+  int length;
+  int time;
+  int dst_port;
+        switch (cmd)
+          {
+          case ETHERNET_TX_REQ:
+          case ETHERNET_TX_REQ_OFFSET2:
+          case ETHERNET_TX_REQ_TIMED:
+          case ETHERNET_TX_REQ_HP:
+          case ETHERNET_TX_REQ_OFFSET2_HP:
+          case ETHERNET_TX_REQ_TIMED_HP:
+#pragma xta endpoint "mii_tx_start"
+          master {
+            tx :> length;
+            tx :> dst_port;
+            if (cmd == ETHERNET_TX_REQ_OFFSET2 ||
+                cmd == ETHERNET_TX_REQ_OFFSET2_HP) {
+              tx :> char;
+              tx :> char;
+              mii_transmit_packet_from_chan(tx, p_mii_txd, tmr, length, 1, time);
+              tx :> char;
+              tx :> char;
+
+              cmd = ETHERNET_TX_REQ;
+            } else {
+              mii_transmit_packet_from_chan(tx, p_mii_txd, tmr, length, 0, time);
+            }
+          }
+#pragma xta endpoint "mii_tx_end"
+          if (cmd == ETHERNET_TX_REQ_TIMED || cmd == ETHERNET_TX_REQ_TIMED_HP)
+            tx <: time;
+          break;
+          case ETHERNET_GET_MAC_ADRS:
+          slave {
+            for (int j=0;j< 6;j++) {
+              tx <: (char) mac_addr[j];
+            }
+          }
+          break;
+#ifdef AVB_MAC
+          case ETHERNET_TX_UPDATE_AVB_ROUTER:
+          { unsigned key0, key1, link, hash;
+            master {
+              tx :> key0;
+              tx :> key1;
+              tx :> link;
+              tx :> hash;
+            }
+            avb_1722_router_table_add_entry(key0, key1, link, hash);
+          }
+          break;
+          case ETHERNET_TX_INIT_AVB_ROUTER:
+          init_avb_1722_router_table();
+          break;           
+#endif
+          }
+
+}
+
+void ethernet_tx_server_no_buffer(const char mac_addr[],
+                                  chanend tx[],
+                                  int num_tx,
+                                  out buffered port:32 p_mii_txd,
+                                  smi_interface_t &?smi1)
+{
+  timer tmr;
+  unsigned linkCheckTime = 0;
+
+ tmr :> linkCheckTime;
+
+  while (1) {
+    select
+      {
+      case tx[0] :>  int cmd:
+        handle_tx_cmd(mac_addr, p_mii_txd, tmr, tx[0], cmd);
+        break;
+      default:
+        break;
+      }
+    select
+      {
+      case (int i=0;i<num_tx;i++) tx[i] :>  int cmd:
+        handle_tx_cmd(mac_addr, p_mii_txd, tmr, tx[i], cmd);
+        break;
+      case tmr when timerafter(linkCheckTime) :> int:
+        if (!isnull(smi1)) {
+          do_link_check(smi1, 0);
+        }
+        linkCheckTime += LINK_POLL_PERIOD;
+        break;
+
+      }
+  }
+}
+
+
 #pragma unsafe arrays
     void ethernet_tx_server(
 #if ETHERNET_TX_HP_QUEUE
@@ -46,6 +155,9 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
                         smi_interface_t &?smi2)
 {
   unsigned buf[NUM_ETHERNET_PORTS];
+  unsigned wrap_ptr[NUM_ETHERNET_PORTS];
+  unsigned end_ptr[NUM_ETHERNET_PORTS];
+  unsigned dptr[NUM_ETHERNET_PORTS];
   int enabled[MAX_LINKS];
   int pendingCmd[MAX_LINKS]={0};
   timer tmr;
@@ -53,6 +165,7 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
   
   tmr :> linkCheckTime;
   linkCheckTime += LINK_POLL_PERIOD;
+
 
 
   for (int i=0;i<num_tx;i++) 
@@ -95,17 +208,33 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
 
           for (unsigned int p=0; p<NUM_ETHERNET_PORTS; ++p) {
 #if ETHERNET_TX_HP_QUEUE
-        	  if (hp)
-        		  buf[p] = mii_reserve(tx_mem_hp[p]);
-        	  else
-        		  buf[p] = mii_reserve(tx_mem_lp[p]);
+            if (hp) {
+              buf[p] = mii_reserve_wrapping_at_least(tx_mem_hp[p],
+                                                     end_ptr[p],
+                                                     MII_MALLOC_FULL_PACKET_SIZE);
+              wrap_ptr[p] = mii_get_wrap_ptr(tx_mem_hp[p]);
+            }
+            else {
+              buf[p] = mii_reserve_wrapping_at_least(tx_mem_lp[p],
+                                                     end_ptr[p],
+                                                  MII_MALLOC_FULL_PACKET_SIZE);
+              wrap_ptr[p] = mii_get_wrap_ptr(tx_mem_lp[p]);
+            }
 #else
-        	  buf[p] = mii_reserve(tx_mem_lp[p]);
+              buf[p] = mii_reserve_wrapping_at_least(tx_mem_lp[p],
+                                                     end_ptr[p],
+                                                         MII_MALLOC_FULL_PACKET_SIZE);
+              wrap_ptr[p] = mii_get_wrap_ptr(tx_mem_lp[p]);
 #endif
-        	  if (buf[p] == 0) bufs_ok=0;
+        	  if (buf[p] == 0)
+                    bufs_ok=0;
+                  else
+                    dptr[p] = mii_packet_get_data_ptr(buf[p]);
           }
 
           if (bufs_ok) {
+
+
               master {
         		  tx[i] :> length;
         		  tx[i] :> dst_port;
@@ -116,7 +245,10 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
             			  int datum;
             			  tx[i] :> datum;
             			  for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
-            				  mii_packet_set_data(buf[p], j, byterev(datum));
+                                    mii_packet_set_data_word_imm(dptr[p], 0, byterev(datum));
+                                    dptr[p] += 4;
+                                    if (dptr[p] == wrap_ptr[p])
+                                      asm("ldw %0,%0[0]":"=r"(dptr[p]));
             			  }
             		  }
             		  tx[i] :> char;
@@ -128,7 +260,10 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
             			  int datum;
             			  tx[i] :> datum;
             			  for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
-            				  mii_packet_set_data(buf[p], j, datum);
+                                    mii_packet_set_data_word_imm(dptr[p], 0, datum);
+                                    dptr[p] += 4;
+                                    if (dptr[p] == wrap_ptr[p])
+                                      asm("ldw %0,%0[0]":"=r"(dptr[p]));
             			  }
             		  }
             	  }
@@ -151,7 +286,7 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
             			mii_packet_set_timestamp_id(buf[p], 0);
 
 
-            		mii_commit(buf[p], (length+(BUF_DATA_OFFSET*4)));
+            		mii_commit_wrapping(buf[p], dptr[p]);
 
             		mii_packet_set_tcount(buf[p], 0);
             		mii_packet_set_stage(buf[p], 1);
@@ -246,7 +381,7 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
     		int ts = mii_packet_get_timestamp(buf[p]);
     		tx[i-1] <: ts + ETHERNET_TX_PHY_TIMER_OFFSET;
     		if (get_and_dec_transmit_count(buf[p]) == 0)
-    			mii_free(buf[p]);
+    			mii_free_wrapping(buf[p]);
     	}
     }
   }

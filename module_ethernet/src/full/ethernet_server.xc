@@ -34,9 +34,13 @@ void ethernet_server_full(mii_interface_full_t &m,
     // These thrads all communicate internally via shared memory
     // packet queues
     mii_rx_pins(m.p_mii_rxdv, m.p_mii_rxd, 0, c[0]);
+#if ETHERNET_TX_NO_BUFFERING
+    ethernet_tx_server(mac_address, tx, 1, num_tx, smi, null, m.p_mii_txd);
+#else
     mii_tx_pins(m.p_mii_txd, 0);
-    ethernet_rx_server(rx, num_rx);
     ethernet_tx_server(mac_address, tx, 1, num_tx, smi, null);
+#endif
+    ethernet_rx_server(rx, num_rx);
     ethernet_filter(mac_address, c);
   }
 }

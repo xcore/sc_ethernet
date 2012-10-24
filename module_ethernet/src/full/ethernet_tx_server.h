@@ -9,6 +9,16 @@
 #include "mii_malloc.h"
 #include "ethernet_conf_derived.h"
 
+void ethernet_tx_server_no_buffer(const char mac_addr[],
+                                  chanend tx[],
+                                  int num_tx,
+                                  #ifdef __XC__
+                                  out buffered port:32 p_mii_txd,
+                                  #else
+                                  port p_mii_txd,
+                                  #endif
+                                  NULLABLE_REFERENCE_PARAM(smi_interface_t, smi1));
+
 
 #ifdef __XC__
 void ethernet_tx_server(
