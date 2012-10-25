@@ -31,6 +31,7 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
   ethernet_update_link_status(linkNum, new_status);
 }
 
+#if ETHERNET_TX_NO_BUFFERING
 
 transaction mii_transmit_packet_from_chan(chanend c,
                                           out buffered port:32 p_mii_txd,
@@ -138,7 +139,7 @@ void ethernet_tx_server_no_buffer(const char mac_addr[],
       }
   }
 }
-
+#endif
 
 #pragma unsafe arrays
     void ethernet_tx_server(

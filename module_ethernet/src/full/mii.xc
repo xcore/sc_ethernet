@@ -186,7 +186,7 @@ void mii_rx_pins(
 		if (buf_hp) {
 			dptr_hp = mii_packet_get_data_ptr(buf_hp);
 		} else {
-			dptr_hp = 0;
+                  dptr_hp = 0;
 		}
 #endif
 
@@ -241,6 +241,7 @@ void mii_rx_pins(
 #if ETHERNET_RX_HP_QUEUE
 		mii_packet_set_data_word_imm(dptr_hp, 2, word);
 #endif
+		//mii_packet_set_timestamp_id(buf, 0);
 
 #pragma xta endpoint "mii_rx_ethertype_word"
 		p_mii_rxd :> word;
@@ -273,7 +274,7 @@ void mii_rx_pins(
                 end_ptr = end_ptr_lp;
 #endif
 		}
-
+		mii_packet_set_timestamp(buf, time);
 #pragma xta endpoint "mii_rx_fifth_word"
 		p_mii_rxd :> word;
 		crc32(crc, word, poly);
@@ -293,10 +294,7 @@ void mii_rx_pins(
 		p_mii_rxd :> word;
 		crc32(crc, word, poly);
 		mii_packet_set_data_word_imm(dptr, 5, word);
-
 		mii_packet_set_src_port(buf, 0);
-		mii_packet_set_timestamp_id(buf, 0);
-		mii_packet_set_timestamp(buf, time);
 
 		ii = 5*4;
                 dptr += 6*4;
@@ -366,6 +364,8 @@ void mii_rx_pins(
 int g_mii_idle_slope=(11<<MII_CREDIT_FRACTIONAL_BITS);
 #endif
 
+
+#if ETHERNET_TX_NO_BUFFERING
 // Do the real-time pin wiggling for a single packet
 #pragma unsafe arrays
 transaction mii_transmit_packet_from_chan(chanend c,
@@ -456,7 +456,7 @@ transaction mii_transmit_packet_from_chan(chanend c,
 	}
         // return time;
 }
-
+#endif
 
 // Do the real-time pin wiggling for a single packet
 void mii_transmit_packet(unsigned buf, out buffered port:32 p_mii_txd, timer tmr)

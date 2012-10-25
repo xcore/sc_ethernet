@@ -31,7 +31,7 @@ typedef struct mempool_info_t {
 
 typedef struct malloc_hdr_t {
   int size;
-  mempool_info_t *info;  
+  mempool_info_t *info;
 } malloc_hdr_t;
 
 
@@ -88,8 +88,29 @@ mii_buffer_t mii_reserve_wrapping_at_least(mii_mempool_t mempool,
 }
 
 mii_buffer_t mii_reserve_wrapping(mii_mempool_t mempool,
-                                  unsigned *end_ptr) {
-  return mii_reserve_wrapping_at_least(mempool, end_ptr, MIN_USAGE);
+                                  unsigned *end_ptr)
+{
+  mempool_info_t *info = (mempool_info_t *) mempool;
+  int *rdptr = info->rdptr;
+  int *wrptr = info->wrptr;
+  malloc_hdr_t *hdr;
+  int space_left;
+
+  if (rdptr > wrptr) {
+    space_left = (char *) rdptr - (char *) wrptr;
+    if (space_left < MIN_USAGE)
+      return 0;
+  } else  {
+    // If the wrptr is after the rdptr then the should be at least
+    // MIN_USAGE between the wrptr and the end of the buffer, therefore
+    // at least MIN_USAGE space left
+  }
+
+  hdr = (malloc_hdr_t *) wrptr;
+  hdr->info = info;
+
+  *end_ptr = (unsigned) rdptr;
+  return (mii_buffer_t) (wrptr+(sizeof(malloc_hdr_t)>>2));
 }
 
 
