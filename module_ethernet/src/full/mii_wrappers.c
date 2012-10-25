@@ -12,7 +12,6 @@
 #include "ethernet_tx_server.h"
 #include "ethernet_rx_server.h"
 #include "mii_malloc.h"
-#include "mii_malloc_wrapping.h"
 #include <print.h>
 
 // Queue of timestamps for transmitted packets
@@ -60,20 +59,20 @@ void init_mii_mem() {
   for (int i=0; i<NUM_ETHERNET_PORTS; ++i) {
 #if ETHERNET_RX_HP_QUEUE
     rx_mem_hp[i] = (mii_mempool_t) &rx_hp_data[i][0];
-    mii_init_mempool_wrapping(rx_mem_hp[i], ETHERNET_RX_HP_MEMSIZE*4, 1518);
+    mii_init_mempool(rx_mem_hp[i], ETHERNET_RX_HP_MEMSIZE*4, 1518);
 #endif
     rx_mem_lp[i] = (mii_mempool_t) &rx_lp_data[i][0];
-    mii_init_mempool_wrapping(rx_mem_lp[i], ETHERNET_RX_LP_MEMSIZE*4, 1518);
+    mii_init_mempool(rx_mem_lp[i], ETHERNET_RX_LP_MEMSIZE*4, 1518);
 
 #if !ETHERNET_TX_NO_BUFFERING
      #if ETHERNET_TX_HP_QUEUE
          tx_mem_hp[i] = (mii_mempool_t) &tx_hp_data[i][0];
-         mii_init_mempool_wrapping(tx_mem_hp[i],
+         mii_init_mempool(tx_mem_hp[i],
                           ETHERNET_TX_HP_MEMSIZE*4,
                           ETHERNET_MAX_TX_HP_PACKET_SIZE);
      #endif
          tx_mem_lp[i] = (mii_mempool_t) &tx_lp_data[i][0];
-         mii_init_mempool_wrapping(tx_mem_lp[i],
+         mii_init_mempool(tx_mem_lp[i],
                           ETHERNET_TX_LP_MEMSIZE*4,
                           ETHERNET_MAX_TX_PACKET_SIZE);
          init_ts_queue(&ts_queue[i]);

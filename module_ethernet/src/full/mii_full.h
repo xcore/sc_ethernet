@@ -162,15 +162,6 @@ int mii_packet_get_data_word(int data, int n);
 #define mii_packet_get_data_word_imm(data, n, v) \
   asm("ldw %0,%1[" STRINGIFY(n) "]":"=r"(v):"r"(data));
 
-#ifdef ETHERNET_INLINE_PACKET_GET
-inline int mii_packet_get_data(int buf, int n) {
-  int x;
-  __asm__("ldw %0,%1[%2]":"=r"(x):"r"(buf),"r"(n+BUF_DATA_OFFSET));
-  return x;
-}
-#else
-int mii_packet_get_data(int buf, int n);
-#endif
 
 inline void mii_packet_set_data(int buf, int n, int v) {
   __asm__("stw %0,%1[%2]"::"r"(v),"r"(buf),"r"(n+BUF_DATA_OFFSET));

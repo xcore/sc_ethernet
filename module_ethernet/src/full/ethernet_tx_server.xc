@@ -8,7 +8,7 @@
 #include "mii_queue.h"
 #include "ethernet_server_def.h"
 #include "ethernet_link_status.h"
-#include "mii_malloc_wrapping.h"
+#include "mii_malloc.h"
 #include <print.h>
 #include <xs1.h>
 #include <xclib.h>
@@ -210,19 +210,19 @@ void ethernet_tx_server_no_buffer(const char mac_addr[],
           for (unsigned int p=0; p<NUM_ETHERNET_PORTS; ++p) {
 #if ETHERNET_TX_HP_QUEUE
             if (hp) {
-              buf[p] = mii_reserve_wrapping_at_least(tx_mem_hp[p],
+              buf[p] = mii_reserve_at_least(tx_mem_hp[p],
                                                      end_ptr[p],
                                                      MII_MALLOC_FULL_PACKET_SIZE);
               wrap_ptr[p] = mii_get_wrap_ptr(tx_mem_hp[p]);
             }
             else {
-              buf[p] = mii_reserve_wrapping_at_least(tx_mem_lp[p],
+              buf[p] = mii_reserve_at_least(tx_mem_lp[p],
                                                      end_ptr[p],
                                                   MII_MALLOC_FULL_PACKET_SIZE);
               wrap_ptr[p] = mii_get_wrap_ptr(tx_mem_lp[p]);
             }
 #else
-              buf[p] = mii_reserve_wrapping_at_least(tx_mem_lp[p],
+              buf[p] = mii_reserve_at_least(tx_mem_lp[p],
                                                      end_ptr[p],
                                                          MII_MALLOC_FULL_PACKET_SIZE);
               wrap_ptr[p] = mii_get_wrap_ptr(tx_mem_lp[p]);
@@ -287,7 +287,7 @@ void ethernet_tx_server_no_buffer(const char mac_addr[],
             			mii_packet_set_timestamp_id(buf[p], 0);
 
 
-            		mii_commit_wrapping(buf[p], dptr[p]);
+            		mii_commit(buf[p], dptr[p]);
 
             		mii_packet_set_tcount(buf[p], 0);
             		mii_packet_set_stage(buf[p], 1);
@@ -382,7 +382,7 @@ void ethernet_tx_server_no_buffer(const char mac_addr[],
     		int ts = mii_packet_get_timestamp(buf[p]);
     		tx[i-1] <: ts + ETHERNET_TX_PHY_TIMER_OFFSET;
     		if (get_and_dec_transmit_count(buf[p]) == 0)
-    			mii_free_wrapping(buf[p]);
+    			mii_free(buf[p]);
     	}
     }
   }

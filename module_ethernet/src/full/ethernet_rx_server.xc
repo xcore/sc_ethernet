@@ -21,9 +21,8 @@
 #include <xclib.h>
 #include "mii_full.h"
 #include "mii_queue.h"
-#include "mii_malloc.h"
 #include "mii_filter.h"
-#include "mii_malloc_wrapping.h"
+#include "mii_malloc.h"
 #include "ethernet_rx_server.h"
 #include "ethernet_rx_client.h"
 #include "ethernet_link_status.h"
@@ -315,7 +314,7 @@ static void processReceivedFrame(int buf,
    
    if (tcount == 0) {
      //if (get_and_dec_transmit_count(buf)==0)
-       mii_free_wrapping(buf);
+       mii_free(buf);
    }
    else {
 	   mii_packet_set_tcount(buf, tcount-1);
@@ -360,9 +359,9 @@ void ethernet_rx_server(
 
    for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
 #if ETHERNET_RX_HP_QUEUE
-	   rdptr_hp[p] = mii_init_my_rdptr_wrapping(rxmem_hp[p]);
+	   rdptr_hp[p] = mii_init_my_rdptr(rxmem_hp[p]);
 #endif
-	   rdptr_lp[p] = mii_init_my_rdptr_wrapping(rxmem_lp[p]);
+	   rdptr_lp[p] = mii_init_my_rdptr(rxmem_lp[p]);
    }
 
    // Initialise the link filters & local data structures.
@@ -416,7 +415,7 @@ void ethernet_rx_server(
                  mac_rx_send_frame1(buf, link[i], cmd);
 
                  if (get_and_dec_transmit_count(buf)==0)
-                   mii_free_wrapping(buf);
+                   mii_free(buf);
 
                  link_status[i].rdIndex = new_rdIndex;
 
@@ -437,10 +436,10 @@ void ethernet_rx_server(
          {
 #if ETHERNET_RX_HP_QUEUE
            for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
-        	   int buf = mii_get_my_next_buf_wrapping(rxmem_hp[p],
+        	   int buf = mii_get_my_next_buf(rxmem_hp[p],
                                                           rdptr_hp[p]);
         	   if (buf != 0 && mii_packet_get_stage(buf) == 1) {
-        		   rdptr_hp[p] = mii_update_my_rdptr_wrapping(rxmem_hp[p], rdptr_hp[p]);
+        		   rdptr_hp[p] = mii_update_my_rdptr(rxmem_hp[p], rdptr_hp[p]);
         		   processReceivedFrame(buf, link, num_link);
         		   break;
         	   }
@@ -448,9 +447,9 @@ void ethernet_rx_server(
 
 #endif
            for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
-        	   int buf = mii_get_my_next_buf_wrapping(rxmem_lp[p], rdptr_lp[p]);
+        	   int buf = mii_get_my_next_buf(rxmem_lp[p], rdptr_lp[p]);
         	   if (buf != 0 && mii_packet_get_stage(buf) == 1) {
-        		   rdptr_lp[p] = mii_update_my_rdptr_wrapping(rxmem_lp[p], rdptr_lp[p]);
+        		   rdptr_lp[p] = mii_update_my_rdptr(rxmem_lp[p], rdptr_lp[p]);
         		   processReceivedFrame(buf, link, num_link);
                    break;
         	   }

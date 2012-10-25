@@ -7,7 +7,6 @@
 #include "mii_queue.h"
 #include "mii.h"
 #include "mii_malloc.h"
-#include "mii_malloc_wrapping.h"
 #include <print.h>
 #include <stdlib.h>
 #include <syscall.h>
@@ -174,11 +173,11 @@ void mii_rx_pins(
 #endif
 
 #if ETHERNET_RX_HP_QUEUE
-		buf_hp = mii_reserve_wrapping(rxmem_hp,
+		buf_hp = mii_reserve(rxmem_hp,
                                               end_ptr_hp);
                 //                wrap_ptr_hp = mii_wrap_ptr(rxmem_hp);
 #endif
-		buf_lp = mii_reserve_wrapping(rxmem_lp,
+		buf_lp = mii_reserve(rxmem_lp,
                                               end_ptr_lp);
                 //                wrap_ptr_lp = mii_wrap_ptr(rxmem_lp);
 
@@ -347,7 +346,7 @@ void mii_rx_pins(
                         if (dptr != end_ptr) {
                           mii_packet_set_data_word_imm(dptr, 0, tail);
                           c <: buf;
-                          mii_commit_wrapping(buf, dptr);
+                          mii_commit(buf, dptr);
                         }
 		}
 	}
@@ -594,13 +593,13 @@ void mii_tx_pins(
 #endif
 
 #if ETHERNET_TX_HP_QUEUE
-		buf = mii_get_next_buf_wrapping(hp_queue);
+		buf = mii_get_next_buf(hp_queue);
 
 #if (NUM_ETHERNET_PORTS > 1) && !(DISABLE_ETHERNET_PORT_FORWARDING)
 		if (!buf || mii_packet_get_stage(buf) == 0) {
 			for (unsigned int i=0; i<NUM_ETHERNET_PORTS; ++i) {
 				if (i == ifnum) continue;
-				buf = mii_get_next_buf_wrapping(hp_forward[i]);
+				buf = mii_get_next_buf(hp_forward[i]);
 				if (buf) {
 					if (mii_packet_get_forwarding(buf) != 0) {
 						if (mii_packet_get_and_clear_forwarding(buf, ifnum)) break;
@@ -640,9 +639,9 @@ void mii_tx_pins(
 #endif
 
 		if (!buf || mii_packet_get_stage(buf) != 1)
-		buf = mii_get_next_buf_wrapping(lp_queue);
+		buf = mii_get_next_buf(lp_queue);
 #else
-		buf = mii_get_next_buf_wrapping(lp_queue);
+		buf = mii_get_next_buf(lp_queue);
 
 #endif
 
@@ -650,7 +649,7 @@ void mii_tx_pins(
 		if (!buf || mii_packet_get_stage(buf) == 0) {
 			for (unsigned int i=0; i<NUM_ETHERNET_PORTS; ++i) {
 				if (i == ifnum) continue;
-				buf = mii_get_next_buf_wrapping(lp_forward[i]);
+				buf = mii_get_next_buf(lp_forward[i]);
 				if (buf) {
 					if (mii_packet_get_forwarding(buf) != 0) {
 						if (mii_packet_get_and_clear_forwarding(buf, ifnum)) break;
@@ -690,7 +689,7 @@ void mii_tx_pins(
 				add_ts_queue_entry(ts_queue, buf);
 			}
 			else {
-				mii_free_wrapping(buf);
+				mii_free(buf);
 			}
 		}
 	}
