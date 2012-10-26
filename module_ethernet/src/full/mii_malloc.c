@@ -30,7 +30,7 @@ typedef struct mempool_info_t {
 } mempool_info_t;
 
 typedef struct malloc_hdr_t {
-  int size;
+  int next;
   mempool_info_t *info;
 } malloc_hdr_t;
 
@@ -132,7 +132,7 @@ void mii_commit(mii_buffer_t buf, int endptr0)
   if (((int) (char *) end - (int) (char *) end_ptr) < MIN_USAGE)
     end_ptr = info->start;
 
-  hdr->size = (int) end_ptr;
+  hdr->next = (int) end_ptr;
 
   info->wrptr = end_ptr;
 
@@ -155,26 +155,26 @@ void mii_free(mii_buffer_t buf) {
     if ((char *) hdr == (char *) info->rdptr) {
       malloc_hdr_t *old_hdr = hdr;
 
-      int size = hdr->size;
-      if (size < 0) size = -size;
+      int next = hdr->next;
+      if (next < 0) next = -next;
 
       // Move to the next packet
-      hdr = (malloc_hdr_t *) size;
+      hdr = (malloc_hdr_t *) next;
       info->rdptr = (int *) hdr;
 
       // Mark as empty
-      old_hdr->size = 0;
+      old_hdr->next = 0;
 
       // If we have an unfreed packet, or have hit the end of the
       // mempool fifo then stop (order of test is important due to lock
       // free mii_commit)
-      if ((char *) hdr == (char *) info->wrptr || hdr->size > 0) {
+      if ((char *) hdr == (char *) info->wrptr || hdr->next > 0) {
           break;
       }
     } else {
       // If this isn't the oldest packet in the queue then just mark it
-      // as free by making the size = -size
-      hdr->size = -(hdr->size);
+      // as free by making the next = -next
+      hdr->next = -(hdr->next);
       break;
     }
   };
@@ -198,19 +198,19 @@ int mii_update_my_rdptr(mii_mempool_t mempool, int rdptr0)
 {
   int *rdptr = (int *) rdptr0;
   malloc_hdr_t *hdr;
-  int size;
+  int next;
 
   hdr = (malloc_hdr_t *) rdptr;
-  size = hdr->size;
+  next = hdr->next;
 
 #ifdef MII_MALLOC_ASSERT
-  // Should always be a positive size
-  if (size <= 0) {
+  // Should always be a positive next pointer
+  if (next <= 0) {
 	  __builtin_trap();
   }
 #endif
 
-  return size;
+  return next;
 }
 
 mii_buffer_t mii_get_my_next_buf(mii_mempool_t mempool, int rdptr0)
@@ -221,13 +221,6 @@ mii_buffer_t mii_get_my_next_buf(mii_mempool_t mempool, int rdptr0)
 
   if (rdptr == wrptr) 
     return 0;
-
-#ifdef MII_MALLOC_ASSERT
-  // Should always be a positive size
-  if (*rdptr <= 0) {
-	  __builtin_trap();
-  }
-#endif
 
   return (mii_buffer_t) ((char *) rdptr + sizeof(malloc_hdr_t));
 }
@@ -241,12 +234,6 @@ mii_buffer_t mii_get_next_buf(mii_mempool_t mempool)
   if (rdptr == wrptr)
     return 0;
 
-#ifdef MII_MALLOC_ASSERT
-  // Should always be a positive size
-  if (*rdptr <= 0) {
-	  __builtin_trap();
-  }
-#endif
 
   return (mii_buffer_t) ((char *) rdptr + sizeof(malloc_hdr_t));
 }

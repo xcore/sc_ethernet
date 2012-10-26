@@ -173,17 +173,13 @@ void mii_rx_pins(
 #endif
 
 #if ETHERNET_RX_HP_QUEUE
-		buf_hp = mii_reserve(rxmem_hp,
-                                              end_ptr_hp);
-                //                wrap_ptr_hp = mii_wrap_ptr(rxmem_hp);
+		buf_hp = mii_reserve(rxmem_hp, end_ptr_hp);
 #endif
-		buf_lp = mii_reserve(rxmem_lp,
-                                              end_ptr_lp);
-                //                wrap_ptr_lp = mii_wrap_ptr(rxmem_lp);
+		buf_lp = mii_reserve(rxmem_lp, end_ptr_lp);
 
 #if ETHERNET_RX_HP_QUEUE
 		if (buf_hp) {
-			dptr_hp = mii_packet_get_data_ptr(buf_hp);
+                  dptr_hp = mii_packet_get_data_ptr(buf_hp);
 		} else {
                   dptr_hp = 0;
 		}
