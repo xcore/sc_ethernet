@@ -34,20 +34,6 @@ create_buf_getset_external_definition(forwarding)
 extern inline int mii_packet_get_data_ptr(int buf);
 extern inline void mii_packet_set_data_word(int data, int n, int v);
 
-#ifdef ETHERNET_INLINE_PACKET_GET
-extern inline int mii_packet_get_data(int buf, int n);
-extern inline int mii_packet_get_data_word(int data, int n);
-#else
-int mii_packet_get_data(int buf, int n)
-{
-  return (int)(((mii_packet_t*)buf)->data[n]);
-}
-
-int mii_packet_get_data_word(int data, int n)
-{
-  return ((unsigned int*)data)[n];
-}
-#endif
 
 extern inline void mii_packet_set_data(int buf, int n, int v);
 extern inline void mii_packet_set_data_short(int buf, int n, int v);

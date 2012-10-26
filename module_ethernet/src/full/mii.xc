@@ -269,7 +269,7 @@ void mii_rx_pins(
                 end_ptr = end_ptr_lp;
 #endif
 		}
-		mii_packet_set_timestamp(buf, time);
+
 #pragma xta endpoint "mii_rx_fifth_word"
 		p_mii_rxd :> word;
 		crc32(crc, word, poly);
@@ -284,6 +284,7 @@ void mii_rx_pins(
 			clearbuf(p_mii_rxd);
 			continue;
 		}
+
 
 #pragma xta endpoint "mii_rx_sixth_word"
 		p_mii_rxd :> word;
@@ -340,6 +341,7 @@ void mii_rx_pins(
 			tail = tail >> (32 - taillen);
 
                         if (dptr != end_ptr) {
+                          mii_packet_set_timestamp(buf, time);
                           mii_packet_set_data_word_imm(dptr, 0, tail);
                           c <: buf;
                           mii_commit(buf, dptr);
