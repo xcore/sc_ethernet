@@ -24,20 +24,20 @@ hwlock_t ethernet_memory_lock = 0;
 #endif
 
 #if ETHERNET_RX_HP_QUEUE
-#define ETHERNET_RX_HP_MEMSIZE  ((ETHERNET_RX_BUFSIZE_HIGH_PRIORITY + 2*sizeof(mii_packet_t) + 20)/4)
+#define ETHERNET_RX_HP_MEMSIZE  ((ETHERNET_RX_BUFSIZE_HIGH_PRIORITY)/4)
 int rx_hp_data[NUM_ETHERNET_PORTS][ETHERNET_RX_HP_MEMSIZE];
 mii_mempool_t rx_mem_hp[NUM_ETHERNET_PORTS];
 #endif
 
 
 #if ETHERNET_TX_HP_QUEUE
-#define ETHERNET_TX_HP_MEMSIZE  ((ETHERNET_TX_BUFSIZE_HIGH_PRIORITY +(ETHERNET_MAX_TX_HP_PACKET_SIZE + MII_PACKET_HEADER_SIZE) + 20)/4)
+#define ETHERNET_TX_HP_MEMSIZE  ((ETHERNET_TX_BUFSIZE_HIGH_PRIORITY)/4)
 int tx_hp_data[NUM_ETHERNET_PORTS][ETHERNET_TX_HP_MEMSIZE];
 mii_mempool_t tx_mem_hp[NUM_ETHERNET_PORTS];
 #endif
 
-#define ETHERNET_RX_LP_MEMSIZE  ((ETHERNET_RX_BUFSIZE_LOW_PRIORITY + 2*sizeof(mii_packet_t) + 20)/4)
-#define ETHERNET_TX_LP_MEMSIZE  ((ETHERNET_TX_BUFSIZE_LOW_PRIORITY + sizeof(mii_packet_t) + 20)/4)
+#define ETHERNET_RX_LP_MEMSIZE  ((ETHERNET_RX_BUFSIZE_LOW_PRIORITY)/4)
+#define ETHERNET_TX_LP_MEMSIZE  ((ETHERNET_TX_BUFSIZE_LOW_PRIORITY)/4)
 
 int rx_lp_data[NUM_ETHERNET_PORTS][ETHERNET_RX_LP_MEMSIZE];
 int tx_lp_data[NUM_ETHERNET_PORTS][ETHERNET_TX_LP_MEMSIZE];
@@ -59,22 +59,20 @@ void init_mii_mem() {
   for (int i=0; i<NUM_ETHERNET_PORTS; ++i) {
 #if ETHERNET_RX_HP_QUEUE
     rx_mem_hp[i] = (mii_mempool_t) &rx_hp_data[i][0];
-    mii_init_mempool(rx_mem_hp[i], ETHERNET_RX_HP_MEMSIZE*4, 1518);
+    mii_init_mempool(rx_mem_hp[i], ETHERNET_RX_HP_MEMSIZE*4);
 #endif
     rx_mem_lp[i] = (mii_mempool_t) &rx_lp_data[i][0];
-    mii_init_mempool(rx_mem_lp[i], ETHERNET_RX_LP_MEMSIZE*4, 1518);
+    mii_init_mempool(rx_mem_lp[i], ETHERNET_RX_LP_MEMSIZE*4);
 
 #if !ETHERNET_TX_NO_BUFFERING
      #if ETHERNET_TX_HP_QUEUE
          tx_mem_hp[i] = (mii_mempool_t) &tx_hp_data[i][0];
          mii_init_mempool(tx_mem_hp[i],
-                          ETHERNET_TX_HP_MEMSIZE*4,
-                          ETHERNET_MAX_TX_HP_PACKET_SIZE);
+                          ETHERNET_TX_HP_MEMSIZE*4);
      #endif
          tx_mem_lp[i] = (mii_mempool_t) &tx_lp_data[i][0];
          mii_init_mempool(tx_mem_lp[i],
-                          ETHERNET_TX_LP_MEMSIZE*4,
-                          ETHERNET_MAX_TX_PACKET_SIZE);
+                          ETHERNET_TX_LP_MEMSIZE*4);
          init_ts_queue(&ts_queue[i]);
 #endif
 

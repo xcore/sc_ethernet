@@ -26,7 +26,6 @@ typedef struct mempool_info_t {
 #ifndef ETHERNET_USE_HARDWARE_LOCKS
   swlock_t lock;
 #endif
-  unsigned max_packet_size;
 } mempool_info_t;
 
 typedef struct malloc_hdr_t {
@@ -37,13 +36,9 @@ typedef struct malloc_hdr_t {
 
 #define MIN_USAGE (MII_PACKET_HEADER_SIZE+sizeof(malloc_hdr_t)+4*10)
 
-void mii_init_mempool(mii_mempool_t mempool0,
-                               int size,
-                               int maxsize_bytes)
+void mii_init_mempool(mii_mempool_t mempool0, int size)
 {
   mempool_info_t *info = (mempool_info_t *) mempool0;
-  info->max_packet_size = sizeof(mii_packet_t) + sizeof(malloc_hdr_t) - (((MAX_ETHERNET_PACKET_SIZE+3)&~3)-maxsize_bytes);
-  info->max_packet_size = (info->max_packet_size + 3) & ~3;
   info->start = (int *) (mempool0 + sizeof(mempool_info_t));
   info->end = (int *) (mempool0 + size - 4);
   info->rdptr = info->start;

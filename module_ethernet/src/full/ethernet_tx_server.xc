@@ -212,19 +212,19 @@ void ethernet_tx_server_no_buffer(const char mac_addr[],
             if (hp) {
               buf[p] = mii_reserve_at_least(tx_mem_hp[p],
                                                      end_ptr[p],
-                                                     MII_MALLOC_FULL_PACKET_SIZE);
+                                                     MII_MALLOC_FULL_PACKET_SIZE_HP);
               wrap_ptr[p] = mii_get_wrap_ptr(tx_mem_hp[p]);
             }
             else {
               buf[p] = mii_reserve_at_least(tx_mem_lp[p],
                                                      end_ptr[p],
-                                                  MII_MALLOC_FULL_PACKET_SIZE);
+                                                  MII_MALLOC_FULL_PACKET_SIZE_LP);
               wrap_ptr[p] = mii_get_wrap_ptr(tx_mem_lp[p]);
             }
 #else
               buf[p] = mii_reserve_at_least(tx_mem_lp[p],
                                                      end_ptr[p],
-                                                         MII_MALLOC_FULL_PACKET_SIZE);
+                                                         MII_MALLOC_FULL_PACKET_SIZE_LP);
               wrap_ptr[p] = mii_get_wrap_ptr(tx_mem_lp[p]);
 #endif
         	  if (buf[p] == 0)

@@ -210,7 +210,9 @@ void mii_rx_pins(
 		crc = 0x9226F562;
 
 #if ETHERNET_RX_HP_QUEUE
-		if (!dptr_hp) dptr_hp = dptr_lp;
+		if (!dptr_hp) {
+                  dptr_hp = dptr_lp;
+                }
 #endif
 
 #pragma xta endpoint "mii_rx_first_word"
@@ -306,9 +308,9 @@ void mii_rx_pins(
                                   if (dptr != end_ptr) {
                                     mii_packet_set_data_word_imm(dptr, 0, word);
                                     crc32(crc, word, poly);
-                                  }
                                   ii+=4;
                                   dptr += 4;
+                                  }
                                   if (dptr == wrap_ptr)
                                     asm("ldw %0,%0[0]":"=r"(dptr));
                                   break;

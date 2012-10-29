@@ -5,9 +5,7 @@
 typedef unsigned mii_mempool_t;
 typedef unsigned mii_buffer_t;
 
-void mii_init_mempool(mii_mempool_t mempool0,
-                               int size,
-                               int maxsize_bytes);
+void mii_init_mempool(mii_mempool_t mempool0, int size);
 
 mii_buffer_t mii_reserve(mii_mempool_t mempool,
                                   REFERENCE_PARAM(unsigned, end_ptr));
@@ -27,5 +25,7 @@ int mii_get_wrap_ptr(mii_mempool_t mempool);
 unsigned mii_packet_get_data(int buf, int n);
 int mii_packet_get_wrap_ptr(int buf);
 
-#define MII_MALLOC_FULL_PACKET_SIZE MII_PACKET_HEADER_SIZE+8+1518
+#define MII_MALLOC_FULL_PACKET_SIZE_LP MII_PACKET_HEADER_SIZE+8+ETHERNET_MAX_TX_LP_PACKET_SIZE
+#define MII_MALLOC_FULL_PACKET_SIZE_HP MII_PACKET_HEADER_SIZE+8+ETHERNET_MAX_TX_HP_PACKET_SIZE
+
 #endif
