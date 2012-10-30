@@ -146,7 +146,10 @@ void mii_rx_pins(
 {
 	timer tmr;
 	unsigned poly = 0xEDB88320;
-        unsigned wrap_ptr_hp, wrap_ptr_lp;
+#if ETHERNET_RX_HP_QUEUE
+        unsigned wrap_ptr_hp;
+#endif
+        unsigned wrap_ptr_lp;
 
 #if ETHERNET_RX_HP_QUEUE
         wrap_ptr_hp = mii_get_wrap_ptr(rxmem_hp);

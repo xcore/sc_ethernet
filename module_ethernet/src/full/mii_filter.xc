@@ -12,8 +12,8 @@
 #include "mii_filter.h"
 #include "ethernet_conf_derived.h"
 
-#if ETHERNET_USE_XTCP_FILTER
-#include "xtcp_mac_filter.h"
+#ifdef ETHERNET_CUSTOM_FILTER_HEADER
+#include ETHERNET_CUSTOM_FILTER_HEADER
 #else
 #ifdef __mac_custom_filter_h_exists__
 #include "mac_custom_filter.h"
