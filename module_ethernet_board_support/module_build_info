@@ -10,7 +10,5 @@
 # You can also set MODULE_XCC_C_FLAGS, MODULE_XCC_XC_FLAGS etc..
 
 # Only include the board we are compiling for
-OPTIONAL_HEADERS += ethernet_board_conf.h ethernet_conf_derived.h
-
 SOURCE_DIRS = common $(TARGET)
 INCLUDE_DIRS = common $(TARGET)
