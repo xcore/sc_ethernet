@@ -1,6 +1,6 @@
 TARGET = XP-MC-CTRL-L2
 APP_NAME = 
-XCC_FLAGS = -g -O2 -lxscope
+XCC_FLAGS = -g -O2 -fxscope
 USED_MODULES = module_ethernet module_ethernet_smi
 
 # This change to the module path is so that this application can be in the
