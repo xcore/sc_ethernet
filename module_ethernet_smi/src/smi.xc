@@ -8,8 +8,20 @@
 #include "smi.h"
 #include "print.h"
 
+#ifndef ETHERNET_PHY_RESET_TIMER_TICKS
+#define ETHERNET_PHY_RESET_TIMER_TICKS 100
+#endif
+
+#ifndef SMI_MDIO_RESET_MUX
+#define SMI_MDIO_RESET_MUX 0
+#endif
+
+#ifndef SMI_MDIO_REST
+#define SMI_MDIO_REST 0
+#endif
+
 #ifndef SMI_HANDLE_COMBINED_PORTS
-  #if SMI_COMBINED_MDC_MDIO
+  #if SMI_COMBINE_MDC_MDIO
      #define SMI_HANDLE_COMBINED_PORTS 1
   #else
      #define SMI_HANDLE_COMBINED_PORTS 0
@@ -25,6 +37,13 @@
   #ifndef SMI_MDIO_BIT
   #warning SMI_MDIO_BIT not defined in smi_conf.h - Assuming 1
   #define SMI_MDIO_BIT 1
+  #endif
+#else
+  #ifndef SMI_MDIO_BIT
+  #define SMI_MDIO_BIT 0
+  #endif
+  #ifndef SMI_MDC_BIT
+  #define SMI_MDC_BIT 0
   #endif
 #endif
 
@@ -56,6 +75,16 @@
 // Initialise the ports and clock blocks
 void smi_init(smi_interface_t &smi) {
 
+#if SMI_MDIO_RESET_MUX
+  {
+    timer tmr;
+    int t;
+    smi.p_smi_mdio <: 0x0;
+    tmr :> t;tmr when timerafter(t+100000) :> void;
+    smi.p_smi_mdio <: SMI_MDIO_REST;
+  }
+#endif
+
 #if SMI_HANDLE_COMBINED_PORT
   if (SMI_COMBINE_MDC_MDIO || (smi.phy_address < 0)) {
     smi.p_smi_mdc <: 1 << SMI_MDC_BIT;
@@ -74,7 +103,7 @@ void smi_init(smi_interface_t &smi) {
 static int smi_bit_shift(smi_interface_t &smi, unsigned data, unsigned count, unsigned inning) {
     int i = count, dataBit = 0, t;
 
-#if SMI_HANDLE_COMBINED_PORTS
+#if SMI_HANDLE_COMBINED_PORTS || SMI_COMBINE_MDC_MDIO
     if (SMI_COMBINE_MDC_MDIO || (smi.phy_address < 0)) {
         smi.p_smi_mdc :> void @ t;
         if (inning) {
@@ -90,7 +119,7 @@ static int smi_bit_shift(smi_interface_t &smi, unsigned data, unsigned count, un
             }
             smi.p_smi_mdc @ (t+30) :> void;
         } else {
-            while (i != 0) {
+          while (i != 0) {
                 i--;
                 dataBit = ((data >> i) & 1) << SMI_MDIO_BIT;
                 smi.p_smi_mdc @ (t + 30) <:                    dataBit;
@@ -110,17 +139,25 @@ static int smi_bit_shift(smi_interface_t &smi, unsigned data, unsigned count, un
         i--;
         smi.p_smi_mdc @ (t+30) <: 0;
         if (!inning) {
-            smi.p_smi_mdio <: data >> i;
+          int dataBit;
+          dataBit = ((data >> i) & 1) << SMI_MDIO_BIT;
+          #if SMI_MDIO_REST
+          dataBit |= SMI_MDIO_REST;
+          #endif
+          smi.p_smi_mdio <: dataBit;
         }
         smi.p_smi_mdc @ (t+60) <: ~0;
         if (inning) {
-            smi.p_smi_mdio :> dataBit;
-            data = (data << 1) | dataBit;
+          smi.p_smi_mdio :> dataBit;
+          dataBit = dataBit >> SMI_MDIO_BIT;
+          data = (data << 1) | dataBit;
         }
         t += 60;
     }
     smi.p_smi_mdc @ (t+30) <: ~0;
     return data;
+#else
+    return 0;
 #endif
 }
 

@@ -12,6 +12,8 @@
 
 #if defined(ETHERNET_USE_STAR_SLOT)
 #define SMI_COMBINE_MDC_MDIO 1
+#define SMI_MDC_BIT 0
+#define SMI_MDIO_BIT 1
 #define ETHERNET_DEFAULT_TILE tile[0]
 #define PORT_ETH_RXCLK on tile[0]: XS1_PORT_1B
 #define PORT_ETH_RXD on tile[0]: XS1_PORT_4A
@@ -55,6 +57,8 @@
 #else
 #if defined(ETHERNET_USE_SQUARE_SLOT)
 #define SMI_COMBINE_MDC_MDIO 1
+#define SMI_MDC_BIT 0
+#define SMI_MDIO_BIT 1
 #define ETHERNET_DEFAULT_TILE tile[1]
 #define PORT_ETH_RXCLK on tile[1]: XS1_PORT_1B
 #define PORT_ETH_RXD on tile[1]: XS1_PORT_4A
