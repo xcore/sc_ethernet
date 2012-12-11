@@ -78,66 +78,66 @@ void serviceLinkCmd(chanend link, int linkIndex, unsigned int &cmd)
   outct(link, XS1_CT_END);
    
   switch (cmd)
-   {
-      // request for data just mark it.x
-      case ETHERNET_RX_FRAME_REQ:
-      case ETHERNET_RX_FRAME_REQ_OFFSET2:
-      case ETHERNET_RX_TYPE_PAYLOAD_REQ:
-         // Handled elsewhere.
-
-        renotify=0;
-         break;
-      // filter set.
-      case ETHERNET_RX_CUSTOM_FILTER_SET: {
-         int filter_value;
-         link :> filter_value;
-         custom_filter_mask[linkIndex] = filter_value;       
-       } 
+  {
+    // request for data just mark it.x
+    case ETHERNET_RX_FRAME_REQ:
+    case ETHERNET_RX_FRAME_REQ_OFFSET2:
+    case ETHERNET_RX_TYPE_PAYLOAD_REQ:
+       // Handled elsewhere.
+      renotify=0;
       break;
-#if ETHERNET_COUNT_PACKETS
-      // overflow count return
-      case ETHERNET_RX_OVERFLOW_CNT_REQ:
-         link <: link_status[linkIndex].dropped_pkt_cnt;
-         break;
-      case ETHERNET_RX_OVERFLOW_MII_CNT_REQ: {
-    	  unsigned mii_dropped, bad_crc, bad_length, address, filter;
-    	  ethernet_get_mii_counts(mii_dropped);
-    	  ethernet_get_filter_counts(address, filter, bad_length, bad_crc);
-          link <: mii_dropped;
-          link <: bad_length;
-          link <: address;
-          link <: filter;
-          link <: bad_crc;
-         }
-         break;
-#endif
-      case ETHERNET_RX_DROP_PACKETS_SET: {        
-         int drop_packets;
-         link :> drop_packets;
-         if (drop_packets) {
-           link_status[linkIndex].max_queue_size = 1;
-         }
-         else {
-           link_status[linkIndex].max_queue_size = NUM_MII_RX_BUF;
-         }       
-         }
-         break;
-      case ETHERNET_RX_QUEUE_SIZE_SET: {
-         int size;
-         link :> size;
-         link_status[linkIndex].max_queue_size = size;
-         }
-         break;
-      case ETHERNET_RX_WANTS_STATUS_UPDATES_SET: {
-         link :> link_status[linkIndex].wants_status_updates;
-      }
+    // filter set.
+    case ETHERNET_RX_CUSTOM_FILTER_SET: {
+      int filter_value;
+      link :> filter_value;
+      custom_filter_mask[linkIndex] = filter_value;       
+      break;
+    } 
+  #if ETHERNET_COUNT_PACKETS
+    // overflow count return
+    case ETHERNET_RX_OVERFLOW_CNT_REQ: {
+      link <: link_status[linkIndex].dropped_pkt_cnt;
+      break;
+    }
+    case ETHERNET_RX_OVERFLOW_MII_CNT_REQ: {
+      unsigned mii_dropped, bad_crc, bad_length, address, filter;
+      ethernet_get_mii_counts(mii_dropped);
+      ethernet_get_filter_counts(address, filter, bad_length, bad_crc);
+        link <: mii_dropped;
+        link <: bad_length;
+        link <: address;
+        link <: filter;
+        link <: bad_crc;
         break;
-     default:    // unreconised command.
-         break;
-   }
+      }
+  #endif
+    case ETHERNET_RX_DROP_PACKETS_SET: {        
+      int drop_packets;
+      link :> drop_packets;
+      if (drop_packets) {
+        link_status[linkIndex].max_queue_size = 1;
+      }
+      else {
+        link_status[linkIndex].max_queue_size = NUM_MII_RX_BUF;
+      }
+      break;       
+    }
+    case ETHERNET_RX_QUEUE_SIZE_SET: {
+      int size;
+      link :> size;
+      link_status[linkIndex].max_queue_size = size;
+      break;
+    }
+    case ETHERNET_RX_WANTS_STATUS_UPDATES_SET: {
+      link :> link_status[linkIndex].wants_status_updates;
+      break;
+    }
+    default:    // unreconised command.
+      break;
+  }
 
-   if (renotify)
-     notify(link);
+  if (renotify)
+    notify(link);
 }
 
 /** This sent out recived frame to a given link layer, also track dropped packets.
@@ -304,10 +304,10 @@ static void processReceivedFrame(int buf,
        }
 
 #if (NUM_ETHERNET_PORTS > 1) && !defined(DISABLE_ETHERNET_PORT_FORWARDING)
-	   // Forward to other ports
+     // Forward to other ports
        if (result & MII_FILTER_FORWARD_TO_OTHER_PORTS) {
-    	   tcount += (NUM_ETHERNET_PORTS-1);
-    	   mii_packet_set_forwarding(buf, 0xFFFFFFFF);
+         tcount += (NUM_ETHERNET_PORTS-1);
+         mii_packet_set_forwarding(buf, 0xFFFFFFFF);
        }
 #endif
    }
@@ -317,7 +317,7 @@ static void processReceivedFrame(int buf,
        mii_free(buf);
    }
    else {
-	   mii_packet_set_tcount(buf, tcount-1);
+     mii_packet_set_tcount(buf, tcount-1);
    }   
    return;
 }
@@ -344,11 +344,11 @@ void send_status_packet(chanend c, int src_port, int status)
 #pragma unsafe arrays
 void ethernet_rx_server(
 #if ETHERNET_RX_HP_QUEUE
-		mii_mempool_t rxmem_hp[],
+    mii_mempool_t rxmem_hp[],
 #endif
-		mii_mempool_t rxmem_lp[],
-		chanend link[],
-		int num_link)
+    mii_mempool_t rxmem_lp[],
+    chanend link[],
+    int num_link)
 {
    int i;
    unsigned int cmd;
@@ -359,9 +359,9 @@ void ethernet_rx_server(
 
    for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
 #if ETHERNET_RX_HP_QUEUE
-	   rdptr_hp[p] = mii_init_my_rdptr(rxmem_hp[p]);
+     rdptr_hp[p] = mii_init_my_rdptr(rxmem_hp[p]);
 #endif
-	   rdptr_lp[p] = mii_init_my_rdptr(rxmem_lp[p]);
+     rdptr_lp[p] = mii_init_my_rdptr(rxmem_lp[p]);
    }
 
    // Initialise the link filters & local data structures.
@@ -436,23 +436,23 @@ void ethernet_rx_server(
          {
 #if ETHERNET_RX_HP_QUEUE
            for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
-        	   int buf = mii_get_my_next_buf(rxmem_hp[p],
+             int buf = mii_get_my_next_buf(rxmem_hp[p],
                                                           rdptr_hp[p]);
-        	   if (buf != 0 && mii_packet_get_stage(buf) == 1) {
-        		   rdptr_hp[p] = mii_update_my_rdptr(rxmem_hp[p], rdptr_hp[p]);
-        		   processReceivedFrame(buf, link, num_link);
-        		   break;
-        	   }
+             if (buf != 0 && mii_packet_get_stage(buf) == 1) {
+               rdptr_hp[p] = mii_update_my_rdptr(rxmem_hp[p], rdptr_hp[p]);
+               processReceivedFrame(buf, link, num_link);
+               break;
+             }
            }
 
 #endif
            for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
-        	   int buf = mii_get_my_next_buf(rxmem_lp[p], rdptr_lp[p]);
-        	   if (buf != 0 && mii_packet_get_stage(buf) == 1) {
-        		   rdptr_lp[p] = mii_update_my_rdptr(rxmem_lp[p], rdptr_lp[p]);
-        		   processReceivedFrame(buf, link, num_link);
+             int buf = mii_get_my_next_buf(rxmem_lp[p], rdptr_lp[p]);
+             if (buf != 0 && mii_packet_get_stage(buf) == 1) {
+               rdptr_lp[p] = mii_update_my_rdptr(rxmem_lp[p], rdptr_lp[p]);
+               processReceivedFrame(buf, link, num_link);
                    break;
-        	   }
+             }
            }
 
            for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
