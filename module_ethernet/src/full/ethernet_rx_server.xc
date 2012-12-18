@@ -55,6 +55,12 @@ static inline void notify(chanend c)
   outct(c, XS1_CT_END);
 }
 
+static inline unsigned int get_tile_id_from_chanend(chanend c) {
+  unsigned int ci;
+  asm("shr %0, %1, 16":"=r"(ci):"r"(c));
+  return ci;
+}
+
 /** This service incomming commands from link layer interfaces.
  */
 #pragma select handler
@@ -132,6 +138,17 @@ void serviceLinkCmd(chanend link, int linkIndex, unsigned int &cmd)
       link :> link_status[linkIndex].wants_status_updates;
       break;
     }
+#if ETHERNET_RX_ENABLE_TIMER_OFFSET_REQ
+    case ETHERNET_RX_TILE_TIMER_OFFSET_REQ: {
+      unsigned this_tile_now;
+      timer tmr;
+      unsigned tile_id = get_tile_id_from_chanend(link);
+      link <: tile_id;
+      tmr :> this_tile_now;
+      link <: this_tile_now;
+      break;
+    }
+#endif
     default:    // unreconised command.
       break;
   }

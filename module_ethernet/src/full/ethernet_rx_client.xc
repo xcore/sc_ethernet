@@ -21,6 +21,12 @@
 #include "ethernet_conf_derived.h"
 #include <print.h>
 
+static inline unsigned int get_tile_id_from_chanend(chanend c) {
+  unsigned int ci;
+  asm("shr %0, %1, 16":"=r"(ci):"r"(c));
+  return ci;
+}
+
 
 /** This function unifies all the variants of mac_rx.
  */
@@ -182,3 +188,24 @@ void mac_get_global_counters(chanend mac_svr,
 #endif
 }
 
+void mac_get_tile_timer_offset(chanend mac_svr, int& offset)
+{
+  unsigned server_tile_id;
+  int other_tile_now;
+  int this_tile_now;
+  timer tmr;
+
+  send_cmd(mac_svr, ETHERNET_RX_TILE_TIMER_OFFSET_REQ);
+  mac_svr :> server_tile_id;
+  mac_svr :> other_tile_now;
+  tmr :> this_tile_now;
+
+  if (server_tile_id != get_tile_id_from_chanend(mac_svr))
+  {
+    offset = other_tile_now-this_tile_now-3; // 3 is an estimate of the channel + instruction latency
+  }
+  else
+  {
+    offset = 0;
+  }
+}

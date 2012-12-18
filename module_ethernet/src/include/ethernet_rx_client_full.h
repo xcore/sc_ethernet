@@ -146,6 +146,14 @@ void mac_get_global_counters(chanend mac_svr,
 		                     REFERENCE_PARAM(unsigned,bad_crc)
 		                     );
 
+/** Get the timer offset between the Ethernet server and client. 
+ *  Returns 0 if the client is on the same tile.
+ *
+ *  \param mac_svr              chanend of receive server.
+ *  \param offset               The offset in timer ticks
+ */
+void mac_get_tile_timer_offset(chanend mac_svr, REFERENCE_PARAM(int, offset));
+
 /** Receive a packet starting at the second byte of a buffer
  *
  *  This is useful when the contents of the packet should be aligned on
