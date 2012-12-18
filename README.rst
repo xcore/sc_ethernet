@@ -15,7 +15,6 @@ Key Features
    * FIFO based memory allocation for lower RAM overhead
    * High priority (VLAN priority tag) queues
    * 802.1Qat traffic shaping
-   * Dual port
    
 Low thread count MII driver
 ===========================
