@@ -30,6 +30,20 @@ typedef struct mii_interface_full_t {
     out buffered port:32 p_mii_txd; /**< MII TX data wire */
 } mii_interface_full_t;
 
+typedef struct mii_slave_interface_full_t {
+  clock clk_mii;
+
+  out port p_mii_rxclk;             /**< MII RX clock wire */
+  out port p_mii_rxer;              /**< MII RX error wire */
+  out buffered port:32 p_mii_rxd;   /**< MII RX data wire */
+  out port p_mii_rxdv;              /**< MII RX data valid wire */
+
+
+  out port p_mii_txclk;             /**< MII TX clock wire */
+  in port p_mii_txen;               /**< MII TX enable wire */
+  in buffered port:32 p_mii_txd;    /**< MII TX data wire */
+} mii_slave_interface_full_t;
+
 typedef struct mii_interface_lite_t {
     clock clk_mii_rx;            /**< MII RX Clock Block **/
     clock clk_mii_tx;            /**< MII TX Clock Block **/

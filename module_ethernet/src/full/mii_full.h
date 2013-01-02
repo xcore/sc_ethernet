@@ -180,61 +180,58 @@ inline void mii_packet_set_data_byte(int buf, int n, int v) {
 }
 
 #ifdef __XC__
-void mii_rx_pins(
-#if ETHERNET_RX_HP_QUEUE
-		unsigned rxmem_hp,
-#endif
-		 unsigned rxmem_lp,
-		 in port p_mii_rxdv,
-		 in buffered port:32 p_mii_rxd,
-		 int ifnum,
-		 streaming chanend c);
+#define PORT_PARAM(param, name) param name
 #else
-void mii_rx_pins(
-#if ETHERNET_RX_HP_QUEUE
-		unsigned rxmem_hp,
-#endif
-		 unsigned rxmem_lp,
-		 port p_mii_rxdv,
-		 port p_mii_rxd,
-		 int ifnum,
-		 chanend c);
+#define PORT_PARAM(param, name) unsigned name
 #endif
 
 #ifdef __XC__
-void mii_tx_pins(
-#if (NUM_ETHERNET_PORTS > 1) && !defined(DISABLE_ETHERNET_PORT_FORWARDING)
-#if ETHERNET_TX_HP_QUEUE
-				unsigned hp_forward[],
-#endif
-				unsigned lp_forward[],
-#endif
-#if ETHERNET_TX_HP_QUEUE
-                unsigned hp_mempool,
-#endif
-                unsigned lp_mempool,
-                mii_ts_queue_t &ts_queue,
-                out buffered port:32 p_mii_txd,
-                int ifnum);
+#define CHANEND_PARAM(param, name) param name
 #else
-void mii_tx_pins(
-#if (NUM_ETHERNET_PORTS > 1) && !defined(DISABLE_ETHERNET_PORT_FORWARDING)
-#if ETHERNET_TX_HP_QUEUE
-				unsigned* hp_forward,
-#endif
-				unsigned* lp_forward,
-#endif
-#if ETHERNET_TX_HP_QUEUE
-                unsigned hp_mempool,
-#endif
-                unsigned lp_mempool,
-                mii_ts_queue_t *ts_queue,
-                port p_mii_txd,
-                int ifnum);
+#define CHANEND_PARAM(param, name) unsigned name
 #endif
 
 #if ETHERNET_COUNT_PACKETS
 void ethernet_get_mii_counts(REFERENCE_PARAM(unsigned,dropped));
 #endif
+
+void mii_rx_pins(
+#if ETHERNET_RX_HP_QUEUE
+      unsigned rxmem_hp,
+#endif
+      unsigned rxmem_lp,
+      PORT_PARAM(in port, p_mii_rxdv),
+      PORT_PARAM(in buffered port:32, p_mii_rxd),
+      int ifnum,
+      CHANEND_PARAM(streaming chanend, c));
+
+void mii_tx_pins(
+#if (NUM_ETHERNET_PORTS > 1) && !defined(DISABLE_ETHERNET_PORT_FORWARDING)
+#if ETHERNET_TX_HP_QUEUE
+		  unsigned hp_forward[],
+#endif
+		  unsigned lp_forward[],
+#endif
+#if ETHERNET_TX_HP_QUEUE
+      unsigned hp_mempool,
+#endif
+      unsigned lp_mempool,
+      REFERENCE_PARAM(mii_ts_queue_t, ts_queue),
+      PORT_PARAM(out buffered port:32, p_mii_txd),
+      int ifnum);
+
+// MII Slave (PHY Mode)
+void mii_slave_tx_pins(
+     unsigned rxmem_lp,
+     PORT_PARAM(in port, p_mii_rxdv),
+     PORT_PARAM(in buffered port:32, p_mii_rxd),
+     int ifnum,
+     CHANEND_PARAM(streaming chanend, c));
+
+void mii_slave_rx_pins(
+        unsigned lp_forward[],
+        unsigned lp_mempool,
+        PORT_PARAM(out buffered port:32, p_mii_rxd),
+        int ifnum);
 
 #endif
