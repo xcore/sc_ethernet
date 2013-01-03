@@ -34,13 +34,13 @@
 
 typedef struct
 {
-   unsigned dropped_pkt_cnt;
-   int notified;
-   int max_queue_size;
-   int rdIndex;
-   int wrIndex;
-   int fifo[NUM_MII_RX_BUF];
-   int wants_status_updates;
+  unsigned dropped_pkt_cnt;
+  int notified;
+  int max_queue_size;
+  int rdIndex;
+  int wrIndex;
+  int fifo[NUM_MII_RX_BUF];
+  int wants_status_updates;
 } link_layer_status_t;
 
 static int custom_filter_mask[MAX_ETHERNET_CLIENTS];
@@ -86,13 +86,13 @@ void service_link_cmd(chanend link, int linkIndex, unsigned int &cmd)
     case ETHERNET_RX_FRAME_REQ:
     case ETHERNET_RX_FRAME_REQ_OFFSET2:
     case ETHERNET_RX_TYPE_PAYLOAD_REQ:
-       // Handled elsewhere.
+      // Handled elsewhere.
       renotify=0;
       break;
     case ETHERNET_RX_CUSTOM_FILTER_SET: {
       int filter_value;
       link :> filter_value;
-      custom_filter_mask[linkIndex] = filter_value;       
+      custom_filter_mask[linkIndex] = filter_value;
       break;
     } 
   #if ETHERNET_COUNT_PACKETS
@@ -112,7 +112,7 @@ void service_link_cmd(chanend link, int linkIndex, unsigned int &cmd)
         break;
       }
   #endif
-    case ETHERNET_RX_DROP_PACKETS_SET: {        
+    case ETHERNET_RX_DROP_PACKETS_SET: {
       int drop_packets;
       link :> drop_packets;
       if (drop_packets) {
@@ -121,7 +121,7 @@ void service_link_cmd(chanend link, int linkIndex, unsigned int &cmd)
       else {
         link_status[linkIndex].max_queue_size = NUM_MII_RX_BUF;
       }
-      break;       
+      break;
     }
     case ETHERNET_RX_QUEUE_SIZE_SET: {
       int size;
@@ -183,7 +183,7 @@ void mac_rx_send_frame1(int p,
         dptr += 4;
       }
       link <: (char) 0;
-      link <: (char) 0;      
+      link <: (char) 0;
       link <: mii_packet_get_timestamp(p) + ETHERNET_RX_PHY_TIMER_OFFSET;
     }  
     
@@ -210,9 +210,8 @@ void mac_rx_send_frame1(int p,
         link <: datum;
         dptr += 4;
       }
-      link <: mii_packet_get_timestamp(p);
-      
-    }  
+      link <: mii_packet_get_timestamp(p); 
+    }
   }
 }
 
@@ -235,7 +234,7 @@ void mac_rx_send_frame0(mii_packet_t &p,
         link <: byterev(p.data[i]);
       }
       link <: (char) 0;
-      link <: (char) 0;      
+      link <: (char) 0;
       link <: p.timestamp + ETHERNET_RX_PHY_TIMER_OFFSET;
     }  
     
@@ -271,63 +270,62 @@ static void process_received_frame(int buf,
                                  chanend link[], 
                                  int n)
 {
-   int i;
-   int tcount = 0;
-   int result = mii_packet_get_filter_result(buf);
-   // process for each link
+  int i;
+  int tcount = 0;
+  int result = mii_packet_get_filter_result(buf);
 
-   if (result) {
-     for (i = 0; i < n; i += 1) {
-         int match = 0;
-         match = (custom_filter_mask[i] & result);
+  if (result) {
+    // process for each link
+    for (i = 0; i < n; i += 1) {
+      int match = 0;
+      match = (custom_filter_mask[i] & result);
          
-         if (match) {
-             // We have a match, add the packet to the client's
-             // packet queue (if there is space)
-             int rdIndex = link_status[i].rdIndex;
-             int wrIndex = link_status[i].wrIndex;
-             int new_wrIndex;
-             int queue_size;
+      if (match) {
+        // We have a match, add the packet to the client's
+        // packet queue (if there is space)
+        int rdIndex = link_status[i].rdIndex;
+        int wrIndex = link_status[i].wrIndex;
+        int new_wrIndex;
+        int queue_size;
              
-             new_wrIndex = wrIndex+1;
-             new_wrIndex *= (new_wrIndex != NUM_MII_RX_BUF);
+        new_wrIndex = wrIndex+1;
+        new_wrIndex *= (new_wrIndex != NUM_MII_RX_BUF);
              
-             queue_size = wrIndex-rdIndex;
-             if (queue_size < 0)
-               queue_size += NUM_MII_RX_BUF;
-             
-             
-             if (queue_size < link_status[i].max_queue_size &&
-                 new_wrIndex != rdIndex) {
-                 tcount++;
-                 link_status[i].fifo[wrIndex] = buf;
-                 link_status[i].wrIndex = new_wrIndex;
-                 if (!link_status[i].notified) {
-                   notify(link[i]);
-                   link_status[i].notified = 1;
-                 }
-               } else {
-                 link_status[i].dropped_pkt_cnt++;
-               }
-           }
-       }
+        queue_size = wrIndex-rdIndex;
+        if (queue_size < 0)
+          queue_size += NUM_MII_RX_BUF;
+          
+        if (queue_size < link_status[i].max_queue_size &&
+          new_wrIndex != rdIndex) {
+          tcount++;
+          link_status[i].fifo[wrIndex] = buf;
+          link_status[i].wrIndex = new_wrIndex;
+          if (!link_status[i].notified) {
+            notify(link[i]);
+            link_status[i].notified = 1;
+          }
+        } else {
+          link_status[i].dropped_pkt_cnt++;
+        }
+      }
+    }
 
 #if (NUM_ETHERNET_PORTS > 1) && !defined(DISABLE_ETHERNET_PORT_FORWARDING)
-      // We have limited forwarding here to a single other port
-       if (result & MII_FILTER_FORWARD_TO_OTHER_PORTS) {
-         tcount++;
-         mii_packet_set_forwarding(buf, 0xFFFFFFFF);
-       }
+    // We have limited forwarding here to a single other port
+    if (result & MII_FILTER_FORWARD_TO_OTHER_PORTS) {
+      tcount++;
+      mii_packet_set_forwarding(buf, 0xFFFFFFFF);
+    }
 #endif
-   }
+  }
    
-   if (tcount == 0) {
-       mii_free(buf);
-   }
-   else {
-     mii_packet_set_tcount(buf, tcount-1);
-   }   
-   return;
+  if (tcount == 0) {
+    mii_free(buf);
+  }
+  else {
+    mii_packet_set_tcount(buf, tcount-1);
+  }   
+  return;
 }
 
 void send_status_packet(chanend c, int src_port, int status)
@@ -358,125 +356,124 @@ void ethernet_rx_server(
     chanend link[],
     int num_link)
 {
-   int i;
-   unsigned int cmd;
+  int i;
+  unsigned int cmd;
 #if ETHERNET_RX_HP_QUEUE
-   int rdptr_hp[NUM_ETHERNET_PORTS];
+  int rdptr_hp[NUM_ETHERNET_PORTS];
 #endif
-   int rdptr_lp[NUM_ETHERNET_PORTS];
+  int rdptr_lp[NUM_ETHERNET_PORTS];
 
-   for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
+  for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
 #if ETHERNET_RX_HP_QUEUE
-     rdptr_hp[p] = mii_init_my_rdptr(rxmem_hp[p]);
+    rdptr_hp[p] = mii_init_my_rdptr(rxmem_hp[p]);
 #endif
-     rdptr_lp[p] = mii_init_my_rdptr(rxmem_lp[p]);
-   }
+    rdptr_lp[p] = mii_init_my_rdptr(rxmem_lp[p]);
+  }
 
-   // Initialise the link filters & local data structures.
-   for (i = 0; i < num_link; i += 1)
-   {
-      link_status[i].dropped_pkt_cnt = 0;      
-      link_status[i].max_queue_size = NUM_MII_RX_BUF;
-      link_status[i].rdIndex = 0;
-      link_status[i].wrIndex = 0;
-      link_status[i].notified = 0;
-      link_status[i].wants_status_updates = 0;
-      custom_filter_mask[i] = 0;
-   }
+  // Initialise the link filters & local data structures.
+  for (i = 0; i < num_link; i += 1)
+  {
+    link_status[i].dropped_pkt_cnt = 0;
+    link_status[i].max_queue_size = NUM_MII_RX_BUF;
+    link_status[i].rdIndex = 0;
+    link_status[i].wrIndex = 0;
+    link_status[i].notified = 0;
+    link_status[i].wants_status_updates = 0;
+    custom_filter_mask[i] = 0;
+  }
 
-   // Main control loop.
-   while (1)
-   {
-     int kill_link = -1;
-     // Make this select ordered so we deal with any commands from the client
-     // before processing a packet
+  // Main control loop.
+  while (1)
+  {
+    int kill_link = -1;
+    // Make this select ordered so we deal with any commands from the client
+    // before processing a packet
 #pragma ordered
-     select
-       {
-       case (int i=0;i<num_link;i++) service_link_cmd(link[i], i, cmd):
-         if (cmd == ETHERNET_RX_FRAME_REQ || 
-             cmd == ETHERNET_RX_TYPE_PAYLOAD_REQ ||
-             cmd == ETHERNET_RX_FRAME_REQ_OFFSET2)
-           {
-             int rdIndex = link_status[i].rdIndex;
-             int wrIndex = link_status[i].wrIndex;
-             int new_rdIndex;
+    select
+    {
+      case (int i=0;i<num_link;i++) service_link_cmd(link[i], i, cmd):
+        if (cmd == ETHERNET_RX_FRAME_REQ || 
+            cmd == ETHERNET_RX_TYPE_PAYLOAD_REQ ||
+            cmd == ETHERNET_RX_FRAME_REQ_OFFSET2)
+        {
+          int rdIndex = link_status[i].rdIndex;
+          int wrIndex = link_status[i].wrIndex;
+          int new_rdIndex;
 
-             if (link_status[i].wants_status_updates == 2) {
-               // This currently only works for single master port implementations
-               int status = ethernet_get_link_status(0);
-               send_status_packet(link[i], 0, status);
-               link_status[i].wants_status_updates = 1;
-               if (rdIndex != wrIndex) {
-                 notify(link[i]);
-               }
-               else {
-                 link_status[i].notified = 0;
-               }
-             }
-             else {
-               if (rdIndex != wrIndex) {
-                 int buf = link_status[i].fifo[rdIndex];
-                 new_rdIndex=rdIndex+1;
-                 new_rdIndex *= (new_rdIndex != NUM_MII_RX_BUF);
+          if (link_status[i].wants_status_updates == 2) {
+            // This currently only works for single master port implementations
+            int status = ethernet_get_link_status(0);
+            send_status_packet(link[i], 0, status);
+            link_status[i].wants_status_updates = 1;
+            if (rdIndex != wrIndex) {
+              notify(link[i]);
+            }
+            else {
+              link_status[i].notified = 0;
+            }
+          }
+          else {
+            if (rdIndex != wrIndex) {
+              int buf = link_status[i].fifo[rdIndex];
+              new_rdIndex=rdIndex+1;
+              new_rdIndex *= (new_rdIndex != NUM_MII_RX_BUF);
 
-                 mac_rx_send_frame1(buf, link[i], cmd);
+              mac_rx_send_frame1(buf, link[i], cmd);
 
-                 if (get_and_dec_transmit_count(buf)==0)
-                   mii_free(buf);
+              if (get_and_dec_transmit_count(buf)==0)
+                mii_free(buf);
 
-                 link_status[i].rdIndex = new_rdIndex;
+              link_status[i].rdIndex = new_rdIndex;
 
-                 if (new_rdIndex != wrIndex) {
-                   notify(link[i]);
-                 }
-                 else {
-                   link_status[i].notified = 0;
-                 }               
-               }
-              else { 
-               // mac request without notification
+              if (new_rdIndex != wrIndex) {
+                notify(link[i]);
               }
-             }
-           }
-         break;
-       default:
-         {
+              else {
+                link_status[i].notified = 0;
+              }               
+            }
+            else { 
+              // mac request without notification
+            }
+          }
+        }
+        break;
+      default:
+      {
 #if ETHERNET_RX_HP_QUEUE
-           for (unsigned p=0; p<NUM_ETHERNET_MASTER_PORTS; ++p) {
-             int buf = mii_get_my_next_buf(rxmem_hp[p], rdptr_hp[p]);
-             if (buf != 0 && mii_packet_get_stage(buf) == 1) {
-               rdptr_hp[p] = mii_update_my_rdptr(rxmem_hp[p], rdptr_hp[p]);
-               process_received_frame(buf, link, num_link);
-               break;
-             }
-           }
+        for (unsigned p=0; p<NUM_ETHERNET_MASTER_PORTS; ++p) {
+          int buf = mii_get_my_next_buf(rxmem_hp[p], rdptr_hp[p]);
+          if (buf != 0 && mii_packet_get_stage(buf) == 1) {
+            rdptr_hp[p] = mii_update_my_rdptr(rxmem_hp[p], rdptr_hp[p]);
+            process_received_frame(buf, link, num_link);
+            break;
+          }
+        }
 
 #endif
-           for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
-             int buf = mii_get_my_next_buf(rxmem_lp[p], rdptr_lp[p]);
-             if (buf != 0 && mii_packet_get_stage(buf) == 1) {
-               rdptr_lp[p] = mii_update_my_rdptr(rxmem_lp[p], rdptr_lp[p]);
-               process_received_frame(buf, link, num_link);
-                   break;
-             }
-           }
+        for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
+          int buf = mii_get_my_next_buf(rxmem_lp[p], rdptr_lp[p]);
+          if (buf != 0 && mii_packet_get_stage(buf) == 1) {
+            rdptr_lp[p] = mii_update_my_rdptr(rxmem_lp[p], rdptr_lp[p]);
+            process_received_frame(buf, link, num_link);
+            break;
+          }
+        }
 
-           for (unsigned p=0; p<NUM_ETHERNET_MASTER_PORTS; ++p) {
-             if (ethernet_link_status_notification(p)) {
-               int status = ethernet_get_link_status(p);
-               for (int i=0;i<num_link;i++) {
-                 if (link_status[i].wants_status_updates) {
-                   link_status[i].wants_status_updates = 2;
-                   if (!link_status[i].notified)
-                     notify(link[i]);
-                 }
-               }
-             }
-           }
-           break;
-             }
-       }
-   }
+        for (unsigned p=0; p<NUM_ETHERNET_MASTER_PORTS; ++p) {
+          if (ethernet_link_status_notification(p)) {
+            int status = ethernet_get_link_status(p);
+            for (int i=0;i<num_link;i++) {
+              if (link_status[i].wants_status_updates) {
+                link_status[i].wants_status_updates = 2;
+                if (!link_status[i].notified)
+                  notify(link[i]);
+              }
+            }
+          }
+        }
+        break;
+      } // end default
+    } // end select
+  } // end while
 }
-
