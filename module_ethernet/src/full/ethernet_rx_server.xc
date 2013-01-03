@@ -32,7 +32,6 @@
 #define ETHERNET_RX_PHY_TIMER_OFFSET -50
 #endif
 
-// data structure to keep track of link layer status.
 typedef struct
 {
    unsigned dropped_pkt_cnt;
@@ -43,8 +42,6 @@ typedef struct
    int fifo[NUM_MII_RX_BUF];
    int wants_status_updates;
 } link_layer_status_t;
-
-// Local data structures.
 
 static int custom_filter_mask[MAX_ETHERNET_CLIENTS];
 
@@ -61,7 +58,7 @@ static inline unsigned int get_tile_id_from_chanend(chanend c) {
   return ci;
 }
 
-/** This service incomming commands from link layer interfaces.
+/** This services incomming commands from link layer interfaces.
  */
 #pragma select handler
 void service_link_cmd(chanend link, int linkIndex, unsigned int &cmd)
@@ -85,14 +82,13 @@ void service_link_cmd(chanend link, int linkIndex, unsigned int &cmd)
    
   switch (cmd)
   {
-    // request for data just mark it.x
+    // request for data just mark it
     case ETHERNET_RX_FRAME_REQ:
     case ETHERNET_RX_FRAME_REQ_OFFSET2:
     case ETHERNET_RX_TYPE_PAYLOAD_REQ:
        // Handled elsewhere.
       renotify=0;
       break;
-    // filter set.
     case ETHERNET_RX_CUSTOM_FILTER_SET: {
       int filter_value;
       link :> filter_value;
@@ -100,7 +96,6 @@ void service_link_cmd(chanend link, int linkIndex, unsigned int &cmd)
       break;
     } 
   #if ETHERNET_COUNT_PACKETS
-    // overflow count return
     case ETHERNET_RX_OVERFLOW_CNT_REQ: {
       link <: link_status[linkIndex].dropped_pkt_cnt;
       break;
@@ -157,9 +152,6 @@ void service_link_cmd(chanend link, int linkIndex, unsigned int &cmd)
     notify(link);
 }
 
-/** This sent out recived frame to a given link layer, also track dropped packets.
- *
- */ 
 /* C wrapper that casts the int to a pointer */
 void mac_rx_send_frame(int buf,
                        chanend link,
@@ -330,7 +322,6 @@ static void process_received_frame(int buf,
    }
    
    if (tcount == 0) {
-     //if (get_and_dec_transmit_count(buf)==0)
        mii_free(buf);
    }
    else {
@@ -355,7 +346,7 @@ void send_status_packet(chanend c, int src_port, int status)
  *  VLAN Tag & EType (6bytes). Each bit in the 12bytes filter in turn have mask
  *  and compare bit.
  *
- *  It interface with ethernet_rx_buf_ctl to handle frames 
+ *  It interfaces with ethernet_rx_buf_ctl to handle frames 
  * 
  */
 #pragma unsafe arrays
@@ -412,7 +403,7 @@ void ethernet_rx_server(
              int new_rdIndex;
 
              if (link_status[i].wants_status_updates == 2) {
-               // This currently only works for single port implementations
+               // This currently only works for single master port implementations
                int status = ethernet_get_link_status(0);
                send_status_packet(link[i], 0, status);
                link_status[i].wants_status_updates = 1;
