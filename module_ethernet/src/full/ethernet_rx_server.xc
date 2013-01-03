@@ -271,7 +271,7 @@ void mac_rx_send_frame0(mii_packet_t &p,
   }
 }
 
-/** This apply ethernet frame filters on the recieved frame for each link.
+/** This applies ethernet frame filters on the recieved frame for each link.
  *  A received frame may be required to sent to more than one link layer.
  */
 #pragma unsafe arrays
@@ -321,9 +321,9 @@ static void process_received_frame(int buf,
        }
 
 #if (NUM_ETHERNET_PORTS > 1) && !defined(DISABLE_ETHERNET_PORT_FORWARDING)
-     // Forward to other ports
+      // We have limited forwarding here to a single other port
        if (result & MII_FILTER_FORWARD_TO_OTHER_PORTS) {
-         tcount += (NUM_ETHERNET_PORTS-1);
+         tcount++;
          mii_packet_set_forwarding(buf, 0xFFFFFFFF);
        }
 #endif
@@ -452,9 +452,8 @@ void ethernet_rx_server(
        default:
          {
 #if ETHERNET_RX_HP_QUEUE
-           for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
-             int buf = mii_get_my_next_buf(rxmem_hp[p],
-                                                          rdptr_hp[p]);
+           for (unsigned p=0; p<NUM_ETHERNET_MASTER_PORTS; ++p) {
+             int buf = mii_get_my_next_buf(rxmem_hp[p], rdptr_hp[p]);
              if (buf != 0 && mii_packet_get_stage(buf) == 1) {
                rdptr_hp[p] = mii_update_my_rdptr(rxmem_hp[p], rdptr_hp[p]);
                process_received_frame(buf, link, num_link);
@@ -472,7 +471,7 @@ void ethernet_rx_server(
              }
            }
 
-           for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
+           for (unsigned p=0; p<NUM_ETHERNET_MASTER_PORTS; ++p) {
              if (ethernet_link_status_notification(p)) {
                int status = ethernet_get_link_status(p);
                for (int i=0;i<num_link;i++) {
