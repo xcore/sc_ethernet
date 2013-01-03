@@ -1,6 +1,11 @@
 Ethernet Component Change Log
 =============================
 
+2.2.2
+-----
+  * Added timer offset retrieval feature to support AVB
+  * XC-2 suport fixed
+
 2.2.1
 -----
   * Minor fix to example apps (ports structures should be declared on
