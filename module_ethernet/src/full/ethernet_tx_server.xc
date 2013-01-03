@@ -136,7 +136,6 @@ void ethernet_tx_server_no_buffer(const char mac_addr[],
         }
         linkCheckTime += LINK_POLL_PERIOD;
         break;
-
     }
   }
 }
@@ -212,32 +211,32 @@ void ethernet_tx_server_no_buffer(const char mac_addr[],
 #if ETHERNET_TX_HP_QUEUE
             if (hp) {
               buf[p] = mii_reserve_at_least(tx_mem_hp[p],
-                                                     end_ptr[p],
-                                                     MII_MALLOC_FULL_PACKET_SIZE_HP);
+                                            end_ptr[p],
+                                            MII_MALLOC_FULL_PACKET_SIZE_HP);
               wrap_ptr[p] = mii_get_wrap_ptr(tx_mem_hp[p]);
             }
             else {
               buf[p] = mii_reserve_at_least(tx_mem_lp[p],
-                                                     end_ptr[p],
-                                                  MII_MALLOC_FULL_PACKET_SIZE_LP);
+                                            end_ptr[p],
+                                            MII_MALLOC_FULL_PACKET_SIZE_LP);
               wrap_ptr[p] = mii_get_wrap_ptr(tx_mem_lp[p]);
             }
 #else
               buf[p] = mii_reserve_at_least(tx_mem_lp[p],
-                                                     end_ptr[p],
-                                                         MII_MALLOC_FULL_PACKET_SIZE_LP);
+                                            end_ptr[p],
+                                            MII_MALLOC_FULL_PACKET_SIZE_LP);
               wrap_ptr[p] = mii_get_wrap_ptr(tx_mem_lp[p]);
 #endif
             if (buf[p] == 0)
-                    bufs_ok=0;
-                  else
-                    dptr[p] = mii_packet_get_data_ptr(buf[p]);
+              bufs_ok=0;
+            else
+              dptr[p] = mii_packet_get_data_ptr(buf[p]);
           }
 
           if (bufs_ok) {
             master {
-            tx[i] :> length;
-            tx[i] :> dst_port;
+              tx[i] :> length;
+              tx[i] :> dst_port;
               if (cmd == ETHERNET_TX_REQ_OFFSET2) {
                 tx[i] :> char;
                 tx[i] :> char;
