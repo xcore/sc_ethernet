@@ -42,13 +42,13 @@ typedef struct
    int wrIndex;
    int fifo[NUM_MII_RX_BUF];
    int wants_status_updates;
-} LinkLayerStatus_t;
+} link_layer_status_t;
 
 // Local data structures.
 
 static int custom_filter_mask[MAX_ETHERNET_CLIENTS];
 
-static LinkLayerStatus_t link_status[MAX_ETHERNET_CLIENTS];
+static link_layer_status_t link_status[MAX_ETHERNET_CLIENTS];
 
 static inline void notify(chanend c)
 {
@@ -64,7 +64,7 @@ static inline unsigned int get_tile_id_from_chanend(chanend c) {
 /** This service incomming commands from link layer interfaces.
  */
 #pragma select handler
-void serviceLinkCmd(chanend link, int linkIndex, unsigned int &cmd)
+void service_link_cmd(chanend link, int linkIndex, unsigned int &cmd)
 {
   int renotify=0;
   int is_cmd;
@@ -275,7 +275,7 @@ void mac_rx_send_frame0(mii_packet_t &p,
  *  A received frame may be required to sent to more than one link layer.
  */
 #pragma unsafe arrays
-static void processReceivedFrame(int buf,
+static void process_received_frame(int buf,
                                  chanend link[], 
                                  int n)
 {
@@ -402,7 +402,7 @@ void ethernet_rx_server(
 #pragma ordered
      select
        {
-       case (int i=0;i<num_link;i++) serviceLinkCmd(link[i], i, cmd):
+       case (int i=0;i<num_link;i++) service_link_cmd(link[i], i, cmd):
          if (cmd == ETHERNET_RX_FRAME_REQ || 
              cmd == ETHERNET_RX_TYPE_PAYLOAD_REQ ||
              cmd == ETHERNET_RX_FRAME_REQ_OFFSET2)
@@ -457,7 +457,7 @@ void ethernet_rx_server(
                                                           rdptr_hp[p]);
              if (buf != 0 && mii_packet_get_stage(buf) == 1) {
                rdptr_hp[p] = mii_update_my_rdptr(rxmem_hp[p], rdptr_hp[p]);
-               processReceivedFrame(buf, link, num_link);
+               process_received_frame(buf, link, num_link);
                break;
              }
            }
@@ -467,7 +467,7 @@ void ethernet_rx_server(
              int buf = mii_get_my_next_buf(rxmem_lp[p], rdptr_lp[p]);
              if (buf != 0 && mii_packet_get_stage(buf) == 1) {
                rdptr_lp[p] = mii_update_my_rdptr(rxmem_lp[p], rdptr_lp[p]);
-               processReceivedFrame(buf, link, num_link);
+               process_received_frame(buf, link, num_link);
                    break;
              }
            }
