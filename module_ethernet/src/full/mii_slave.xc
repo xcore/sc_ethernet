@@ -311,7 +311,9 @@ void mii_slave_transmit_packet(unsigned buf, out buffered port:32 p_mii_rxd)
 
 #pragma unsafe arrays
 void mii_slave_rx_pins(
+#if (NUM_ETHERNET_PORTS > 1) && !defined(DISABLE_ETHERNET_PORT_FORWARDING)
         mii_mempool_t lp_forward[],
+#endif
         mii_mempool_t lp_queue,
         out buffered port:32 p_mii_rxd,
         int ifnum)
@@ -329,6 +331,7 @@ void mii_slave_rx_pins(
 
         buf = mii_get_next_buf(lp_queue);
 
+#if (NUM_ETHERNET_PORTS > 1) && !(DISABLE_ETHERNET_PORT_FORWARDING)
         if (!buf || mii_packet_get_stage(buf) == 0)
         {
             for (unsigned int i=0; i<NUM_ETHERNET_PORTS; ++i)
@@ -345,6 +348,7 @@ void mii_slave_rx_pins(
                 buf = 0;
             }
         }
+#endif
 
         // Check that we are out of the IFS period
         tmr :> time;

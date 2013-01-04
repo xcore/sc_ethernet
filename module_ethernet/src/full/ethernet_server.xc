@@ -31,8 +31,6 @@ void ethernet_server_full(mii_interface_full_t &m,
   mii_init_full(m);
   init_mii_mem();
   par {
-    // These thrads all communicate internally via shared memory
-    // packet queues
     mii_rx_pins(m.p_mii_rxdv, m.p_mii_rxd, 0, c[0]);
 #if ETHERNET_TX_NO_BUFFERING
     ethernet_tx_server(mac_address, tx, 1, num_tx, smi, null, m.p_mii_txd);
@@ -48,47 +46,27 @@ void ethernet_server_full(mii_interface_full_t &m,
 
 
 #if (NUM_ETHERNET_PORTS == 2)
-void phy_init_two_port(clock clk_smi,
-                       out port ?p_mii_resetn,
-                       smi_interface_t &smi0,
-                       smi_interface_t &smi1,
-                       mii_interface_t &mii0,
-                       mii_interface_t &mii1)
+void ethernet_server_full_with_phy_mode_port(mii_interface_full_t &m,
+                                             smi_interface_t &?smi,
+                                             mii_slave_interface_full_t &s,
+                                             char mac_address[],
+                                             chanend rx[],
+                                             int num_rx,
+                                             chanend tx[],
+                                             int num_tx)
 {
-  smi_init(clk_smi, p_mii_resetn, smi0);
-  smi_init(clk_smi, p_mii_resetn, smi1);
-  smi_reset(p_mii_resetn, smi0);
-  mii_init(mii0);
-  mii_init(mii1);
-  eth_phy_config(1, smi0);
-  eth_phy_config(1, smi1);
-}
-
-
-void ethernet_server_two_port(mii_interface_t &mii1,
-                              mii_interface_t &mii2,
-                              int mac_address[],
-                              chanend rx[],
-                              int num_rx,
-                              chanend tx[],
-                              int num_tx,
-                              smi_interface_t &?smi1,
-                              smi_interface_t &?smi2,
-                              chanend ?connect_status)
-{
-  streaming chan cs[2];
-  if (NUM_ETHERNET_PORTS != 2) return;
+  streaming chan c[2];
+  mii_init_full(m);
+  mii_slave_init_full(s);
   init_mii_mem();
   par {
-    // These threads all communicate internally via shared memory
-    // packet queues
-    mii_rx_pins(mii1.p_mii_rxdv, mii1.p_mii_rxd, 0, cs[0]);
-    mii_tx_pins(mii1.p_mii_txd, 0);
-    mii_rx_pins(mii2.p_mii_rxdv, mii2.p_mii_rxd, 1, cs[1]);
-    mii_tx_pins(mii2.p_mii_txd, 1);
-    ethernet_filter(mac_address, cs);
+    mii_rx_pins(m.p_mii_rxdv, m.p_mii_rxd, 0, c[0]);
+    mii_tx_pins(m.p_mii_txd, 0);
+    mii_slave_tx_pins(s.p_mii_txen, s.p_mii_txd, 1, c[1]);
+    mii_slave_rx_pins(s.p_mii_rxd, 1);
+    ethernet_tx_server(mac_address, tx, 2, num_tx, smi, null);
     ethernet_rx_server(rx, num_rx);
-    ethernet_tx_server(mac_address, tx, 2, num_tx, smi1, smi2, connect_status);
+    ethernet_filter(mac_address, c);
   }
 }
 #endif

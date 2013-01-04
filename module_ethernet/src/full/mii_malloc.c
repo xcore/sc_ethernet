@@ -109,8 +109,6 @@ mii_buffer_t mii_reserve(mii_mempool_t mempool,
 }
 
 
-
-
 void mii_commit(mii_buffer_t buf, int endptr0)
 {
   int *end_ptr = (int *) endptr0;

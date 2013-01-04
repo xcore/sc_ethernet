@@ -1,7 +1,7 @@
 #include "mii_full.h"
 
-static int status[NUM_ETHERNET_PORTS];
-static int notify[NUM_ETHERNET_PORTS];
+static int status[NUM_ETHERNET_MASTER_PORTS];
+static int notify[NUM_ETHERNET_MASTER_PORTS];
 
 void ethernet_update_link_status(int linkNum, int new_status)
 {

@@ -237,13 +237,14 @@ void ethernet_tx_server_no_buffer(const char mac_addr[],
             master {
               tx[i] :> length;
               tx[i] :> dst_port;
+              // TODO: Some memory can be saved here if OFFSET2 mode is never used
               if (cmd == ETHERNET_TX_REQ_OFFSET2) {
                 tx[i] :> char;
                 tx[i] :> char;
                 for(int j=0;j<(length+3)>>2;j++) {
                   int datum;
                   tx[i] :> datum;
-                  for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
+                  for (unsigned p=0; p<NUM_ETHERNET_MASTER_PORTS; ++p) {
                     mii_packet_set_data_word_imm(dptr[p], 0, byterev(datum));
                     dptr[p] += 4;
                     if (dptr[p] == wrap_ptr[p])
@@ -374,8 +375,8 @@ void ethernet_tx_server_no_buffer(const char mac_addr[],
     }
 
     // Reply with timestamps where client is requesting them
-    for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
-      buf[p]=get_ts_queue_entry(ts_queue[p]);
+    for (unsigned p=0; p<NUM_ETHERNET_MASTER_PORTS; ++p) {
+      buf[p] = get_ts_queue_entry(ts_queue[p]);
       if (buf[p] != 0) {
         int i = mii_packet_get_timestamp_id(buf[p]);
         int ts = mii_packet_get_timestamp(buf[p]);

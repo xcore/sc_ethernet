@@ -359,14 +359,17 @@ void ethernet_rx_server(
   int i;
   unsigned int cmd;
 #if ETHERNET_RX_HP_QUEUE
-  int rdptr_hp[NUM_ETHERNET_PORTS];
+  int rdptr_hp[NUM_ETHERNET_MASTER_PORTS];
 #endif
   int rdptr_lp[NUM_ETHERNET_PORTS];
 
-  for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
 #if ETHERNET_RX_HP_QUEUE
+  for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
     rdptr_hp[p] = mii_init_my_rdptr(rxmem_hp[p]);
+  }
 #endif
+
+  for (unsigned p=0; p<NUM_ETHERNET_MASTER_PORTS; ++p) {
     rdptr_lp[p] = mii_init_my_rdptr(rxmem_lp[p]);
   }
 

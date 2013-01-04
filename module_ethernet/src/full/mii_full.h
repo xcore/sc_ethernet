@@ -211,7 +211,7 @@ void mii_rx_pins(
 
 void mii_tx_pins(
 #if (NUM_ETHERNET_PORTS > 1) && !defined(DISABLE_ETHERNET_PORT_FORWARDING)
-#if ETHERNET_TX_HP_QUEUE
+#if (NUM_ETHERNET_MASTER_PORTS > 1) && (ETHERNET_TX_HP_QUEUE)
 		  unsigned hp_forward[],
 #endif
 		  unsigned lp_forward[],
@@ -233,7 +233,9 @@ void mii_slave_tx_pins(
      CHANEND_PARAM(streaming chanend, c));
 
 void mii_slave_rx_pins(
+#if (NUM_ETHERNET_PORTS > 1) && !defined(DISABLE_ETHERNET_PORT_FORWARDING)
         unsigned lp_forward[],
+#endif
         unsigned lp_mempool,
         PORT_PARAM(out buffered port:32, p_mii_rxd),
         int ifnum);
