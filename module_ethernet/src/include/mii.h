@@ -17,48 +17,48 @@
  *  \sa ethernet_server()
  **/
 typedef struct mii_interface_full_t {
-    clock clk_mii_rx;            /**< MII RX Clock Block **/
-    clock clk_mii_tx;            /**< MII TX Clock Block **/
-    
-    in port p_mii_rxclk;         /**< MII RX clock wire */
-    in port p_mii_rxer;          /**< MII RX error wire */
-    in buffered port:32 p_mii_rxd; /**< MII RX data wire */
-    in port p_mii_rxdv;          /**< MII RX data valid wire */
-    
-    in port p_mii_txclk;       /**< MII TX clock wire */
-    out port p_mii_txen;       /**< MII TX enable wire */
-    out buffered port:32 p_mii_txd; /**< MII TX data wire */
+  clock clk_mii_rx;            /**< MII RX Clock Block **/
+  clock clk_mii_tx;            /**< MII TX Clock Block **/
+  
+  in port p_mii_rxclk;         /**< MII RX clock wire */
+  in port p_mii_rxer;          /**< MII RX error wire */
+  in buffered port:32 p_mii_rxd; /**< MII RX data wire */
+  in port p_mii_rxdv;          /**< MII RX data valid wire */
+  
+  in port p_mii_txclk;       /**< MII TX clock wire */
+  out port p_mii_txen;       /**< MII TX enable wire */
+  out buffered port:32 p_mii_txd; /**< MII TX data wire */
 } mii_interface_full_t;
 
 typedef struct mii_slave_interface_full_t {
-  clock clk_mii;
+  clock clk_mii_slave;
 
-  out port p_mii_rxclk;             /**< MII RX clock wire */
-  out port p_mii_rxer;              /**< MII RX error wire */
-  out buffered port:32 p_mii_rxd;   /**< MII RX data wire */
-  out port p_mii_rxdv;              /**< MII RX data valid wire */
+  out port p_mii_slave_rxclk;             /**< MII RX clock wire */
+  out port p_mii_slave_rxer;              /**< MII RX error wire */
+  out buffered port:32 p_mii_slave_rxd;   /**< MII RX data wire */
+  out port p_mii_slave_rxdv;              /**< MII RX data valid wire */
 
 
-  out port p_mii_txclk;             /**< MII TX clock wire */
-  in port p_mii_txen;               /**< MII TX enable wire */
-  in buffered port:32 p_mii_txd;    /**< MII TX data wire */
+  out port p_mii_slave_txclk;             /**< MII TX clock wire */
+  in port p_mii_slave_txen;               /**< MII TX enable wire */
+  in buffered port:32 p_mii_slave_txd;    /**< MII TX data wire */
 } mii_slave_interface_full_t;
 
 typedef struct mii_interface_lite_t {
-    clock clk_mii_rx;            /**< MII RX Clock Block **/
-    clock clk_mii_tx;            /**< MII TX Clock Block **/
-    
-    in port p_mii_rxclk;         /**< MII RX clock wire */
-    in port p_mii_rxer;          /**< MII RX error wire */
-    in buffered port:32 p_mii_rxd; /**< MII RX data wire */
-    in port p_mii_rxdv;          /**< MII RX data valid wire */
-    
-    in port p_mii_txclk;       /**< MII TX clock wire */
-    out port p_mii_txen;       /**< MII TX enable wire */
-    out buffered port:32 p_mii_txd; /**< MII TX data wire */
-    in port p_mii_timing;   /**< A port that is not used for anything, used
-                             * by the LLD for timing purposes. Must be
-                             * clocked of the reference clock */
+  clock clk_mii_rx;            /**< MII RX Clock Block **/
+  clock clk_mii_tx;            /**< MII TX Clock Block **/
+  
+  in port p_mii_rxclk;         /**< MII RX clock wire */
+  in port p_mii_rxer;          /**< MII RX error wire */
+  in buffered port:32 p_mii_rxd; /**< MII RX data wire */
+  in port p_mii_rxdv;          /**< MII RX data valid wire */
+  
+  in port p_mii_txclk;       /**< MII TX clock wire */
+  out port p_mii_txen;       /**< MII TX enable wire */
+  out buffered port:32 p_mii_txd; /**< MII TX data wire */
+  in port p_mii_timing;   /**< A port that is not used for anything, used
+                           * by the LLD for timing purposes. Must be
+                           * clocked of the reference clock */
 
 } mii_interface_lite_t;
 

@@ -561,7 +561,7 @@ void mii_transmit_packet(unsigned buf, out buffered port:32 p_mii_txd, timer tmr
 
 #pragma unsafe arrays
 void mii_tx_pins(
-#if (NUM_ETHERNET_PORTS > 1) && (DISABLE_ETHERNET_PORT_FORWARDING)
+#if (NUM_ETHERNET_PORTS > 1) && !(DISABLE_ETHERNET_PORT_FORWARDING)
 #if (ETHERNET_TX_HP_QUEUE) && (NUM_ETHERNET_MASTER_PORTS > 1)
         mii_mempool_t hp_forward[],
 #endif

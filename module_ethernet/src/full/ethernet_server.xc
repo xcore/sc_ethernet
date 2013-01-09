@@ -62,8 +62,8 @@ void ethernet_server_full_with_phy_mode_port(mii_interface_full_t &m,
   par {
     mii_rx_pins(m.p_mii_rxdv, m.p_mii_rxd, 0, c[0]);
     mii_tx_pins(m.p_mii_txd, 0);
-    mii_slave_tx_pins(s.p_mii_txen, s.p_mii_txd, 1, c[1]);
-    mii_slave_rx_pins(s.p_mii_rxd, 1);
+    mii_slave_tx_pins(s.p_mii_slave_txen, s.p_mii_slave_txd, 1, c[1]);
+    mii_slave_rx_pins(s.p_mii_slave_rxd, 1);
     ethernet_tx_server(mac_address, tx, 2, num_tx, smi, null);
     ethernet_rx_server(rx, num_rx);
     ethernet_filter(mac_address, c);

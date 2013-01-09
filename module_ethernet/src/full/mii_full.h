@@ -84,6 +84,7 @@
 
 #ifdef __XC__
 void mii_init_full(REFERENCE_PARAM(mii_interface_full_t, m));
+void mii_slave_init_full(REFERENCE_PARAM(mii_slave_interface_full_t, m));
 #endif
 
 

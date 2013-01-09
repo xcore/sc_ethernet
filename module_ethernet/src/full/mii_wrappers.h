@@ -17,14 +17,14 @@ void mii_tx_pins_wr(out buffered port:32 p,
 
 #define mii_tx_pins mii_tx_pins_wr
 
-void mii_slave_tx_pins_wr(port p1,
-                          port p2,
+void mii_slave_tx_pins_wr(in port p_mii_rxdv,
+                          in buffered port:32 p_mii_rxd,
                           int i,
                           streaming chanend c);
 
 #define mii_slave_tx_pins mii_slave_tx_pins_wr
 
-void mii_slave_rx_pins_wr(port p,
+void mii_slave_rx_pins_wr(out buffered port:32 p,
                           int i);
 
 #define mii_slave_rx_pins mii_slave_rx_pins_wr

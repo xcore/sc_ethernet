@@ -13,7 +13,9 @@
 //! system has to forward the packet to the other ethernet ports
 #define MII_FILTER_FORWARD_TO_OTHER_PORTS (0x80000000)
 
+#ifdef __XC__
 void ethernet_filter(const char mac[], streaming chanend c[NUM_ETHERNET_PORTS]);
+#endif
 
 #if ETHERNET_COUNT_PACKETS
 void ethernet_get_filter_counts(REFERENCE_PARAM(unsigned,address),

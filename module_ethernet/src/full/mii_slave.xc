@@ -381,14 +381,14 @@ void mii_slave_rx_pins(
 
 void mii_slave_init_full(mii_slave_interface_full_t &m)
 {
-    configure_clock_rate(m.clk_mii, 100, 4);
-    configure_port_clock_output(m.p_mii_rxclk, m.clk_mii);
-    configure_port_clock_output(m.p_mii_txclk, m.clk_mii);
-    configure_out_port(m.p_mii_rxdv, m.clk_mii, 0);
+    configure_clock_rate(m.clk_mii_slave, 100, 4);
+    configure_port_clock_output(m.p_mii_slave_rxclk, m.clk_mii_slave);
+    configure_port_clock_output(m.p_mii_slave_txclk, m.clk_mii_slave);
+    configure_out_port(m.p_mii_slave_rxdv, m.clk_mii_slave, 0);
 
-    configure_out_port_strobed_master(m.p_mii_rxd, m.p_mii_rxdv, m.clk_mii, 0);
-    configure_in_port_strobed_slave(m.p_mii_txd, m.p_mii_txen, m.clk_mii);
+    configure_out_port_strobed_master(m.p_mii_slave_rxd, m.p_mii_slave_rxdv, m.clk_mii_slave, 0);
+    configure_in_port_strobed_slave(m.p_mii_slave_txd, m.p_mii_slave_txen, m.clk_mii_slave);
 
-    start_clock(m.clk_mii);
+    start_clock(m.clk_mii_slave);
 }
 
