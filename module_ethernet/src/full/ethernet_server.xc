@@ -87,10 +87,10 @@ void ethernet_server_full_two_port(mii_interface_full_t &mii1,
   mii_init_full(mii2);
   init_mii_mem();
   par {
-    mii_rx_pins(m.ii1p_mii_rxdv, mii1.p_mii_rxd, 0, c[0]);
+    mii_rx_pins(mii1.p_mii_rxdv, mii1.p_mii_rxd, 0, c[0]);
     mii_tx_pins(mii1.p_mii_txd, 0);
     mii_rx_pins(mii2.p_mii_rxdv, mii2.p_mii_rxd, 1, c[1]);
-    mii_tx_pins(mii2.p_mii_txd, 1)
+    mii_tx_pins(mii2.p_mii_txd, 1);
     ethernet_tx_server(mac_address, tx, 2, num_tx, smi1, null);
     ethernet_rx_server(rx, num_rx);
     ethernet_filter(mac_address, c);
