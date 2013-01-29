@@ -188,6 +188,7 @@ void mac_get_global_counters(chanend mac_svr,
 #endif
 }
 
+#if ETHERNET_RX_ENABLE_TIMER_OFFSET_REQ
 void mac_get_tile_timer_offset(chanend mac_svr, int& offset)
 {
   unsigned server_tile_id;
@@ -209,3 +210,4 @@ void mac_get_tile_timer_offset(chanend mac_svr, int& offset)
     offset = 0;
   }
 }
+#endif
