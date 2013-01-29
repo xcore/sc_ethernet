@@ -124,7 +124,6 @@
 //#pragma xta command "analyze endpoints mii_tx_end mii_tx_start"
 //#pragma xta command "set required - 1560 ns"
 
-
 #if ETHERNET_COUNT_PACKETS
 static unsigned int ethernet_mii_no_queue_entries = 0;
 
@@ -205,6 +204,9 @@ void mii_rx_pins(
 #if ETHERNET_COUNT_PACKETS
             ethernet_mii_no_queue_entries++;
 #endif
+#if ETHERNET_RX_TRAP_ON_OUT_OF_MEMORY
+            __builtin_trap();
+#endif
             p_mii_rxdv when pinseq(0) :> int hi;
             clearbuf(p_mii_rxd);
             continue;
@@ -241,7 +243,6 @@ void mii_rx_pins(
 #if ETHERNET_RX_HP_QUEUE
         mii_packet_set_data_word_imm(dptr_hp, 2, word);
 #endif
-        //mii_packet_set_timestamp_id(buf, 0);
 
 #pragma xta endpoint "mii_rx_ethertype_word"
         p_mii_rxd :> word;
@@ -285,6 +286,9 @@ void mii_rx_pins(
             p_mii_rxdv when pinseq(0) :> int hi;
 #if ETHERNET_COUNT_PACKETS
             ethernet_mii_no_queue_entries++;
+#endif
+#if ETHERNET_RX_TRAP_ON_OUT_OF_MEMORY
+            __builtin_trap();
 #endif
             clearbuf(p_mii_rxd);
             continue;
@@ -348,10 +352,17 @@ void mii_rx_pins(
             tail = tail >> (32 - taillen);
 
             if (dptr != end_ptr) {
+                mii_packet_set_timestamp_id(buf, 0);
                 mii_packet_set_timestamp(buf, time);
                 mii_packet_set_data_word_imm(dptr, 0, tail);
                 c <: buf;
                 mii_commit(buf, dptr);
+            }
+            else
+            {
+#if ETHERNET_RX_TRAP_ON_OUT_OF_MEMORY
+                __builtin_trap();
+#endif
             }
         }
     }
