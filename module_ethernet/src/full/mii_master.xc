@@ -12,6 +12,7 @@
 #include <syscall.h>
 #include "ethernet_server_def.h"
 #include <xclib.h>
+#include <xscope.h>
 
 // Timing tuning constants
 #define PAD_DELAY_RECEIVE    0
@@ -123,6 +124,8 @@
 
 //#pragma xta command "analyze endpoints mii_tx_end mii_tx_start"
 //#pragma xta command "set required - 1560 ns"
+
+#define ETHERNET_RX_TRAP_ON_OUT_OF_MEMORY 1
 
 #if ETHERNET_COUNT_PACKETS
 static unsigned int ethernet_mii_no_queue_entries = 0;
@@ -620,7 +623,7 @@ void mii_tx_pins(
                 buf = mii_get_next_buf(hp_forward[i]);
                 if (buf) {
                     if (mii_packet_get_forwarding(buf) != 0) {
-                        if (mii_packet_get_and_clear_forwarding(buf, ifnum)) break;
+                        break;
                     }
                 }
                 buf = 0;
@@ -670,7 +673,7 @@ void mii_tx_pins(
                 buf = mii_get_next_buf(lp_forward[i]);
                 if (buf) {
                     if (mii_packet_get_forwarding(buf) != 0) {
-                        if (mii_packet_get_and_clear_forwarding(buf, ifnum)) break;
+                        break;
                     }
                 }
                 buf = 0;
@@ -707,6 +710,7 @@ void mii_tx_pins(
                 add_ts_queue_entry(ts_queue, buf);
             }
             else {
+                mii_packet_get_and_clear_forwarding(buf, ifnum);
                 mii_free(buf);
             }
         }

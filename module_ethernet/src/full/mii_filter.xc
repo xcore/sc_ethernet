@@ -6,11 +6,13 @@
 #include "mii_full.h"
 #include "mii_queue.h"
 #include "ethernet_server_def.h"
+#include "ethernet_conf_derived.h"
 #include <xccompat.h>
 #include <print.h>
 #include "mii_malloc.h"
 #include "mii_filter.h"
 #include "mac_filter.h"
+#include <xscope.h>
 
 #if ETHERNET_ENABLE_FULL_TIMINGS
 // Smallest packet + interframe gap is 84 bytes = 6.72 us
@@ -18,7 +20,7 @@
 #pragma xta command "set required - 6.72 us"
 #endif
 
-int mac_custom_filter_coerce(int);
+int mac_custom_filter_coerce(int, unsigned int mac[]);
 
 
 #define is_broadcast(buf) (mii_packet_get_data(buf,0) & 0x1)
@@ -96,6 +98,9 @@ void ethernet_filter(const char mac_address[], streaming chanend c[NUM_ETHERNET_
 #endif
                         mii_packet_set_filter_result(buf, 0);
                         mii_packet_set_stage(buf,1);
+#if ETHERNET_RX_TRAP_ON_BAD_PACKET
+                        __builtin_trap();
+#endif
                     }
 #if ETHERNET_RX_CRC_ERROR_CHECK
                     else if (~crc)
@@ -105,36 +110,32 @@ void ethernet_filter(const char mac_address[], streaming chanend c[NUM_ETHERNET_
 #endif
                         mii_packet_set_filter_result(buf, 0);
                         mii_packet_set_stage(buf,1);
+#if ETHERNET_RX_TRAP_ON_BAD_PACKET
+                        __builtin_trap();
+#endif
 
                     }
 #endif
                     else
                     {
-                        int broadcast = is_broadcast(buf);
-                        int unicast = compare_mac(buf,mac);
-                        int res=0;
-                        // We do not forward all non-unicast traffic to a slave MII port
+                        int filter_result = 0;
 #if (NUM_ETHERNET_MASTER_PORTS > 1) && !defined(DISABLE_ETHERNET_PORT_FORWARDING)
-                        if (!unicast) {
-                            res |= MII_FILTER_FORWARD_TO_OTHER_PORTS;
-                        }
-#endif
-#if MAC_PROMISCUOUS
                         if (1) {
 #else
+                            int broadcast = is_broadcast(buf);
+                            int unicast = compare_mac(buf,mac);
                             if (broadcast || unicast) {
 #endif
-                                int filter_result = mac_custom_filter_coerce(buf);
+                                filter_result = mac_custom_filter_coerce(buf, mac);
 #if ETHERNET_COUNT_PACKETS
                                 if (filter_result == 0) ethernet_filtered_by_user_filter++;
 #endif
-                                res |= filter_result;
                             } else {
 #if ETHERNET_COUNT_PACKETS
                                 ethernet_filtered_by_address++;
 #endif
                             }
-                            mii_packet_set_filter_result(buf, res);
+                            mii_packet_set_filter_result(buf, filter_result);
                             mii_packet_set_stage(buf, 1);
                         }
                     }
@@ -146,7 +147,7 @@ void ethernet_filter(const char mac_address[], streaming chanend c[NUM_ETHERNET_
 
 
 
-int mac_custom_filter_coerce1(unsigned int buf[])
+int mac_custom_filter_coerce1(unsigned int buf[], unsigned int mac[2])
 {
-  return mac_custom_filter(buf);
+  return mac_custom_filter(buf, mac);
 }

@@ -7,10 +7,10 @@
 #include "mii_queue.h"
 #include "mii_malloc.h"
 
-int mac_custom_filter_coerce1(unsigned int buf[]);
+int mac_custom_filter_coerce1(unsigned int buf[], unsigned int mac[2]);
 
-int mac_custom_filter_coerce(int buf0) {
+int mac_custom_filter_coerce(int buf0, unsigned int mac[2]) {
   mii_packet_t *buf = (mii_packet_t *) buf0;
-  int ret = mac_custom_filter_coerce1(buf->data);
+  int ret = mac_custom_filter_coerce1(buf->data, mac);
   return ret;
 }

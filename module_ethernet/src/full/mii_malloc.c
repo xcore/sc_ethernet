@@ -10,6 +10,7 @@
 #else
 #include "hwlock.h"
 #endif
+#include <xscope.h>
 
 typedef unsigned mii_mempool_t;
 typedef unsigned mii_buffer_t;
@@ -107,7 +108,6 @@ mii_buffer_t mii_reserve(mii_mempool_t mempool,
   *end_ptr = (unsigned) rdptr;
   return (mii_buffer_t) (wrptr+(sizeof(malloc_hdr_t)>>2));
 }
-
 
 void mii_commit(mii_buffer_t buf, int endptr0)
 {

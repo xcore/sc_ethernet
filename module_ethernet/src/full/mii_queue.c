@@ -57,7 +57,8 @@ int mii_packet_get_and_clear_forwarding(int buf0, int ifnum)
   __hwlock_acquire(ethernet_memory_lock);
 #endif
 
-  buf->forwarding &= (~mask);
+  // FIXME: Was: buf->forwarding &= (~mask)
+  buf->forwarding = 0;
 
 #ifndef ETHERNET_USE_HARDWARE_LOCKS
   swlock_release(&tc_lock);
