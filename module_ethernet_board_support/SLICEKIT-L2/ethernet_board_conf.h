@@ -1,7 +1,7 @@
 #ifndef __ethernet_board_defaults_h__
 #define __ethernet_board_defaults_h__
 
-#ifdef __ethernet_conf_h_exists_
+#ifdef __ethernet_conf_h_exists__
 #include "ethernet_conf.h"
 #endif
 
