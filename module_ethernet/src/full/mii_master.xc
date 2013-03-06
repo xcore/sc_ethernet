@@ -125,7 +125,7 @@
 //#pragma xta command "analyze endpoints mii_tx_end mii_tx_start"
 //#pragma xta command "set required - 1560 ns"
 
-#define ETHERNET_RX_TRAP_ON_OUT_OF_MEMORY 1
+#define ETHERNET_RX_TRAP_ON_OUT_OF_MEMORY 0
 
 #if ETHERNET_COUNT_PACKETS
 static unsigned int ethernet_mii_no_queue_entries = 0;
