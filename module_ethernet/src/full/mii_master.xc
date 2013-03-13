@@ -704,13 +704,17 @@ void mii_tx_pins(
         tmr :> prev_eof_time;
         ok_to_transmit = 0;
 
+        if (mii_packet_get_forwarding(buf) != 0)
+        {
+            mii_packet_get_and_clear_forwarding(buf, ifnum);
+        }
+
         if (get_and_dec_transmit_count(buf) == 0) {
             if (mii_packet_get_timestamp_id(buf)) {
                 mii_packet_set_stage(buf, 2);
                 add_ts_queue_entry(ts_queue, buf);
             }
             else {
-                mii_packet_get_and_clear_forwarding(buf, ifnum);
                 mii_free(buf);
             }
         }
