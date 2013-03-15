@@ -139,7 +139,8 @@ void send_avb_1722_router_cmd(chanend c,
                               int key0,
                               int key1,
                               int link,
-                              int hash)
+                              int hash,
+                              int forward)
 {
   c <: ETHERNET_TX_UPDATE_AVB_ROUTER;
   slave {
@@ -147,6 +148,7 @@ void send_avb_1722_router_cmd(chanend c,
     c <: key1;
     c <: link;
     c <: hash;
+    c <: forward;
   }
 }
 

@@ -110,7 +110,8 @@ void send_avb_1722_router_cmd(chanend c,
                               int key0,
                               int key1,
                               int link,
-                              int hash);
+                              int hash,
+                              int forward);
 
 /** This function sets the transmit 
  *  bandwidth restriction for Q-tagged traffic out of the mac.
