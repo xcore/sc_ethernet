@@ -2,56 +2,68 @@
 // This software is freely distributable under a derivative of the
 // University of Illinois/NCSA Open Source License posted in
 // LICENSE.txt and at <http://github.xcore.com/>
-
-
 #include <xs1.h>
-#include <xclib.h>
 #include <stdio.h>
-#include <print.h>
 #include <platform.h>
-#include <stdlib.h>
 #include "smi.h"
 
-#define ETHCORE 0
+/*
+ * Test expects an XA-SK_E100 slice in zero or more ports, it then sets up the
+ * SMI on any connected and reports all register once set up.
+ */
 
-on stdcore[ETHCORE]: smi_interface_t smi0 = { 0x80000000, XS1_PORT_8A, XS1_PORT_4C };
-on stdcore[ETHCORE]: smi_interface_t smi1 = { 0, XS1_PORT_1M, XS1_PORT_1N };
+on tile[0]: smi_interface_t smi0 = { 0x80000000, XS1_PORT_8A, XS1_PORT_4C };
+on tile[0]: smi_interface_t smi1 = { 0, XS1_PORT_1M, XS1_PORT_1N };
+on tile[1]: smi_interface_t smi2 = { 0x80000000, XS1_PORT_8A, XS1_PORT_4C };
+on tile[1]: smi_interface_t smi3 = { 0, XS1_PORT_1M, XS1_PORT_1N };
 
 void smiTest(smi_interface_t &smi) {
-    timer tmr;
-    int resetTime;
 
-    tmr :> resetTime;
-    resetTime += 50000000;
-    tmr when timerafter(resetTime) :> void;
+  smi_init(smi);
 
-    smi_init(smi);
-    while(1) {
-        timer t;
-        int t0, t1;
-        int v2, v3, v18;
-    t :> t0;
-        v2 = smi_reg(smi, 2, 0, 1);
-    t :> t1;
-        v3 = smi_reg(smi, 3, 0, 1);
-        v18 = smi_reg(smi, 18, 0, 1);
-        if ((v2 & v3 & v18) != 0xffff) {
-            printf("Phy addr %06x: reg 2, 3, 18: %04x %04x %04x, %d ref clocks\n", eth_phy_id(smi), v2, v3, v18, t1-t0);
-        }
-    }
+  if(!smi_reg(smi, 0, 0, 1)){
+    printf("Not Connected\n");
+    return;
+  }
+
+  printf("Physical Address: %06x\n", eth_phy_id(smi));
+  printf("Basic Control Register: %04x\n", smi_reg(smi, 0, 0, 1));
+  printf("Basic Status Register: %04x\n", smi_reg(smi, 1, 0, 1));
+  printf("PHY Identifier 1: %04x\n", smi_reg(smi, 2, 0, 1));
+  printf("PHY Identifier 2: %04x\n", smi_reg(smi, 3, 0, 1));
+  printf("Auto-Negotiation Advertisement Register: %04x\n", smi_reg(smi, 4, 0, 1));
+  printf("Auto-Negotiation Link Partner Ability Register: %04x\n", smi_reg(smi, 5, 0, 1));
+  printf("Auto-Negotiation Expansion Register: %04x\n", smi_reg(smi, 6, 0, 1));
+  printf("Silicon Revision Register: %04x\n", smi_reg(smi, 16, 0, 1));
+  printf("Mode Control/Status Register: %04x\n", smi_reg(smi, 17, 0, 1));
+  printf("Special Modes: %04x\n", smi_reg(smi, 18, 0, 1));
+  printf("Symbol Error Counter Register: %04x\n", smi_reg(smi, 26, 0, 1));
+  printf("Control / Status Indication Register: %04x\n", smi_reg(smi, 27, 0, 1));
+  printf("Special internal testability controls: %04x\n", smi_reg(smi, 28, 0, 1));
+  printf("Interrupt Source Register: %04x\n", smi_reg(smi, 29, 0, 1));
+  printf("Interrupt Mask Register: %04x\n", smi_reg(smi, 30, 0, 1));
+  printf("PHY Special Control/Status Register: %04x\n", smi_reg(smi, 31, 0, 1));
 }
 
-
 int main() {
-    par {
-        on stdcore[ETHCORE]: smiTest(smi1);
-        on stdcore[ETHCORE]: while(1);
-        on stdcore[ETHCORE]: while(1);
-        on stdcore[ETHCORE]: while(1);
-        on stdcore[ETHCORE]: while(1);
-        on stdcore[ETHCORE]: while(1);
-        on stdcore[ETHCORE]: while(1);
-        on stdcore[ETHCORE]: while(1);
+  chan c;
+  par {
+    on tile[0]: {
+      printf("SMI Star\n");
+      smiTest(smi0);
+      printf("\nSMI Triangle\n");
+      smiTest(smi1);
+      c<:0;
     }
-	return 0;
+    on tile[1]: {
+      c:> int;
+      printf("\nSMI Square\n");
+      smiTest(smi2);
+      printf("\nSMI Circle\n");
+      smiTest(smi3);
+    }
+    on tile[0]: par (int i = 0; i < 7; i++) while (1);
+    on tile[1]: par (int i = 0; i < 7; i++) while (1);
+  }
+  return 0;
 }
