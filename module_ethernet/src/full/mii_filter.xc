@@ -20,7 +20,7 @@
 #pragma xta command "set required - 6.72 us"
 #endif
 
-int mac_custom_filter_coerce(int, unsigned int mac[]);
+int mac_custom_filter_coerce(int buf, unsigned int mac[], int &user_data);
 
 
 #define is_broadcast(buf) (mii_packet_get_data(buf,0) & 0x1)
@@ -119,6 +119,7 @@ void ethernet_filter(const char mac_address[], streaming chanend c[NUM_ETHERNET_
                     else
                     {
                         int filter_result = 0;
+                        int user_data = 0;
 #if (NUM_ETHERNET_MASTER_PORTS > 1) && !defined(DISABLE_ETHERNET_PORT_FORWARDING)
                         if (1) {
 #else
@@ -126,7 +127,7 @@ void ethernet_filter(const char mac_address[], streaming chanend c[NUM_ETHERNET_
                             int unicast = compare_mac(buf,mac);
                             if (broadcast || unicast) {
 #endif
-                                filter_result = mac_custom_filter_coerce(buf, mac);
+                                filter_result = mac_custom_filter_coerce(buf, mac, user_data);
 #if ETHERNET_COUNT_PACKETS
                                 if (filter_result == 0) ethernet_filtered_by_user_filter++;
 #endif
@@ -135,6 +136,7 @@ void ethernet_filter(const char mac_address[], streaming chanend c[NUM_ETHERNET_
                                 ethernet_filtered_by_address++;
 #endif
                             }
+                            mii_packet_set_user_data(buf, user_data);
                             mii_packet_set_filter_result(buf, filter_result);
                             mii_packet_set_stage(buf, 1);
                         }
@@ -147,7 +149,7 @@ void ethernet_filter(const char mac_address[], streaming chanend c[NUM_ETHERNET_
 
 
 
-int mac_custom_filter_coerce1(unsigned int buf[], unsigned int mac[2])
+int mac_custom_filter_coerce1(unsigned int buf[], unsigned int mac[2], int &user_data)
 {
-  return mac_custom_filter(buf, mac);
+  return mac_custom_filter(buf, mac, user_data);
 }

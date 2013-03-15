@@ -87,7 +87,7 @@ void handle_tx_cmd(const char mac_addr[],
 #ifdef AVB_MAC
     case ETHERNET_TX_UPDATE_AVB_ROUTER:
     {
-      unsigned key0, key1, link, hash;
+      int key0, key1, link, hash;
       master {
         tx :> key0;
         tx :> key1;

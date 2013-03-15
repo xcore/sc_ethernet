@@ -173,6 +173,7 @@ void mac_rx_send_frame1(int p,
     slave {
       link <: mii_packet_get_src_port(p);
       link <: length-(i<<2);
+      link <: mii_packet_get_user_data(p);
       link <: (char) 0;
       link <: (char) 0;
       for (;i < (length+3)>>2;i++) {
@@ -203,6 +204,7 @@ void mac_rx_send_frame1(int p,
     slave {
       link <: mii_packet_get_src_port(p);
       link <: length-(i<<2);
+      link <: mii_packet_get_user_data(p);
       for (;i < (length+3)>>2;i++) {
         int datum;
         if (dptr == wrap_ptr)
@@ -338,6 +340,7 @@ void send_status_packet(chanend c, int src_port, int status)
   slave {
     c <: src_port;
     c <: STATUS_PACKET_LEN;
+    c <: 0;
     c <: status;
   }
 }

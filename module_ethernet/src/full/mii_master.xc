@@ -144,7 +144,7 @@ void mii_rx_pins(
         in port p_mii_rxdv,
         in buffered port:32 p_mii_rxd,
         int ifnum,
-        streaming chanend c)
+        streaming chanend c_filter)
 {
     timer tmr;
     unsigned poly = 0xEDB88320;
@@ -358,7 +358,7 @@ void mii_rx_pins(
                 mii_packet_set_timestamp_id(buf, 0);
                 mii_packet_set_timestamp(buf, time);
                 mii_packet_set_data_word_imm(dptr, 0, tail);
-                c <: buf;
+                c_filter <: buf;
                 mii_commit(buf, dptr);
             }
             else

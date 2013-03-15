@@ -31,7 +31,8 @@ static inline unsigned int get_tile_id_from_chanend(chanend c) {
 /** This function unifies all the variants of mac_rx.
  */
 #pragma unsafe arrays
-static int ethernet_unified_get_data(chanend ethernet_rx_svr, unsigned char Buf[], unsigned int &rxTime, unsigned int &src_port, unsigned int Cmd, int n)
+static int ethernet_unified_get_data(chanend ethernet_rx_svr, unsigned char Buf[], unsigned int &rxTime,
+                                     unsigned int &src_port, int &user_data, unsigned int Cmd, int n)
 {
   unsigned int i, j, k, rxByteCnt, transferCnt, rxData, temp;
   // sent command to request data.
@@ -48,6 +49,7 @@ static int ethernet_unified_get_data(chanend ethernet_rx_svr, unsigned char Buf[
     // get reply from server.
     ethernet_rx_svr :> src_port;
     ethernet_rx_svr :> rxByteCnt;
+    ethernet_rx_svr :> user_data;
 
     if (rxByteCnt == STATUS_PACKET_LEN) {
       int status;
@@ -90,33 +92,37 @@ void mac_rx_full(chanend ethernet_rx_svr, unsigned char Buf[],
            unsigned int &src_port)
 {
   unsigned rxTime;
-  len = ethernet_unified_get_data(ethernet_rx_svr, Buf, rxTime, src_port, ETHERNET_RX_FRAME_REQ, -1);
+  int user_data;
+  len = ethernet_unified_get_data(ethernet_rx_svr, Buf, rxTime, src_port, user_data, ETHERNET_RX_FRAME_REQ, -1);
   return;
 }
 
-void mac_rx_offset2(chanend ethernet_rx_svr, unsigned char Buf[], unsigned int &len, unsigned int &src_port)
+void mac_rx_offset2(chanend ethernet_rx_svr, unsigned char Buf[], unsigned int &len, int &user_data, unsigned int &src_port)
 {
   unsigned rxTime;
-  len = ethernet_unified_get_data(ethernet_rx_svr, Buf, rxTime, src_port, ETHERNET_RX_FRAME_REQ_OFFSET2, -1);
+  len = ethernet_unified_get_data(ethernet_rx_svr, Buf, rxTime, src_port, user_data, ETHERNET_RX_FRAME_REQ_OFFSET2, -1);
   return;
 }
 
 void safe_mac_rx_full(chanend ethernet_rx_svr, unsigned char Buf[], unsigned int &len, unsigned int &src_port, int n)
 {
   unsigned rxTime;
-  len = ethernet_unified_get_data(ethernet_rx_svr, Buf, rxTime, src_port, ETHERNET_RX_FRAME_REQ, n);
+  int user_data;
+  len = ethernet_unified_get_data(ethernet_rx_svr, Buf, rxTime, src_port, user_data, ETHERNET_RX_FRAME_REQ, n);
   return;
 }
 
 void mac_rx_timed(chanend ethernet_rx_svr, unsigned char Buf[], unsigned int &len, unsigned int &rxTime, unsigned int &src_port)
 {
-  len = ethernet_unified_get_data(ethernet_rx_svr, Buf, rxTime, src_port, ETHERNET_RX_FRAME_REQ, -1);
+  int user_data;
+  len = ethernet_unified_get_data(ethernet_rx_svr, Buf, rxTime, src_port, user_data, ETHERNET_RX_FRAME_REQ, -1);
   return;
 }
 
 void safe_mac_rx_timed(chanend ethernet_rx_svr, unsigned char Buf[], unsigned int &len, unsigned int &rxTime, unsigned int &src_port, int n)
 {
-  len = ethernet_unified_get_data(ethernet_rx_svr, Buf, rxTime, src_port, ETHERNET_RX_FRAME_REQ, n);
+  int user_data;
+  len = ethernet_unified_get_data(ethernet_rx_svr, Buf, rxTime, src_port, user_data, ETHERNET_RX_FRAME_REQ, n);
   return;
 }
 

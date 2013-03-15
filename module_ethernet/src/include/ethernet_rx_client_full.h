@@ -173,6 +173,7 @@ void mac_get_tile_timer_offset(chanend mac_svr, REFERENCE_PARAM(int, offset));
 void mac_rx_offset2(chanend c_mac, 
                     unsigned char buffer[],
                     REFERENCE_PARAM(unsigned int, len),
+                    REFERENCE_PARAM(int, user_data),
                     REFERENCE_PARAM(unsigned int, src_port));
 
 

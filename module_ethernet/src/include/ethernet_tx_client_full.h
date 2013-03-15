@@ -107,10 +107,10 @@ void mac_initialize_routing_table(chanend c);
  *
  */
 void send_avb_1722_router_cmd(chanend c,
-                              unsigned key0,
-                              unsigned key1,
-                              unsigned link,
-                              unsigned hash);
+                              int key0,
+                              int key1,
+                              int link,
+                              int hash);
 
 /** This function sets the transmit 
  *  bandwidth restriction for Q-tagged traffic out of the mac.

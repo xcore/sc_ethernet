@@ -136,10 +136,10 @@ int mac_get_macaddr_full(chanend ethernet_tx_svr, unsigned char Buf[])
 
 #ifdef AVB_MAC
 void send_avb_1722_router_cmd(chanend c,
-                              unsigned key0,
-                              unsigned key1,
-                              unsigned link,
-                              unsigned hash)
+                              int key0,
+                              int key1,
+                              int link,
+                              int hash)
 {
   c <: ETHERNET_TX_UPDATE_AVB_ROUTER;
   slave {
