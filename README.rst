@@ -9,7 +9,7 @@ XCORE.com ETHERNET SOFTWARE COMPONENT
 Key Features
 ============
 
-   * RX and TX in separate threads
+   * RX and TX on separate logical cores
    * Packet filtering by extension function
    * Memory based locking protocol
    * FIFO based memory allocation for lower RAM overhead
@@ -19,19 +19,21 @@ Key Features
 Low thread count MII driver
 ===========================
 
-An alternative, low thread count MII driver is available.
+An alternative, low core count MII driver is available.
 
-   * MII pins in 1 thread
-   * Rx buffer support handled by interrupt in a designated second thread
-   * Optional service thread for providing an API similar to the 5-thread implementation
+   * MII pins in 1 logical core
+   * Rx buffer support handled by interrupt in a designated second
+     task on a different core
+   * Optional service task for providing an API similar to the
+     5-thread implementation
 
 Firmware Overview
 =================
 
-RX and TX are defined as functions which each run in their own thread. Thread count is 5 for single
-port, and 7 for dual port support.  Both ports must be MII and attached to the same xcore.
-
-Full documentation can be found at http://xcore.github.com/sc_ethernet/
+RX and TX are defined as functions which each run on their own logical
+core. Core usage is 5 logical cores for a single port (reducible to 4
+for lower bandwith transmit applicatio).  Ports must be MII and
+attached to the same xcore.
 
 Known Issues
 ============
@@ -50,6 +52,6 @@ Issues may be submitted via the Issues tab in this github repo. Response to any 
 Required software (dependencies)
 ================================
 
-  * sc_otp (git@github.com:xcore/sc_otp)
-  * sc_util (git@github.com:xcore/sc_util)
+  * sc_otp (git://github.com/xcore/sc_otp)
+  * sc_util (git://github.com/xcore/sc_util)
 

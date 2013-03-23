@@ -31,7 +31,7 @@ void ethernet_server_full(mii_interface_full_t &m,
   mii_init_full(m);
   init_mii_mem();
   par {
-    // These thrads all communicate internally via shared memory
+    // These tasks all communicate internally via shared memory
     // packet queues
     mii_rx_pins(m.p_mii_rxdv, m.p_mii_rxd, 0, c[0]);
 #if ETHERNET_TX_NO_BUFFERING
