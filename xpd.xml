@@ -46,9 +46,8 @@ ethernet mac" type = "demoCode" scope = "Example" path = "app_ethernet_loopback"
         <version>1.0.0rc0</version>
     </dependency>
     <dependency repo = "sc_util">
-        <githash>073a5c322a51797705ac7d02b182af18813bcbc5</githash>
+        <githash>8b380809c5776f5e7d5c6b93ef372423f3658beb</githash>
         <uri>git@github.com:xcore/sc_util</uri>
-        <version>1.0.0beta2</version>
     </dependency>
     <description>A complete Ethernet MII and MAC interface for 100MBps Ethernet</description>
     <docdir>doc/ethernet</docdir>
