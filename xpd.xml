@@ -99,6 +99,7 @@ ethernet mac" type = "demoCode" scope = "Example" path = "app_ethernet_loopback"
     <release parenthash = "74ddcce090e0b1a584a7da98949f41c20117ee43" version = "2.2.1rc0" githash = "21aed77158192a3c7b63d8845f165e029cf572ae"></release>
     <release parenthash = "21aed77158192a3c7b63d8845f165e029cf572ae" version = "2.2.1rc1" githash = "95e20abf6ed73901f13cdd883a164dc1a7370eed"></release>
     <release parenthash = "51af90e66a43a1bef8461aa6216164d7e59357fd" version = "2.2.2rc0" githash = "3db65a9cd09d968d0f8e59550f900cc8b6b77401"></release>
+    <release parenthash = "2c300f092d9520d10ddee3d2a045e78cd3fbe5ff" version = "2.2.3beta0"></release>
     <subpartnumber>XM-001828-SM</subpartnumber>
     <vendor>XMOS</vendor>
     <xcore_repo>sc_ethernet.git</xcore_repo>
