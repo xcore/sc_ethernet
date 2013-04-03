@@ -1,11 +1,6 @@
 <?xml version="1.0" ?>
 <xpd>
     <components>
-        <component name = "Lock Handling Library" type = "component" buildresults_path = "module_locks/.module_locks.buildinfo" scope = "General Use" path = "module_locks" metainfo_path = "module_locks/module_locks.metainfo" local = "false" id = "module_locks" description = "A library for handling hardware and software locks between tasks.">
-            <keyword>locks</keyword>
-            <keyword>concurrency</keyword>
-            <keyword>synchronization</keyword>
-        </component>
         <component name = "Ethernet Board Support Definitions" type = "component" buildresults_path = "module_ethernet_board_support/.module_ethernet_board_support.buildinfo" scope = "General Use" path = "module_ethernet_board_support" metainfo_path = "module_ethernet_board_support/module_ethernet_board_support.metainfo" local = "false" id = "module_ethernet_board_support" description = "Ethernet configuration defines for XMOS development boards">
             <keyword>ethernet</keyword>
             <keyword>mii</keyword>
@@ -51,8 +46,9 @@ ethernet mac" type = "demoCode" scope = "Example" path = "app_ethernet_loopback"
         <version>1.0.0rc0</version>
     </dependency>
     <dependency repo = "sc_util">
-        <githash>3f82b846395c07e8dd32ad9951afc209b6ed7efc</githash>
+        <githash>073a5c322a51797705ac7d02b182af18813bcbc5</githash>
         <uri>git@github.com:xcore/sc_util</uri>
+        <version>1.0.0beta2</version>
     </dependency>
     <description>A complete Ethernet MII and MAC interface for 100MBps Ethernet</description>
     <docdir>doc/ethernet</docdir>
@@ -103,7 +99,7 @@ ethernet mac" type = "demoCode" scope = "Example" path = "app_ethernet_loopback"
     <release parenthash = "2e041b400855f2197b8f8babca2a4d53fb9a7e0a" version = "2.2.0rc0" githash = "14bbe0d826fe36c6f2b44d95e277fe120e1ba350"></release>
     <release parenthash = "74ddcce090e0b1a584a7da98949f41c20117ee43" version = "2.2.1rc0" githash = "21aed77158192a3c7b63d8845f165e029cf572ae"></release>
     <release parenthash = "21aed77158192a3c7b63d8845f165e029cf572ae" version = "2.2.1rc1" githash = "95e20abf6ed73901f13cdd883a164dc1a7370eed"></release>
-    <release parenthash = "51af90e66a43a1bef8461aa6216164d7e59357fd" version = "2.2.2rc0"></release>
+    <release parenthash = "51af90e66a43a1bef8461aa6216164d7e59357fd" version = "2.2.2rc0" githash = "3db65a9cd09d968d0f8e59550f900cc8b6b77401"></release>
     <subpartnumber>XM-001828-SM</subpartnumber>
     <vendor>XMOS</vendor>
     <xcore_repo>sc_ethernet.git</xcore_repo>

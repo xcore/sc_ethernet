@@ -28,7 +28,7 @@ int get_and_dec_transmit_count(int buf0)
 #ifndef ETHERNET_USE_HARDWARE_LOCKS
   swlock_acquire(&tc_lock);
 #else
-  __hwlock_acquire(ethernet_memory_lock);
+  hwlock_acquire(ethernet_memory_lock);
 #endif
   count = buf->tcount;
   if (count) 
@@ -36,7 +36,7 @@ int get_and_dec_transmit_count(int buf0)
 #ifndef ETHERNET_USE_HARDWARE_LOCKS
   swlock_release(&tc_lock);
 #else
-  __hwlock_release(ethernet_memory_lock);
+  hwlock_release(ethernet_memory_lock);
 #endif
   return count;
 }
@@ -54,7 +54,7 @@ int mii_packet_get_and_clear_forwarding(int buf0, int ifnum)
 #ifndef ETHERNET_USE_HARDWARE_LOCKS
   swlock_acquire(&tc_lock);
 #else
-  __hwlock_acquire(ethernet_memory_lock);
+  hwlock_acquire(ethernet_memory_lock);
 #endif
 
   buf->forwarding &= (~mask);
@@ -62,7 +62,7 @@ int mii_packet_get_and_clear_forwarding(int buf0, int ifnum)
 #ifndef ETHERNET_USE_HARDWARE_LOCKS
   swlock_release(&tc_lock);
 #else
-  __hwlock_release(ethernet_memory_lock);
+  hwlock_release(ethernet_memory_lock);
 #endif
   return ret;
 }
@@ -94,7 +94,7 @@ int get_ts_queue_entry(mii_ts_queue_t *q)
 #ifndef ETHERNET_USE_HARDWARE_LOCKS
   swlock_acquire((swlock_t *) q->lock);
 #else
-  __hwlock_acquire(ethernet_memory_lock);
+  hwlock_acquire(ethernet_memory_lock);
 #endif
   
   rdIndex = q->rdIndex;
@@ -111,7 +111,7 @@ int get_ts_queue_entry(mii_ts_queue_t *q)
 #ifndef ETHERNET_USE_HARDWARE_LOCKS
   swlock_release((swlock_t *) q->lock);
 #else
-  __hwlock_release(ethernet_memory_lock);
+  hwlock_release(ethernet_memory_lock);
 #endif
   return i;
 }
@@ -123,7 +123,7 @@ void add_ts_queue_entry(mii_ts_queue_t *q, int i)
 #ifndef ETHERNET_USE_HARDWARE_LOCKS
   swlock_acquire((swlock_t *) q->lock);
 #else
-  __hwlock_acquire(ethernet_memory_lock);
+  hwlock_acquire(ethernet_memory_lock);
 #endif
 
   wrIndex = q->wrIndex;
@@ -135,7 +135,7 @@ void add_ts_queue_entry(mii_ts_queue_t *q, int i)
 #ifndef ETHERNET_USE_HARDWARE_LOCKS
   swlock_release((swlock_t *) q->lock);
 #else
-  __hwlock_release(ethernet_memory_lock);
+  hwlock_release(ethernet_memory_lock);
 #endif
   return;
 }

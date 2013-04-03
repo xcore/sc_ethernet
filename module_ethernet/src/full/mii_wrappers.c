@@ -53,7 +53,7 @@ mii_mempool_t tx_mem_lp[NUM_ETHERNET_PORTS];
 
 void init_mii_mem() {
 #ifdef ETHERNET_USE_HARDWARE_LOCKS
-  ethernet_memory_lock = __hwlock_init();
+  ethernet_memory_lock = hwlock_alloc();
 #endif
 
   for (int i=0; i<NUM_ETHERNET_PORTS; ++i) {

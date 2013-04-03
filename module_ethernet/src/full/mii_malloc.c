@@ -141,7 +141,7 @@ void mii_free(mii_buffer_t buf) {
 #ifndef ETHERNET_USE_HARDWARE_LOCKS
   swlock_acquire(&info->lock);
 #else
-  __hwlock_acquire(ethernet_memory_lock);
+  hwlock_acquire(ethernet_memory_lock);
 #endif
 
   while (1) {
@@ -177,7 +177,7 @@ void mii_free(mii_buffer_t buf) {
 #ifndef ETHERNET_USE_HARDWARE_LOCKS
   swlock_release(&info->lock);
 #else
-  __hwlock_release(ethernet_memory_lock);
+  hwlock_release(ethernet_memory_lock);
 #endif
 }
 

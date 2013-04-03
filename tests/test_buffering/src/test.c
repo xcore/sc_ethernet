@@ -52,7 +52,7 @@ static void test_init_mempool()
 
 void test_logical()
 {
-	ethernet_memory_lock = __hwlock_init();
+	ethernet_memory_lock = hwlock_alloc();
 
 	test_init_mempool();
 
