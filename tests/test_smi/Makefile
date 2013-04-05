@@ -21,6 +21,14 @@ XCC_MAP_FLAGS_Debug =
 XCC_XC_FLAGS_Debug = 
 XCC_FLAGS_Release = -O2 -g
 
+# This change to the module path is so that this application can be in the
+# tests sub-directory in it's git repo
+ifeq ($(notdir $(abspath ..)),tests)
+PATHSEP = $(if $(findstring Windows, $(OS))$(findstring WINDOWS,$(OS)),;,:)
+XMOS_MODULE_PATH := $(XMOS_MODULE_PATH)$(PATHSEP)../../..
+endif
+
+
 # The VERBOSE variable, if set to 1, enables verbose output from the make system.
 VERBOSE = 0
 
