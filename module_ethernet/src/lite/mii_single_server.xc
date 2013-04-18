@@ -3,7 +3,7 @@
 // University of Illinois/NCSA Open Source License posted in
 // LICENSE.txt and at <http://github.xcore.com/>
 
-
+#include "ethernet_server_lite.h"
 #include <xs1.h>
 #include <xclib.h>
 #include <print.h>
