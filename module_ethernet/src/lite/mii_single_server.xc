@@ -3,7 +3,7 @@
 // University of Illinois/NCSA Open Source License posted in
 // LICENSE.txt and at <http://github.xcore.com/>
 
-
+#include "ethernet_server_lite.h"
 #include <xs1.h>
 #include <xclib.h>
 #include <print.h>
@@ -97,28 +97,6 @@ static void the_server(chanend cIn, chanend cOut, chanend cNotifications,
             }
         }
     } 
-}
-
-
-void mii_single_server(out port ?p_mii_resetn,
-                     smi_interface_t &?smi,
-                     mii_interface_lite_t &m,
-                     chanend appIn, chanend appOut,
-                     unsigned char mac_address[6]) {
-    chan cIn, cOut;
-    chan notifications;
-	mii_initialise(p_mii_resetn, m);
-#ifndef MII_NO_SMI_CONFIG
-        if (!isnull(smi)) {
-          smi_init(smi);
-          eth_phy_config(1, smi);
-        }
-#endif
-    par {
-      {asm(""::"r"(notifications));mii_driver(m, cIn, cOut);}
-        the_server(cIn, cOut, notifications, smi, appIn, appOut, mac_address);
-    }
-
 }
 
 void ethernet_server_lite(mii_interface_lite_t &m,

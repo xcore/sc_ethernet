@@ -14,7 +14,7 @@ DEPENDENT_MODULES = module_ethernet_smi module_locks
 OPTIONAL_HEADERS += ethernet_conf.h ethernet_board_conf.h xtcp_conf_derived.h mac_custom_filter.h
 
 MODULE_XCC_XC_FLAGS = $(XCC_FLAGS) -g -O3
-MODULE_XCC_C_FLAGS = $(XCC_FLAGS) -std=c99 -g -Os
+MODULE_XCC_C_FLAGS = $(XCC_FLAGS) -g -Os
 
 XCC_FLAGS_mii_malloc.c = $(XCC_FLAGS) -O3 -g
 XCC_FLAGS_mii.xc = $(XCC_FLAGS) -O3 -fschedule -g0

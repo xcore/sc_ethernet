@@ -85,7 +85,7 @@ void smi_init(smi_interface_t &smi) {
   }
 #endif
 
-#if SMI_HANDLE_COMBINED_PORT
+#if SMI_HANDLE_COMBINED_PORTS
   if (SMI_COMBINE_MDC_MDIO || (smi.phy_address < 0)) {
     smi.p_smi_mdc <: 1 << SMI_MDC_BIT;
     return;

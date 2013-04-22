@@ -14,7 +14,7 @@
 
 void ethernet_server_lite(mii_interface_lite_t &mii,
                           smi_interface_t &?smi,
-                          char mac_address[],
+                          char mac_address[6],
                           chanend rx[],
                           int num_rx,
                           chanend tx[],

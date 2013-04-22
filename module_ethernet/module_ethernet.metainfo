@@ -242,8 +242,7 @@ generatedCode = {
         ${swblock.ports.p_eth_rxdv},
         ${swblock.ports.p_eth_txclk},
         ${swblock.ports.p_eth_txen},
-        ${swblock.ports.p_eth_txd},
-        ${swblock.ports.p_eth_rxdv}
+        ${swblock.ports.p_eth_txd}
         ${eth_fake_str}
        };
       ]],

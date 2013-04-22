@@ -1,6 +1,17 @@
 Ethernet Component Change Log
 =============================
 
+2.2.3
+-----
+  * Fixed bug in handling SMI_HANDLE_COMBINED_PORTS define
+  * Added board support for SLICEKIT-L16 and XP-MC-CTRL-L2 board
+  * Moved to newer version of module_locks (now from sc_util repository)
+
+2.2.2
+-----
+  * Added timer offset retrieval feature to support AVB
+  * XC-2 suport fixed
+
 2.2.1
 -----
   * Minor fix to example apps (ports structures should be declared on
