@@ -289,17 +289,13 @@ void mii_rx_pins(
 			clearbuf(p_mii_rxd);
 			continue;
 		}
-
+		dptr += 5*4;
+		ii = 5*4;
 
 #pragma xta endpoint "mii_rx_sixth_word"
 		p_mii_rxd :> word;
 		crc32(crc, word, poly);
-		mii_packet_set_data_word_imm(dptr, 5, word);
-		mii_packet_set_src_port(buf, 0);
-
-		ii = 5*4;
-                dptr += 6*4;
-		endofframe = 0;
+		mii_packet_set_data_word_imm(dptr, 0, word);
 
 		do
 		{
@@ -308,15 +304,16 @@ void mii_rx_pins(
 			{
 #pragma xta endpoint "mii_rx_word"                
 				case p_mii_rxd :> word:
-                                  if (dptr != end_ptr) {
-                                    mii_packet_set_data_word_imm(dptr, 0, word);
-                                    crc32(crc, word, poly);
-                                  ii+=4;
-                                  dptr += 4;
-                                  }
-                                  if (dptr == wrap_ptr)
-                                    asm("ldw %0,%0[0]":"=r"(dptr));
-                                  break;
+				  if (dptr != end_ptr) {
+				    dptr += 4;
+                                    if (dptr == wrap_ptr)
+                                      asm("ldw %0,%0[0]":"=r"(dptr));
+				    mii_packet_set_data_word_imm(dptr, 0, word);
+				    crc32(crc, word, poly);
+				    ii+=4;
+				  }
+				  endofframe = 0;
+				  break;
 #pragma xta endpoint "mii_rx_eof"
 				case p_mii_rxdv when pinseq(0) :> int lo:
 				{
@@ -344,13 +341,16 @@ void mii_rx_pins(
 			p_mii_rxd :> tail;
 
 			tail = tail >> (32 - taillen);
+                        mii_packet_set_timestamp(buf, time);
 
-                        if (dptr != end_ptr) {
-                          mii_packet_set_timestamp(buf, time);
-                          mii_packet_set_data_word_imm(dptr, 0, tail);
-                          c <: buf;
-                          mii_commit(buf, dptr);
-                        }
+			if (dptr != end_ptr) {
+                          dptr += 4;
+                          if (dptr == wrap_ptr)
+                            asm("ldw %0,%0[0]":"=r"(dptr));
+			  mii_packet_set_data_word_imm(dptr, 0, tail);
+			  c <: buf;
+			  mii_commit(buf, dptr);
+			}
 		}
 	}
 
