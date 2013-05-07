@@ -144,7 +144,7 @@ void mii_rx_pins(
 		int ifnum,
 		streaming chanend c)
 {
-	timer tmr;
+	[[fasttimer]] timer tmr;
 	unsigned poly = 0xEDB88320;
 #if ETHERNET_RX_HP_QUEUE
         unsigned wrap_ptr_hp;
@@ -372,7 +372,7 @@ int g_mii_idle_slope=(11<<MII_CREDIT_FRACTIONAL_BITS);
 #pragma unsafe arrays
 transaction mii_transmit_packet_from_chan(chanend c,
                                           out buffered port:32 p_mii_txd,
-                                          timer tmr,
+                                          [[fasttimer]] timer tmr,
                                           int len,
                                           int do_byterev,
                                           int &time)
@@ -461,7 +461,7 @@ transaction mii_transmit_packet_from_chan(chanend c,
 #endif
 
 // Do the real-time pin wiggling for a single packet
-void mii_transmit_packet(unsigned buf, out buffered port:32 p_mii_txd, timer tmr)
+void mii_transmit_packet(unsigned buf, out buffered port:32 p_mii_txd, [[fasttimer]] timer tmr)
 {
 	register const unsigned poly = 0xEDB88320;
 	unsigned int crc = 0;
@@ -577,7 +577,7 @@ void mii_tx_pins(
 	int credit_time;
 #endif
 	int prev_eof_time, time;
-	timer tmr;
+	[[fasttimer]] timer tmr;
 	int ok_to_transmit=1;
 
 #if (ETHERNET_TX_HP_QUEUE) && (ETHERNET_TRAFFIC_SHAPER)
