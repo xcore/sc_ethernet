@@ -135,21 +135,37 @@ int mac_get_macaddr_full(chanend ethernet_tx_svr, unsigned char Buf[])
 
 
 #ifdef AVB_MAC
-void send_avb_1722_router_cmd(chanend c,
-                              int key0,
-                              int key1,
-                              int link,
-                              int hash,
-                              int forward)
-{
+
+void mac_1722_router_enable_forwarding(chanend c, int key0, int key1) {
+  c <: ETHERNET_TX_UPDATE_AVB_FORWARDING;
+  slave {
+    c <: key0;
+    c <: key1;
+    c <: ETHERNET_AVB_ENABLE_FORWARDING;
+  }
+}
+
+void mac_1722_router_disable_forwarding(chanend c, int key0, int key1) {
+  c <: ETHERNET_TX_UPDATE_AVB_FORWARDING;
+  slave {
+    c <: key0;
+    c <: key1;
+    c <: ETHERNET_AVB_DISABLE_FORWARDING;
+  }
+}
+
+void mac_1722_update_router(chanend c,
+                            int key0,
+                            int key1,
+                            int link,
+                            int hash) {
   c <: ETHERNET_TX_UPDATE_AVB_ROUTER;
   slave {
     c <: key0;
     c <: key1;
     c <: link;
     c <: hash;
-    c <: forward;
-  }
+  }  
 }
 
 void mac_initialize_routing_table(chanend c)

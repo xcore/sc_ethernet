@@ -101,17 +101,11 @@ int mac_get_macaddr_full(chanend c_mac, unsigned char macaddr[]);
  */
 void mac_initialize_routing_table(chanend c);
 
-/** Adjust the mac level router table
- * \todo - fill this in - maybe change the name to something non-AVB
- *         specific.  can it be useful outside of AVB?
- *
- */
-void send_avb_1722_router_cmd(chanend c,
-                              int key0,
-                              int key1,
-                              int link,
-                              int hash,
-                              int forward);
+void mac_1722_router_enable_forwarding(chanend c, int key0, int key1);
+
+void mac_1722_router_disable_forwarding(chanend c, int key0, int key1);
+
+void mac_1722_update_router(chanend c, int key0, int key1, int link, int hash);
 
 /** This function sets the transmit 
  *  bandwidth restriction for Q-tagged traffic out of the mac.

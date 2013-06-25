@@ -339,15 +339,25 @@ void ethernet_tx_server_no_buffer(const char mac_addr[],
 #ifdef AVB_MAC
           case ETHERNET_TX_UPDATE_AVB_ROUTER:
           {
-            int key0, key1, link, hash, forward;
+            int key0, key1, link, hash;
             master {
               tx[i] :> key0;
               tx[i] :> key1;
               tx[i] :> link;
               tx[i] :> hash;
-              tx[i] :> forward;
             }
-            avb_1722_router_table_add_entry(key0, key1, link, hash, forward);
+            avb_1722_router_table_add_or_update_entry(key0, key1, link, hash);
+            break;
+          }
+          case ETHERNET_TX_UPDATE_AVB_FORWARDING:
+          {
+            int key0, key1, forward;
+            master {
+              tx[i] :> key0;
+              tx[i] :> key1;
+              tx[i] :> forward;              
+            }
+            avb_1722_router_table_add_or_update_forwarding(key0, key1, forward);
             break;
           }
           case ETHERNET_TX_INIT_AVB_ROUTER:
