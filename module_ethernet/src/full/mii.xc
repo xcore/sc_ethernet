@@ -91,26 +91,33 @@
 
 #pragma xta command "add loop mii_tx_loop 0"
 
-#pragma xta command "analyze endpoints mii_tx_word mii_tx_crc_0"
-#pragma xta command "set required - 320 ns"
-
-#pragma xta command "analyze endpoints mii_tx_word mii_tx_final_partword_1"
-#pragma xta command "set required - 320 ns"
-
-#pragma xta command "analyze endpoints mii_tx_word mii_tx_final_partword_2"
-#pragma xta command "set required - 320 ns"
-
 #pragma xta command "analyze endpoints mii_tx_word mii_tx_final_partword_3"
 #pragma xta command "set required - 320 ns"
 
-#pragma xta command "analyze endpoints mii_tx_final_partword_1 mii_tx_crc_1"
+#pragma xta command "add exclusion mii_tx_final_partword_3"
+#pragma xta command "analyze endpoints mii_tx_word mii_tx_final_partword_2"
+#pragma xta command "set required - 320 ns"
+
+#pragma xta command "add exclusion mii_tx_final_partword_2"
+#pragma xta command "analyze endpoints mii_tx_word mii_tx_final_partword_1"
+#pragma xta command "set required - 320 ns"
+
+#pragma xta command "add exclusion mii_tx_final_partword_1"
+#pragma xta command "analyze endpoints mii_tx_word mii_tx_crc_0"
+#pragma xta command "set required - 320 ns"
+
+#pragma xta command "remove exclusion mii_tx_final_partword_3"
+#pragma xta command "remove exclusion mii_tx_final_partword_2"
+#pragma xta command "remove exclusion mii_tx_final_partword_1"
+
+#pragma xta command "analyze endpoints mii_tx_final_partword_3 mii_tx_final_partword_2"
 #pragma xta command "set required - 80 ns"
 
-#pragma xta command "analyze endpoints mii_tx_final_partword_2 mii_tx_crc_2"
-#pragma xta command "set required - 160 ns"
+#pragma xta command "analyze endpoints mii_tx_final_partword_2 mii_tx_final_partword_1"
+#pragma xta command "set required - 80 ns"
 
-#pragma xta command "analyze endpoints mii_tx_final_partword_3 mii_tx_crc_3"
-#pragma xta command "set required - 240 ns"
+#pragma xta command "analyze endpoints mii_tx_final_partword_1 mii_tx_crc_0"
+#pragma xta command "set required - 80 ns"
 
 #endif
 // check the transmit interframe space.  It should ideally be quite close to 1560, which will
@@ -418,48 +425,35 @@ void mii_transmit_packet(unsigned buf, out buffered port:32 p_mii_txd, timer tmr
 	mii_packet_set_timestamp(buf, time);
 #endif
 
-	switch (tail_byte_count)
-	{
-		case 0:
-			crc32(crc, 0, poly);
-			crc = ~crc;
-#pragma xta endpoint "mii_tx_crc_0"
-			p_mii_txd <: crc;
-			break;
-		case 1:
-			word = mii_packet_get_data_word(dptr, 0);
-			crc8shr(crc, word, poly);
-#pragma xta endpoint "mii_tx_final_partword_1"
-			partout(p_mii_txd, 8, word);
-			crc32(crc, 0, poly);
-			crc = ~crc;
-#pragma xta endpoint "mii_tx_crc_1"
-			p_mii_txd <: crc;
-			break;
-		case 2:
-			word = mii_packet_get_data_word(dptr, 0);
-#pragma xta endpoint "mii_tx_final_partword_2"
-			partout(p_mii_txd, 16, word);
-			word = crc8shr(crc, word, poly);
-			crc8shr(crc, word, poly);
-			crc32(crc, 0, poly);
-			crc = ~crc;
-#pragma xta endpoint "mii_tx_crc_2"
-			p_mii_txd <: crc;
-			break;
-		case 3:
-			word = mii_packet_get_data_word(dptr, 0);
+        if (tail_byte_count) {
+          word = mii_packet_get_data_word(dptr, 0);
+          switch (tail_byte_count)
+            {
+            default:
+              __builtin_unreachable();
+              break;
+            #pragma fallthrough
+            case 3:
 #pragma xta endpoint "mii_tx_final_partword_3"
-			partout(p_mii_txd, 24, word);
-			word = crc8shr(crc, word, poly);
-			word = crc8shr(crc, word, poly);
-			crc8shr(crc, word, poly);
-			crc32(crc, 0, poly);
-			crc = ~crc;
-#pragma xta endpoint "mii_tx_crc_3"
-			p_mii_txd <: crc;
-			break;
+              partout(p_mii_txd, 8, word);
+              crc8shr(crc, word, poly);
+              word >>= 8;
+            #pragma fallthrough
+            case 2:
+#pragma xta endpoint "mii_tx_final_partword_2"
+              partout(p_mii_txd, 8, word);
+              crc8shr(crc, word, poly);
+              word >>= 8;
+            case 1:
+#pragma xta endpoint "mii_tx_final_partword_1"
+              partout(p_mii_txd, 8, word);
+              crc8shr(crc, word, poly);
+              break;
+            }
 	}
+        crc32(crc, ~0, poly);
+#pragma xta endpoint "mii_tx_crc_0"
+        p_mii_txd <: crc;
 }
 
 
