@@ -17,11 +17,7 @@ void mii_tx_pins_wr(out buffered port:32 p,
 
 #define mii_tx_pins mii_tx_pins_wr
 
-void ethernet_tx_server_wr(const char mac_addr[], chanend tx[], int num_q, int num_tx, smi_interface_t &?smi1, smi_interface_t &?smi2
-#if ETHERNET_TX_NO_BUFFERING
-, out buffered port:32 ?p
-#endif
-);
+void ethernet_tx_server_wr(const char mac_addr[], chanend tx[], int num_q, int num_tx, smi_interface_t &?smi1, smi_interface_t &?smi2);
 
 #define ethernet_tx_server ethernet_tx_server_wr
 
