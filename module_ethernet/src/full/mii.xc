@@ -188,11 +188,7 @@ void mii_rx_pins(
 		buf_lp = mii_reserve(rxmem_lp, end_ptr_lp);
 
 #if ETHERNET_RX_HP_QUEUE
-		if (buf_hp) {
-                  dptr_hp = mii_packet_get_data_ptr(buf_hp);
-		} else {
-                  dptr_hp = 0;
-		}
+                dptr_hp = mii_packet_get_data_ptr(buf_hp);
 #endif
 
 #pragma xta endpoint "mii_rx_sof"
@@ -220,7 +216,7 @@ void mii_rx_pins(
 		crc = 0x9226F562;
 
 #if ETHERNET_RX_HP_QUEUE
-		if (!dptr_hp) {
+		if (!buf_hp) {
                   dptr_hp = dptr_lp;
                 }
 #endif
