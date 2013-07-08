@@ -1,6 +1,13 @@
 Ethernet Component Change Log
 =============================
 
+2.2.4
+-----
+  * Fixed timing issues in MII rx pins for cores running at 50 mips
+    (with no high priority queue)
+  * Improved performance MII tx pin handling code
+  * Added board support for DSP4YOU module
+
 2.2.3
 -----
   * Fixed bug in handling SMI_HANDLE_COMBINED_PORTS define
