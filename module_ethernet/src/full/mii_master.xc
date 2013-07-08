@@ -92,26 +92,33 @@
 
 #pragma xta command "add loop mii_tx_loop 0"
 
-#pragma xta command "analyze endpoints mii_tx_word mii_tx_crc_0"
-#pragma xta command "set required - 320 ns"
-
-#pragma xta command "analyze endpoints mii_tx_word mii_tx_final_partword_1"
-#pragma xta command "set required - 320 ns"
-
-#pragma xta command "analyze endpoints mii_tx_word mii_tx_final_partword_2"
-#pragma xta command "set required - 320 ns"
-
 #pragma xta command "analyze endpoints mii_tx_word mii_tx_final_partword_3"
 #pragma xta command "set required - 320 ns"
 
-#pragma xta command "analyze endpoints mii_tx_final_partword_1 mii_tx_crc_1"
+#pragma xta command "add exclusion mii_tx_final_partword_3"
+#pragma xta command "analyze endpoints mii_tx_word mii_tx_final_partword_2"
+#pragma xta command "set required - 320 ns"
+
+#pragma xta command "add exclusion mii_tx_final_partword_2"
+#pragma xta command "analyze endpoints mii_tx_word mii_tx_final_partword_1"
+#pragma xta command "set required - 320 ns"
+
+#pragma xta command "add exclusion mii_tx_final_partword_1"
+#pragma xta command "analyze endpoints mii_tx_word mii_tx_crc_0"
+#pragma xta command "set required - 320 ns"
+
+#pragma xta command "remove exclusion mii_tx_final_partword_3"
+#pragma xta command "remove exclusion mii_tx_final_partword_2"
+#pragma xta command "remove exclusion mii_tx_final_partword_1"
+
+#pragma xta command "analyze endpoints mii_tx_final_partword_3 mii_tx_final_partword_2"
 #pragma xta command "set required - 80 ns"
 
-#pragma xta command "analyze endpoints mii_tx_final_partword_2 mii_tx_crc_2"
-#pragma xta command "set required - 160 ns"
+#pragma xta command "analyze endpoints mii_tx_final_partword_2 mii_tx_final_partword_1"
+#pragma xta command "set required - 80 ns"
 
-#pragma xta command "analyze endpoints mii_tx_final_partword_3 mii_tx_crc_3"
-#pragma xta command "set required - 240 ns"
+#pragma xta command "analyze endpoints mii_tx_final_partword_1 mii_tx_crc_0"
+#pragma xta command "set required - 80 ns"
 
 #endif
 // check the transmit interframe space.  It should ideally be quite close to 1560, which will
@@ -183,11 +190,7 @@ void mii_rx_pins(
         buf_lp = mii_reserve(rxmem_lp, end_ptr_lp);
 
 #if ETHERNET_RX_HP_QUEUE
-        if (buf_hp) {
-            dptr_hp = mii_packet_get_data_ptr(buf_hp);
-        } else {
-            dptr_hp = 0;
-        }
+        dptr_hp = mii_packet_get_data_ptr(buf_hp);
 #endif
 
 #pragma xta endpoint "mii_rx_sof"
@@ -218,7 +221,7 @@ void mii_rx_pins(
         crc = 0x9226F562;
 
 #if ETHERNET_RX_HP_QUEUE
-        if (!dptr_hp) {
+        if (!buf_hp) {
             dptr_hp = dptr_lp;
         }
 #endif
@@ -296,17 +299,13 @@ void mii_rx_pins(
             clearbuf(p_mii_rxd);
             continue;
         }
-
+        dptr += 5*4;
+        ii = 5*4;
 
 #pragma xta endpoint "mii_rx_sixth_word"
         p_mii_rxd :> word;
         crc32(crc, word, poly);
-        mii_packet_set_data_word_imm(dptr, 5, word);
-        mii_packet_set_src_port(buf, 0);
-
-        ii = 5*4;
-        dptr += 6*4;
-        endofframe = 0;
+        mii_packet_set_data_word_imm(dptr, 0, word);
 
         do
         {
@@ -315,17 +314,17 @@ void mii_rx_pins(
             {
 #pragma xta endpoint "mii_rx_word"                
                 case p_mii_rxd :> word:
-                {
                     if (dptr != end_ptr) {
+                        dptr += 4;
+                        if (dptr == wrap_ptr) {
+                            asm("ldw %0,%0[0]":"=r"(dptr));
+                        }
                         mii_packet_set_data_word_imm(dptr, 0, word);
                         crc32(crc, word, poly);
                         ii+=4;
-                        dptr += 4;
                     }
-                    if (dptr == wrap_ptr)
-                        asm("ldw %0,%0[0]":"=r"(dptr));
+                    endofframe = 0;
                     break;
-                }
 #pragma xta endpoint "mii_rx_eof"
                 case p_mii_rxdv when pinseq(0) :> int lo:
                 {
@@ -353,10 +352,13 @@ void mii_rx_pins(
             p_mii_rxd :> tail;
 
             tail = tail >> (32 - taillen);
+            mii_packet_set_timestamp(buf, time);
 
             if (dptr != end_ptr) {
-                mii_packet_set_timestamp_id(buf, 0);
-                mii_packet_set_timestamp(buf, time);
+                dptr += 4;
+                if (dptr == wrap_ptr) {
+                    asm("ldw %0,%0[0]":"=r"(dptr));
+                }
                 mii_packet_set_data_word_imm(dptr, 0, tail);
                 c_filter <: buf;
                 mii_commit(buf, dptr);
@@ -383,100 +385,6 @@ int g_mii_idle_slope=(11<<MII_CREDIT_FRACTIONAL_BITS);
 #endif
 
 
-#if ETHERNET_TX_NO_BUFFERING
-// Do the real-time pin wiggling for a single packet
-#pragma unsafe arrays
-transaction mii_transmit_packet_from_chan(chanend c,
-                                          out buffered port:32 p_mii_txd,
-                                          timer tmr,
-                                          int len,
-                                          int do_byterev,
-                                          int &time)
-{
-    register const unsigned poly = 0xEDB88320;
-    unsigned int crc = 0;
-
-    unsigned int word;
-    int i = 0;
-    int word_count = len;
-    int tail_byte_count = word_count & 3;
-    word_count = word_count >> 2;
-
-#pragma xta endpoint "mii_tx_sof"
-    p_mii_txd <: 0x55555555;
-    p_mii_txd <: 0x55555555;
-    p_mii_txd <: 0xD5555555;
-
-#ifndef TX_TIMESTAMP_END_OF_PACKET
-    tmr :> time;
-#endif
-
-    c :> word;
-    if (do_byterev) word = byterev(word);
-#pragma xta endpoint "mii_tx_first_word"
-    p_mii_txd <: word;
-    i++;
-    crc32(crc, ~word, poly);
-
-    do {
-#pragma xta label "mii_tx_loop"
-        c :> word;
-        if (do_byterev) word = byterev(word);
-        i++;
-        crc32(crc, word, poly);
-#pragma xta endpoint "mii_tx_word"
-        p_mii_txd <: word;
-    } while (i < word_count);
-
-#ifdef TX_TIMESTAMP_END_OF_PACKET
-    tmr :> time;
-#endif
-
-    switch (tail_byte_count)
-    {
-        case 0:
-            crc32(crc, 0, poly);
-            crc = ~crc;
-#pragma xta endpoint "mii_tx_crc_0"
-            p_mii_txd <: crc;
-            break;
-        case 1:
-            c :> word; if (do_byterev) word = byterev(word);
-            crc8shr(crc, word, poly);
-#pragma xta endpoint "mii_tx_final_partword_1"
-            partout(p_mii_txd, 8, word);
-            crc32(crc, 0, poly);
-            crc = ~crc;
-#pragma xta endpoint "mii_tx_crc_1"
-            p_mii_txd <: crc;
-            break;
-        case 2:
-            c :> word; if (do_byterev) word = byterev(word);
-#pragma xta endpoint "mii_tx_final_partword_2"
-            partout(p_mii_txd, 16, word);
-            word = crc8shr(crc, word, poly);
-            crc8shr(crc, word, poly);
-            crc32(crc, 0, poly);
-            crc = ~crc;
-#pragma xta endpoint "mii_tx_crc_2"
-            p_mii_txd <: crc;
-            break;
-        case 3:
-            c :> word; if (do_byterev) word = byterev(word);
-#pragma xta endpoint "mii_tx_final_partword_3"
-            partout(p_mii_txd, 24, word);
-            word = crc8shr(crc, word, poly);
-            word = crc8shr(crc, word, poly);
-            crc8shr(crc, word, poly);
-            crc32(crc, 0, poly);
-            crc = ~crc;
-#pragma xta endpoint "mii_tx_crc_3"
-            p_mii_txd <: crc;
-            break;
-    }
-        // return time;
-}
-#endif
 
 // Do the real-time pin wiggling for a single packet
 void mii_transmit_packet(unsigned buf, out buffered port:32 p_mii_txd, timer tmr)
@@ -528,48 +436,35 @@ void mii_transmit_packet(unsigned buf, out buffered port:32 p_mii_txd, timer tmr
     mii_packet_set_timestamp(buf, time);
 #endif
 
-    switch (tail_byte_count)
-    {
-        case 0:
-            crc32(crc, 0, poly);
-            crc = ~crc;
-#pragma xta endpoint "mii_tx_crc_0"
-            p_mii_txd <: crc;
-            break;
-        case 1:
-            word = mii_packet_get_data_word(dptr, 0);
-            crc8shr(crc, word, poly);
-#pragma xta endpoint "mii_tx_final_partword_1"
-            partout(p_mii_txd, 8, word);
-            crc32(crc, 0, poly);
-            crc = ~crc;
-#pragma xta endpoint "mii_tx_crc_1"
-            p_mii_txd <: crc;
-            break;
-        case 2:
-            word = mii_packet_get_data_word(dptr, 0);
-#pragma xta endpoint "mii_tx_final_partword_2"
-            partout(p_mii_txd, 16, word);
-            word = crc8shr(crc, word, poly);
-            crc8shr(crc, word, poly);
-            crc32(crc, 0, poly);
-            crc = ~crc;
-#pragma xta endpoint "mii_tx_crc_2"
-            p_mii_txd <: crc;
-            break;
-        case 3:
-            word = mii_packet_get_data_word(dptr, 0);
+        if (tail_byte_count) {
+          word = mii_packet_get_data_word(dptr, 0);
+          switch (tail_byte_count)
+            {
+            default:
+              __builtin_unreachable();
+              break;
+            #pragma fallthrough
+            case 3:
 #pragma xta endpoint "mii_tx_final_partword_3"
-            partout(p_mii_txd, 24, word);
-            word = crc8shr(crc, word, poly);
-            word = crc8shr(crc, word, poly);
-            crc8shr(crc, word, poly);
-            crc32(crc, 0, poly);
-            crc = ~crc;
-#pragma xta endpoint "mii_tx_crc_3"
-            p_mii_txd <: crc;
-            break;
+              partout(p_mii_txd, 8, word);
+              crc8shr(crc, word, poly);
+              word >>= 8;
+            #pragma fallthrough
+            case 2:
+#pragma xta endpoint "mii_tx_final_partword_2"
+              partout(p_mii_txd, 8, word);
+              crc8shr(crc, word, poly);
+              word >>= 8;
+            case 1:
+#pragma xta endpoint "mii_tx_final_partword_1"
+              partout(p_mii_txd, 8, word);
+              crc8shr(crc, word, poly);
+              break;
+            }
     }
+        crc32(crc, ~0, poly);
+#pragma xta endpoint "mii_tx_crc_0"
+        p_mii_txd <: crc;
 }
 
 

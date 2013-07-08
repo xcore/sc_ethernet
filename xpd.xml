@@ -46,9 +46,9 @@ ethernet mac" type = "demoCode" scope = "Example" path = "app_ethernet_loopback"
         <version>1.0.0rc0</version>
     </dependency>
     <dependency repo = "sc_util">
-        <githash>ad4658a416efc89da12e0327aec872ea0325085e</githash>
+        <githash>c86abe3668ca7ec0444854a2be0c2aa94fed4d85</githash>
         <uri>git@github.com:xcore/sc_util</uri>
-        <version>1.0.0rc0</version>
+        <version>1.0.2rc0</version>
     </dependency>
     <description>A complete Ethernet MII and MAC interface for 100MBps Ethernet</description>
     <docdir>doc/ethernet</docdir>
@@ -101,7 +101,8 @@ ethernet mac" type = "demoCode" scope = "Example" path = "app_ethernet_loopback"
     <release parenthash = "21aed77158192a3c7b63d8845f165e029cf572ae" version = "2.2.1rc1" githash = "95e20abf6ed73901f13cdd883a164dc1a7370eed"></release>
     <release parenthash = "51af90e66a43a1bef8461aa6216164d7e59357fd" version = "2.2.2rc0" githash = "3db65a9cd09d968d0f8e59550f900cc8b6b77401"></release>
     <release parenthash = "2c300f092d9520d10ddee3d2a045e78cd3fbe5ff" version = "2.2.3beta0" githash = "b6c7a0857dcbb5553fae3d1ae266f9750a0d5fb5"></release>
-    <release parenthash = "b6c7a0857dcbb5553fae3d1ae266f9750a0d5fb5" version = "2.2.3rc0"></release>
+    <release parenthash = "b6c7a0857dcbb5553fae3d1ae266f9750a0d5fb5" version = "2.2.3rc0" githash = "03d54412dada9cb3abc91238cb65f5d0c1a61a72"></release>
+    <release parenthash = "75e7d432da1f45652a24c09c32f88311b0ac6e7f" version = "2.2.4rc0"></release>
     <subpartnumber>XM-001828-SM</subpartnumber>
     <vendor>XMOS</vendor>
     <xcore_repo>sc_ethernet.git</xcore_repo>

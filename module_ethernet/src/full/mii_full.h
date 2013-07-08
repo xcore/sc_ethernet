@@ -128,14 +128,14 @@ typedef struct mii_packet_t {
     return x; \
  } \
  inline void mii_packet_set_##field (int buf, int x) { \
-  __asm__("stw %1, %0[" STRINGIFY(BUF_OFFSET_ ## field) "]"::"r"(buf),"r"(x)); \
+   __asm__ volatile("stw %1, %0[" STRINGIFY(BUF_OFFSET_ ## field) "]"::"r"(buf),"r"(x):"memory"); \
  }
 #else
 // Temporary version of the get/set to avoid compiler issue with inline assembler
 #define create_buf_getset(field) \
  int mii_packet_get_##field (int buf); \
  inline void mii_packet_set_##field (int buf, int x) { \
-  __asm__("stw %1, %0[" STRINGIFY(BUF_OFFSET_ ## field) "]"::"r"(buf),"r"(x)); \
+   __asm__ volatile("stw %1, %0[" STRINGIFY(BUF_OFFSET_ ## field) "]"::"r"(buf),"r"(x):"memory"); \
  }
 #endif
 
@@ -151,11 +151,13 @@ create_buf_getset(forwarding)
 create_buf_getset(user_data)
 
 inline int mii_packet_get_data_ptr(int buf) {
-  return (buf+BUF_DATA_OFFSET*4);
+  int dptr;
+  __asm__("ldaw %0, %1[%2]":"=r"(dptr):"r"(buf),"r"(BUF_DATA_OFFSET));
+  return dptr;
 }
 
 inline void mii_packet_set_data_word(int data, int n, int v) {
-  __asm__("stw %0,%1[%2]"::"r"(v),"r"(data),"r"(n));
+  __asm__ volatile("stw %0,%1[%2]"::"r"(v),"r"(data),"r"(n):"memory");
 }
 
 #ifdef ETHERNET_INLINE_PACKET_GET
@@ -169,23 +171,28 @@ int mii_packet_get_data_word(int data, int n);
 #endif
 
 #define mii_packet_set_data_word_imm(data, n, v) \
-  asm("stw %0,%1[" STRINGIFY(n) "]"::"r"(v),"r"(data));
+  __asm__ volatile("stw %0,%1[" STRINGIFY(n) "]"::"r"(v),"r"(data):"memory");
+
+#define mii_packet_set_data_word_imm_from_buf(data, n, v) \
+  __asm__ volatile("stw %0,%1[" STRINGIFY(n+BUF_DATA_OFFSET) "]"::"r"(v),"r"(data):"memory");
 
 #define mii_packet_get_data_word_imm(data, n, v) \
-  asm("ldw %0,%1[" STRINGIFY(n) "]":"=r"(v):"r"(data));
+  __asm__("ldw %0,%1[" STRINGIFY(n) "]":"=r"(v):"r"(data));
 
 
 inline void mii_packet_set_data(int buf, int n, int v) {
-  __asm__("stw %0,%1[%2]"::"r"(v),"r"(buf),"r"(n+BUF_DATA_OFFSET));
+  __asm__ volatile("stw %0,%1[%2]"::"r"(v),"r"(buf),"r"(n+BUF_DATA_OFFSET):"memory");
 }
 
 inline void mii_packet_set_data_short(int buf, int n, int v) {
-  __asm__("st16 %0,%1[%2]"::"r"(v),"r"(buf),"r"(n+(BUF_DATA_OFFSET*2)));
+  __asm__ volatile("st16 %0,%1[%2]"::"r"(v),"r"(buf),"r"(n+(BUF_DATA_OFFSET*2)):"memory");
 }
 
 inline void mii_packet_set_data_byte(int buf, int n, int v) {
-  __asm__("st8 %0,%1[%2]"::"r"(v),"r"(buf),"r"(n+(BUF_DATA_OFFSET*4)));
+  __asm__ volatile("st8 %0,%1[%2]"::"r"(v),"r"(buf),"r"(n+(BUF_DATA_OFFSET*4)):"memory");
 }
+
+
 
 #ifdef __XC__
 #define PORT_PARAM(param, name) param name

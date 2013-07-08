@@ -136,6 +136,9 @@ void ethernet_filter(const char mac_address[], streaming chanend c[NUM_ETHERNET_
                                 ethernet_filtered_by_address++;
 #endif
                             }
+                            // We need to zero the timestamp ID in case the frame is forwarded on another port 
+                            // so that the TX server does not try to timestamp the frame on egress (and crash)
+                            mii_packet_set_timestamp_id(buf, 0);
                             mii_packet_set_user_data(buf, user_data);
                             mii_packet_set_filter_result(buf, filter_result);
                             mii_packet_set_stage(buf, 1);

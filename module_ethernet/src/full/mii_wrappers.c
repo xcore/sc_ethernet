@@ -63,13 +63,12 @@ void init_mii_mem() {
     mii_init_mempool(rx_mem_hp[i], ETHERNET_RX_HP_MEMSIZE*4);
 #endif
 
-#if !ETHERNET_TX_NO_BUFFERING
+
 #if ETHERNET_TX_HP_QUEUE
     tx_mem_hp[i] = (mii_mempool_t) &tx_hp_data[i][0];
     mii_init_mempool(tx_mem_hp[i], ETHERNET_TX_HP_MEMSIZE*4);
 #endif
     init_ts_queue(&ts_queue[i]);
-#endif
   }
 
   // Initialisation of low priority ports for all ports
@@ -99,7 +98,6 @@ void mii_rx_pins_wr(port p1,
 		  rx_mem_lp[i], p1, p2, i, c);
 }
 
-#if !ETHERNET_TX_NO_BUFFERING
 void mii_tx_pins_wr(port p,
                     int i)
 {
@@ -115,7 +113,6 @@ void mii_tx_pins_wr(port p,
 #endif
 				tx_mem_lp[i], &ts_queue[i], p, i);
 }
-#endif
 
 void mii_slave_tx_pins_wr(port p1,
                           port p2,
@@ -136,19 +133,9 @@ void mii_slave_rx_pins_wr(port p,
 }
 
 void ethernet_tx_server_wr(const char mac_addr[], chanend tx[], int num_q, int num_tx, smi_interface_t *smi1, smi_interface_t *smi2
-#if ETHERNET_TX_NO_BUFFERING
-, port p_mii_txd
-#endif
 )
 {
 
-#if ETHERNET_TX_NO_BUFFERING
-  ethernet_tx_server_no_buffer(mac_addr,
-                               tx,
-                               num_tx,
-                               p_mii_txd,
-                               smi1);
-#else
   ethernet_tx_server(
 #if ETHERNET_TX_HP_QUEUE
                      tx_mem_hp,
@@ -161,7 +148,6 @@ void ethernet_tx_server_wr(const char mac_addr[], chanend tx[], int num_q, int n
                      num_tx,
                      smi1,
                      smi2);
-#endif
 }
 
 void ethernet_rx_server_wr(chanend rx[], int num_rx)
