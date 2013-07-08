@@ -55,11 +55,13 @@ static inline void notify(chanend c)
   outct(c, XS1_CT_END);
 }
 
+#if ETHERNET_RX_ENABLE_TIMER_OFFSET_REQ
 static inline unsigned int get_tile_id_from_chanend(chanend c) {
   unsigned int ci;
   asm("shr %0, %1, 16":"=r"(ci):"r"(c));
   return ci;
 }
+#endif
 
 /** This service incomming commands from link layer interfaces.
  */
