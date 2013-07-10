@@ -240,13 +240,13 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
           }
           case ETHERNET_TX_UPDATE_AVB_FORWARDING:
           {
-            int key0, key1, forward;
+            int key0, key1, forward_bool;
             master {
               tx[i] :> key0;
               tx[i] :> key1;
-              tx[i] :> forward;              
+              tx[i] :> forward_bool;              
             }
-            avb_1722_router_table_add_or_update_forwarding(key0, key1, forward);
+            avb_1722_router_table_add_or_update_forwarding(key0, key1, forward_bool);
             break;
           }
           case ETHERNET_TX_INIT_AVB_ROUTER:
