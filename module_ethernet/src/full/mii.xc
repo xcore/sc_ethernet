@@ -13,6 +13,14 @@
 #include "ethernet_server_def.h"
 #include <xclib.h>
 
+// As of the v12/13 xTIMEcomper tools. The compiler schedules code around a
+// bit too much which violates the timing constraints. This change to the
+// crc32 makes it a barrier to scheduling. This is not really
+// recommended practice since it inhibits the compiler in a bit of a hacky way,
+// but is perfectly safe.
+#undef crc32
+#define crc32(a, b, c) {__builtin_crc32(a, b, c); asm volatile ("":"=r"(a)::"memory");}
+
 // Timing tuning constants
 #define PAD_DELAY_RECEIVE    0
 #define PAD_DELAY_TRANSMIT   0
@@ -229,6 +237,7 @@ void mii_rx_pins(
 		mii_packet_set_data_word_imm(dptr_hp, 0, word);
 #endif
 
+
 #pragma xta endpoint "mii_rx_second_word"
 		p_mii_rxd :> word;
 		crc32(crc, word, poly);
@@ -253,7 +262,6 @@ void mii_rx_pins(
 #if ETHERNET_RX_HP_QUEUE
 		mii_packet_set_data_word_imm(dptr_hp, 3, word);
 #endif
-
 		{
 #if ETHERNET_RX_HP_QUEUE
 		unsigned short etype = (unsigned short)word;
