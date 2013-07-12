@@ -1,6 +1,12 @@
 Ethernet Component Change Log
 =============================
 
+2.2.5
+-----
+  * Fixed timing issue in MII rx pins to work across different tools
+    versions
+  * Moved to version 1.0.3 of module_slicekit_support
+
 2.2.4
 -----
   * Fixed timing issues in MII rx pins for cores running at 50 mips
