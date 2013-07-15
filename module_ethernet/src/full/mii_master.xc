@@ -14,6 +14,9 @@
 #include <xclib.h>
 #include <xscope.h>
 
+#undef crc32
+#define crc32(a, b, c) {__builtin_crc32(a, b, c); asm volatile ("":"=r"(a):"r"(a):"memory");}
+
 // Timing tuning constants
 #define PAD_DELAY_RECEIVE    0
 #define PAD_DELAY_TRANSMIT   0
@@ -285,7 +288,6 @@ void mii_rx_pins(
 #pragma xta endpoint "mii_rx_fifth_word"
         p_mii_rxd :> word;
         crc32(crc, word, poly);
-        mii_packet_set_data_word_imm(dptr, 4, word);
 
         if (!buf) {
 #pragma xta label "mii_rx_correct_priority_buffer_unavailable"
@@ -299,6 +301,8 @@ void mii_rx_pins(
             clearbuf(p_mii_rxd);
             continue;
         }
+        mii_packet_set_data_word_imm(dptr, 4, word);
+        
         dptr += 5*4;
         ii = 5*4;
 
