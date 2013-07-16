@@ -19,7 +19,7 @@
 // recommended practice since it inhibits the compiler in a bit of a hacky way,
 // but is perfectly safe.
 #undef crc32
-#define crc32(a, b, c) {__builtin_crc32(a, b, c); asm volatile ("":"=r"(a):"r"(a):"memory");}
+#define crc32(a, b, c) {__builtin_crc32(a, b, c); asm volatile (""::"r"(a):"memory");}
 
 // Timing tuning constants
 #define PAD_DELAY_RECEIVE    0
@@ -378,6 +378,8 @@ void mii_rx_pins(
 int g_mii_idle_slope=(11<<MII_CREDIT_FRACTIONAL_BITS);
 #endif
 
+#undef crc32
+#define crc32(a, b, c) {__builtin_crc32(a, b, c);}
 
 
 // Do the real-time pin wiggling for a single packet
@@ -441,14 +443,12 @@ void mii_transmit_packet(unsigned buf, out buffered port:32 p_mii_txd, timer tmr
             case 3:
 #pragma xta endpoint "mii_tx_final_partword_3"
               partout(p_mii_txd, 8, word);
-              crc8shr(crc, word, poly);
-              word >>= 8;
+              word = crc8shr(crc, word, poly);
             #pragma fallthrough
             case 2:
 #pragma xta endpoint "mii_tx_final_partword_2"
               partout(p_mii_txd, 8, word);
-              crc8shr(crc, word, poly);
-              word >>= 8;
+              word = crc8shr(crc, word, poly);
             case 1:
 #pragma xta endpoint "mii_tx_final_partword_1"
               partout(p_mii_txd, 8, word);
@@ -460,7 +460,6 @@ void mii_transmit_packet(unsigned buf, out buffered port:32 p_mii_txd, timer tmr
 #pragma xta endpoint "mii_tx_crc_0"
         p_mii_txd <: crc;
 }
-
 
 #pragma unsafe arrays
 void mii_tx_pins(
