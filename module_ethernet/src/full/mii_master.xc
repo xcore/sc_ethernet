@@ -303,13 +303,13 @@ void mii_rx_pins(
         }
         mii_packet_set_data_word_imm(dptr, 4, word);
         
-        dptr += 5*4;
+        dptr += 6*4;
         ii = 5*4;
 
 #pragma xta endpoint "mii_rx_sixth_word"
         p_mii_rxd :> word;
         crc32(crc, word, poly);
-        mii_packet_set_data_word_imm(dptr, 0, word);
+        mii_packet_set_data_word(dptr, -1, word);
 
         do
         {
@@ -319,13 +319,13 @@ void mii_rx_pins(
 #pragma xta endpoint "mii_rx_word"                
                 case p_mii_rxd :> word:
                     if (dptr != end_ptr) {
+                        mii_packet_set_data_word_imm(dptr, 0, word);
+                        crc32(crc, word, poly);
+                        ii+=4;
                         dptr += 4;
                         if (dptr == wrap_ptr) {
                             asm("ldw %0,%0[0]":"=r"(dptr));
                         }
-                        mii_packet_set_data_word_imm(dptr, 0, word);
-                        crc32(crc, word, poly);
-                        ii+=4;
                     }
                     endofframe = 0;
                     break;
@@ -359,10 +359,6 @@ void mii_rx_pins(
             mii_packet_set_timestamp(buf, time);
 
             if (dptr != end_ptr) {
-                dptr += 4;
-                if (dptr == wrap_ptr) {
-                    asm("ldw %0,%0[0]":"=r"(dptr));
-                }
                 mii_packet_set_data_word_imm(dptr, 0, tail);
                 c_filter <: buf;
                 mii_commit(buf, dptr);
