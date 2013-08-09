@@ -138,7 +138,7 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
                     mii_packet_set_data_word_imm(dptr[p], 0, byterev(datum));
                     dptr[p] += 4;
                     if (dptr[p] == wrap_ptr[p])
-                      asm("ldw %0,%0[0]":"=r"(dptr[p]));
+                      asm("ldw %0,%1[0]":"=r"(dptr[p]):"r"(dptr[p]));
                   }
                 }
                 tx[i] :> char;
@@ -153,7 +153,7 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
                     mii_packet_set_data_word_imm(dptr[p], 0, datum);
                     dptr[p] += 4;
                     if (dptr[p] == wrap_ptr[p])
-                      asm("ldw %0,%0[0]":"=r"(dptr[p]));
+                      asm("ldw %0,%1[0]":"=r"(dptr[p]):"r"(dptr[p]));
                   }
                 }
               }
