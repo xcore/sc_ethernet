@@ -84,6 +84,7 @@
 #define PORT_ETH_MDC on tile[1]: XS1_PORT_1N
 #define PORT_ETH_INT on tile[1]: XS1_PORT_1O
 #define PORT_ETH_ERR on tile[1]: XS1_PORT_1P
+#define PORT_ETH_RST_N on tile[1]: XS1_PORT_1O
 
 
 #endif
