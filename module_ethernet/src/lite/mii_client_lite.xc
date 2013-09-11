@@ -6,7 +6,7 @@
 
 #pragma select handler
 void safe_mac_rx_lite(chanend cIn,
-                        unsigned char buffer[], 
+                        unsigned char buffer[],
                         unsigned int &len,
                         unsigned int &src_port,
                         int n) {
@@ -29,7 +29,7 @@ void safe_mac_rx_lite(chanend cIn,
 
 
 void mac_rx_lite(chanend cIn,
-                        unsigned char buffer[], 
+                        unsigned char buffer[],
                         unsigned int &len,
                         unsigned int &src_port)
 {

@@ -156,14 +156,15 @@
 								<option id = "com.xmos.xc.compiler.option.include.paths.79623234" name="com.xmos.xc.compiler.option.include.paths" superClass="com.xmos.xc.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${XMOS_TOOL_PATH}/target/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${XMOS_TOOL_PATH}/target/include/gcc&quot;"/>
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/SLICEKIT-L16}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/XP-MC-CTRL-L2}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/D4U-AVB-DG}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/SLICEKIT-L16}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/SLICEKIT-L2-XXX}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/SLICEKIT-L2}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/XC-2}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/XP-MC-CTRL-L2}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/XR-AVB-LC-BRD}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/D4U-AVB-DG}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/common}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/SLICEKIT-L2}&quot;' />
 
 								</option>
 								<inputType id = "com.xmos.cdt.xc.compiler.input.16018021" name="XC" superClass="com.xmos.cdt.xc.compiler.input"/>
@@ -275,14 +276,15 @@
 								<option id = "com.xmos.c.compiler.option.include.paths.87807880" name="com.xmos.c.compiler.option.include.paths" superClass="com.xmos.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${XMOS_TOOL_PATH}/target/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${XMOS_TOOL_PATH}/target/include/gcc&quot;"/>
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/SLICEKIT-L16}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/XP-MC-CTRL-L2}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/D4U-AVB-DG}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/SLICEKIT-L16}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/SLICEKIT-L2-XXX}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/SLICEKIT-L2}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/XC-2}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/XP-MC-CTRL-L2}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/XR-AVB-LC-BRD}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/D4U-AVB-DG}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/common}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/SLICEKIT-L2}&quot;' />
 
 								</option>
 								<inputType id = "com.xmos.cdt.c.compiler.input.c.55246350" name="C" superClass="com.xmos.cdt.c.compiler.input.c"/>
@@ -400,14 +402,15 @@
 									<listOptionValue builtIn="false" value="&quot;${XMOS_TOOL_PATH}/target/include/gcc&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${XMOS_TOOL_PATH}/target/include/c++/4.2.1&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${XMOS_TOOL_PATH}/target/include/c++/4.2.1/xcore-xmos-elf&quot;"/>
-                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/SLICEKIT-L16}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/XP-MC-CTRL-L2}&quot;' />
+                                    <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/D4U-AVB-DG}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/SLICEKIT-L16}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/SLICEKIT-L2-XXX}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/SLICEKIT-L2}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/XC-2}&quot;' />
+<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/XP-MC-CTRL-L2}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/XR-AVB-LC-BRD}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/D4U-AVB-DG}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/common}&quot;' />
 <listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support}&quot;' />
-<listOptionValue builtIn="false" value='&quot;${workspace_loc:/module_ethernet_board_support/SLICEKIT-L2}&quot;' />
 
 								</option>
 								<inputType id = "com.xmos.cdt.cxx.compiler.input.cpp.39718223" name="C++" superClass="com.xmos.cdt.cxx.compiler.input.cpp"/>

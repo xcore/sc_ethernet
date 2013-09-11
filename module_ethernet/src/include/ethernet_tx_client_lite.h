@@ -28,7 +28,7 @@
  *  \param buffer[]  byte array containing the ethernet frame. *This must
  *                   be word aligned*
  *  \param nbytes    number of bytes in buffer
- *  \param ifnum     the number of the eth interface to transmit to 
+ *  \param ifnum     the number of the eth interface to transmit to
  *                   (use ETH_BROADCAST transmits to all ports)
  *
  */
@@ -41,7 +41,7 @@ void mac_tx_lite(chanend c_mac, unsigned int buffer[], int nbytes, int ifnum);
  *  into the ethernet_server() function.
  *
  *  \param   c_mac chanend end connected to ethernet server
- *  \param   macaddr[] an array of type char where the MAC address is placed 
+ *  \param   macaddr[] an array of type char where the MAC address is placed
  *                     (in network order).
  *  \return zero on success and non-zero on failure.
  */

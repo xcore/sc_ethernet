@@ -183,7 +183,7 @@ case inuchar_byref(notificationChannel, this.notifySeen):
 
 #pragma unsafe arrays
 static void miiCommitBuffer(struct miiData &this, unsigned int currentBuffer, unsigned int length, chanend notificationChannel) {
-    int bn = currentBuffer < this.firstPtr[1] ? 0 : 1;    
+    int bn = currentBuffer < this.firstPtr[1] ? 0 : 1;
     set(this.wrPtr[bn]-4, length);       // record length of current packet.
     this.wrPtr[bn] = this.wrPtr[bn] + ((length+3)&~3) + 4; // new end pointer.
     miiNotify(this, notificationChannel);
@@ -287,7 +287,7 @@ int mii_out_packet(chanend c_out, int b[], int index, int length) {
     int precise;
 
     asm(" mov %0, %1" : "=r"(a) : "r"(b));
-    
+
     roundedLength = length >> 2;
     b[roundedLength+1] = tailValues[oddBytes];
     b[roundedLength] &= (1 << (oddBytes << 3)) - 1;

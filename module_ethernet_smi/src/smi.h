@@ -77,7 +77,7 @@ void eth_phy_config(int eth100, REFERENCE_PARAM(smi_interface_t, smi));
 void eth_phy_config_noauto(int eth100, REFERENCE_PARAM(smi_interface_t, smi));
 
 /** Function that can enable or disable loopback in the phy.
- * 
+ *
  * \param enable boolean; set to 1 to enable loopback, or 0 to disable loopback.
  *
  * \param smi  structure containing the ports
@@ -87,7 +87,7 @@ void eth_phy_loopback(int enable, REFERENCE_PARAM(smi_interface_t, smi));
 /** Function that returns the PHY identification.
  *
  * \param smi  structure containing the ports
- * 
+ *
  * \returns the 32-bit identifier.
  */
 int eth_phy_id(REFERENCE_PARAM(smi_interface_t, smi));
@@ -95,7 +95,7 @@ int eth_phy_id(REFERENCE_PARAM(smi_interface_t, smi));
 /** Function that polls whether the link is alive.
  *
  * \param smi  structure containing the ports
- * 
+ *
  * \returns non-zero if the link is alive; zero otherwise.
  */
 int smi_check_link_state(REFERENCE_PARAM(smi_interface_t, smi));

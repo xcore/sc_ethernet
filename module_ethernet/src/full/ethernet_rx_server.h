@@ -21,7 +21,7 @@
  *************************************************************************/
 
 #ifndef _ETHERNET_RX_SERVER_H_
-#define _ETHERNET_RX_SERVER_H_ 
+#define _ETHERNET_RX_SERVER_H_
 #include <xccompat.h>
 // Common definations for Ethernet server.
 #include "ethernet_server_def.h"
@@ -33,7 +33,7 @@
  *  VLAN Tag & EType (6bytes). Each bit in the 12bytes filter in turn have mask
  *  and compare bit.
  *
- *   
+ *
  */
 
 void ethernet_rx_server(

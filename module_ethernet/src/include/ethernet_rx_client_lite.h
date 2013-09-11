@@ -14,7 +14,7 @@
  * This implement Ethernet frame receiving client interface.
  *
  *************************************************************************/
- 
+
 #ifndef _ETHERNET_RX_CLIENT_LITE_H_
 #define _ETHERNET_RX_CLIENT_LITE_H_ 1
 #include <xccompat.h>
@@ -37,9 +37,9 @@
  *  \param c_mac      A chanend connected to the ethernet server
  *  \param buffer     The buffer to fill with the incoming packet
  *  \param src_port   A reference parameter to be filled with the ethernet
- *                   port the packet came from.        
- *  \param len        A reference parameter to be filled with the length of 
- *                   the received packet in bytes. 
+ *                   port the packet came from.
+ *  \param len        A reference parameter to be filled with the length of
+ *                   the received packet in bytes.
  *
  **/
 #ifdef __XC__
@@ -60,10 +60,10 @@ void mac_rx_lite(chanend c_mac,
  *  \param c_mac      A chanend connected to the ethernet server
  *  \param buffer     The buffer to fill with the incoming packet
  *  \param src_port   A reference parameter to be filled with the ethernet
- *                   port the packet came from.        
- *  \param len        A reference parameter to be filled with the length of 
- *                   the received packet in bytes. 
- *  \param n          The maximum number of bytes to fill the supplied buffer 
+ *                   port the packet came from.
+ *  \param len        A reference parameter to be filled with the length of
+ *                   the received packet in bytes.
+ *  \param n          The maximum number of bytes to fill the supplied buffer
  *                   with.
  *
  **/

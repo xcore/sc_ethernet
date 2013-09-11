@@ -214,7 +214,7 @@ mii_buffer_t mii_get_my_next_buf(mii_mempool_t mempool, int rdptr0)
   int *rdptr = (int *) rdptr0;
   int *wrptr = info->wrptr;
 
-  if (rdptr == wrptr) 
+  if (rdptr == wrptr)
     return 0;
 
   return (mii_buffer_t) ((char *) rdptr + sizeof(malloc_hdr_t));

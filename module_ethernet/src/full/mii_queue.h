@@ -10,11 +10,11 @@
 
 #include "ethernet_conf_derived.h"
 
-#ifndef NUM_MII_RX_BUF 
+#ifndef NUM_MII_RX_BUF
 #define NUM_MII_RX_BUF 5
 #endif
 
-#ifndef NUM_MII_TX_BUF 
+#ifndef NUM_MII_TX_BUF
 #define NUM_MII_TX_BUF 5
 #endif
 

@@ -35,7 +35,7 @@ static void the_server(chanend cIn, chanend cOut, chanend cNotifications,
 
     mii_buffer_init(miiData, cIn, cNotifications, b, ETHERNET_LITE_RX_BUFSIZE*2/4);
     mii_out_init(cOut);
-    
+
     linkcheck_timer :> linkcheck_time;
 
     while (1) {
@@ -96,7 +96,7 @@ static void the_server(chanend cIn, chanend cOut, chanend cNotifications,
                 outuint(appIn, nBytes);
             }
         }
-    } 
+    }
 }
 
 void ethernet_server_lite(mii_interface_lite_t &m,

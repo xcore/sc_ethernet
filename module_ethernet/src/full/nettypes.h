@@ -14,7 +14,7 @@ typedef unsigned char u8_t;
 typedef unsigned short u16_t;
 typedef unsigned int u32_t;
 #ifndef __XC__
-typedef long long u64_t;  
+typedef long long u64_t;
 #endif
 typedef struct { unsigned char data[10]; } u80_t;
 typedef struct { unsigned int data[3]; } u96_t;
@@ -65,7 +65,7 @@ inline n32_t hton32(u32_t x) {
 
 inline n80_t hton80(u80_t x) {
   n80_t ret;
-  for (int i=0;i<10;i++) 
+  for (int i=0;i<10;i++)
     ret.data[i] = x.data[9-i];
   return ret;
 }

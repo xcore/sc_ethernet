@@ -54,7 +54,7 @@ void mii_close(chanend cNotifications, chanend cIn, chanend cOut);
 /** This function will obtain a buffer from the input queue, or 0 if there
  * is no packet awaiting processing. When the packet has been processed,
  * freeInBuffer() should be called to free the packet buffer.
- * 
+ *
  * \param this  structure that contains persistent data for this MII connection.
  *
  * \return The address of the buffer and the number of bytes.
@@ -130,7 +130,7 @@ void mii_out_init(chanend cOut);
  *
  * \returns      The time at which the message went onto the wire, measured in
  *               reference clock periods
- * 
+ *
  */
 int mii_out_packet(chanend cOut, int buf[], int index, int length);
 
@@ -153,7 +153,7 @@ int mii_out_packet(chanend cOut, int buf[], int index, int length);
  *
  * \returns      The time at which the message went onto the wire, measured in
  *               reference clock periods
- * 
+ *
  */
 int mii_out_packet_(chanend c_out, int buf, int length);
 

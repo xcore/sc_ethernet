@@ -44,7 +44,7 @@ static void ethernet_send_frame_unify(chanend ethernet_tx_svr, unsigned int Buf[
 #if ETHERNET_TX_HP_QUEUE
   etype = (unsigned short) Buf[3];
   if (etype == 0x0081) {
-    switch (Cmd) 
+    switch (Cmd)
       {
       case ETHERNET_TX_REQ:
         Cmd = ETHERNET_TX_REQ_HP;
@@ -58,29 +58,29 @@ static void ethernet_send_frame_unify(chanend ethernet_tx_svr, unsigned int Buf[
       default:
         break;
       }
-  }  
+  }
 #endif
 
- 
+
   sentTime = 0;
 
   ethernet_tx_svr <: Cmd;
 
   // sent the request/count to sent
-  
+
   slave {
     ethernet_tx_svr <: count;
     ethernet_tx_svr <: ifnum;
     for (i=0;i<(count+3)>>2;i++)
       ethernet_tx_svr <: Buf[i];
   }
-    
+
 
   if (Cmd == ETHERNET_TX_REQ_TIMED || Cmd == ETHERNET_TX_REQ_TIMED_HP) {
     ethernet_tx_svr :> sentTime;
   }
-  
-  return; 
+
+  return;
 }
 
 
@@ -92,9 +92,9 @@ void mac_tx_full(chanend ethernet_tx_svr, unsigned int Buf[], int count, int ifn
 }
 
 #pragma unsafe arrays
-void mac_tx_offset2(chanend ethernet_tx_svr, 
-                    unsigned int Buf[], 
-                    int count, 
+void mac_tx_offset2(chanend ethernet_tx_svr,
+                    unsigned int Buf[],
+                    int count,
                     int ifnum)
 {
   ethernet_tx_svr <: ETHERNET_TX_REQ_OFFSET2;
@@ -130,7 +130,7 @@ int mac_get_macaddr_full(chanend ethernet_tx_svr, unsigned char Buf[])
       }
   }
 
-  return 0;   
+  return 0;
 }
 
 

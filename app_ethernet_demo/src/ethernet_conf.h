@@ -9,7 +9,7 @@
 
 #define MAX_ETHERNET_PACKET_SIZE (1518)
 
-#define MAX_ETHERNET_CLIENTS   (4)    
+#define MAX_ETHERNET_CLIENTS   (4)
 
 #else
 

@@ -13,7 +13,7 @@
  * Generic definations for Ethernet server/client.
  *
  *************************************************************************/
- 
+
 #ifndef _ETHERNET_SERVER_DEF_H_
 #define _ETHERNET_SERVER_DEF_H_ 1
 

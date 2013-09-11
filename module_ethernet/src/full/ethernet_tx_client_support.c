@@ -1,6 +1,6 @@
 #include "ethernet_server_def.h"
 
-int mac_calc_idle_slope(int bps) 
+int mac_calc_idle_slope(int bps)
 {
   long long slope;
 

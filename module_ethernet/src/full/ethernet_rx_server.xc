@@ -11,7 +11,7 @@
  *
  *
  * Implements the management server for Ethernet Rx Frames.
- * 
+ *
  * This manages the pointers to buffer and communication over channel(s)
  * to PHY & Link layers.
  *
@@ -70,21 +70,21 @@ void serviceLinkCmd(chanend link, int linkIndex, unsigned int &cmd)
 {
   int renotify=0;
   int is_cmd;
-  
+
   is_cmd = inuchar(link);
   (void) inct(link);
   if (!link_status[linkIndex].notified)
     outct(link, XS1_CT_END);
   else {
-    if (!is_cmd) 
+    if (!is_cmd)
       outct(link, XS1_CT_END);
     renotify=1;
   }
 
-  cmd = inuint(link);  
+  cmd = inuint(link);
   (void) inct(link);
   outct(link, XS1_CT_END);
-   
+
   switch (cmd)
   {
     // request for data just mark it.x
@@ -98,9 +98,9 @@ void serviceLinkCmd(chanend link, int linkIndex, unsigned int &cmd)
     case ETHERNET_RX_CUSTOM_FILTER_SET: {
       int filter_value;
       link :> filter_value;
-      custom_filter_mask[linkIndex] = filter_value;       
+      custom_filter_mask[linkIndex] = filter_value;
       break;
-    } 
+    }
   #if ETHERNET_COUNT_PACKETS
     // overflow count return
     case ETHERNET_RX_OVERFLOW_CNT_REQ: {
@@ -119,7 +119,7 @@ void serviceLinkCmd(chanend link, int linkIndex, unsigned int &cmd)
         break;
       }
   #endif
-    case ETHERNET_RX_DROP_PACKETS_SET: {        
+    case ETHERNET_RX_DROP_PACKETS_SET: {
       int drop_packets;
       link :> drop_packets;
       if (drop_packets) {
@@ -128,7 +128,7 @@ void serviceLinkCmd(chanend link, int linkIndex, unsigned int &cmd)
       else {
         link_status[linkIndex].max_queue_size = NUM_MII_RX_BUF;
       }
-      break;       
+      break;
     }
     case ETHERNET_RX_QUEUE_SIZE_SET: {
       int size;
@@ -161,7 +161,7 @@ void serviceLinkCmd(chanend link, int linkIndex, unsigned int &cmd)
 
 /** This sent out recived frame to a given link layer, also track dropped packets.
  *
- */ 
+ */
 /* C wrapper that casts the int to a pointer */
 void mac_rx_send_frame(int buf,
                        chanend link,
@@ -169,13 +169,13 @@ void mac_rx_send_frame(int buf,
 
 #pragma unsafe arrays
 void mac_rx_send_frame1(int p,
-                        chanend link, 
+                        chanend link,
                         unsigned int cmd)
 {
   int i, length;
   int dptr = mii_packet_get_data_ptr(p);
   int wrap_ptr = mii_packet_get_wrap_ptr(p);
-  
+
   if (cmd == ETHERNET_RX_FRAME_REQ_OFFSET2) {
     i=0;
     length = mii_packet_get_length(p);
@@ -193,10 +193,10 @@ void mac_rx_send_frame1(int p,
         dptr += 4;
       }
       link <: (char) 0;
-      link <: (char) 0;      
+      link <: (char) 0;
       link <: mii_packet_get_timestamp(p) + ETHERNET_RX_PHY_TIMER_OFFSET;
-    }  
-    
+    }
+
   }
   else {
     // base on payload request need to adjust bytes to sent.
@@ -206,9 +206,9 @@ void mac_rx_send_frame1(int p,
       // strip source/dest MAC address, 6 bytes each.
       i=3;
     }
-    
+
     length = mii_packet_get_length(p);
-    
+
     slave {
       link <: mii_packet_get_src_port(p);
       link <: length-(i<<2);
@@ -221,18 +221,18 @@ void mac_rx_send_frame1(int p,
         dptr += 4;
       }
       link <: mii_packet_get_timestamp(p);
-      
-    }  
+
+    }
   }
 }
 
 #pragma unsafe arrays
-void mac_rx_send_frame0(mii_packet_t &p, 
-                        chanend link, 
+void mac_rx_send_frame0(mii_packet_t &p,
+                        chanend link,
                         unsigned int cmd)
 {
   int i, length;
-  
+
   if (cmd == ETHERNET_RX_FRAME_REQ_OFFSET2) {
     i=0;
     length = p.length;
@@ -245,10 +245,10 @@ void mac_rx_send_frame0(mii_packet_t &p,
         link <: byterev(p.data[i]);
       }
       link <: (char) 0;
-      link <: (char) 0;      
+      link <: (char) 0;
       link <: p.timestamp + ETHERNET_RX_PHY_TIMER_OFFSET;
-    }  
-    
+    }
+
   }
   else {
     // base on payload request need to adjust bytes to sent.
@@ -258,9 +258,9 @@ void mac_rx_send_frame0(mii_packet_t &p,
       // strip source/dest MAC address, 6 bytes each.
       i=3;
     }
-    
+
     length = p.length;
-    
+
     slave {
       link <: p.src_port;
       link <: length-(i<<2);
@@ -268,8 +268,8 @@ void mac_rx_send_frame0(mii_packet_t &p,
         link <: p.data[i];
       }
       link <: p.timestamp;
-      
-    }  
+
+    }
   }
 }
 
@@ -278,7 +278,7 @@ void mac_rx_send_frame0(mii_packet_t &p,
  */
 #pragma unsafe arrays
 static void processReceivedFrame(int buf,
-                                 chanend link[], 
+                                 chanend link[],
                                  int n)
 {
    int i;
@@ -290,7 +290,7 @@ static void processReceivedFrame(int buf,
      for (i = 0; i < n; i += 1) {
          int match = 0;
          match = (custom_filter_mask[i] & result);
-         
+
          if (match) {
              // We have a match, add the packet to the client's
              // packet queue (if there is space)
@@ -298,15 +298,15 @@ static void processReceivedFrame(int buf,
              int wrIndex = link_status[i].wrIndex;
              int new_wrIndex;
              int queue_size;
-             
+
              new_wrIndex = wrIndex+1;
              new_wrIndex *= (new_wrIndex != NUM_MII_RX_BUF);
-             
+
              queue_size = wrIndex-rdIndex;
              if (queue_size < 0)
                queue_size += NUM_MII_RX_BUF;
-             
-             
+
+
              if (queue_size < link_status[i].max_queue_size &&
                  new_wrIndex != rdIndex) {
                  tcount++;
@@ -330,14 +330,14 @@ static void processReceivedFrame(int buf,
        }
 #endif
    }
-   
+
    if (tcount == 0) {
      //if (get_and_dec_transmit_count(buf)==0)
        mii_free(buf);
    }
    else {
      mii_packet_set_tcount(buf, tcount-1);
-   }   
+   }
    return;
 }
 
@@ -357,8 +357,8 @@ void send_status_packet(chanend c, int src_port, int status)
  *  VLAN Tag & EType (6bytes). Each bit in the 12bytes filter in turn have mask
  *  and compare bit.
  *
- *  It interface with ethernet_rx_buf_ctl to handle frames 
- * 
+ *  It interface with ethernet_rx_buf_ctl to handle frames
+ *
  */
 #pragma unsafe arrays
 void ethernet_rx_server(
@@ -386,7 +386,7 @@ void ethernet_rx_server(
    // Initialise the link filters & local data structures.
    for (i = 0; i < num_link; i += 1)
    {
-      link_status[i].dropped_pkt_cnt = 0;      
+      link_status[i].dropped_pkt_cnt = 0;
       link_status[i].max_queue_size = NUM_MII_RX_BUF;
       link_status[i].rdIndex = 0;
       link_status[i].wrIndex = 0;
@@ -405,7 +405,7 @@ void ethernet_rx_server(
      select
        {
        case (int i=0;i<num_link;i++) serviceLinkCmd(link[i], i, cmd):
-         if (cmd == ETHERNET_RX_FRAME_REQ || 
+         if (cmd == ETHERNET_RX_FRAME_REQ ||
              cmd == ETHERNET_RX_TYPE_PAYLOAD_REQ ||
              cmd == ETHERNET_RX_FRAME_REQ_OFFSET2)
            {
@@ -443,9 +443,9 @@ void ethernet_rx_server(
                  }
                  else {
                    link_status[i].notified = 0;
-                 }               
+                 }
                }
-              else { 
+              else {
                // mac request without notification
               }
              }

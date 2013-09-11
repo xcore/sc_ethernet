@@ -37,12 +37,12 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
                         mii_mempool_t tx_mem_hp[],
 #endif
                         mii_mempool_t tx_mem_lp[],
-                        int num_q, 
+                        int num_q,
                         mii_ts_queue_t ts_queue[],
                         const char mac_addr[],
                         chanend tx[],
                         int num_tx,
-                        smi_interface_t &?smi1, 
+                        smi_interface_t &?smi1,
                         smi_interface_t &?smi2)
 {
   unsigned buf[NUM_ETHERNET_PORTS];
@@ -53,13 +53,13 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
   int pendingCmd[MAX_LINKS]={0};
   timer tmr;
   unsigned linkCheckTime = 0;
-  
+
   tmr :> linkCheckTime;
   linkCheckTime += LINK_POLL_PERIOD;
 
 
 
-  for (int i=0;i<num_tx;i++) 
+  for (int i=0;i<num_tx;i++)
     enabled[i] = 1;
 
   while (1) {
@@ -69,18 +69,18 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
 #if ETHERNET_TX_HP_QUEUE
       int hp=0;
 #endif
-      switch (cmd) 
+      switch (cmd)
         {
         case ETHERNET_TX_REQ:
         case ETHERNET_TX_REQ_OFFSET2:
-        case ETHERNET_TX_REQ_TIMED:      
+        case ETHERNET_TX_REQ_TIMED:
 #if ETHERNET_TX_HP_QUEUE
         case ETHERNET_TX_REQ_HP:
         case ETHERNET_TX_REQ_OFFSET2_HP:
-        case ETHERNET_TX_REQ_TIMED_HP:      
+        case ETHERNET_TX_REQ_TIMED_HP:
 #endif
-      
-#if ETHERNET_TX_HP_QUEUE    
+
+#if ETHERNET_TX_HP_QUEUE
           switch (cmd) {
           case ETHERNET_TX_REQ_HP:
             cmd = ETHERNET_TX_REQ;
@@ -190,7 +190,7 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
           break;
         default:
           break;
-          
+
         }
     }
 
@@ -201,12 +201,12 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
         }
         if (!isnull(smi2)) {
           do_link_check(smi2, 1);
-        }       
+        }
         linkCheckTime += LINK_POLL_PERIOD;
       break;
          case (int i=0;i<num_tx;i++) enabled[i] => tx[i] :> int cmd:
-           {         
-          switch (cmd) 
+           {
+          switch (cmd)
             {
             case ETHERNET_TX_REQ:
             case ETHERNET_TX_REQ_OFFSET2:
@@ -240,7 +240,7 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
           break;
         case ETHERNET_TX_INIT_AVB_ROUTER:
             init_avb_1722_router_table();
-          break;           
+          break;
 #endif
 #if (ETHERNET_TX_HP_QUEUE) && (ETHERNET_TRAFFIC_SHAPER)
          case ETHERNET_TX_SET_QAV_IDLE_SLOPE:
@@ -259,8 +259,8 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
           break;
            }
     default:
-      for (int i=0;i<num_tx;i++) 
-        enabled[i] = 1; 
+      for (int i=0;i<num_tx;i++)
+        enabled[i] = 1;
       break;
     }
 

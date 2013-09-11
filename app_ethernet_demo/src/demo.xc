@@ -320,7 +320,7 @@ void demo(chanend tx, chanend rx)
 {
   unsigned int rxbuf[1600/4];
   unsigned int txbuf[1600/4];
-  
+
   //::get-macaddr
   mac_get_macaddr(tx, own_mac_addr);
   //::
@@ -353,7 +353,7 @@ void demo(chanend tx, chanend rx)
         mac_tx(tx, txbuf, nbytes, ETH_BROADCAST);
         printstr("ARP response sent\n");
       }
-  //::icmp_packet_check  
+  //::icmp_packet_check
     else if (is_valid_icmp_packet((rxbuf,char[]), nbytes))
       {
         build_icmp_response((rxbuf,char[]), (txbuf, unsigned char[]), own_mac_addr);

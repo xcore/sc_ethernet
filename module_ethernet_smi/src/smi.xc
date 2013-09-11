@@ -179,20 +179,20 @@ int eth_phy_id(smi_interface_t &smi) {
 void eth_phy_config(int eth100, smi_interface_t &smi) {
     int autoNegAdvertReg, basicControl;
     autoNegAdvertReg = smi_reg(smi, AUTONEG_ADVERT_REG, 0, SMI_READ);
-    
+
     // Clear bits [9:5]
     autoNegAdvertReg &= 0xfc1f;
-    
+
     // Set 100 or 10 Mpbs bits
     if (eth100) {
         autoNegAdvertReg |= 1 << AUTONEG_ADVERT_100_BIT;
     } else {
         autoNegAdvertReg |= 1 << AUTONEG_ADVERT_10_BIT;
     }
-    
+
     // Write back
     smi_reg(smi, AUTONEG_ADVERT_REG, autoNegAdvertReg, SMI_WRITE);
-    
+
     basicControl = smi_reg(smi, BASIC_CONTROL_REG, 0, SMI_READ);
     // clear autoneg bit
     // basicControl &= ~(1 << BASIC_CONTROL_AUTONEG_EN_BIT);
@@ -202,7 +202,7 @@ void eth_phy_config(int eth100, smi_interface_t &smi) {
     smi_reg(smi, BASIC_CONTROL_REG, basicControl, SMI_WRITE);
     // restart autoneg
     basicControl |= 1 << BASIC_CONTROL_RESTART_AUTONEG_BIT;
-    smi_reg(smi, BASIC_CONTROL_REG, basicControl, SMI_WRITE);    
+    smi_reg(smi, BASIC_CONTROL_REG, basicControl, SMI_WRITE);
 }
 
 void eth_phy_config_noauto(int eth100, smi_interface_t &smi) {
@@ -228,10 +228,10 @@ void eth_phy_loopback(int enable, smi_interface_t &smi) {
         controlReg = controlReg | (1 << BASIC_CONTROL_LOOPBACK_BIT);
     } else {
         controlReg = controlReg | (1 << BASIC_CONTROL_AUTONEG_EN_BIT);
-    }  
+    }
     smi_reg(smi, BASIC_CONTROL_REG, controlReg, SMI_WRITE);
 }
 
 int smi_check_link_state(smi_interface_t &smi) {
-    return (smi_reg(smi, BASIC_STATUS_REG, 0, SMI_READ) >> BASIC_STATUS_LINK_BIT) & 1;    
+    return (smi_reg(smi, BASIC_STATUS_REG, 0, SMI_READ) >> BASIC_STATUS_LINK_BIT) & 1;
 }

@@ -314,7 +314,7 @@ void mii_rx_pins(
 #pragma xta label "mii_rx_data_inner_loop"
 			select
 			{
-#pragma xta endpoint "mii_rx_word"                
+#pragma xta endpoint "mii_rx_word"
 				case p_mii_rxd :> word:
 				  if (dptr != end_ptr) {
 				    mii_packet_set_data_word_imm(dptr, 0, word);

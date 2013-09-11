@@ -17,13 +17,13 @@
 
 /** Single MII port MAC/ethernet server.
  *
- *  This function provides both MII layer and MAC layer functionality. 
- *  It runs in 5 threads and communicates to clients over the channel array 
- *  parameters. 
+ *  This function provides both MII layer and MAC layer functionality.
+ *  It runs in 5 threads and communicates to clients over the channel array
+ *  parameters.
  *
  *  \param mii                  The mii interface resources that the
  *                              server will connect to
- *  \param mac_address          The mac_address the server will use. 
+ *  \param mac_address          The mac_address the server will use.
  *                              This should be a two-word array that stores the
  *                              6-byte macaddr in a little endian manner (so
  *                              reinterpreting the array as a char array is as
@@ -34,7 +34,7 @@
  *  \param tx                   An array of chanends to connect to clients of
  *                              the server who wish to transmit packets.
  *  \param num_tx               The number of clients connected to the txx array
- *  \param smi                  An optional parameter of resources to connect 
+ *  \param smi                  An optional parameter of resources to connect
  *                              to a PHY (via SMI) to check when the link is up.
  *
  *

@@ -36,7 +36,7 @@ void phy_reset(out port p_mii_resetn, timer tmr) {
     tmr :> resetTime;
     resetTime += RESET_TIMER_DELAY;
     tmr when timerafter(resetTime) :> void;
-  
+
     p_mii_resetn <: ~0;
     tmr :> resetTime;
     resetTime += RESET_TIMER_DELAY;
