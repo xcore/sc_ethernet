@@ -6,6 +6,7 @@ Ethernet Component Change Log
   * Fixed timing issue in MII rx pins to work across different tools
     versions
   * Moved to version 1.0.3 of module_slicekit_support
+  * Fixed issue with MII receive buffering that could cause a crash if a packet was dropped
 
 2.2.4
 -----
