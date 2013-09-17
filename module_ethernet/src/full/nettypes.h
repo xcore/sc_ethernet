@@ -40,7 +40,7 @@ inline u16_t ntoh16(n16_t x) {
 }
 
 inline u32_t ntoh32(n32_t x) {
-  return ((x.data[0] << 24) | x.data[1] << 16 | x.data[2] << 8 | x.data[1]);
+  return ((x.data[0] << 24) | x.data[1] << 16 | x.data[2] << 8 | x.data[3]);
 }
 
 #ifndef __XC__
