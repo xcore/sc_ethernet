@@ -2,30 +2,29 @@
 <xpd>
     <components>
         <component description = "A simple demo of using the low level ethernet module" type = "demoCode" scope = "Example" path = "app_ethernet_demo" local = "false" id = "app_ethernet_demo" name = "Low Level Ethernet Demo">
-            <componentDependency version = "2.2.5">module_ethernet_smi</componentDependency>
-            <componentDependency version = "2.2.5">module_ethernet_board_support</componentDependency>
-            <componentDependency version = "1.0.0">module_otp_board_info</componentDependency>
-            <componentDependency version = "2.2.5">module_ethernet</componentDependency>
-            <componentDependency version = "1.0.3">module_slicekit_support</componentDependency>
-            <componentDependency version = "1.0.3">module_locks</componentDependency>
+            <componentDependency>module_ethernet_smi</componentDependency>
+            <componentDependency>module_ethernet_board_support</componentDependency>
+            <componentDependency>module_otp_board_info</componentDependency>
+            <componentDependency>module_ethernet</componentDependency>
+            <componentDependency>module_slicekit_support</componentDependency>
+            <componentDependency>module_locks</componentDependency>
             <keyword>ethernet</keyword>
             <keyword>mac</keyword>
             <keyword>mii</keyword>
         </component>
-        <component description = "An example of looping back packets using the low level
-ethernet mac" type = "demoCode" scope = "Example" path = "app_ethernet_loopback" local = "false" id = "app_ethernet_loopback" name = "Low Level Ethernet Loopback Demo">
-            <componentDependency version = "1.0.0">module_otp_board_info</componentDependency>
-            <componentDependency version = "2.2.5">module_ethernet_smi</componentDependency>
-            <componentDependency version = "1.0.3">module_locks</componentDependency>
-            <componentDependency version = "2.2.5">module_ethernet</componentDependency>
-            <componentDependency version = "2.2.5">module_ethernet_board_support</componentDependency>
+        <component description = "An example of looping back packets using the low level ethernet mac" type = "demoCode" scope = "Example" path = "app_ethernet_loopback" local = "false" id = "app_ethernet_loopback" name = "Low Level Ethernet Loopback Demo">
+            <componentDependency>module_otp_board_info</componentDependency>
+            <componentDependency>module_ethernet_smi</componentDependency>
+            <componentDependency>module_locks</componentDependency>
+            <componentDependency>module_ethernet</componentDependency>
+            <componentDependency>module_ethernet_board_support</componentDependency>
             <keyword>ethernet</keyword>
             <keyword>mac</keyword>
             <keyword>mii</keyword>
         </component>
         <component name = "Layer 2 Ethernet MAC" type = "component" buildresults_path = "module_ethernet/.module_ethernet.buildinfo" scope = "General Use" path = "module_ethernet" metainfo_path = "module_ethernet/module_ethernet.metainfo" local = "false" id = "module_ethernet" description = "MII interface and L2 ethernet MAC">
-            <componentDependency version = "2.2.5">module_ethernet_smi</componentDependency>
-            <componentDependency version = "1.0.3">module_locks</componentDependency>
+            <componentDependency>module_ethernet_smi</componentDependency>
+            <componentDependency>module_locks</componentDependency>
             <keyword>ethernet</keyword>
             <keyword>mii</keyword>
             <keyword>mac</keyword>
@@ -111,7 +110,7 @@ ethernet mac" type = "demoCode" scope = "Example" path = "app_ethernet_loopback"
     <release parenthash = "aa83223f48f50a416f49f91d499213eefca17d9c" version = "2.2.5rc0" githash = "679cf4e508142299eb42f226b43c906f2219b920"></release>
     <release parenthash = "cd7db100d648066f44d61b57383b3985c51b8f66" version = "2.2.5rc1" githash = "b851b2b7db68ecdce2144ebc63ebfc2bd4525de9"></release>
     <release parenthash = "749a184e33f2eabfc1a75f471ae9953f7ec6b674" version = "2.2.5rc2" githash = "d4288863b8258d525d0ee421cab4f8c177080855"></release>
-    <release parenthash = "801ebfa966929309d187eae7e25530f2644e3999" version = "2.2.5rc3"></release>
+    <release parenthash = "801ebfa966929309d187eae7e25530f2644e3999" version = "2.2.5rc3" githash = "d25b40c4ae7c4817fee5897f546a34c952eca1c6"></release>
     <subpartnumber>XM-001828-SM</subpartnumber>
     <vendor>XMOS</vendor>
     <version_defines></version_defines>

@@ -1,6 +1,10 @@
 sc_ethernet Change Log
 ======================
 
+2.2.6
+-----
+  * Minor bug fixes in metainformation and support headers
+
 2.2.5
 -----
   * Fixed timing issue in MII rx pins to work across different tools
