@@ -1,7 +1,7 @@
 XCORE.com ETHERNET SOFTWARE COMPONENT
 .................................
 
-:Latest release: 2.2.5rc3
+:Latest release: 2.2.6rc0
 :Maintainer: DavidNorman
 :Description: A complete Ethernet MII and MAC interface for 100MBps Ethernet
 
@@ -53,6 +53,6 @@ Required software (dependencies)
 ================================
 
   * sc_util (git@github.com:xcore/sc_util)
-  * sc_slicekit_support (origin)
+  * sc_slicekit_support (git@github.com:xcore/sc_slicekit_support)
   * sc_otp (git@github.com:xcore/sc_otp)
 
