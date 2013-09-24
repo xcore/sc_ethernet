@@ -75,14 +75,14 @@ inline n80_t hton80(u80_t x) {
 typedef struct ethernet_hdr_t {
   unsigned char dest_addr[6];
   unsigned char src_addr[6];
-  unsigned char ethertype[2];
+  n16_t ethertype;
 } ethernet_hdr_t;
 
 typedef struct tagged_ethernet_hdr_t {
   unsigned char dest_addr[6];
   unsigned char src_addr[6];
-  unsigned char qtag[2];
-  unsigned char ethertype[2];
+  n32_t qtag;
+  n16_t ethertype;
 } tagged_ethernet_hdr_t;
 
 #endif
