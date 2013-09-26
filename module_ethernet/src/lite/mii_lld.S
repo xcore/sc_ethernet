@@ -32,7 +32,7 @@
      .section .cp.rodata,     "ac", @progbits
 
     .align 4
-
+.cc_top miiconsts.data
     .globl polynomial
     
 initialCRC:   
@@ -43,7 +43,7 @@ allFives:
     .word 0x55555555
 DallFives:   
     .word 0xD5555555
-
+.cc_bottom miiconsts.data
     .text
     .align 4
 
@@ -334,6 +334,7 @@ Tail3:
 .globl tailValues, "a(4:ui)"
 .type  tailValues, @object
 .section .dp.data,       "adw", @progbits
+.cc_top tailValues.data
     .align    4
 tailValues:
     .word Tail0
@@ -342,6 +343,6 @@ tailValues:
     .word Tail3
 .globl tailValues.globound
 .set      tailValues.globound,4
-    
+.cc_bottom tailValues.data
     .text
 .cc_bottom miiLLD.func
