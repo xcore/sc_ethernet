@@ -117,9 +117,9 @@ void mac_tx_timed(chanend ethernet_tx_svr, unsigned int Buf[], int count, unsign
 }
 
 
-int mac_get_macaddr_full(chanend ethernet_tx_svr, unsigned char Buf[])
+int mac_get_macaddr_full(chanend ethernet_tx_svr, unsigned char Buf[6])
 {
-  int i;
+  unsigned int i;
   ethernet_tx_svr <: ETHERNET_GET_MAC_ADRS;
 
   master {

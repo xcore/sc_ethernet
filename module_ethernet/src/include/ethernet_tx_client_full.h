@@ -91,7 +91,7 @@ void mac_tx_timed(chanend c_mac, unsigned int buffer[], int nbytes, unsigned int
  *  \return zero on success and non-zero on failure.
  */
 
-int mac_get_macaddr_full(chanend c_mac, unsigned char macaddr[]);
+int mac_get_macaddr_full(chanend c_mac, unsigned char macaddr[6]);
 
 /**
  * Initialise the ethernet routing table.
