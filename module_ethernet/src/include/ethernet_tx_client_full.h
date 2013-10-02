@@ -122,6 +122,7 @@ void mac_1722_update_router(chanend c, int key0, int key1, int link, int hash);
  *
  */
 void mac_set_qav_bandwidth(chanend c_mac,
+                           int port_num,
                            int bits_per_second);
 
 

@@ -13,9 +13,7 @@
 typedef unsigned char u8_t;
 typedef unsigned short u16_t;
 typedef unsigned int u32_t;
-#ifndef __XC__
 typedef long long u64_t;  
-#endif
 typedef struct { unsigned char data[10]; } u80_t;
 typedef struct { unsigned int data[3]; } u96_t;
 
@@ -43,14 +41,12 @@ inline u32_t ntoh32(n32_t x) {
   return ((x.data[0] << 24) | x.data[1] << 16 | x.data[2] << 8 | x.data[1]);
 }
 
-#ifndef __XC__
 inline u64_t ntoh64(n64_t x) {
   long long ret=0;
   for (int i=0;i<8;i++)
     ret = (ret << 8) + x.data[i];
   return ret;
 }
-#endif
 
 
 inline n32_t hton32(u32_t x) {

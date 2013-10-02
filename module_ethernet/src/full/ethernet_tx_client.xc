@@ -178,15 +178,15 @@ void mac_initialize_routing_table(chanend c)
 int mac_calc_idle_slope(int bps);
 
 void mac_set_qav_bandwidth(chanend c,
+                           int port_num,
                            int bps)
 {
 #if (ETHERNET_TX_HP_QUEUE) && (ETHERNET_TRAFFIC_SHAPER)
   int slope = mac_calc_idle_slope(bps);
   c <: ETHERNET_TX_SET_QAV_IDLE_SLOPE;
   slave {
+    c <: port_num;
     c <: slope;
   }
-#else
-  //  #warning mac_set_qav_bandwidth(): Qav bandwidth can be set but traffic shaper is not enabled
 #endif
 }

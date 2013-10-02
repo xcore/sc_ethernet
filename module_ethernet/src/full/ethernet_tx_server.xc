@@ -257,8 +257,9 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
           case ETHERNET_TX_SET_QAV_IDLE_SLOPE:
             master
             {
-              int slope;
+              int slope, port_num;
               tx[i] :> slope;
+              tx[i] :> port_num;
               asm("stw %0,dp[g_mii_idle_slope]"::"r"(slope));
               break;
             }
