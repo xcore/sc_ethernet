@@ -25,6 +25,11 @@
 
 #define LINK_POLL_PERIOD 10000000
 
+#if (ETHERNET_TX_HP_QUEUE) && (ETHERNET_TRAFFIC_SHAPER)
+  extern int g_mii_idle_slope[];
+#endif
+
+
 static void do_link_check(smi_interface_t &smi, int linkNum)
 {
   int new_status = smi_check_link_state(smi);
@@ -57,7 +62,11 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
   tmr :> linkCheckTime;
   linkCheckTime += LINK_POLL_PERIOD;
 
-
+#if (ETHERNET_TX_HP_QUEUE) && (ETHERNET_TRAFFIC_SHAPER)
+  for (int i=0;i<NUM_ETHERNET_PORTS;i++) {
+    asm("stw %0,%1[%2]"::"r"(11<<MII_CREDIT_FRACTIONAL_BITS), "r"(g_mii_idle_slope), "r"(i));
+  }
+#endif
 
   for (int i=0;i<num_tx;i++) 
     enabled[i] = 1;
@@ -258,11 +267,11 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
             master
             {
               int slope, port_num;
-              tx[i] :> slope;
               tx[i] :> port_num;
-              asm("stw %0,dp[g_mii_idle_slope]"::"r"(slope));
-              break;
+              tx[i] :> slope;
+              asm("stw %0,%1[%2]"::"r"(slope), "r"(g_mii_idle_slope), "r"(port_num));
             }
+            break;
 #endif
           default:
             // Unrecognized command
