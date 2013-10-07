@@ -33,41 +33,35 @@ void mac_check_link_client(chanend c, unsigned char &linkNum, int &status)
   (void) inct(c);
 }
 
+#if ETHERNET_TX_HP_QUEUE
+static inline unsigned int ethernet_choose_hp_cmd(unsigned short etype, unsigned int Cmd)
+{
+  if (etype == 0x0081) {
+    switch (Cmd)
+    {
+      case ETHERNET_TX_REQ:
+        return ETHERNET_TX_REQ_HP;
+      case ETHERNET_TX_REQ_TIMED:
+        return ETHERNET_TX_REQ_TIMED_HP;
+      case ETHERNET_TX_REQ_OFFSET2:
+        return ETHERNET_TX_REQ_OFFSET2_HP;
+      default:
+        return Cmd;
+    }
+  }
+  return Cmd;
+}
+#endif
+
 #pragma unsafe arrays
 static void ethernet_send_frame_unify(chanend ethernet_tx_svr, unsigned int Buf[], int count, unsigned int &sentTime, unsigned int Cmd, int ifnum)
 {
   int i;
 #if ETHERNET_TX_HP_QUEUE
-  int etype;
+  Cmd = ethernet_choose_hp_cmd(Buf[3], Cmd);
 #endif
-
-#if ETHERNET_TX_HP_QUEUE
-  etype = (unsigned short) Buf[3];
-  if (etype == 0x0081) {
-    switch (Cmd) 
-      {
-      case ETHERNET_TX_REQ:
-        Cmd = ETHERNET_TX_REQ_HP;
-        break;
-      case ETHERNET_TX_REQ_TIMED:
-        Cmd = ETHERNET_TX_REQ_TIMED_HP;
-        break;
-      case ETHERNET_TX_REQ_OFFSET2:
-        Cmd = ETHERNET_TX_REQ_OFFSET2_HP;
-        break;
-      default:
-        break;
-      }
-  }  
-#endif
-
- 
-  sentTime = 0;
-
   ethernet_tx_svr <: Cmd;
 
-  // sent the request/count to sent
-  
   slave {
     ethernet_tx_svr <: count;
     ethernet_tx_svr <: ifnum;
@@ -75,7 +69,7 @@ static void ethernet_send_frame_unify(chanend ethernet_tx_svr, unsigned int Buf[
       ethernet_tx_svr <: Buf[i];
   }
     
-
+  sentTime = 0;
   if (Cmd == ETHERNET_TX_REQ_TIMED || Cmd == ETHERNET_TX_REQ_TIMED_HP) {
     ethernet_tx_svr :> sentTime;
   }
@@ -97,7 +91,12 @@ void mac_tx_offset2(chanend ethernet_tx_svr,
                     int count, 
                     int ifnum)
 {
-  ethernet_tx_svr <: ETHERNET_TX_REQ_OFFSET2;
+  unsigned int Cmd = ETHERNET_TX_REQ_OFFSET2;
+
+#if ETHERNET_TX_HP_QUEUE
+  Cmd = ethernet_choose_hp_cmd(Buf[3]>>16, Cmd);
+#endif
+  ethernet_tx_svr <: Cmd;
 
   slave {
     ethernet_tx_svr <: count;
@@ -107,7 +106,6 @@ void mac_tx_offset2(chanend ethernet_tx_svr,
   }
   return;
 }
-
 
 
 void mac_tx_timed(chanend ethernet_tx_svr, unsigned int Buf[], int count, unsigned int &sentTime, int ifnum)
