@@ -382,7 +382,7 @@ void mii_rx_pins(
 
 // Global for the transmit slope variable
 #if (ETHERNET_TX_HP_QUEUE) && (ETHERNET_TRAFFIC_SHAPER)
-int g_mii_idle_slope=(11<<MII_CREDIT_FRACTIONAL_BITS);
+int g_mii_idle_slope[NUM_ETHERNET_PORTS];
 #endif
 
 
@@ -490,7 +490,7 @@ void mii_tx_pins(
 #endif
     int prev_eof_time, time;
     timer tmr;
-    int ok_to_transmit=1;
+    int ok_to_transmit = 1;
 
 #if (ETHERNET_TX_HP_QUEUE) && (ETHERNET_TRAFFIC_SHAPER)
     tmr :> credit_time;
@@ -507,71 +507,72 @@ void mii_tx_pins(
         int elapsed;
 #endif
 
-#if ETHERNET_TX_HP_QUEUE
+#if (ETHERNET_TRAFFIC_SHAPER)
+        int packet_is_high_priority = 1;
+#endif
+
+#if (ETHERNET_TX_HP_QUEUE)
         buf = mii_get_next_buf(hp_queue);
 
 #if (NUM_ETHERNET_MASTER_PORTS > 1) && !(DISABLE_ETHERNET_PORT_FORWARDING)
         if (!buf || mii_packet_get_stage(buf) == 0) {
-            for (unsigned int i=0; i<NUM_ETHERNET_MASTER_PORTS; ++i) {
-                if (i == ifnum) continue;
-                buf = mii_get_next_buf(hp_forward[i]);
-                if (buf) {
-                    if (mii_packet_get_forwarding(buf) != 0) {
-                        break;
-                    }
-                }
-                buf = 0;
-            }
-        }
-#endif
+          for (unsigned int i=0; i<NUM_ETHERNET_MASTER_PORTS; ++i) {
+            if (i == ifnum)
+              continue;
+            buf = mii_get_next_buf(hp_forward[i]);
+            if (!buf)
+              continue;
 
-#if ETHERNET_TRAFFIC_SHAPER
-        if (buf && mii_packet_get_stage(buf) == 1) {
-
-            if (credit < 0) {
-                asm("ldw %0,dp[g_mii_idle_slope]":"=r"(idle_slope));
-
-                prev_credit_time = credit_time;
-                tmr :> credit_time;
-
-                elapsed = credit_time - prev_credit_time;
-                credit += elapsed * idle_slope;
-            }
-
-            if (credit < 0)
+            if (mii_packet_get_forwarding(buf) != 0)
+              break;
             buf = 0;
-            else {
-                int len = mii_packet_get_length(buf);
-                credit = credit - len << (MII_CREDIT_FRACTIONAL_BITS+3);
-            }
-
-        }
-        else {
-            if (credit >= 0)
-            credit = 0;
-            tmr :> credit_time;
+          }
         }
 #endif
 
-        if (!buf || mii_packet_get_stage(buf) != 1)
-        buf = mii_get_next_buf(lp_queue);
+#if (ETHERNET_TRAFFIC_SHAPER)
+        prev_credit_time = credit_time;
+        tmr :> credit_time;
+
+        elapsed = credit_time - prev_credit_time;
+        credit += elapsed * idle_slope;
+
+        if (buf && (mii_packet_get_stage(buf) == 1)) {
+          // Only need to update idle_slope when sending
+          asm("ldw %0,%1[%2]":"=r"(idle_slope):"r"(g_mii_idle_slope), "r"(ifnum));
+
+          if (credit < 0)
+            buf = 0;
+        } else {
+          if (credit > 0)
+            credit = 0;
+        }
+#endif
+
+        if (!buf || (mii_packet_get_stage(buf) != 1)) {
+          buf = mii_get_next_buf(lp_queue);
+#if (ETHERNET_TRAFFIC_SHAPER)
+          packet_is_high_priority = 0;
+#endif
+        }
 #else
         buf = mii_get_next_buf(lp_queue);
 
 #endif
 
 #if (NUM_ETHERNET_PORTS > 1) && !(DISABLE_ETHERNET_PORT_FORWARDING)
-        if (!buf || mii_packet_get_stage(buf) == 0) {
-            for (unsigned int i=0; i<NUM_ETHERNET_PORTS; ++i) {
-                if (i == ifnum) continue;
-                buf = mii_get_next_buf(lp_forward[i]);
-                if (buf) {
-                    if (mii_packet_get_forwarding(buf) != 0) {
-                        break;
-                    }
-                }
-                buf = 0;
-            }
+        if (!buf || (mii_packet_get_stage(buf) == 0)) {
+          for (unsigned int i=0; i<NUM_ETHERNET_PORTS; ++i) {
+            if (i == ifnum)
+              continue;
+            buf = mii_get_next_buf(lp_forward[i]);
+            if (!buf)
+              continue;
+
+            if (mii_packet_get_forwarding(buf) != 0)
+              break;
+            buf = 0;
+          }
         }
 #endif
 
@@ -590,6 +591,16 @@ void mii_tx_pins(
 #pragma xta endpoint "mii_tx_buffer_not_marked_for_transmission"
             continue;
         }
+
+#if (ETHERNET_TRAFFIC_SHAPER)
+        if (packet_is_high_priority) {
+            const int preamble_bytes = 8;
+            const int ifg_bytes = 96/8;
+            const int crc_bytes = 4;
+            int len = mii_packet_get_length(buf) + preamble_bytes + ifg_bytes + crc_bytes;
+            credit = credit - (len << (MII_CREDIT_FRACTIONAL_BITS+3));
+        }
+#endif
 
 #pragma xta endpoint "mii_tx_start"
         mii_transmit_packet(buf, p_mii_txd, tmr);
