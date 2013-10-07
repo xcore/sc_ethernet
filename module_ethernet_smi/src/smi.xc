@@ -111,6 +111,9 @@ static int smi_bit_shift(smi_interface_t &smi, unsigned data, unsigned count, un
                 i--;
                 smi.p_smi_mdc @ (t + 30) :> dataBit;
                 dataBit &= (1 << SMI_MDIO_BIT);
+                #if SMI_MDIO_REST
+                dataBit |= SMI_MDIO_REST;
+                #endif
                 smi.p_smi_mdc            <: dataBit;
                 data = (data << 1) | (dataBit >> SMI_MDIO_BIT);
                 smi.p_smi_mdc @ (t + 60) <: 1 << SMI_MDC_BIT | dataBit;
@@ -122,6 +125,9 @@ static int smi_bit_shift(smi_interface_t &smi, unsigned data, unsigned count, un
           while (i != 0) {
                 i--;
                 dataBit = ((data >> i) & 1) << SMI_MDIO_BIT;
+                #if SMI_MDIO_REST
+                dataBit |= SMI_MDIO_REST;
+                #endif
                 smi.p_smi_mdc @ (t + 30) <:                    dataBit;
                 smi.p_smi_mdc @ (t + 60) <: 1 << SMI_MDC_BIT | dataBit;
                 t += 60;
