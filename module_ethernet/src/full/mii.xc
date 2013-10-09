@@ -357,8 +357,8 @@ void mii_rx_pins(
 
 			if (dptr != end_ptr) {
 			  mii_packet_set_data_word_imm(dptr, 0, tail);
-			  c <: buf;
-			  mii_commit(buf, dptr);
+			  if (mii_commit(buf, dptr))
+                            c <: buf;
 			}
 		}
 	}
