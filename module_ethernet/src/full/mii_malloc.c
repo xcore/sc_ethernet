@@ -4,7 +4,6 @@
 // LICENSE.txt and at <http://github.xcore.com/>
 
 #include "mii_full.h"
-#include "print.h"
 #ifndef ETHERNET_USE_HARDWARE_LOCKS
 #include "swlock.h"
 #else
@@ -59,7 +58,6 @@ int mii_get_wrap_ptr(mii_mempool_t mempool)
 }
 
 mii_buffer_t mii_reserve_at_least(mii_mempool_t mempool,
-                                           unsigned *end_ptr,
                                            int min_size)
 {
   mempool_info_t *info = (mempool_info_t *) mempool;
@@ -79,7 +77,6 @@ mii_buffer_t mii_reserve_at_least(mii_mempool_t mempool,
   hdr = (malloc_hdr_t *) wrptr;
   hdr->info = info;
 
-  *end_ptr = (unsigned) rdptr;
   return (mii_buffer_t) (wrptr+(sizeof(malloc_hdr_t)>>2));
 }
 

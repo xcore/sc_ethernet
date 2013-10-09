@@ -7,7 +7,6 @@
 #include "mii_queue.h"
 #include "mii.h"
 #include "mii_malloc.h"
-#include <print.h>
 #include <stdlib.h>
 #include <syscall.h>
 #include "ethernet_server_def.h"

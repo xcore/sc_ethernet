@@ -11,7 +11,6 @@ mii_buffer_t mii_reserve(mii_mempool_t mempool,
                                   REFERENCE_PARAM(unsigned, end_ptr));
 
 mii_buffer_t mii_reserve_at_least(mii_mempool_t mempool,
-                                           REFERENCE_PARAM(unsigned, end_ptr),
                                            int min_size);
 
 void mii_commit(mii_buffer_t buf, int endptr0);
