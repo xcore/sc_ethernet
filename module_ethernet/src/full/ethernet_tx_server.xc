@@ -9,7 +9,6 @@
 #include "ethernet_server_def.h"
 #include "ethernet_link_status.h"
 #include "mii_malloc.h"
-#include <print.h>
 #include <xs1.h>
 #include <xclib.h>
 
@@ -52,7 +51,6 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
 {
   unsigned buf[NUM_ETHERNET_PORTS];
   unsigned wrap_ptr[NUM_ETHERNET_PORTS];
-  unsigned end_ptr[NUM_ETHERNET_PORTS];
   unsigned dptr[NUM_ETHERNET_PORTS];
   int enabled[MAX_LINKS];
   int pendingCmd[MAX_LINKS]={0};
@@ -110,19 +108,16 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
 #if ETHERNET_TX_HP_QUEUE
             if (hp) {
               buf[p] = mii_reserve_at_least(tx_mem_hp[p],
-                                            end_ptr[p],
                                             MII_MALLOC_FULL_PACKET_SIZE_HP);
               wrap_ptr[p] = mii_get_wrap_ptr(tx_mem_hp[p]);
             }
             else {
               buf[p] = mii_reserve_at_least(tx_mem_lp[p],
-                                            end_ptr[p],
                                             MII_MALLOC_FULL_PACKET_SIZE_LP);
               wrap_ptr[p] = mii_get_wrap_ptr(tx_mem_lp[p]);
             }
 #else
               buf[p] = mii_reserve_at_least(tx_mem_lp[p],
-                                            end_ptr[p],
                                             MII_MALLOC_FULL_PACKET_SIZE_LP);
               wrap_ptr[p] = mii_get_wrap_ptr(tx_mem_lp[p]);
 #endif
