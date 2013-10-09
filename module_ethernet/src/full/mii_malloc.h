@@ -11,10 +11,12 @@ mii_buffer_t mii_reserve(mii_mempool_t mempool,
                                   REFERENCE_PARAM(unsigned, end_ptr));
 
 mii_buffer_t mii_reserve_at_least(mii_mempool_t mempool,
-                                           REFERENCE_PARAM(unsigned, end_ptr),
                                            int min_size);
 
-void mii_commit(mii_buffer_t buf, int endptr0);
+/*
+ * Try to commit the buffer and return 1 if it succeeds and 0 otherwise.
+ */
+int mii_commit(mii_buffer_t buf, int endptr0);
 
 void mii_free(mii_buffer_t buf);
 int mii_init_my_rdptr(mii_mempool_t mempool);
