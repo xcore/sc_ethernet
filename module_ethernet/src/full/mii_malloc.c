@@ -71,6 +71,12 @@ mii_buffer_t mii_reserve_at_least(mii_mempool_t mempool,
   if (space_left <= 0)
     space_left += (char *) info->end - (char *) info->start;
 
+  // When the rdptr is sitting at the start of the buffer the wrptr
+  // cannot be set within last MIN_USAGE bytes, otherwise it will be
+  // wrapped and the buffer will look empty when it is actually nearly full.
+  if (rdptr == info->start)
+    min_size += MIN_USAGE;
+
   if (space_left < min_size)
     return 0;
 
@@ -106,7 +112,7 @@ mii_buffer_t mii_reserve(mii_mempool_t mempool,
   return (mii_buffer_t) (wrptr+(sizeof(malloc_hdr_t)>>2));
 }
 
-void mii_commit(mii_buffer_t buf, int endptr0)
+int mii_commit(mii_buffer_t buf, int endptr0)
 {
   int *end_ptr = (int *) endptr0;
   malloc_hdr_t *hdr = (malloc_hdr_t *) ((char *) buf - sizeof(malloc_hdr_t));
@@ -119,14 +125,20 @@ void mii_commit(mii_buffer_t buf, int endptr0)
   pkt->forwarding = 0;
 #endif
 
-  if (((int) (char *) end - (int) (char *) end_ptr) < MIN_USAGE)
+  if (((int) (char *) end - (int) (char *) end_ptr) < MIN_USAGE) {
+    // If committing would cause the buffer to look empty (setting
+    // the wrptr to the same value as the rdptr) then discard.
+    if (info->rdptr == info->start)
+      return 0;
+
     end_ptr = info->start;
+  }
 
   hdr->next = (int) end_ptr;
 
   info->wrptr = end_ptr;
 
-  return;
+  return 1;
 }
 
 void mii_free(mii_buffer_t buf) {
