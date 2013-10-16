@@ -231,7 +231,6 @@ void mii_slave_transmit_packet(unsigned buf, out buffered port:32 p_mii_rxd)
 
     unsigned int word;
     unsigned int dptr;
-    unsigned int time;
     int i=0;
     int word_count = mii_packet_get_length(buf);
     int tail_byte_count = word_count & 3;

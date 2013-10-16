@@ -105,7 +105,7 @@ void mac_1722_router_enable_forwarding(chanend c, int key0, int key1);
 
 void mac_1722_router_disable_forwarding(chanend c, int key0, int key1);
 
-void mac_1722_update_router(chanend c, int key0, int key1, int link, int hash);
+void mac_1722_update_router(chanend c, int remove_entry, int key0, int key1, int link, int hash);
 
 /** This function sets the transmit 
  *  bandwidth restriction for Q-tagged traffic out of the mac.

@@ -232,14 +232,20 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
 #ifdef AVB_MAC
           case ETHERNET_TX_UPDATE_AVB_ROUTER:
           {
-            int key0, key1, link, hash;
+            int key0, key1, link, hash, remove_entry;
             master {
+              tx[i] :> remove_entry;
               tx[i] :> key0;
               tx[i] :> key1;
               tx[i] :> link;
               tx[i] :> hash;
             }
-            avb_1722_router_table_add_or_update_entry(key0, key1, link, hash);
+            if (!remove_entry) {
+              avb_1722_router_table_add_or_update_entry(key0, key1, link, hash);
+            }
+            else {
+              avb_1722_router_table_remove_entry(key0, key1);
+            }
             break;
           }
           case ETHERNET_TX_UPDATE_AVB_FORWARDING:

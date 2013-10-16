@@ -153,12 +153,14 @@ void mac_1722_router_disable_forwarding(chanend c, int key0, int key1) {
 }
 
 void mac_1722_update_router(chanend c,
+                            int remove_entry,
                             int key0,
                             int key1,
                             int link,
                             int hash) {
   c <: ETHERNET_TX_UPDATE_AVB_ROUTER;
   slave {
+    c <: remove_entry;
     c <: key0;
     c <: key1;
     c <: link;
