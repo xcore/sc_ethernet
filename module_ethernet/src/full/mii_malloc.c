@@ -23,6 +23,7 @@ typedef struct mempool_info_t {
   int *wrptr;
   int *start;
   int *end;
+  int rdptr_at_start;
 #ifndef ETHERNET_USE_HARDWARE_LOCKS
   swlock_t lock;
 #endif
@@ -42,6 +43,7 @@ void mii_init_mempool(mii_mempool_t mempool0, int size)
   info->start = (int *) (mempool0 + sizeof(mempool_info_t));
   info->end = (int *) (mempool0 + size - 4);
   info->rdptr = info->start;
+  info->rdptr_at_start = 1;
   info->wrptr = info->start;
   *(info->start) = 0;
   *(info->end) = (int) (info->start);
@@ -119,20 +121,20 @@ int mii_commit(mii_buffer_t buf, int endptr0)
   mempool_info_t *info = (mempool_info_t *) hdr->info;
   mii_packet_t *pkt;
   int *end = info->end;
+
+  if (((int) (char *) end - (int) (char *) end_ptr) < MIN_USAGE) {
+    // If committing would cause the buffer to look empty (setting
+    // the wrptr to the same value as the rdptr) then discard.
+    if (info->rdptr_at_start)
+      return 0;
+
+    end_ptr = info->start;
+  }
   pkt = (mii_packet_t *) buf;
   pkt->stage = 0;
 #if (NUM_ETHERNET_PORTS > 1) && !defined(DISABLE_ETHERNET_PORT_FORWARDING)
   pkt->forwarding = 0;
 #endif
-
-  if (((int) (char *) end - (int) (char *) end_ptr) < MIN_USAGE) {
-    // If committing would cause the buffer to look empty (setting
-    // the wrptr to the same value as the rdptr) then discard.
-    if (info->rdptr == info->start)
-      return 0;
-
-    end_ptr = info->start;
-  }
 
   hdr->next = (int) end_ptr;
 
@@ -163,6 +165,10 @@ void mii_free(mii_buffer_t buf) {
       // Move to the next packet
       hdr = (malloc_hdr_t *) next;
       info->rdptr = (int *) hdr;
+      if (info->rdptr == info->start)
+        info->rdptr_at_start = 1;
+      else
+        info->rdptr_at_start = 0;
 
       // Mark as empty
       old_hdr->next = 0;

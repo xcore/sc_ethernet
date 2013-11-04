@@ -15,9 +15,25 @@
 #include <xscope.h>
 
 #if ETHERNET_ENABLE_FULL_TIMINGS
-// Smallest packet + interframe gap is 84 bytes = 6.72 us
+// Smallest non-HP packet + interframe gap is 84 bytes = 6.72 us
+#pragma xta command "remove exclusion *"
+#pragma xta command "add exclusion avb_1722_router_table_lookup_simple"
 #pragma xta command "analyze endpoints rx_packet rx_packet"
+#if NUM_ETHERNET_PORTS == 2
+#pragma xta command "set required - 3.36 us"
+#else
 #pragma xta command "set required - 6.72 us"
+#endif
+
+// Smallest HP packet + ifg is 110 bytes = 8.8 us
+#pragma xta command "remove exclusion *"
+#pragma xta command "analyze endpoints rx_packet rx_packet"
+#if NUM_ETHERNET_PORTS == 2
+#pragma xta command "set required - 4.4 us"
+#else
+#pragma xta command "set required - 8.8 us"
+#endif
+
 #endif
 
 int mac_custom_filter_coerce(int buf, unsigned int mac[], int &user_data);

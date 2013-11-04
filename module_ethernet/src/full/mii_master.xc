@@ -306,9 +306,11 @@ void mii_rx_pins(
         ii = 5*4;
 
 #pragma xta endpoint "mii_rx_sixth_word"
-        p_mii_rxd :> word;
-        crc32(crc, word, poly);
-        mii_packet_set_data_word(dptr, -1, word);
+        unsigned int sixth_word;
+        p_mii_rxd :> sixth_word;
+        crc32(crc, sixth_word, poly);
+        // Don't store the sixth word here to save time before the main loop starts
+        // Store it at the end of frame instead
 
         do
         {
@@ -333,6 +335,9 @@ void mii_rx_pins(
                 {
 #pragma xta label "mii_eof_case"
                     endofframe = 1;
+
+                    // Store the sixth word here to save time before the main loop starts
+                    mii_packet_set_data_word(mii_packet_get_data_ptr(buf), 5, sixth_word);
                     break;
                 }
             }
