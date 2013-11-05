@@ -13,6 +13,15 @@
 #include "ethernet_server_def.h"
 #include <xclib.h>
 
+// As a performance/worst timing fix We have to use a hwtimer in
+// mii_transmit when using tools 13+.
+// Hopefully we can get rid of this at a later data
+#if XCC_VERSION_MAJOR >= 1300
+#include "hwtimer.h"
+#else
+typedef timer hwtimer_t;
+#endif
+
 // As of the v12/13 xTIMEcomper tools. The compiler schedules code around a
 // bit too much which violates the timing constraints. This change to the
 // crc32 makes it a barrier to scheduling. This is not really
@@ -380,7 +389,7 @@ int g_mii_idle_slope=(11<<MII_CREDIT_FRACTIONAL_BITS);
 
 
 // Do the real-time pin wiggling for a single packet
-void mii_transmit_packet(unsigned buf, out buffered port:32 p_mii_txd, timer tmr)
+void mii_transmit_packet(unsigned buf, out buffered port:32 p_mii_txd, hwtimer_t tmr)
 {
 	register const unsigned poly = 0xEDB88320;
 	unsigned int crc = 0;
@@ -480,7 +489,7 @@ void mii_tx_pins(
 	int credit_time;
 #endif
 	int prev_eof_time, time;
-	timer tmr;
+	hwtimer_t tmr;
 	int ok_to_transmit=1;
 
 #if (ETHERNET_TX_HP_QUEUE) && (ETHERNET_TRAFFIC_SHAPER)
