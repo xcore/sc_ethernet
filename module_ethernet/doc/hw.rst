@@ -1,4 +1,4 @@
-Ethernet H/W Development Platforms
+Ethernet H/W development platforms
 ==================================
 
 For initial development of ethernet applications the following XMOS

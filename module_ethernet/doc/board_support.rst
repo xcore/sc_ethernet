@@ -1,4 +1,4 @@
-XMOS Development Board Support Component
+XMOS development board support component
 ========================================
 
 The module ``module_ethernet_board_support`` provides defines to allow
@@ -20,7 +20,7 @@ using the following defines::
 You can also use the define ``ETHERNET_DEFAULT_TILE`` to refer to the
 tile that the ethernet ports are on.
 
-sliceKIT Core Board
+sliceKIT core board
 -------------------
 
 For the sliceKIT Core Board the ethernet slice could be in any of the

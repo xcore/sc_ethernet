@@ -1,4 +1,4 @@
-SMI Component API
+SMI component API
 =================
 
 The module ``module_ethernet_smi``
@@ -11,7 +11,7 @@ There are two ways to interface SMI:
 using a pair of 1-bit ports, or using
 a single multi-bit port.
 
-Configuration Defines
+Configuration defines
 ---------------------
 These defines can either be set in ``ethernet_conf.h`` or
 ``smi_conf.h`` from within your application directory.
@@ -32,7 +32,7 @@ These defines can either be set in ``ethernet_conf.h`` or
     Only define this if you have a port that drives both MDC and MDIO.
 
 
-Data Structures
+Data structures
 ---------------
 
 .. doxygenstruct:: smi_interface_t

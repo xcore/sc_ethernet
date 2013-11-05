@@ -1,4 +1,4 @@
-A Sample Ethernet Application (tutorial)
+A sample Ethernet application (tutorial)
 ----------------------------------------
 
 This tutorial describes a demo included in the xmos ethernet

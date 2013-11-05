@@ -15,7 +15,7 @@ application is controlled by the ``USED_MODULES`` define in your
 application Makefile.
 
 
-Key Files
+Key files
 +++++++++
 
 The following header files contain prototypes of all functions

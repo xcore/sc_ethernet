@@ -1,4 +1,4 @@
-XMOS Layer 2 Ethernet MAC Component
+XMOS layer 2 Ethernet MAC component
 ===================================
 
 .. toctree::

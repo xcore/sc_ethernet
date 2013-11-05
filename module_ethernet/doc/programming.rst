@@ -1,4 +1,4 @@
-Ethernet Programming Guide
+Ethernet programming guide
 ==========================
 
 This section provides information on how to program applications using

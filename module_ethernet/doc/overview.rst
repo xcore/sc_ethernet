@@ -1,4 +1,4 @@
-Ethernet Layer 2 MAC Overview
+Ethernet layer 2 MAC overview
 =============================
 
 The layer 2 MAC component implements a layer 2 ethernet MAC. It
@@ -15,7 +15,7 @@ queuing, and 802.1Qav traffic shaping. The LITE implementation runs on two
 logical cores but is restricted to a single receive and trasnmit client
 and does not support any advanced features.
 
-Component Summary
+Component summary
 +++++++++++++++++
 
 .. table::
