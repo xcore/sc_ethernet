@@ -45,7 +45,7 @@
         <version>1.0.3rc0</version>
     </dependency>
     <description>A complete Ethernet MII and MAC interface for 100MBps Ethernet</description>
-    <docdir>doc/ethernet</docdir>
+    <docdir>module_ethernet/doc</docdir>
     <exclude_dir>test_buffering</exclude_dir>
     <exclude_dir>test_ethernet_qav</exclude_dir>
     <exclude_dir>test_mii_singlethread</exclude_dir>
