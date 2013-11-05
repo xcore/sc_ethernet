@@ -35,18 +35,89 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
   ethernet_update_link_status(linkNum, new_status);
 }
 
+static transaction get_packet_from_client(chanend tx,
+                                          int cmd,
+                                          int &length,
+                                          int &dst_port,
+                                          unsigned dptr[NUM_ETHERNET_PORTS],
+                                          unsigned wrap_ptr[NUM_ETHERNET_PORTS])
+{
+  tx :> length;
+  tx :> dst_port;
+  if (cmd == ETHERNET_TX_REQ_OFFSET2) {
+    tx :> char;
+    tx :> char;
+    for(int j=0;j<(length+3)>>2;j++) {
+      int datum;
+      tx :> datum;
+      for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
+        mii_packet_set_data_word_imm(dptr[p], 0, byterev(datum));
+        dptr[p] += 4;
+        if (dptr[p] == wrap_ptr[p])
+          asm("ldw %0,%0[0]":"=r"(dptr[p]));
+      }
+    }
+    tx :> char;
+    tx :> char;
+
+    cmd = ETHERNET_TX_REQ;
+  } else {
+    for(int j=0;j<(length+3)>>2;j++) {
+      int datum;
+      tx :> datum;
+      for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
+        mii_packet_set_data_word_imm(dptr[p], 0, datum);
+        dptr[p] += 4;
+        if (dptr[p] == wrap_ptr[p])
+          asm("ldw %0,%0[0]":"=r"(dptr[p]));
+      }
+    }
+  }
+}
+
+static transaction get_and_update_avb_router(chanend tx) {
+  int key0, key1, link, hash, remove_entry;
+  tx :> remove_entry;
+  tx :> key0;
+  tx :> key1;
+  tx :> link;
+  tx :> hash;
+
+  if (!remove_entry) {
+    avb_1722_router_table_add_or_update_entry(key0, key1, link, hash);
+  }
+  else {
+    avb_1722_router_table_remove_entry(key0, key1);
+  }
+}
+
+static transaction get_and_update_avb_forwarding(chanend tx) {
+  int key0, key1, forward_bool;
+  tx :> key0;
+  tx :> key1;
+  tx :> forward_bool;              
+  avb_1722_router_table_add_or_update_forwarding(key0, key1, forward_bool);
+}
+
+static transaction get_and_update_qav_idle_slope(chanend tx) {
+  int slope, port_num;
+  tx :> port_num;
+  tx :> slope;
+  asm("stw %0,%1[%2]"::"r"(slope), "r"(g_mii_idle_slope), "r"(port_num));
+}
+
 #pragma unsafe arrays
     void ethernet_tx_server(
 #if ETHERNET_TX_HP_QUEUE
                         mii_mempool_t tx_mem_hp[],
 #endif
                         mii_mempool_t tx_mem_lp[],
-                        int num_q, 
+                        int num_q,
                         mii_ts_queue_t ts_queue[],
                         const char mac_addr[],
                         chanend tx[],
                         int num_tx,
-                        smi_interface_t &?smi1, 
+                        smi_interface_t &?smi1,
                         smi_interface_t &?smi2)
 {
   unsigned buf[NUM_ETHERNET_PORTS];
@@ -56,7 +127,7 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
   int pendingCmd[MAX_LINKS]={0};
   timer tmr;
   unsigned linkCheckTime = 0;
-  
+
   tmr :> linkCheckTime;
   linkCheckTime += LINK_POLL_PERIOD;
 
@@ -66,7 +137,7 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
   }
 #endif
 
-  for (int i=0;i<num_tx;i++) 
+  for (int i=0;i<num_tx;i++)
     enabled[i] = 1;
 
   while (1) {
@@ -76,18 +147,18 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
 #if ETHERNET_TX_HP_QUEUE
       int hp=0;
 #endif
-      switch (cmd) 
+      switch (cmd)
         {
         case ETHERNET_TX_REQ:
         case ETHERNET_TX_REQ_OFFSET2:
-        case ETHERNET_TX_REQ_TIMED:      
+        case ETHERNET_TX_REQ_TIMED:
 #if ETHERNET_TX_HP_QUEUE
         case ETHERNET_TX_REQ_HP:
         case ETHERNET_TX_REQ_OFFSET2_HP:
-        case ETHERNET_TX_REQ_TIMED_HP:      
+        case ETHERNET_TX_REQ_TIMED_HP:
 #endif
-      
-#if ETHERNET_TX_HP_QUEUE    
+
+#if ETHERNET_TX_HP_QUEUE
           switch (cmd) {
           case ETHERNET_TX_REQ_HP:
             cmd = ETHERNET_TX_REQ;
@@ -121,70 +192,38 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
                                             MII_MALLOC_FULL_PACKET_SIZE_LP);
               wrap_ptr[p] = mii_get_wrap_ptr(tx_mem_lp[p]);
 #endif
-            if (buf[p] == 0)
+        	  if (buf[p] == 0)
               bufs_ok=0;
             else
               dptr[p] = mii_packet_get_data_ptr(buf[p]);
           }
 
           if (bufs_ok) {
-            master {
-              tx[i] :> length;
-              tx[i] :> dst_port;
-              // TODO: Some memory can be saved here if OFFSET2 mode is never used
-              if (cmd == ETHERNET_TX_REQ_OFFSET2) {
-                tx[i] :> char;
-                tx[i] :> char;
-                for(int j=0;j<(length+3)>>2;j++) {
-                  int datum;
-                  tx[i] :> datum;
-                  for (unsigned p=0; p<NUM_ETHERNET_MASTER_PORTS; ++p) {
-                    mii_packet_set_data_word_imm(dptr[p], 0, byterev(datum));
-                    dptr[p] += 4;
-                    if (dptr[p] == wrap_ptr[p])
-                      asm("ldw %0,%1[0]":"=r"(dptr[p]):"r"(dptr[p]));
-                  }
-                }
-                tx[i] :> char;
-                tx[i] :> char;
-
-                cmd = ETHERNET_TX_REQ;
-              } else {
-                for(int j=0;j<(length+3)>>2;j++) {
-                  int datum;
-                  tx[i] :> datum;
-                  for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
-                    mii_packet_set_data_word_imm(dptr[p], 0, datum);
-                    dptr[p] += 4;
-                    if (dptr[p] == wrap_ptr[p])
-                      asm("ldw %0,%1[0]":"=r"(dptr[p]):"r"(dptr[p]));
-                  }
-                }
-              }
-            }
+            master get_packet_from_client(tx[i], cmd, length, dst_port, dptr,
+                                          wrap_ptr);
 
             for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
-              if (p == dst_port || dst_port == ETH_BROADCAST) {
-                mii_packet_set_length(buf[p], length);
+            	if (p == dst_port || dst_port == ETH_BROADCAST) {
+            		mii_packet_set_length(buf[p], length);
 
 #if defined(ENABLE_ETHERNET_SOURCE_ADDRESS_WRITE)
-                {
+            		{
                   for (int i=0;i<6;i++)
                     mii_packet_set_data_byte(buf[p], 6+i, mac_addr[i]);
-                }
+            		}
 #endif
 
-                if (cmd == ETHERNET_TX_REQ_TIMED)
-                  mii_packet_set_timestamp_id(buf[p], i+1);
-                else
-                  mii_packet_set_timestamp_id(buf[p], 0);
+            		if (cmd == ETHERNET_TX_REQ_TIMED)
+            			mii_packet_set_timestamp_id(buf[p], i+1);
+            		else
+            			mii_packet_set_timestamp_id(buf[p], 0);
 
 
-                mii_commit(buf[p], dptr[p]);
+            		mii_commit(buf[p], dptr[p]);
 
-                mii_packet_set_tcount(buf[p], 0);
-                mii_packet_set_stage(buf[p], 1);
-              }
+            		mii_packet_set_tcount(buf[p], 0);
+            		mii_packet_set_stage(buf[p], 1);
+            	}
             }
 
             enabled[i] = 0;
@@ -193,7 +232,7 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
           break;
         default:
           break;
-          
+
         }
     }
 
@@ -204,7 +243,7 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
         }
         if (!isnull(smi2)) {
           do_link_check(smi2, 1);
-        }       
+        }
         linkCheckTime += LINK_POLL_PERIOD;
         break;
       case (int i=0;i<num_tx;i++) enabled[i] => tx[i] :> int cmd:
@@ -215,75 +254,55 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
           case ETHERNET_TX_REQ_OFFSET2:
           case ETHERNET_TX_REQ_TIMED:
 #if (ETHERNET_TX_HP_QUEUE)
-          case ETHERNET_TX_REQ_HP:
-          case ETHERNET_TX_REQ_OFFSET2_HP:
-          case ETHERNET_TX_REQ_TIMED_HP:
+            case ETHERNET_TX_REQ_HP:
+            case ETHERNET_TX_REQ_OFFSET2_HP:
+            case ETHERNET_TX_REQ_TIMED_HP:
 #endif
 
-            pendingCmd[i] = cmd;
-            break;
-          case ETHERNET_GET_MAC_ADRS:
-            slave {
-              for (int j=0;j< 6;j++) {
-                tx[i] <: mac_addr[j];
+              pendingCmd[i] = cmd;
+              break;
+            case ETHERNET_GET_MAC_ADRS:
+              slave {
+                for (int j=0;j< 6;j++) {
+                  tx[i] <: mac_addr[j];
+                }
               }
-            }
-            break;
+              break;
 #ifdef AVB_MAC
           case ETHERNET_TX_UPDATE_AVB_ROUTER:
           {
-            int key0, key1, link, hash, remove_entry;
-            master {
-              tx[i] :> remove_entry;
-              tx[i] :> key0;
-              tx[i] :> key1;
-              tx[i] :> link;
-              tx[i] :> hash;
-            }
-            if (!remove_entry) {
-              avb_1722_router_table_add_or_update_entry(key0, key1, link, hash);
-            }
-            else {
-              avb_1722_router_table_remove_entry(key0, key1);
-            }
+            master get_and_update_avb_router(tx[i]);
             break;
           }
           case ETHERNET_TX_UPDATE_AVB_FORWARDING:
           {
-            int key0, key1, forward_bool;
-            master {
-              tx[i] :> key0;
-              tx[i] :> key1;
-              tx[i] :> forward_bool;              
-            }
-            avb_1722_router_table_add_or_update_forwarding(key0, key1, forward_bool);
+            master get_and_update_avb_forwarding(tx[i]);
             break;
           }
           case ETHERNET_TX_INIT_AVB_ROUTER:
+          {
             init_avb_1722_router_table();
-            break;           
+            break;
+          }
 #endif
 #if (ETHERNET_TX_HP_QUEUE) && (ETHERNET_TRAFFIC_SHAPER)
           case ETHERNET_TX_SET_QAV_IDLE_SLOPE:
-            master
-            {
-              int slope, port_num;
-              tx[i] :> port_num;
-              tx[i] :> slope;
-              asm("stw %0,%1[%2]"::"r"(slope), "r"(g_mii_idle_slope), "r"(port_num));
-            }
+          {
+            master get_and_update_qav_idle_slope(tx[i]);
             break;
+          }
 #endif
           default:
             // Unrecognized command
             break;
         }
-          break;
-      }
-      default:
-        for (int i=0;i<num_tx;i++) 
-          enabled[i] = 1; 
         break;
+      }
+      default: {
+        for (int i=0;i<num_tx;i++)
+          enabled[i] = 1;
+        break;
+      }
     }
 
     // Reply with timestamps where client is requesting them
