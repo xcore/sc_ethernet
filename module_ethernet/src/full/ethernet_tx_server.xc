@@ -31,6 +31,46 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
   ethernet_update_link_status(linkNum, new_status);
 }
 
+static transaction get_packet_from_client(chanend tx,
+                                          int cmd,
+                                          int &length,
+                                          int &dst_port,
+                                          unsigned dptr[NUM_ETHERNET_PORTS],
+                                          unsigned wrap_ptr[NUM_ETHERNET_PORTS])
+{
+  tx :> length;
+  tx :> dst_port;
+  if (cmd == ETHERNET_TX_REQ_OFFSET2) {
+    tx :> char;
+    tx :> char;
+    for(int j=0;j<(length+3)>>2;j++) {
+      int datum;
+      tx :> datum;
+      for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
+        mii_packet_set_data_word_imm(dptr[p], 0, byterev(datum));
+        dptr[p] += 4;
+        if (dptr[p] == wrap_ptr[p])
+          asm("ldw %0,%0[0]":"=r"(dptr[p]));
+      }
+    }
+    tx :> char;
+    tx :> char;
+
+    cmd = ETHERNET_TX_REQ;
+  } else {
+    for(int j=0;j<(length+3)>>2;j++) {
+      int datum;
+      tx :> datum;
+      for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
+        mii_packet_set_data_word_imm(dptr[p], 0, datum);
+        dptr[p] += 4;
+        if (dptr[p] == wrap_ptr[p])
+          asm("ldw %0,%0[0]":"=r"(dptr[p]));
+      }
+    }
+  }
+}
+
 #pragma unsafe arrays
     void ethernet_tx_server(
 #if ETHERNET_TX_HP_QUEUE
@@ -124,41 +164,8 @@ static void do_link_check(smi_interface_t &smi, int linkNum)
           }
 
           if (bufs_ok) {
-
-
-              master {
-        		  tx[i] :> length;
-        		  tx[i] :> dst_port;
-            	  if (cmd == ETHERNET_TX_REQ_OFFSET2) {
-            		  tx[i] :> char;
-            		  tx[i] :> char;
-            		  for(int j=0;j<(length+3)>>2;j++) {
-            			  int datum;
-            			  tx[i] :> datum;
-            			  for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
-                                    mii_packet_set_data_word_imm(dptr[p], 0, byterev(datum));
-                                    dptr[p] += 4;
-                                    if (dptr[p] == wrap_ptr[p])
-                                      asm("ldw %0,%0[0]":"=r"(dptr[p]));
-            			  }
-            		  }
-            		  tx[i] :> char;
-            		  tx[i] :> char;
-
-            		  cmd = ETHERNET_TX_REQ;
-            	  } else {
-            		  for(int j=0;j<(length+3)>>2;j++) {
-            			  int datum;
-            			  tx[i] :> datum;
-            			  for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
-                                    mii_packet_set_data_word_imm(dptr[p], 0, datum);
-                                    dptr[p] += 4;
-                                    if (dptr[p] == wrap_ptr[p])
-                                      asm("ldw %0,%0[0]":"=r"(dptr[p]));
-            			  }
-            		  }
-            	  }
-            }
+            master get_packet_from_client(tx[i], cmd, length, dst_port, dptr,
+                                          wrap_ptr);
 
             for (unsigned p=0; p<NUM_ETHERNET_PORTS; ++p) {
             	if (p == dst_port || dst_port == ETH_BROADCAST) {
