@@ -17,7 +17,9 @@
 #if ETHERNET_ENABLE_FULL_TIMINGS
 // Smallest non-HP packet + interframe gap is 84 bytes = 6.72 us
 #pragma xta command "remove exclusion *"
+#if ETHERNET_RX_HP_QUEUE
 #pragma xta command "add exclusion avb_1722_router_table_lookup_simple"
+#endif
 #pragma xta command "analyze endpoints rx_packet rx_packet"
 #if NUM_ETHERNET_PORTS == 2
 #pragma xta command "set required - 3.36 us"
