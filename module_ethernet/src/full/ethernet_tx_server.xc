@@ -75,6 +75,7 @@ static transaction get_packet_from_client(chanend tx,
   }
 }
 
+#ifdef AVB_MAC
 static transaction get_and_update_avb_router(chanend tx) {
   int key0, key1, link, hash, remove_entry;
   tx :> remove_entry;
@@ -105,6 +106,7 @@ static transaction get_and_update_qav_idle_slope(chanend tx) {
   tx :> slope;
   asm("stw %0,%1[%2]"::"r"(slope), "r"(g_mii_idle_slope), "r"(port_num));
 }
+#endif
 
 #pragma unsafe arrays
     void ethernet_tx_server(
