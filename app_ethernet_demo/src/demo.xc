@@ -56,7 +56,7 @@ ethernet_reset_interface_t eth_rst = ETHERNET_DEFAULT_RESET_INTERFACE_INIT;
 //::ip_address_define
 // NOTE: YOU MAY NEED TO REDEFINE THIS TO AN IP ADDRESS THAT WORKS
 // FOR YOUR NETWORK
-#define OWN_IP_ADDRESS {192, 168, 1, 178}
+#define OWN_IP_ADDRESS {10, 0, 102, 178}
 //::
 
 
