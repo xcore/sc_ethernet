@@ -5,7 +5,7 @@ XMOS layer 2 Ethernet MAC component
 
    overview
    system
-   programming
    api
    smi
+   programming
    board_support
