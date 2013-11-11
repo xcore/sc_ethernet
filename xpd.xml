@@ -46,6 +46,7 @@
     </dependency>
     <description>A complete Ethernet MII and MAC interface for 100MBps Ethernet</description>
     <docdir>module_ethernet/doc</docdir>
+    <docdir>app_ethernet_demo/doc</docdir>
     <exclude_dir>test_buffering</exclude_dir>
     <exclude_dir>test_ethernet_qav</exclude_dir>
     <exclude_dir>test_mii_singlethread</exclude_dir>
