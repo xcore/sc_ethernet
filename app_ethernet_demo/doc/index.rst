@@ -33,23 +33,25 @@ Run the Application
 
 To test the application a define in demo.xc (find this in the ``src`` subdirectory of the ``app_ethernet_demo`` item) needs to be set to an IP address that is routable in the network that the application is to be tested on.
 
-.. literalinclude:: app_ethernet_demo/src/demo.xc
+.. literalinclude:: src/demo.xc
    :start-after: //::ip_address_define
    :end-before: //::
-
 
 Once this is done, Now that the application has been compiled, the next step is to run it on the sliceKIT Core Board using the tools to load the application over JTAG (via the xTAG2 and xTAG Adaptor card) into the xCORE multicore microcontroller.
 
    #. Click on the ``Run`` icon (the white arrow in the green circle).   A dialog will appear asking which device to connect to. Select ``XMOS XTAG2``.
-   #. The application will now be running and pinging the IP address defined in the step above should now get a response e.g.::
+   #. The application will now be running and pinging the IP address defined in the step above should now get a response e.g.
 
- PING 192.168.0.3 (192.168.0.3) 56(84) bytes of data.
- 64 bytes from 192.168.0.3: icmp_seq=1 ttl=64 time=2.97 ms
- 64 bytes from 192.168.0.3: icmp_seq=2 ttl=64 time=2.93 ms
- 64 bytes from 192.168.0.3: icmp_seq=3 ttl=64 time=2.91 ms
- 64 bytes from 192.168.0.3: icmp_seq=4 ttl=64 time=2.96 ms
- ...
+::
+
+     PING 192.168.0.3 (192.168.0.3) 56(84) bytes of data.
+     64 bytes from 192.168.0.3: icmp_seq=1 ttl=64 time=2.97 ms
+     64 bytes from 192.168.0.3: icmp_seq=2 ttl=64 time=2.93 ms
+     64 bytes from 192.168.0.3: icmp_seq=3 ttl=64 time=2.91 ms
+     64 bytes from 192.168.0.3: icmp_seq=4 ttl=64 time=2.96 ms
+     ...
   
+
 Next Steps: Code walkthrough
 ----------------------------
 
@@ -73,7 +75,7 @@ The maximum number of ethernet clients (chanends we can connect to the
 ethernet server) is set to 4 (even though we only have one client in
 this example).
 
-.. literalinclude:: app_ethernet_demo/src/ethernet_conf.h
+.. literalinclude:: src/ethernet_conf.h
 
 This application has two build configurations - one for the full
 implementation and one for the lite.
@@ -89,7 +91,7 @@ mac_custom_filter function itself.
 The header file in this example just prototypes the mac_custom_filter
 function itself. 
 
-.. literalinclude:: app_ethernet_demo/src/mac_custom_filter.h
+.. literalinclude:: src/mac_custom_filter.h
 
 The module requires the application to provide the header to cater for
 the case where the function is describe as an inline function for
@@ -97,7 +99,7 @@ performance. In this case it is just prototyped and the definition of
 mac_custom_filter is in our main application code file demo.xc
 
 
-.. literalinclude:: app_ethernet_demo/src/demo.xc 
+.. literalinclude:: src/demo.xc 
   :start-after: //::custom-filter
   :end-before: //::
 
@@ -127,14 +129,14 @@ functions :c:func:`eth_phy_reset`, :c:func:`smi_config` and
 :c:func:`ethernet_server` runs the ethernet component. The server
 communicates with other tasks via the rx and tx channel arrays.
 
-.. literalinclude:: app_ethernet_demo/src/demo.xc 
+.. literalinclude:: src/demo.xc 
   :start-after: //::ethernet
   :end-before: //::
 
 On tile 0 we run the demo() function as a task which takes ethernet packets and
 responds to ICMP ping requests. This function is described in the next section.
 
-.. literalinclude:: app_ethernet_demo/src/demo.xc 
+.. literalinclude:: src/demo.xc 
   :start-after: //::demo
   :end-before: //::
 
@@ -146,7 +148,7 @@ The demo() function does the actual ethernet packet processing. First
 the application gets the device mac address from the ethernet server.
 
 
-.. literalinclude:: app_ethernet_demo/src/demo.xc
+.. literalinclude:: src/demo.xc
    :start-after: //::get-macaddr
    :end-before: //::
 
@@ -161,7 +163,7 @@ So in this case, the mask is 1 so all packets that get a result of 1 from
 custom_mac_filter function will get passed to this client.
 
 
-.. literalinclude:: app_ethernet_demo/src/demo.xc
+.. literalinclude:: src/demo.xc
    :start-after: //::setup-filter
    :end-before: //::
 
@@ -175,7 +177,7 @@ main loop that responds to ARP and ICMP packets.
 The first task in the loop is to receive a packet into the rxbuf
 buffer using the :c:func:`mac_rx` function.
 
-.. literalinclude:: app_ethernet_demo/src/demo.xc
+.. literalinclude:: src/demo.xc
    :start-after: //::mainloop
    :end-before: //::
 
@@ -187,13 +189,13 @@ we build the response (in the txbuf array) and send it out over
 ethernet using the :c:func:`mac_tx` function. The functions
 is_valid_arp_packet and build_arp_response are defined demo.xc.
 
-.. literalinclude:: app_ethernet_demo/src/demo.xc
+.. literalinclude:: src/demo.xc
    :start-after: //::arp_packet_check
    :end-before: //::
 
 If the packet is not an ARP packet we check if it is an ICMP packet
 and in the same way build a response and send it out. 
 
-.. literalinclude:: app_ethernet_demo/src/demo.xc
+.. literalinclude:: src/demo.xc
    :start-after: //::icmp_packet_check
    :end-before: //::
