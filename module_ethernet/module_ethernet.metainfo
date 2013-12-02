@@ -168,7 +168,7 @@ ports = {
     help    = "This port does not connect to any outside stimulus (hence is a 'fake'). However it is used internally by the implementation.",
     width   = 8,
     value   = "XS1_PORT_8A",
-    enabled = swblock.params.mac_type == lite"
+    enabled = swblock.params.mac_type == "lite"
   },
   p_eth_mdc = {
     short   = "SMI MDC",
