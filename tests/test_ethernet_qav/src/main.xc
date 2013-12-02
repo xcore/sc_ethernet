@@ -105,11 +105,11 @@ int receiver(chanend rx, chanend ready, int expected_spacing)
         mac_set_queue_size(rx, NUM_PACKETS+2);
 
         ready <: 1;
-        for (int i=0;i<NUM_PACKETS;i++) 
+        for (int i=0;i<NUM_PACKETS;i++)
 	{
 		unsigned int src_port;
 		unsigned int nbytes;
-        
+
 		mac_rx_timed(rx, rxbuffer, nbytes, rtimes[i], src_port);
 
 		if (len != nbytes)
@@ -131,14 +131,14 @@ int receiver(chanend rx, chanend ready, int expected_spacing)
 	}
 
         for (int i=0;i<NUM_PACKETS-1;i++) {
-          
+
           //          printintln((int) rtimes[i+1] - (int) rtimes[i]);
           int spacing = (int) rtimes[i+1] - (int) rtimes[i];
           int error = spacing - expected_spacing;
           if (error < 0)
             error = -error;
 
-          if (error > TOLERANCE) 
+          if (error > TOLERANCE)
             {
               printstr("Error in spacing\n");
               printstr("Expected ");
@@ -148,7 +148,7 @@ int receiver(chanend rx, chanend ready, int expected_spacing)
               printstr("Got ");
               printintln(spacing);
             }
-          
+
         }
 
 	return 1;
@@ -162,8 +162,8 @@ int mac_tx_rx_data_test(chanend tx, chanend rx, int bits_per_second)
 	chan ready;
 	int res;
         int expected_spacing;
-        mac_set_qav_bandwidth(tx, bits_per_second);                          
-        
+        mac_set_qav_bandwidth(tx, bits_per_second);
+
         printstr("Allowed bandwidth ");
         printint(bits_per_second/1000000);
         printstr("MBit\n");
@@ -184,9 +184,9 @@ int mac_tx_rx_data_test(chanend tx, chanend rx, int bits_per_second)
 void runtests(chanend tx[], chanend rx[], int links)
 {
 	RUNTEST("init", init(rx, tx, links));
-	RUNTEST("traffic shaper test", mac_tx_rx_data_test(tx[0], rx[0], 
+	RUNTEST("traffic shaper test", mac_tx_rx_data_test(tx[0], rx[0],
                                                            50000000));
-	RUNTEST("traffic shaper test", mac_tx_rx_data_test(tx[0], rx[0], 
+	RUNTEST("traffic shaper test", mac_tx_rx_data_test(tx[0], rx[0],
                                                            25000000));
         //	RUNTEST("mac_tx_rx_data_test", mac_tx_rx_data_test(tx[0], rx[0], 5 << 24));
 	printstr("Complete");
