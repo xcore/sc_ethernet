@@ -9,7 +9,7 @@
 #define NUM_MII_RX_BUF 5
 #define NUM_MII_TX_BUF 2
 
-#define MAX_ETHERNET_CLIENTS   (4)    
+#define MAX_ETHERNET_CLIENTS   (4)
 
 #define ETHERNET_DEFAULT_IMPLEMENTATION full
 

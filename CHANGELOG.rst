@@ -7,6 +7,12 @@ sc_ethernet Change Log
     heavy load
   * Various documentation updates
 
+  * Changes to dependencies:
+
+    - sc_slicekit_support: 1.0.3rc0 -> 1.0.4rc0
+
+      + Fix to the metainfo.
+
 2.2.6
 -----
   * Minor bug fixes in metainformation and support headers

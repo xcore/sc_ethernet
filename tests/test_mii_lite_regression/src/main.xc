@@ -74,7 +74,7 @@ void emptyIn(chanend cIn, chanend cNotifications) {
             mii_free_in_buffer(miiData, a);
         }
         mii_restart_buffer(miiData);
-    } 
+    }
 }
 
 on stdcore[0]: port p1k = XS1_PORT_1A;
@@ -92,14 +92,14 @@ void emptyOut(chanend cOut) {
         (txbuf, unsigned char[])[i] = i;
     }
     mii_out_init(cOut);
-    
+
     t :> now;
     while (1) {
         p1k when pinsneq(0) :> void;
         txbuf[0] = k;
         k = mii_out_packet(cOut, (txbuf,int[]), 0, packetLen);
         mii_out_packet_done(cOut);
-    } 
+    }
 }
 
 
