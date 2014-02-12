@@ -38,7 +38,11 @@
 
 #endif
 
+#if ETHERNET_FILTER_ENABLE_USER_DATA
 int mac_custom_filter_coerce(int buf, unsigned int mac[], int &user_data);
+#else
+int mac_custom_filter_coerce(int buf, unsigned int mac[]);
+#endif
 
 
 #define is_broadcast(buf) (mii_packet_get_data(buf,0) & 0x1)
@@ -145,7 +149,13 @@ void ethernet_filter(const char mac_address[], streaming chanend c[NUM_ETHERNET_
                             int unicast = compare_mac(buf,mac);
                             if (broadcast || unicast) {
 #endif
-                                filter_result = mac_custom_filter_coerce(buf, mac, user_data);
+
+#if ETHERNET_FILTER_ENABLE_USER_DATA
+                            filter_result = mac_custom_filter_coerce(buf, mac, user_data);
+#else
+                            filter_result = mac_custom_filter_coerce(buf, mac);
+#endif
+
 #if ETHERNET_COUNT_PACKETS
                                 if (filter_result == 0) ethernet_filtered_by_user_filter++;
 #endif
@@ -157,7 +167,9 @@ void ethernet_filter(const char mac_address[], streaming chanend c[NUM_ETHERNET_
                             // We need to zero the timestamp ID in case the frame is forwarded on another port 
                             // so that the TX server does not try to timestamp the frame on egress (and crash)
                             mii_packet_set_timestamp_id(buf, 0);
+#if ETHERNET_FILTER_ENABLE_USER_DATA
                             mii_packet_set_user_data(buf, user_data);
+#endif
                             mii_packet_set_filter_result(buf, filter_result);
                             mii_packet_set_stage(buf, 1);
                         }
@@ -169,8 +181,15 @@ void ethernet_filter(const char mac_address[], streaming chanend c[NUM_ETHERNET_
     } // end while (1)
 
 
-
+#if ETHERNET_FILTER_ENABLE_USER_DATA
 int mac_custom_filter_coerce1(unsigned int buf[], unsigned int mac[2], int &user_data)
+#else
+int mac_custom_filter_coerce1(unsigned int buf[], unsigned int mac[2])
+#endif
 {
+#if ETHERNET_FILTER_ENABLE_USER_DATA
   return mac_custom_filter(buf, mac, user_data);
+#else
+  return mac_custom_filter(buf);
+#endif
 }
