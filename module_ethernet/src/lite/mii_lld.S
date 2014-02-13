@@ -12,7 +12,7 @@
     // The IN coroutine receives a pointer to a buffer to store a packet on channel R3, and it will,
     // on reception, output the pointer to the end on channel R3. At R3[0] is a CRC, at R3[1] a byte
     // count, and at R3[2] the final word.
-    
+
     // Register assignments: DP/CP/LR not used, SP[0]/SP[1] contains packet to transmit.
     // R0:  IN:  RXD port
     // R1:  IN:  RXDV port
@@ -26,7 +26,7 @@
     // R9:  OUT: CRC of outputted data.
     // R10: IN:  CRC of inputted data
     // R11: IN:  scratch
-    
+
     // SP[OUTchannel] OUTchannel to other layer.
 
      .section .cp.rodata,     "ac", @progbits
@@ -34,14 +34,14 @@
     .align 4
 .cc_top miiconsts.data
     .globl polynomial
-    
-initialCRC:   
+
+initialCRC:
     .word 0x9226F562
-polynomial:   
+polynomial:
     .word 0xEDB88320
-allFives:   
+allFives:
     .word 0x55555555
-DallFives:   
+DallFives:
     .word 0xD5555555
 .cc_bottom miiconsts.data
     .text
@@ -59,7 +59,7 @@ DallFives:
 #define SPoutIdle 16
 #define SPtransmitCRC 17
 #define SPfinalCRC 18
-    
+
     // call: miiLLD(rxd, rxdv, txd, INchannel, OUTchannel, timingport)
 .globl miiLLD.nstackwords
 .globl miiLLD.maxthreads
@@ -69,7 +69,7 @@ DallFives:
 .type  miiLLD, @function
 .linkset miiLLD.maxchanends, 0
 .linkset miiLLD.maxtimers, 0
-.linkset miiLLD.maxthreads, 0 
+.linkset miiLLD.maxthreads, 0
 .linkset miiLLD.locnoside, 0
 .linkset miiLLD.locnochandec, 1
 .linkset miiLLD.nstackwords, STACKSIZE
@@ -80,7 +80,7 @@ DallFives:
 #define timingPort (STACKSIZE+2)     // parameter
 #define theTimer   (STACKSIZE+3)     // parameter
 
-#define EEBLE XS1_SR_EEBLE_MASK    
+#define EEBLE XS1_SR_EEBLE_MASK
 miiLLD:
     entsp  STACKSIZE
     stw    r4, sp[1]       // Save all registers, just in case we ever want to return.
@@ -91,12 +91,12 @@ miiLLD:
     stw    r9, sp[6]
     stw    r10, sp[7]
     stw    r11, sp[8]
-    
+
     ldc    r11, 0xD
     setd   res[r0], r11
     setc   res[r0], XS1_SETC_COND_EQ
     ldap   r11, mii_rxd_preamble // Setup RXD port to jump to right data.
-    setv   res[r0], r11      
+    setv   res[r0], r11
     edu    res[r0]
     setc   res[r0], XS1_SETC_IE_MODE_INTERRUPT
 
@@ -120,7 +120,7 @@ miiLLD:
     // R5 does not need initialising yet
 
     ldw    r6, cp[polynomial]
-    
+
     // R7 does not need initialising.
     ldc   r8, 99             // Initial interframe gap reg
 
@@ -143,7 +143,7 @@ miiLLD:
 
 
     .align 4                 // Pre condition:  res[r0] EN,  res[r1] EN,  res[r3] EN
-    // Receive body of a packet 
+    // Receive body of a packet
 mii_rxd:
     in    r11, res[r0]       // Grab word to be loaded.
     stw   r11, r4[1]         // Write data at end of packet
@@ -170,7 +170,7 @@ mii_rxLastBits:              // Jumped to from mii_rxd_packet - not an entry poi
     kret                 // Post condition: res[r0] DIS,  res[r1] DIS,  res[r3] EN
 
     .align 4                 // Pre condition:  res[r0] EN,  res[r1] EN,  res[r3] EN
-mii_rxd_packet: 
+mii_rxd_packet:
     in    r11, res[r3]        // Get pointer address to store data
     bf    r11, mii_rxLastBits
     or    r4, r11, r11
@@ -202,7 +202,7 @@ stateDone:
     clrsr  XS1_SR_IEBLE_MASK
     chkct res[r9], 1
     outct res[r9], 1
-drainIn:    
+drainIn:
     testct r5, res[r3]
     bt    r5, doneDone
     int   r5, res[r3]
@@ -219,7 +219,7 @@ doneDone:
     ldw    r10, sp[7]
     ldw    r11, sp[8]
     retsp  STACKSIZE
-    
+
     // Idle state, wait for a packet
 stateIdle:
     ldw   r5, sp[timingPort]    // Create interframe gap
@@ -227,8 +227,8 @@ stateIdle:
     add   r7, r7, r8            // Then set this to the port counter
     setpt res[r5], r7           // And wait for the port to be ready.
     in    r7, res[r5]           // This should ensure the gap
-    
-    
+
+
 outIdle:
 
     // Get a pointer to the next packet
@@ -252,7 +252,7 @@ outIdle:
     out   res[r2], r5
     out   res[r9], r8
     ldw   r9, cp[initialCRC]
-    
+
     // Transmitting the first word of the packet
 
     ldw   r8, r7[3]
@@ -272,7 +272,7 @@ outPacket:
     ldw   r8, r7[r8]
     crc32 r9, r8, r6
 
-    
+
     ldw   r5, r7[2]
     ldw   r7, r7[1]
     out   res[r2], r8
@@ -287,22 +287,22 @@ Tail0:
     out   res[r2], r9
     ldc   r8, 98                // Interframe gap
     bu    stateIdle
-    
+
     .align 4
-Tail1:  
+Tail1:
     crc8  r9, r8, r7, r6
     crc32 r9, r8, r6            // NOTE : r8 is zero at this stage.
     not   r9, r9
     shl   r5, r9, 8
     or    r7, r7, r5
-    out   res[r2], r7 
+    out   res[r2], r7
     shr   r9, r9, 24
-    outpw res[r2], r9, 8        
+    outpw res[r2], r9, 8
     ldc   r8, 73                // Interframe gap
     bu    stateIdle
 
     .align 4
-Tail2:  
+Tail2:
     crc8  r9, r8, r7, r6
     crc8  r9, r8, r8, r6
     crc32 r9, r8, r6            // NOTE : r8 is zero at this stage.
@@ -310,27 +310,27 @@ Tail2:
 
     shl   r5, r9, 16
     or    r7, r7, r5
-    out   res[r2], r7 
+    out   res[r2], r7
     shr   r9, r9, 16
-    outpw res[r2], r9, 16        
+    outpw res[r2], r9, 16
 
     ldc   r8, 80                // Interframe gap
     bu    stateIdle
 
     .align 4
-Tail3:  
+Tail3:
     crc8  r9, r8, r7, r6
     crc8  r9, r8, r8, r6
     crc8  r9, r8, r8, r6
     outpw res[r2], r7, 24       // TODO: do a shift, OR, OUT and OUTPW for smooth output
     crc32 r9, r8, r6            // NOTE : r8 must be zero
     not   r9, r9
-    out   res[r2], r9        
+    out   res[r2], r9
 
     ldc   r8, 90                // Interframe gap
     bu    stateIdle
 
-    
+
 .globl tailValues, "a(4:ui)"
 .type  tailValues, @object
 .section .dp.data,       "adw", @progbits

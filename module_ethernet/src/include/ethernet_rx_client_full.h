@@ -14,7 +14,7 @@
  * This implement Ethernet frame receiving client interface.
  *
  *************************************************************************/
- 
+
 #ifndef _ETHERNET_RX_CLIENT_FULL_H_
 #define _ETHERNET_RX_CLIENT_FULL_H_ 1
 #include <xccompat.h>
@@ -47,12 +47,12 @@ void safe_mac_rx_full(chanend c_mac,
  *
  *  \param c_mac      A chanend connected to the ethernet server
  *  \param buffer     The buffer to fill with the incoming packet
- *  \param time       A reference parameter to be filled with the timestamp of 
+ *  \param time       A reference parameter to be filled with the timestamp of
  *                   the packet
- *  \param len        A reference parameter to be filled with the length of 
- *                   the received packet in bytes. 
+ *  \param len        A reference parameter to be filled with the length of
+ *                   the received packet in bytes.
  *  \param src_port   A reference parameter to be filled with the ethernet
- *                   port the packet came from.        
+ *                   port the packet came from.
  *
  **/
 #ifdef __XC__
@@ -75,10 +75,10 @@ void mac_rx_timed(chanend c_mac,
  *  \param c_mac      A chanend connected to the ethernet server
  *  \param buffer     The buffer to fill with the incoming packet
  *  \param src_port   A reference parameter to be filled with the ethernet
- *                   port the packet came from.        
- *  \param len        A reference parameter to be filled with the length of 
- *                   the received packet in bytes. 
- *  \param n          The maximum number of bytes to fill the supplied buffer 
+ *                   port the packet came from.
+ *  \param len        A reference parameter to be filled with the length of
+ *                   the received packet in bytes.
+ *  \param n          The maximum number of bytes to fill the supplied buffer
  *                   with.
  *
  **/
@@ -95,12 +95,12 @@ void safe_mac_rx_timed(chanend c_mac,
 /** Setup whether a link should drop packets or block if the link is not ready
  *
  *  \param c_mac_svr          chanend of receive server.
- *  \param x                boolean value as to whether packets should 
+ *  \param x                boolean value as to whether packets should
  *                          be dropped at mac layer.
- * 
- *  NOTE: setting no dropped packets does not mean no packets will be 
+ *
+ *  NOTE: setting no dropped packets does not mean no packets will be
  *  dropped. If packets are not dropped at the mac layer, it will block the
- *  mii fifo. The Mii fifo could possibly overflow and frames for other 
+ *  mii fifo. The Mii fifo could possibly overflow and frames for other
  *  links could be dropped.
  **/
 void mac_set_drop_packets(chanend c_mac_svr, int x);
@@ -116,8 +116,8 @@ void mac_set_queue_size(chanend c_mac_svr, int x);
  *
  *  \param c_mac_svr   chanend of receive server.
  *  \param x         filter value
- * 
- *  For each packet, the filter value is &-ed against the result of 
+ *
+ *  For each packet, the filter value is &-ed against the result of
  *  the mac_custom_filter function. If the result is non-zero
  *  then the packet is transmitted down the link.
  **/
@@ -146,7 +146,7 @@ void mac_get_global_counters(chanend mac_svr,
 		                     REFERENCE_PARAM(unsigned,bad_crc)
 		                     );
 
-/** Get the timer offset between the Ethernet server and client. 
+/** Get the timer offset between the Ethernet server and client.
  *  Returns 0 if the client is on the same tile.
  *
  *  \param mac_svr              chanend of receive server.
@@ -170,7 +170,7 @@ void mac_get_tile_timer_offset(chanend mac_svr, REFERENCE_PARAM(int, offset));
 #ifdef __XC__
 #pragma select handler
 #endif
-void mac_rx_offset2(chanend c_mac, 
+void mac_rx_offset2(chanend c_mac,
                     unsigned char buffer[],
                     REFERENCE_PARAM(unsigned int, len),
                     REFERENCE_PARAM(int, user_data),

@@ -13,7 +13,7 @@
 typedef unsigned char u8_t;
 typedef unsigned short u16_t;
 typedef unsigned int u32_t;
-typedef long long u64_t;  
+typedef long long u64_t;
 typedef struct { unsigned char data[10]; } u80_t;
 typedef struct { unsigned int data[3]; } u96_t;
 
@@ -38,7 +38,7 @@ inline u16_t ntoh16(n16_t x) {
 }
 
 inline u32_t ntoh32(n32_t x) {
-  return ((x.data[0] << 24) | x.data[1] << 16 | x.data[2] << 8 | x.data[1]);
+  return ((x.data[0] << 24) | x.data[1] << 16 | x.data[2] << 8 | x.data[3]);
 }
 
 inline u64_t ntoh64(n64_t x) {
@@ -61,7 +61,7 @@ inline n32_t hton32(u32_t x) {
 
 inline n80_t hton80(u80_t x) {
   n80_t ret;
-  for (int i=0;i<10;i++) 
+  for (int i=0;i<10;i++)
     ret.data[i] = x.data[9-i];
   return ret;
 }
@@ -71,14 +71,14 @@ inline n80_t hton80(u80_t x) {
 typedef struct ethernet_hdr_t {
   unsigned char dest_addr[6];
   unsigned char src_addr[6];
-  unsigned char ethertype[2];
+  n16_t ethertype;
 } ethernet_hdr_t;
 
 typedef struct tagged_ethernet_hdr_t {
   unsigned char dest_addr[6];
   unsigned char src_addr[6];
-  unsigned char qtag[2];
-  unsigned char ethertype[2];
+  n32_t qtag;
+  n16_t ethertype;
 } tagged_ethernet_hdr_t;
 
 #endif

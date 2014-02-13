@@ -1,3 +1,15 @@
+Ethernet programming guide
+==========================
+
+This section provides information on how to program applications using
+the ethernet MAC component.
+
+Installation
+------------
+
+You can import the layer 2 MAC component and example applications from
+the xSOFTip browser in the xTIMEcomposer tool.
+
 Source code structure
 ---------------------
 
@@ -15,7 +27,7 @@ application is controlled by the ``USED_MODULES`` define in your
 application Makefile.
 
 
-Key Files
+Key files
 +++++++++
 
 The following header files contain prototypes of all functions
@@ -35,3 +47,8 @@ required to use the ethernet component. The API is described in
     - Ethernet Client API header file (RX)
   * - ``ethernet_tx_client.h``
     - Ethernet Client API header file (TX)
+
+Usage example
+-------------
+
+See the ``next steps: Code walkthrough`` section at the end of the Quickstart Guide for the ``Low Level Ethernet Demo`` application for a detailed example of using this module.

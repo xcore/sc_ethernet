@@ -5,7 +5,7 @@ Ethernet API
 
 .. _sec_conf_defines:
 
-Configuration Defines
+Configuration defines
 ---------------------
 
 The file ``ethernet_conf.h`` may be provided in the application source
@@ -17,7 +17,7 @@ code. This file can set the following defines:
    implementation is chosen by default when the application makes
    calls to ``ethernet_server`` etc.
 
-Configuration Defines for FULL implementation
+Configuration defines for FULL implementation
 ---------------------------------------------
 
 **MAX_ETHERNET_PACKET_SIZE**
@@ -106,7 +106,7 @@ Configuration Defines for FULL implementation
 Configuration defines for LITE implementation
 ---------------------------------------------
 
-Custom Filter Function
+Custom filter function
 ----------------------
 
 For the FULL implementation, every application is required to
@@ -132,7 +132,7 @@ file ``mac_custom_filter.h``.
              bit per unique client destination for the packet.
            
 
-Data Structures
+Data structures
 ---------------
 
 Depending on the implementation you must supply a different port
@@ -145,15 +145,15 @@ structures depending on the ``ETHERNET_DEFAULT_IMPLEMENTATION`` define.
 
 
 
-MAC Server API
+MAC server API
 --------------
 
 .. doxygenfunction:: ethernet_server
 
-RX Client API
+RX client API
 -------------
 
-Packet Receive Functions
+Packet receive functions
 ++++++++++++++++++++++++
 
 .. doxygenfunction:: mac_rx
@@ -166,7 +166,7 @@ Packet Receive Functions
 
 .. doxygenfunction:: mac_rx_offset2
 
-Configuration Functions
+Configuration functions
 +++++++++++++++++++++++
 
 .. doxygenfunction:: mac_set_drop_packets
@@ -176,10 +176,10 @@ Configuration Functions
 .. doxygenfunction:: mac_set_custom_filter
 
 
-TX Client API
+TX client API
 -------------
 
-Packet Transmit Functions
+Packet transmit functions
 +++++++++++++++++++++++++
 
 .. doxygenfunction:: mac_tx
@@ -202,7 +202,7 @@ Packet Transmit Functions
   | ethernet_get_my_mac_adrs     | mac_get_macaddr              |
   +------------------------------+------------------------------+
 
-Configuration Functions
+Configuration functions
 +++++++++++++++++++++++
 
 .. doxygenfunction:: mac_get_macaddr

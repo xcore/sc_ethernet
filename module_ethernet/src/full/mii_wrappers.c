@@ -4,7 +4,7 @@
 // LICENSE.txt and at <http://github.xcore.com/>
 
 #include <xccompat.h>
-#define streaming 
+#define streaming
 #include "smi.h"
 #include "mii_full.h"
 #include "mii_queue.h"

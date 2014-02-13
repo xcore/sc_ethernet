@@ -1,11 +1,11 @@
-XMOS Layer 2 Ethernet MAC Component
+XMOS layer 2 Ethernet MAC component
 ===================================
 
 .. toctree::
 
    overview
    system
-   programming
    api
    smi
+   programming
    board_support

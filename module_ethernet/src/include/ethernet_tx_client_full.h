@@ -28,7 +28,7 @@
  *  \param buffer[]  byte array containing the ethernet frame. *This must
  *                   be word aligned*
  *  \param nbytes    number of bytes in buffer
- *  \param ifnum     the number of the eth interface to transmit to 
+ *  \param ifnum     the number of the eth interface to transmit to
  *                   (use ETH_BROADCAST transmits to all ports)
  *
  */
@@ -47,7 +47,7 @@ void mac_tx_full(chanend c_mac, unsigned int buffer[], int nbytes, int ifnum);
  *  \param buffer[]  byte array containing the ethernet frame. *This must
  *                   be word aligned*
  *  \param nbytes    number of bytes in buffer
- *  \param ifnum     the number of the eth interface to transmit to 
+ *  \param ifnum     the number of the eth interface to transmit to
  *                   (use ETH_BROADCAST transmits to all ports)
  *
  */
@@ -55,7 +55,7 @@ void mac_tx_offset2(chanend c_mac, unsigned int buffer[], int nbytes, int ifnum)
 
 #define ethernet_send_frame_offset2 mac_tx_offset2
 
-/** Sends an ethernet frame and gets the timestamp of the send. 
+/** Sends an ethernet frame and gets the timestamp of the send.
  *  Frame includes dest/src MAC address(s), type
  *  and payload.
  *
@@ -67,14 +67,14 @@ void mac_tx_offset2(chanend c_mac, unsigned int buffer[], int nbytes, int ifnum)
  *  \param buffer[]  byte array containing the ethernet frame. *This must
  *                   be word aligned*
  *  \param nbytes    number of bytes in buffer
- *  \param ifnum     the number of the eth interface to transmit to 
+ *  \param ifnum     the number of the eth interface to transmit to
  *                   (use ETH_BROADCAST transmits to all ports)
  *  \param time      A reference paramater that is set to the time the
  *                   packet is sent to the phy
  *
  *  NOTE: This function will block until the packet is sent to PHY.
  */
-#ifdef __XC__ 
+#ifdef __XC__
 void mac_tx_timed(chanend c_mac, unsigned int buffer[], int nbytes, unsigned int &time, int ifnum);
 #else
 void mac_tx_timed(chanend c_mac, unsigned int buffer[], int nbytes, unsigned int *time, int ifnum);
@@ -86,7 +86,7 @@ void mac_tx_timed(chanend c_mac, unsigned int buffer[], int nbytes, unsigned int
  *  into the ethernet_server() function.
  *
  *  \param   c_mac chanend end connected to ethernet server
- *  \param   macaddr[] an array of type char where the MAC address is placed 
+ *  \param   macaddr[] an array of type char where the MAC address is placed
  *                     (in network order).
  *  \return zero on success and non-zero on failure.
  */
@@ -107,7 +107,7 @@ void mac_1722_router_disable_forwarding(chanend c, int key0, int key1);
 
 void mac_1722_update_router(chanend c, int remove_entry, int key0, int key1, int link, int hash);
 
-/** This function sets the transmit 
+/** This function sets the transmit
  *  bandwidth restriction for Q-tagged traffic out of the mac.
  *  It covers all Q-tagged traffic out of the mac (not just
  *  traffic sent from this client) and sets the
@@ -116,7 +116,7 @@ void mac_1722_update_router(chanend c, int remove_entry, int key0, int key1, int
  *
  *  The restriction is implemented by a traffic shaper using the credit
  *  based shaper algorithm specified in 802.1Qav.
- * 
+ *
  *  \param   c_mac chanend connected to ethernet server
  *  \param   bits_per_seconds The allowed bandwidth in bits per second
  *
@@ -126,7 +126,7 @@ void mac_set_qav_bandwidth(chanend c_mac,
                            int bits_per_second);
 
 
-#ifdef __XC__ 
+#ifdef __XC__
 /* Select handler to check if the Ethernet link is up or down */
 #pragma select handler
 void mac_check_link_client(chanend c, unsigned char &linkNum, int &status);

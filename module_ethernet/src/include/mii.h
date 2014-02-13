@@ -8,10 +8,10 @@
 #ifdef __XC__
 /** Structure containing resources required for the MII ethernet interface.
  *
- *  This structure contains resources required to make up an MII interface. 
+ *  This structure contains resources required to make up an MII interface.
  *  It consists of 7 ports and 2 clock blocks.
  *
- *  The clock blocks can be any available clock blocks and will be clocked of 
+ *  The clock blocks can be any available clock blocks and will be clocked of
  *  incoming rx/tx clock pins.
  *
  *  \sa ethernet_server()

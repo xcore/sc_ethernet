@@ -12,7 +12,7 @@
  * This implement Ethernet frame receiving client interface.
  *
  *************************************************************************/
- 
+
 #include <xs1.h>
 #include <xclib.h>
 #include "mii_full.h"
@@ -43,7 +43,7 @@ static int ethernet_unified_get_data(chanend ethernet_rx_svr, unsigned char Buf[
   (void) inct(ethernet_rx_svr);
   outuint(ethernet_rx_svr, Cmd);
   outct(ethernet_rx_svr, XS1_CT_END);
-  chkct(ethernet_rx_svr, XS1_CT_END);  
+  chkct(ethernet_rx_svr, XS1_CT_END);
 
   master {
     // get reply from server.
@@ -57,17 +57,17 @@ static int ethernet_unified_get_data(chanend ethernet_rx_svr, unsigned char Buf[
       Buf[0] = status;
     }
     else {
-      if (Cmd == ETHERNET_RX_FRAME_REQ_OFFSET2) 
-        rxByteCnt += 4;    
-   
+      if (Cmd == ETHERNET_RX_FRAME_REQ_OFFSET2)
+        rxByteCnt += 4;
+
       // get required bytes.
       transferCnt = (rxByteCnt + 3) >> 2;
       j = 0;
       for (i = 0; i < transferCnt; i++)
-        {      
+        {
           // get word data.
         ethernet_rx_svr :> rxData;
-          if (Cmd == ETHERNET_RX_FRAME_REQ_OFFSET2) 
+          if (Cmd == ETHERNET_RX_FRAME_REQ_OFFSET2)
             rxData = byterev(rxData);
           // process each byte in word
           for (k = 0; k < 4; k++)
@@ -79,7 +79,7 @@ static int ethernet_unified_get_data(chanend ethernet_rx_svr, unsigned char Buf[
                   Buf[j] = temp;
                 }
               j += 1;
-            }   
+            }
         }
       ethernet_rx_svr :> rxTime;
     }
@@ -133,7 +133,7 @@ static void send_cmd(chanend c, int cmd)
   chkct(c, XS1_CT_END);
   outuint(c, cmd);
   outct(c, XS1_CT_END);
-  chkct(c, XS1_CT_END);  
+  chkct(c, XS1_CT_END);
 }
 
 

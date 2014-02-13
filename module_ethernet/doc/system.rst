@@ -1,4 +1,4 @@
-Ethernet Mac Description
+Ethernet mac description
 ========================
 
 The ethernet MAC runs on two or five logical cores depending on the
@@ -13,10 +13,10 @@ server is for either RX (receiving packets from the MAC) or TX
 
    MAC component (FULL implementation)
 
-FULL Implementation
+FULL implementation
 -------------------
 
-Buffers and Queues
+Buffers and queues
 ++++++++++++++++++
 
 The MAC maintains a two sets of buffers: one for incoming packets and
@@ -94,7 +94,7 @@ queues/buffering. The MAC will filter packets based on MAC address and
 the broadcast bit of the incoming MAC address. Any further filtering
 must be done by the single receive client of the ethernet server.
 
-MAC Address Storage
+MAC address storage
 -------------------
 
 The MAC address used for the server is set on instantiation of the

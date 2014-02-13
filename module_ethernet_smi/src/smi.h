@@ -60,7 +60,7 @@ void smi_init(REFERENCE_PARAM(smi_interface_t, smi));
 /** Function that configures the Ethernet PHY explicitly to set to
  * autonegotiate.
  *
- * \param If eth100 is non-zero, 100BaseT is advertised to the link peer
+ * \param eth100 if eth100 is non-zero, 100BaseT is advertised to the link peer
  * Full duplex is always advertised
  *
  * \param smi structure that defines the ports to use for SMI
@@ -70,14 +70,14 @@ void eth_phy_config(int eth100, REFERENCE_PARAM(smi_interface_t, smi));
 /** Function that configures the Ethernet PHY to not
  * autonegotiate.
  *
- * \param If eth100 is non-zero, it is set to 100, else to 10 Mbits/s
+ * \param eth100 if eth100 is non-zero, it is set to 100, else to 10 Mbits/s
  *
  * \param smi structure that defines the ports to use for SMI
  */
 void eth_phy_config_noauto(int eth100, REFERENCE_PARAM(smi_interface_t, smi));
 
 /** Function that can enable or disable loopback in the phy.
- * 
+ *
  * \param enable boolean; set to 1 to enable loopback, or 0 to disable loopback.
  *
  * \param smi  structure containing the ports
@@ -87,7 +87,7 @@ void eth_phy_loopback(int enable, REFERENCE_PARAM(smi_interface_t, smi));
 /** Function that returns the PHY identification.
  *
  * \param smi  structure containing the ports
- * 
+ *
  * \returns the 32-bit identifier.
  */
 int eth_phy_id(REFERENCE_PARAM(smi_interface_t, smi));
@@ -95,7 +95,7 @@ int eth_phy_id(REFERENCE_PARAM(smi_interface_t, smi));
 /** Function that polls whether the link is alive.
  *
  * \param smi  structure containing the ports
- * 
+ *
  * \returns non-zero if the link is alive; zero otherwise.
  */
 int smi_check_link_state(REFERENCE_PARAM(smi_interface_t, smi));

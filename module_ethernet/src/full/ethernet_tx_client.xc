@@ -68,13 +68,13 @@ static void ethernet_send_frame_unify(chanend ethernet_tx_svr, unsigned int Buf[
     for (i=0;i<(count+3)>>2;i++)
       ethernet_tx_svr <: Buf[i];
   }
-    
+
   sentTime = 0;
   if (Cmd == ETHERNET_TX_REQ_TIMED || Cmd == ETHERNET_TX_REQ_TIMED_HP) {
     ethernet_tx_svr :> sentTime;
   }
-  
-  return; 
+
+  return;
 }
 
 
@@ -86,9 +86,9 @@ void mac_tx_full(chanend ethernet_tx_svr, unsigned int Buf[], int count, int ifn
 }
 
 #pragma unsafe arrays
-void mac_tx_offset2(chanend ethernet_tx_svr, 
-                    unsigned int Buf[], 
-                    int count, 
+void mac_tx_offset2(chanend ethernet_tx_svr,
+                    unsigned int Buf[],
+                    int count,
                     int ifnum)
 {
   unsigned int Cmd = ETHERNET_TX_REQ_OFFSET2;
@@ -128,7 +128,7 @@ int mac_get_macaddr_full(chanend ethernet_tx_svr, unsigned char Buf[6])
       }
   }
 
-  return 0;   
+  return 0;
 }
 
 

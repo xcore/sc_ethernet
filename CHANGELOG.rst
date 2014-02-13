@@ -1,5 +1,23 @@
-Ethernet Component Change Log
-=============================
+sc_ethernet Change Log
+======================
+
+2.2.6
+-----
+  * Minor bug fixes in metainformation and support headers
+
+2.2.5
+-----
+  * Fixed timing issue in MII rx pins to work across different tools
+    versions
+  * Moved to version 1.0.3 of module_slicekit_support
+  * Fixed issue with MII receive buffering that could cause a crash if a packet was dropped
+
+  * Changes to dependencies:
+
+    - sc_util: 1.0.2rc0 -> 1.0.3rc0
+
+      + Remove module_slicekit_support (moved to sc_slicekit_support)
+      + Update mutual_thread_comm library to avoid communication race conditions
 
 2.2.4
 -----

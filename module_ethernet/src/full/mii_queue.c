@@ -21,7 +21,7 @@ swlock_t tc_lock = INITIAL_SWLOCK_VALUE;
 extern hwlock_t ethernet_memory_lock;
 #endif
 
-int get_and_dec_transmit_count(int buf0) 
+int get_and_dec_transmit_count(int buf0)
 {
   mii_packet_t *buf = (mii_packet_t *) buf0;
   int count;
@@ -31,7 +31,7 @@ int get_and_dec_transmit_count(int buf0)
   hwlock_acquire(ethernet_memory_lock);
 #endif
   count = buf->tcount;
-  if (count) 
+  if (count)
     buf->tcount = count - 1;
 #ifndef ETHERNET_USE_HARDWARE_LOCKS
   swlock_release(&tc_lock);
@@ -97,7 +97,7 @@ int get_ts_queue_entry(mii_ts_queue_t *q)
 #else
   hwlock_acquire(ethernet_memory_lock);
 #endif
-  
+
   rdIndex = q->rdIndex;
   wrIndex = q->wrIndex;
 
