@@ -56,7 +56,7 @@ int build_arp_response(unsigned char rxbuf[], int txbuf[], const unsigned char o
   unsigned word;
   unsigned char byte;
   const unsigned char own_ip_addr[4] = OWN_IP_ADDRESS;
-  
+
   for (int i = 0; i < 6; i++)
     {
       byte = rxbuf[22+i];
@@ -99,12 +99,12 @@ int build_arp_response(unsigned char rxbuf[], int txbuf[], const unsigned char o
 
 int is_valid_arp_packet(const unsigned char rxbuf[], int nbytes) {
     static const unsigned char own_ip_addr[4] = OWN_IP_ADDRESS;
-    
+
     if (rxbuf[12] != 0x08 || rxbuf[13] != 0x06) {
 //      printf("%02x %02x\n", rxbuf[12], rxbuf[13]);
         return 0;
     }
-    
+
     if ((rxbuf, const unsigned[])[3] != 0x01000608) {
         printstr("Invalid et_htype\n");
         return 0;
@@ -124,7 +124,7 @@ int is_valid_arp_packet(const unsigned char rxbuf[], int nbytes) {
         }
     }
  //   printstr("ARP packet received\n");
-    
+
     return 1;
 }
 
@@ -136,10 +136,10 @@ int build_icmp_response(unsigned char rxbuf[], unsigned char txbuf[], const unsi
     int totallen;
     const int ttl = 0x40;
     int pad;
-    
+
     // Precomputed empty IP header checksum (inverted, bytereversed and shifted right)
     unsigned ip_checksum = 0x0185;
-    
+
     for (int i = 0; i < 6; i++) {
         txbuf[i] = rxbuf[6 + i];
     }
@@ -154,8 +154,8 @@ int build_icmp_response(unsigned char rxbuf[], unsigned char txbuf[], const unsi
     datalen = totallen - 28;
     for (int i = 0; i < datalen; i++) {
         txbuf[42 + i] = rxbuf[42+i];
-    }  
-    
+    }
+
     for (int i = 0; i < 6; i++) {
         txbuf[6 + i] = own_mac_addr[i];
     }
@@ -173,22 +173,22 @@ int build_icmp_response(unsigned char rxbuf[], unsigned char txbuf[], const unsi
     ip_checksum += (own_ip_addr[2] | own_ip_addr[3] << 8);
     ip_checksum += txbuf[30] | (txbuf[31] << 8);
     ip_checksum += txbuf[32] | (txbuf[33] << 8);
-    
+
     txbuf[34] = 0x00;
     txbuf[35] = 0x00;
-    
+
     icmp_checksum = (icmp_checksum + 0x0800);
     icmp_checksum += icmp_checksum >> 16;
     txbuf[36] = icmp_checksum >> 8;
     txbuf[37] = icmp_checksum & 0xFF;
-    
+
     while (ip_checksum >> 16) {
         ip_checksum = (ip_checksum & 0xFFFF) + (ip_checksum >> 16);
     }
     ip_checksum = byterev(~ip_checksum) >> 16;
     txbuf[24] = ip_checksum >> 8;
     txbuf[25] = ip_checksum & 0xFF;
-    
+
     for (pad = 42 + datalen; pad < 64; pad++) {
         txbuf[pad] = 0x00;
     }
@@ -273,13 +273,13 @@ void handle_packet(chanend cOut, int a, int nBytes) {
 void ping_demo(chanend cIn, chanend cOut, chanend cNotifications) {
     int b[3200];
     struct miiData miiData;
-    
+
     printstr("Test started\n");
     mii_buffer_init(miiData, cIn, cNotifications, b, 3200);
     printstr("IN Inited\n");
     mii_out_init(cOut);
     printstr("OUT inited\n");
-    
+
     while (1) {
         int nBytes, a, timeStamp;
         mii_notified(miiData, cNotifications);
@@ -293,7 +293,7 @@ void ping_demo(chanend cIn, chanend cOut, chanend cNotifications) {
             mii_free_in_buffer(miiData, a);
         }
         mii_restart_buffer(miiData);
-    } 
+    }
 }
 
 unsigned char packet[] = {

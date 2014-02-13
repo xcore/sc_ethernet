@@ -62,7 +62,7 @@ int setTriggers(int step, int cycleTime) {
     }
 }
 
-int triggerOutput(int time, int nextTXTime) {    
+int triggerOutput(int time, int nextTXTime) {
     int ticksAfter = time - nextTXTime;
     ticksAfter /= 10;
     if (ticksAfter < 0) {
@@ -173,7 +173,7 @@ int main(int argc, char **argv) {
             }
         }
         if (time == pinLowTime) {
-            xsi_drive_port_pins(xsim, "stdcore[0]", "XS1_PORT_1A", 1, 0);            
+            xsi_drive_port_pins(xsim, "stdcore[0]", "XS1_PORT_1A", 1, 0);
             if (verbose) printf("UNTrigger OUT at %d\n", time);
         }
         if(time % 20 == 3) {

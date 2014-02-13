@@ -58,10 +58,10 @@ void test(chanend cIn, chanend cOut, chanend cNotifications) {
     int b[3200];
     struct miiData miiData;
 	unsigned size=64;
-    
+
     mii_buffer_init(miiData, cIn, cNotifications, b, 3200);
     mii_out_init(cOut);
-    
+
     // Send packet 1
     mii_out_packet(cOut, (packet, int[]), 0, 64);
 

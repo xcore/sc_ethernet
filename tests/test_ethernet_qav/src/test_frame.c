@@ -39,7 +39,7 @@ int check_test_frame(int len, unsigned char bytes[]){
       return 0;
     }
   }
-  
+
   return 1;
 }
 
