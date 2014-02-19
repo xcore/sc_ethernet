@@ -174,14 +174,15 @@ void mii_rx_pins(
 #pragma xta label "mii_rx_begin"
 
         unsigned ii;
-        int endofframe;
+        int endofframe = 0;
         unsigned crc;
         int length;
         unsigned time;
         unsigned word;
-        unsigned buf, dptr, wrap_ptr, end_ptr;
+        unsigned buf, dptr, wrap_ptr;
         unsigned buf_lp, dptr_lp;
         unsigned end_ptr_lp;
+        unsigned rdptr, rdptr_value;
 #if ETHERNET_RX_HP_QUEUE
         unsigned buf_hp, dptr_hp, end_ptr_hp;
 #endif
@@ -268,19 +269,19 @@ void mii_rx_pins(
             buf = buf_hp;
             dptr = dptr_hp;
             wrap_ptr = wrap_ptr_hp;
-            end_ptr = end_ptr_hp;
+            rdptr = mii_get_rdptr_address(rxmem_hp);
         }
         else {
             buf = buf_lp;
             dptr = dptr_lp;
             wrap_ptr = wrap_ptr_lp;
-            end_ptr = end_ptr_lp;
+            rdptr = mii_get_rdptr_address(rxmem_lp);
         }
 #else
         buf = buf_lp;
         dptr = dptr_lp;
         wrap_ptr = wrap_ptr_lp;
-        end_ptr = end_ptr_lp;
+        rdptr = mii_get_rdptr_address(rxmem_lp);
 #endif
         }
 
@@ -319,7 +320,8 @@ void mii_rx_pins(
             {
 #pragma xta endpoint "mii_rx_word"                
                 case p_mii_rxd :> word:
-                    if (dptr != end_ptr) {
+                    asm("ldw %0,%1[0]":"=r"(rdptr_value):"r"(rdptr));
+                    if (dptr != rdptr_value) {
                         mii_packet_set_data_word_imm(dptr, 0, word);
                         crc32(crc, word, poly);
                         ii+=4;
@@ -328,7 +330,6 @@ void mii_rx_pins(
                             asm("ldw %0,%0[0]":"=r"(dptr));
                         }
                     }
-                    endofframe = 0;
                     break;
 #pragma xta endpoint "mii_rx_eof"
                 case p_mii_rxdv when pinseq(0) :> int lo:
@@ -337,7 +338,7 @@ void mii_rx_pins(
                     endofframe = 1;
 
                     // Store the sixth word here to save time before the main loop starts
-                    mii_packet_set_data_word(mii_packet_get_data_ptr(buf), 5, sixth_word);
+                    mii_packet_set_data_word_imm(mii_packet_get_data_ptr(buf), 5, sixth_word);
                     break;
                 }
             }
@@ -362,7 +363,8 @@ void mii_rx_pins(
             tail = tail >> (32 - taillen);
             mii_packet_set_timestamp(buf, time);
 
-            if (dptr != end_ptr) {
+            asm("ldw %0,%1[0]":"=r"(rdptr_value):"r"(rdptr));
+            if (dptr != rdptr_value) {
                 mii_packet_set_data_word_imm(dptr, 0, tail);
                 if (mii_commit(buf, dptr))
                   c_filter <: buf;

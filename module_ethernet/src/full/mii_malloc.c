@@ -221,6 +221,12 @@ int mii_update_my_rdptr(mii_mempool_t mempool, int rdptr0)
   return next;
 }
 
+unsigned mii_get_rdptr_address(mii_mempool_t mempool)
+{
+  mempool_info_t *info = (mempool_info_t *) mempool;
+  return (unsigned) &(info->rdptr);
+}
+
 mii_buffer_t mii_get_my_next_buf(mii_mempool_t mempool, int rdptr0)
 {
   mempool_info_t *info = (mempool_info_t *) mempool;

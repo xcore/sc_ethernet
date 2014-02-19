@@ -21,6 +21,7 @@ int mii_commit(mii_buffer_t buf, int endptr0);
 void mii_free(mii_buffer_t buf);
 int mii_init_my_rdptr(mii_mempool_t mempool);
 int mii_update_my_rdptr(mii_mempool_t mempool, int rdptr0);
+unsigned mii_get_rdptr_address(mii_mempool_t mempool);
 mii_buffer_t mii_get_my_next_buf(mii_mempool_t mempool, int rdptr0);
 mii_buffer_t mii_get_next_buf(mii_mempool_t mempool);
 int mii_get_wrap_ptr(mii_mempool_t mempool);
