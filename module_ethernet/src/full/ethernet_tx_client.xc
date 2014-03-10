@@ -165,7 +165,7 @@ void mac_1722_update_router(chanend c,
     c <: key1;
     c <: link;
     c <: hash;
-  }  
+  }
 }
 
 void mac_initialize_routing_table(chanend c)

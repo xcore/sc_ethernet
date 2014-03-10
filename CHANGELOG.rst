@@ -14,14 +14,6 @@ sc_ethernet Change Log
       + Fix thread local storage calculation bug in libtrycatch
       + Fix debug_printf itoa to work for unsigned values > 0x80000000
 
-    - sc_slicekit_support: 1.0.4rc0 -> 1.0.3rc0
-
-      + Moved from sc_util
-      + Fix code that assumes tile[0] gets node ide 0
-      + Fix module_slicekit_support to work with L16 target
-      + No change to slicekit support (changes to sc_util where module
-      + Initial Version
-
 2.2.7
 -----
   * Initial Version  * Fix buffering bug on full implementation that caused crash under

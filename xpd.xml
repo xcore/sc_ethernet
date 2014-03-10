@@ -1,27 +1,20 @@
 <?xml version="1.0" ?>
 <xpd>
     <components>
-            <componentDependency repo = "git://github.com/xcore/sc_otp" version = "1.0.0">module_otp_board_info</componentDependency>
-            <componentDependency repo = "origin" version = "1.0.3">module_slicekit_support</componentDependency>
-            <componentDependency repo = "git://github.com/xcore/sc_util" version = "1.0.3">module_locks</componentDependency>
-            <componentDependency repo = "git://github.com/xcore/sc_ethernet.git" version = "2.2.6">module_ethernet_board_support</componentDependency>
-            <componentDependency repo = "git://github.com/xcore/sc_ethernet.git" version = "2.2.6">module_ethernet_smi</componentDependency>
-            <componentDependency repo = "git://github.com/xcore/sc_ethernet.git" version = "2.2.6">module_ethernet</componentDependency>
-            <keyword>mii</keyword>
-        <component description = "An example of looping back packets using the low level ethernet mac" type = "demoCode" scope = "Example" path = "app_ethernet_loopback" local = "false" id = "app_ethernet_loopback" name = "Low Level Ethernet Loopback Demo">
+        <component description = "A simple demo of using the low level ethernet module" type = "demoCode" scope = "Example" path = "app_ethernet_demo" local = "false" id = "app_ethernet_demo" name = "Low Level Ethernet Demo">
+            <componentDependency repo = "git://github.com/xcore/sc_util" version = "1.0.4">module_locks</componentDependency>
             <componentDependency repo = "git://github.com/xcore/sc_ethernet.git" version = "2.2.7">module_ethernet_smi</componentDependency>
             <componentDependency repo = "git://github.com/xcore/sc_slicekit_support.git" version = "1.0.4">module_slicekit_support</componentDependency>
-            <componentDependency repo = "git://github.com/xcore/sc_util" version = "1.0.3">module_locks</componentDependency>
-            <componentDependency repo = "git://github.com/xcore/sc_ethernet.git" version = "2.2.7">module_ethernet</componentDependency>
             <componentDependency repo = "git://github.com/xcore/sc_ethernet.git" version = "2.2.7">module_ethernet_board_support</componentDependency>
+            <componentDependency repo = "git://github.com/xcore/sc_ethernet.git" version = "2.2.7">module_ethernet</componentDependency>
             <componentDependency repo = "git://github.com/xcore/sc_otp" version = "1.0.0">module_otp_board_info</componentDependency>
             <keyword>ethernet</keyword>
             <keyword>mac</keyword>
             <keyword>mii</keyword>
         </component>
         <component name = "Layer 2 Ethernet MAC" type = "component" buildresults_path = "module_ethernet/.module_ethernet.buildinfo" scope = "General Use" path = "module_ethernet" metainfo_path = "module_ethernet/module_ethernet.metainfo" local = "false" id = "module_ethernet" description = "MII interface and L2 ethernet MAC">
-            <componentDependency repo = "git://github.com/xcore/sc_util" version = "1.0.3">module_locks</componentDependency>
             <componentDependency repo = "git://github.com/xcore/sc_ethernet.git" version = "2.2.7">module_ethernet_smi</componentDependency>
+            <componentDependency repo = "git://github.com/xcore/sc_util" version = "1.0.4">module_locks</componentDependency>
             <keyword>ethernet</keyword>
             <keyword>mii</keyword>
             <keyword>mac</keyword>
@@ -31,7 +24,6 @@
             <keyword>mii</keyword>
             <keyword>mac</keyword>
         </component>
-            <keyword>mac</keyword>
         <component name = "SMI Ethernet Phy Protocol Library" type = "component" buildresults_path = "module_ethernet_smi/.module_ethernet_smi.buildinfo" scope = "General Use" path = "module_ethernet_smi" metainfo_path = "module_ethernet_smi/module_ethernet_smi.metainfo" local = "false" id = "module_ethernet_smi" description = "A library for communicating using the SMI protocol">
             <keyword>smi</keyword>
             <keyword>ethernet</keyword>
@@ -43,9 +35,9 @@
         <version>1.0.0rc0</version>
     </dependency>
     <dependency repo = "sc_util">
-        <githash>d0531d7c68ab67334582c324828e36d617baf8b3</githash>
+        <githash>f09fda14976cf969ae792e7c28b4e5a30e4c1eb9</githash>
         <uri>git@github.com:xcore/sc_util</uri>
-        <version>1.0.3rc0</version>
+        <version>1.0.4rc0</version>
     </dependency>
     <dependency repo = "sc_slicekit_support">
         <githash>be8353686c6d9e22a6125ccdf979a31c379091d0</githash>
@@ -112,7 +104,8 @@
     <release parenthash = "801ebfa966929309d187eae7e25530f2644e3999" version = "2.2.5rc3" githash = "d25b40c4ae7c4817fee5897f546a34c952eca1c6"></release>
     <release parenthash = "4ad3baef4a53cb4232df5b439ac769fa54f5b5da" version = "2.2.6rc0" githash = "deadcbc7e9494336890a88e140ef2e06c79b6d07"></release>
     <release parenthash = "7e051ee9c2b0ec3acf456e0ab709482c40c93ee2" version = "2.2.7rc0" githash = "68895b97a72e743a909e0b320e724c8c8223e1a7"></release>
-    <release parenthash = "5bce6968c815455d1f5f4453beea38aeae042d80" version = "2.2.7rc1"></release>
+    <release parenthash = "5bce6968c815455d1f5f4453beea38aeae042d80" version = "2.2.7rc1" githash = "5bdae446ff270dd9a8db34ce5c5164fd37bb43d0"></release>
+    <release parenthash = "116be4333d1daf9f22fd627d69c844f103f6ca19" version = "2.3.0beta0"></release>
     <subpartnumber>XM-001828-SM</subpartnumber>
     <vendor>XMOS</vendor>
     <version_defines></version_defines>

@@ -215,7 +215,7 @@ void mac_rx_send_frame1(int p,
         link <: datum;
         dptr += 4;
       }
-      link <: mii_packet_get_timestamp(p); 
+      link <: mii_packet_get_timestamp(p);
 
     }
   }
@@ -302,7 +302,7 @@ static void process_received_frame(int buf,
         queue_size = wrIndex-rdIndex;
         if (queue_size < 0)
           queue_size += NUM_MII_RX_BUF;
-          
+
         if (queue_size < link_status[i].max_queue_size &&
           new_wrIndex != rdIndex) {
           tcount++;
@@ -355,7 +355,7 @@ void send_status_packet(chanend c, int src_port, int status)
  *  VLAN Tag & EType (6bytes). Each bit in the 12bytes filter in turn have mask
  *  and compare bit.
  *
- *  It interfaces with ethernet_rx_buf_ctl to handle frames 
+ *  It interfaces with ethernet_rx_buf_ctl to handle frames
  *
  */
 #pragma unsafe arrays

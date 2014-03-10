@@ -1,7 +1,7 @@
 XCORE.com ETHERNET SOFTWARE COMPONENT
 .................................
 
-:Latest release: 2.2.7rc1
+:Latest release: 2.3.0beta0
 :Maintainer: DavidNorman
 :Description: A complete Ethernet MII and MAC interface for 100MBps Ethernet
 

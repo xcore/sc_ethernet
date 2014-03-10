@@ -96,7 +96,7 @@ static transaction get_and_update_avb_forwarding(chanend tx) {
   int key0, key1, forward_bool;
   tx :> key0;
   tx :> key1;
-  tx :> forward_bool;              
+  tx :> forward_bool;
   avb_1722_router_table_add_or_update_forwarding(key0, key1, forward_bool);
 }
 
@@ -249,8 +249,8 @@ static transaction get_and_update_qav_idle_slope(chanend tx) {
         linkCheckTime += LINK_POLL_PERIOD;
         break;
       case (int i=0;i<num_tx;i++) enabled[i] => tx[i] :> int cmd:
-      {         
-        switch (cmd) 
+      {
+        switch (cmd)
         {
           case ETHERNET_TX_REQ:
           case ETHERNET_TX_REQ_OFFSET2:

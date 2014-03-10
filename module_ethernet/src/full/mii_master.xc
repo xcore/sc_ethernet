@@ -302,7 +302,7 @@ void mii_rx_pins(
             continue;
         }
         mii_packet_set_data_word_imm(dptr, 4, word);
-        
+
         dptr += 6*4;
         ii = 5*4;
 
@@ -318,7 +318,7 @@ void mii_rx_pins(
 #pragma xta label "mii_rx_data_inner_loop"
             select
             {
-#pragma xta endpoint "mii_rx_word"                
+#pragma xta endpoint "mii_rx_word"
                 case p_mii_rxd :> word:
                     asm("ldw %0,%1[0]":"=r"(rdptr_value):"r"(rdptr));
                     if (dptr != rdptr_value) {

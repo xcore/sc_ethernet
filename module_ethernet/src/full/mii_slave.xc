@@ -170,7 +170,7 @@ void mii_slave_tx_pins(
 //#pragma xta label "mii_rx_data_inner_loop"
             select
             {
-//#pragma xta endpoint "mii_rx_word"                
+//#pragma xta endpoint "mii_rx_word"
                 case p_mii_txd :> word:
                 {
                     if (dptr != end_ptr) {
