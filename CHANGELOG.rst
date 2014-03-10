@@ -1,6 +1,10 @@
 sc_ethernet Change Log
 ======================
 
+2.3.0
+-----
+  * Adds AVB-DC support to sc_ethernet
+
 2.2.7
 -----
   * Fix buffering bug on full implementation that caused crash under
