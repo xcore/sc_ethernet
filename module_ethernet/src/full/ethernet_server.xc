@@ -42,33 +42,6 @@ void ethernet_server_full(mii_interface_full_t &m,
 }
 #endif
 
-
-#if (NUM_ETHERNET_PORTS == 2) && (NUM_ETHERNET_MASTER_PORTS == 1)
-void ethernet_server_full_with_phy_mode_port(mii_interface_full_t &m,
-                                             smi_interface_t &?smi,
-                                             mii_slave_interface_full_t &s,
-                                             char mac_address[],
-                                             chanend rx[],
-                                             int num_rx,
-                                             chanend tx[],
-                                             int num_tx)
-{
-  streaming chan c[2];
-  mii_init_full(m);
-  mii_slave_init_full(s);
-  init_mii_mem();
-  par {
-    mii_rx_pins(m.p_mii_rxdv, m.p_mii_rxd, 0, c[0]);
-    mii_tx_pins(m.p_mii_txd, 0);
-    mii_slave_tx_pins(s.p_mii_slave_txen, s.p_mii_slave_txd, 1, c[1]);
-    mii_slave_rx_pins(s.p_mii_slave_rxd, 1);
-    ethernet_tx_server(mac_address, tx, 2, num_tx, smi, null);
-    ethernet_rx_server(rx, num_rx);
-    ethernet_filter(mac_address, c);
-  }
-}
-#endif
-
 #if (NUM_ETHERNET_MASTER_PORTS == 2)
 void ethernet_server_full_two_port(mii_interface_full_t &mii1,
                                    mii_interface_full_t &mii2,

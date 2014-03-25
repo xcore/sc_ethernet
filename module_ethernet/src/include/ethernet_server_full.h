@@ -20,15 +20,6 @@ void ethernet_server_full(mii_interface_full_t &mii,
                           chanend tx[],
                           int num_tx);
 
-void ethernet_server_full_with_phy_mode_port(mii_interface_full_t &m,
-                                             smi_interface_t &?smi,
-                                             mii_slave_interface_full_t &s,
-                                             char mac_address[],
-                                             chanend rx[],
-                                             int num_rx,
-                                             chanend tx[],
-                                             int num_tx);
-
 void ethernet_server_full_two_port(mii_interface_full_t &mii1,
                                    mii_interface_full_t &mii2,
                                    smi_interface_t &?smi1,

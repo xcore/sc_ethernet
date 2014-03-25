@@ -114,24 +114,6 @@ void mii_tx_pins_wr(port p,
 				tx_mem_lp[i], &ts_queue[i], p, i);
 }
 
-void mii_slave_tx_pins_wr(port p1,
-                          port p2,
-                          int i,
-                          streaming chanend c)
-{
-  mii_slave_tx_pins(rx_mem_lp[i], p1, p2, i, c);
-}
-
-void mii_slave_rx_pins_wr(port p,
-                          int i)
-{
-  mii_slave_rx_pins(
-#if (NUM_ETHERNET_PORTS > 1) && !defined(DISABLE_ETHERNET_PORT_FORWARDING)
-        rx_mem_lp,
-#endif
-        tx_mem_lp[i], p, i);
-}
-
 void ethernet_tx_server_wr(const char mac_addr[], chanend tx[], int num_q, int num_tx, smi_interface_t *smi1, smi_interface_t *smi2
 )
 {

@@ -17,18 +17,6 @@ void mii_tx_pins_wr(out buffered port:32 p,
 
 #define mii_tx_pins mii_tx_pins_wr
 
-void mii_slave_tx_pins_wr(in port p_mii_rxdv,
-                          in buffered port:32 p_mii_rxd,
-                          int i,
-                          streaming chanend c);
-
-#define mii_slave_tx_pins mii_slave_tx_pins_wr
-
-void mii_slave_rx_pins_wr(out buffered port:32 p,
-                          int i);
-
-#define mii_slave_rx_pins mii_slave_rx_pins_wr
-
 void ethernet_tx_server_wr(const char mac_addr[], chanend tx[], int num_q, int num_tx, smi_interface_t &?smi1, smi_interface_t &?smi2
 );
 
