@@ -27,15 +27,6 @@
 #pragma xta command "set required - 6.72 us"
 #endif
 
-// Smallest HP packet + ifg is 110 bytes = 8.8 us
-#pragma xta command "remove exclusion *"
-#pragma xta command "analyze endpoints rx_packet rx_packet"
-#if NUM_ETHERNET_PORTS == 2
-#pragma xta command "set required - 4.4 us"
-#else
-#pragma xta command "set required - 8.8 us"
-#endif
-
 #endif
 
 #if ETHERNET_FILTER_ENABLE_USER_DATA
