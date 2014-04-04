@@ -24,7 +24,17 @@
 // After-init delay (used at the end of mii_init)
 #define PHY_INIT_DELAY 10000000
 
-#define ETHERNET_IFS_AS_REF_CLOCK_COUNT  (96)   // 12 bytes
+// The inter-frame gap is 96 bit times (1 clock tick at 100Mb/s). However,
+// the EOF time stamp is taken when the last but one word goes into the
+// transfer register, so that leaves 96 bits of data still to be sent
+// on the wire (shift register word, transfer register word, crc word).
+// In the case of a non word-aligned transfer compensation is made for
+// that in the code at runtime.
+// The adjustment is due to the fact that the instruction
+// that reads the timer is the next instruction after the out at the
+// end of the packet and the timer wait is an instruction before the
+// out of the pre-amble
+#define ETHERNET_IFS_AS_REF_CLOCK_COUNT  (96 + 96 - 10)
 
 // Receive timing constraints
 #if ETHERNET_ENABLE_FULL_TIMINGS
@@ -79,7 +89,7 @@
 
 #pragma xta command "remove exclusion *"
 #pragma xta command "add exclusion mii_tx_start"
-#pragma xta command "add exclusion mii_tx_end"
+#pragma xta command "add exclusion mii_tx_crc_0"
 
 #pragma xta command "add loop mii_tx_loop 1"
 
@@ -105,6 +115,7 @@
 #pragma xta command "analyze endpoints mii_tx_word mii_tx_final_partword_1"
 #pragma xta command "set required - 320 ns"
 
+#pragma xta command "remove exclusion mii_tx_crc_0"
 #pragma xta command "add exclusion mii_tx_final_partword_1"
 #pragma xta command "analyze endpoints mii_tx_word mii_tx_crc_0"
 #pragma xta command "set required - 320 ns"
@@ -394,7 +405,7 @@ int g_mii_idle_slope[NUM_ETHERNET_PORTS];
 
 
 // Do the real-time pin wiggling for a single packet
-void mii_transmit_packet(unsigned buf, out buffered port:32 p_mii_txd, timer tmr)
+unsigned mii_transmit_packet(unsigned buf, out buffered port:32 p_mii_txd, timer tmr, unsigned ifg_time)
 {
     register const unsigned poly = 0xEDB88320;
     unsigned int crc = 0;
@@ -402,6 +413,7 @@ void mii_transmit_packet(unsigned buf, out buffered port:32 p_mii_txd, timer tmr
     unsigned int word;
     unsigned int dptr;
     unsigned int time;
+    unsigned int eof_time;
     int i=0;
     int word_count = mii_packet_get_length(buf);
     int tail_byte_count = word_count & 3;
@@ -409,6 +421,9 @@ void mii_transmit_packet(unsigned buf, out buffered port:32 p_mii_txd, timer tmr
     word_count = word_count >> 2;
     dptr = mii_packet_get_data_ptr(buf);
     wrap_ptr = mii_packet_get_wrap_ptr(buf);
+
+    // Check that we are out of the inter-frame gap
+    tmr when timerafter(ifg_time) :> ifg_time;
 
 #pragma xta endpoint "mii_tx_sof"
     p_mii_txd <: 0x55555555;
@@ -436,6 +451,7 @@ void mii_transmit_packet(unsigned buf, out buffered port:32 p_mii_txd, timer tmr
         crc32(crc, word, poly);
 #pragma xta endpoint "mii_tx_word"
         p_mii_txd <: word;
+        tmr :> eof_time;
     } while (i < word_count);
 
 #if TX_TIMESTAMP_END_OF_PACKET
@@ -470,6 +486,8 @@ void mii_transmit_packet(unsigned buf, out buffered port:32 p_mii_txd, timer tmr
         crc32(crc, ~0, poly);
 #pragma xta endpoint "mii_tx_crc_0"
         p_mii_txd <: crc;
+
+    return eof_time;
 }
 
 
@@ -494,13 +512,13 @@ void mii_tx_pins(
     int credit = 0;
     int credit_time;
 #endif
-    int prev_eof_time, time;
     timer tmr;
-    int ok_to_transmit = 1;
+    unsigned ifg_time;
 
 #if (ETHERNET_TX_HP_QUEUE) && (ETHERNET_TRAFFIC_SHAPER)
     tmr :> credit_time;
 #endif
+    tmr :> ifg_time;
     while (1) {
 #pragma xta label "mii_tx_main_loop"
         unsigned buf;
@@ -582,21 +600,21 @@ void mii_tx_pins(
         }
 #endif
 
-        // Check that we are out of the IFS period
-        tmr :> time;
-        if (((int) time - (int) prev_eof_time) >= ETHERNET_IFS_AS_REF_CLOCK_COUNT) {
-            ok_to_transmit = 1;
-        }
-
-        if (!buf || !ok_to_transmit) {
+        if (!buf) {
 #pragma xta endpoint "mii_tx_not_valid_to_transmit"
             continue;
         }
 
-        if (mii_packet_get_stage(buf) != 1) {
+        if (buf && (mii_packet_get_stage(buf) != 1)) {
 #pragma xta endpoint "mii_tx_buffer_not_marked_for_transmission"
             continue;
         }
+
+#pragma xta endpoint "mii_tx_start"
+        unsigned prev_eof_time = mii_transmit_packet(buf, p_mii_txd, tmr, ifg_time);
+
+        ifg_time = prev_eof_time + ETHERNET_IFS_AS_REF_CLOCK_COUNT;
+        ifg_time += (mii_packet_get_length(buf) & 0x3) * 8;
 
 #if (ETHERNET_TRAFFIC_SHAPER)
         if (packet_is_high_priority) {
@@ -607,13 +625,6 @@ void mii_tx_pins(
             credit = credit - (len << (MII_CREDIT_FRACTIONAL_BITS+3));
         }
 #endif
-
-#pragma xta endpoint "mii_tx_start"
-        mii_transmit_packet(buf, p_mii_txd, tmr);
-#pragma xta endpoint "mii_tx_end"
-
-        tmr :> prev_eof_time;
-        ok_to_transmit = 0;
 
         if (mii_packet_get_forwarding(buf) != 0)
         {
