@@ -1,6 +1,10 @@
 sc_ethernet Change Log
 ======================
 
+2.3.1
+-----
+  * Fix invalid inter-frame gaps.
+
 2.3.0
 -----
   * Adds AVB-DC support to sc_ethernet
