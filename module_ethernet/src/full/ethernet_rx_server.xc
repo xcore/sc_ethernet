@@ -30,7 +30,7 @@
 #include <xscope.h>
 
 #ifndef ETHERNET_RX_PHY_TIMER_OFFSET
-#define ETHERNET_RX_PHY_TIMER_OFFSET -50
+#define ETHERNET_RX_PHY_TIMER_OFFSET -48
 #endif
 
 typedef struct
@@ -215,7 +215,7 @@ void mac_rx_send_frame1(int p,
         link <: datum;
         dptr += 4;
       }
-      link <: mii_packet_get_timestamp(p);
+      link <: mii_packet_get_timestamp(p) + ETHERNET_RX_PHY_TIMER_OFFSET;;
 
     }
   }
@@ -262,7 +262,7 @@ void mac_rx_send_frame0(mii_packet_t &p,
       for (;i < (length+3)>>2;i++) {
         link <: p.data[i];
       }
-      link <: p.timestamp;
+      link <: p.timestamp + ETHERNET_RX_PHY_TIMER_OFFSET;;
 
     }
   }
