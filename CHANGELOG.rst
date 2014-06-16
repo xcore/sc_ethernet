@@ -1,6 +1,10 @@
 sc_ethernet Change Log
 ======================
 
+2.3.2
+-----
+  * Updated timestamp adjustements for LAN8710A PHY to realistic values
+
 2.3.1
 -----
   * Fix invalid inter-frame gaps.
