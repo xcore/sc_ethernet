@@ -30,6 +30,7 @@ static void the_server(chanend cIn, chanend cOut, chanend cNotifications,
     int txbuf[400];
     timer linkcheck_timer;
     unsigned linkcheck_time;
+    int phy_status = 0;
 	struct miiData miiData;
     mac_set_macaddr_lite(mac_address);
 
@@ -43,7 +44,6 @@ static void the_server(chanend cIn, chanend cOut, chanend cNotifications,
 		case linkcheck_timer when timerafter(linkcheck_time) :> void :
                   if (!isnull(smi))
 			{
-				static int phy_status = 0;
 				int new_status = smi_check_link_state(smi);
 				if (new_status != phy_status) {
                                   outuint(appIn, -1);
