@@ -1,6 +1,10 @@
 sc_ethernet Change Log
 ======================
 
+2.3.3
+-----
+  * Change to rounding of Qav slope calculation
+
 2.3.2
 -----
   * Updated timestamp adjustements for LAN8710A PHY to realistic values
