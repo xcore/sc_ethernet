@@ -2,18 +2,18 @@
 <xpd>
     <components>
         <component description = "A simple demo of using the low level ethernet module" type = "demoCode" scope = "Example" path = "app_ethernet_demo" local = "false" id = "app_ethernet_demo" name = "Low Level Ethernet Demo">
-            <componentDependency repo = "git://github.com/xcore/sc_otp" version = "1.0.0">module_otp_board_info</componentDependency>
-            <componentDependency repo = "git://github.com/xcore/sc_ethernet.git" version = "2.3.1">module_ethernet_board_support</componentDependency>
-            <componentDependency repo = "git://github.com/xcore/sc_util" version = "1.0.4">module_locks</componentDependency>
-            <componentDependency repo = "git://github.com/xcore/sc_ethernet.git" version = "2.3.1">module_ethernet_smi</componentDependency>
+            <componentDependency repo = "git://github.com/xcore/sc_ethernet.git" version = "2.3.2">module_ethernet</componentDependency>
             <componentDependency repo = "git://github.com/xcore/sc_slicekit_support.git" version = "1.0.4">module_slicekit_support</componentDependency>
-            <componentDependency repo = "git://github.com/xcore/sc_ethernet.git" version = "2.3.1">module_ethernet</componentDependency>
+            <componentDependency repo = "git://github.com/xcore/sc_ethernet.git" version = "2.3.2">module_ethernet_smi</componentDependency>
+            <componentDependency repo = "git://github.com/xcore/sc_ethernet.git" version = "2.3.2">module_ethernet_board_support</componentDependency>
+            <componentDependency repo = "git://github.com/xcore/sc_otp" version = "1.0.0">module_otp_board_info</componentDependency>
+            <componentDependency repo = "git://github.com/xcore/sc_util" version = "1.0.4">module_locks</componentDependency>
             <keyword>ethernet</keyword>
             <keyword>mac</keyword>
             <keyword>mii</keyword>
         </component>
         <component name = "Layer 2 Ethernet MAC" type = "component" buildresults_path = "module_ethernet/.module_ethernet.buildinfo" scope = "General Use" path = "module_ethernet" metainfo_path = "module_ethernet/module_ethernet.metainfo" local = "false" id = "module_ethernet" description = "MII interface and L2 ethernet MAC">
-            <componentDependency repo = "git://github.com/xcore/sc_ethernet.git" version = "2.3.1">module_ethernet_smi</componentDependency>
+            <componentDependency repo = "git://github.com/xcore/sc_ethernet.git" version = "2.3.2">module_ethernet_smi</componentDependency>
             <componentDependency repo = "git://github.com/xcore/sc_util" version = "1.0.4">module_locks</componentDependency>
             <keyword>ethernet</keyword>
             <keyword>mii</keyword>
@@ -42,7 +42,6 @@
         <version>1.0.4rc0</version>
     </dependency>
     <dependency repo = "sc_slicekit_support">
-        <gitbranch>(detached from be83536)</gitbranch>
         <githash>be8353686c6d9e22a6125ccdf979a31c379091d0</githash>
         <uri>git@github.com:xcore/sc_slicekit_support</uri>
         <version>1.0.4rc0</version>
@@ -112,7 +111,8 @@
     <release parenthash = "de2c0f3b3bc961eb5d9fb70e3b7ef8c35061327b" version = "2.3.0beta1" githash = "0365a8e78f428bea6a0e6ad707f50bd924f272a1"></release>
     <release parenthash = "763483c609d43869633ba4a13b944a4b1751e189" version = "2.3.0rc0" githash = "f5237f680241ff037c459b66a747b82bec9190b3"></release>
     <release parenthash = "aa6c11f7a6492fc941c25a70f843d42587ffc0cb" version = "2.3.1rc0" githash = "dc3e178da0c676f502fcbfe9538cade86bc1b240"></release>
-    <release parenthash = "35ab9f69bd677750277ae2e62de8a39bc866ae1c" version = "2.3.2rc0"></release>
+    <release parenthash = "35ab9f69bd677750277ae2e62de8a39bc866ae1c" version = "2.3.2rc0" githash = "28bf300515766c9fa2c033531a0a0d587608360e"></release>
+    <release parenthash = "6fce6c669c9c6dce78ea79e5ca18ff4db8884d08" version = "2.3.3beta0"></release>
     <subpartnumber>XM-001828-SM</subpartnumber>
     <vendor>XMOS</vendor>
     <version_defines></version_defines>
