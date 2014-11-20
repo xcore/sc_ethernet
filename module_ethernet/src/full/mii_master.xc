@@ -232,8 +232,6 @@ void mii_rx_pins(
             continue;
         }
 
-        crc = 0x9226F562;
-
 #if ETHERNET_RX_HP_QUEUE
         if (!buf_hp) {
             dptr_hp = dptr_lp;
@@ -242,7 +240,7 @@ void mii_rx_pins(
 
 #pragma xta endpoint "mii_rx_first_word"
         p_mii_rxd :> word;
-        crc32(crc, word, poly);
+        crc = ~word;
         mii_packet_set_data_word_imm(dptr_lp, 0, word);
 #if ETHERNET_RX_HP_QUEUE
         mii_packet_set_data_word_imm(dptr_hp, 0, word);
@@ -408,7 +406,7 @@ int g_mii_idle_slope[NUM_ETHERNET_PORTS];
 unsigned mii_transmit_packet(unsigned buf, out buffered port:32 p_mii_txd, timer tmr, unsigned ifg_time)
 {
     register const unsigned poly = 0xEDB88320;
-    unsigned int crc = 0;
+    unsigned int crc;
 
     unsigned int word;
     unsigned int dptr;
@@ -439,7 +437,7 @@ unsigned mii_transmit_packet(unsigned buf, out buffered port:32 p_mii_txd, timer
     p_mii_txd <: word;
     dptr+=4;
     i++;
-    crc32(crc, ~word, poly);
+    crc = ~word;
 
     do {
 #pragma xta label "mii_tx_loop"
