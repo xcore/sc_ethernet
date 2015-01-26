@@ -183,7 +183,12 @@ int eth_phy_id(smi_interface_t &smi) {
 }
 
 void eth_phy_config(int eth100, smi_interface_t &smi) {
-    int autoNegAdvertReg, basicControl;
+    int autoNegAdvertReg, basicControl = 0x0800;
+
+    // Wait for power down bit to be cleared before attempting reg/read writes
+    while(basicControl & 0x0800)
+        basicControl = smi_reg(smi, BASIC_CONTROL_REG, 0, SMI_READ);
+
     autoNegAdvertReg = smi_reg(smi, AUTONEG_ADVERT_REG, 0, SMI_READ);
 
     // Clear bits [9:5]
@@ -199,7 +204,6 @@ void eth_phy_config(int eth100, smi_interface_t &smi) {
     // Write back
     smi_reg(smi, AUTONEG_ADVERT_REG, autoNegAdvertReg, SMI_WRITE);
 
-    basicControl = smi_reg(smi, BASIC_CONTROL_REG, 0, SMI_READ);
     // clear autoneg bit
     // basicControl &= ~(1 << BASIC_CONTROL_AUTONEG_EN_BIT);
     // smi_reg(smi, BASIC_CONTROL_REG, basicControl, SMI_WRITE);
@@ -212,7 +216,12 @@ void eth_phy_config(int eth100, smi_interface_t &smi) {
 }
 
 void eth_phy_config_noauto(int eth100, smi_interface_t &smi) {
-    int basicControl = smi_reg(smi, BASIC_CONTROL_REG, 0, SMI_READ);
+    int basicControl = 0x0800;
+
+    // Wait for power down bit to be cleared before attempting reg/read writes
+    while(basicControl & 0x0800)
+        basicControl = smi_reg(smi, BASIC_CONTROL_REG, 0, SMI_READ);
+
     // set duplex mode, clear autoneg and 100 Mbps.
     basicControl |= 1 << BASIC_CONTROL_FULL_DUPLEX_BIT;
     basicControl &= ~( (1 << BASIC_CONTROL_AUTONEG_EN_BIT)|
@@ -225,7 +234,12 @@ void eth_phy_config_noauto(int eth100, smi_interface_t &smi) {
 
 
 void eth_phy_loopback(int enable, smi_interface_t &smi) {
-    int controlReg = smi_reg(smi, BASIC_CONTROL_REG, 0, SMI_READ);
+    int controlReg = 0x0800;
+
+    // Wait for power down bit to be cleared before attempting reg/read writes
+    while(controlReg & 0x0800)
+        controlReg = smi_reg(smi, BASIC_CONTROL_REG, 0, SMI_READ);
+
     // First clear both autoneg and loopback
     controlReg = controlReg & ~ ((1 << BASIC_CONTROL_AUTONEG_EN_BIT) |
                                  (1 << BASIC_CONTROL_LOOPBACK_BIT));
@@ -241,3 +255,4 @@ void eth_phy_loopback(int enable, smi_interface_t &smi) {
 int smi_check_link_state(smi_interface_t &smi) {
     return (smi_reg(smi, BASIC_STATUS_REG, 0, SMI_READ) >> BASIC_STATUS_LINK_BIT) & 1;
 }
+
