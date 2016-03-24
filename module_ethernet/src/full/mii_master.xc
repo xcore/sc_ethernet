@@ -11,7 +11,11 @@
 #include <syscall.h>
 #include "ethernet_server_def.h"
 #include <xclib.h>
+#include <hwtimer.h>
 #include <xscope.h>
+
+#define QUOTEAUX(x) #x
+#define QUOTE(x) QUOTEAUX(x)
 
 #undef crc32
 #define crc32(a, b, c) {__builtin_crc32(a, b, c); asm volatile (""::"r"(a):"memory");}
@@ -405,7 +409,7 @@ int g_mii_idle_slope[NUM_ETHERNET_PORTS];
 
 
 // Do the real-time pin wiggling for a single packet
-unsigned mii_transmit_packet(unsigned buf, out buffered port:32 p_mii_txd, timer tmr, unsigned ifg_time)
+unsigned mii_transmit_packet(unsigned buf, out buffered port:32 p_mii_txd, hwtimer_t tmr, unsigned ifg_time)
 {
     register const unsigned poly = 0xEDB88320;
     unsigned int crc = 0;
@@ -423,7 +427,9 @@ unsigned mii_transmit_packet(unsigned buf, out buffered port:32 p_mii_txd, timer
     wrap_ptr = mii_packet_get_wrap_ptr(buf);
 
     // Check that we are out of the inter-frame gap
-    tmr when timerafter(ifg_time) :> ifg_time;
+    asm volatile ("in %0, res[%1]"
+                  : "=r" (ifg_time)
+                  : "r" (tmr));
 
 #pragma xta endpoint "mii_tx_sof"
     p_mii_txd <: 0x55555555;
@@ -511,12 +517,15 @@ void mii_tx_pins(
 #if (ETHERNET_TX_HP_QUEUE) && (ETHERNET_TRAFFIC_SHAPER)
     int credit = 0;
     int credit_time;
+    // Need one timer to be able to read at any time for the shaper
+    timer credit_tmr;
 #endif
-    timer tmr;
+    // And a second timer to be enforcing the IFG gap
+    hwtimer_t tmr;
     unsigned ifg_time;
 
 #if (ETHERNET_TX_HP_QUEUE) && (ETHERNET_TRAFFIC_SHAPER)
-    tmr :> credit_time;
+    credit_tmr :> credit_time;
 #endif
     tmr :> ifg_time;
     while (1) {
@@ -556,7 +565,7 @@ void mii_tx_pins(
 
 #if (ETHERNET_TRAFFIC_SHAPER)
         prev_credit_time = credit_time;
-        tmr :> credit_time;
+        credit_tmr :> credit_time;
 
         elapsed = credit_time - prev_credit_time;
         credit += elapsed * idle_slope;
@@ -615,6 +624,12 @@ void mii_tx_pins(
 
         ifg_time = prev_eof_time + ETHERNET_IFS_AS_REF_CLOCK_COUNT;
         ifg_time += (mii_packet_get_length(buf) & 0x3) * 8;
+        asm volatile ("setd res[%0], %1"
+                    : // No dests
+                    : "r" (tmr), "r" (ifg_time));
+        asm volatile ("setc res[%0], " QUOTE(XS1_SETC_COND_AFTER)
+                    : // No dests
+                    : "r" (tmr));
 
 #if (ETHERNET_TRAFFIC_SHAPER)
         if (packet_is_high_priority) {
